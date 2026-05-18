@@ -12,22 +12,19 @@ except ImportError:
 
 
 def fetch_ai_stocks_from_finviz() -> List[str]:
-    """Fetch all AI-tagged stocks from finviz screener (Technology sector + AI keyword filter)."""
+    """Fetch AI-tagged stocks from finviz screener (Technology sector). Capped at 300 for performance."""
     try:
-        import urllib.request
-        # finviz screener: Technology sector, sorted by market cap desc
+        import urllib.request, re
         url = "https://finviz.com/screener.ashx?v=152&f=sec_technology&o=ticker&r=1"
         req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
         with urllib.request.urlopen(req, timeout=15) as resp:
             html = resp.read().decode('utf-8', errors='replace')
-        # Extract tickers from the screener table
-        import re
-        tickers = re.findall(r'tickers\.add\(\"(NYSE|NASDAQ|AMEX)?:?([A-Z]{1,5})\"\);', html)
-        cleaned = list(set(t.replace('.', '-').upper() for _, t in tickers))
-        # Filter to actual valid tickers (1-5 chars, no dots, mostly uppercase)
-        valid = [t for t in cleaned if re.match(r'^[A-Z]{1,5}$', t) and len(t) <= 5]
-        print(f"[AI Stocks] Fetched {len(valid)} stocks from finviz")
-        return valid
+        tickers = re.findall(r'tickers\.add\(\"(?:NYSE|NASDAQ|AMEX)?:?([A-Z]{1,5})\"\);', html)
+        cleaned = list(dict.fromkeys(t.replace('.', '-').upper() for _, t in tickers))  # preserve order, dedupe
+        valid = [t for t in cleaned if re.match(r'^[A-Z]{1,5}$', t) and 1 <= len(t) <= 5]
+        capped = valid[:300]  # cap at 300 for scan speed
+        print(f"[AI Stocks] Fetched {len(valid)} from finviz, scanning top {len(capped)}")
+        return capped
     except Exception as e:
         print(f"[AI Stocks] Finviz fetch failed: {e}. Using cached list.")
         return AI_TICKERS
