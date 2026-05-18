@@ -71,6 +71,12 @@ def run_full_scan():
 
 def auto_scan_loop():
     global _last_auto_scan_date
+    try:
+        # Run an initial scan on boot so the scanner has data immediately
+        print('[Auto-Scan] Running initial scan on startup...')
+        trigger_scan()
+    except Exception as e:
+        print('[Auto-Scan] Initial scan error:', e)
     while True:
         now_pt = datetime.now(PT)
         today_date = now_pt.date()
@@ -82,11 +88,17 @@ def auto_scan_loop():
                 target = datetime.combine(today_date.replace(month=today_date.month + 1, day=1), dtime(AUTO_SCAN_HOUR, AUTO_SCAN_MINUTE), tzinfo=PT)
         wait_seconds = (target - now_pt).total_seconds()
         print(f'[Auto-Scan] Next scan at {target.strftime("%Y-%m-%d %I:%M %p PT")} (in {wait_seconds/3600:.1f} hrs)')
-        time.sleep(wait_seconds)
-        if datetime.now(PT).date() != _last_auto_scan_date:
-            trigger_scan()
-            global _last_auto_scan_date
-            _last_auto_scan_date = datetime.now(PT).date()
+        try:
+            time.sleep(wait_seconds)
+        except KeyboardInterrupt:
+            break
+        try:
+            if datetime.now(PT).date() != _last_auto_scan_date:
+                trigger_scan()
+                global _last_auto_scan_date
+                _last_auto_scan_date = datetime.now(PT).date()
+        except Exception as e:
+            print('[Auto-Scan] Error during scheduled scan:', e)
 
 # ===== WEB ROUTES =====
 @app.route("/")
