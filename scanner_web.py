@@ -4,12 +4,13 @@ from pathlib import Path
 from flask import Flask, request, redirect, send_from_directory, abort, make_response, jsonify
 
 # ===== CONFIG =====
+import os
 PASSWORD_HASH = "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8"  # "password" — CHANGE THIS
-PASSWORD = "trading2026"  # <-- change this to whatever you want
+PASSWORD = os.environ.get("SCANNER_PASSWORD", "trading2026")  # override with Railway env var
 SALT = secrets.token_hex(16)
 HTML_PATH = Path(__file__).parent / "ai_earnings_web.html"
 SCANNER_PATH = Path(__file__).parent / "ai_earnings_scanner.py"
-PORT = 18766
+PORT = int(os.environ.get("PORT", 18766))
 # Cookie: session token, 24hr expiry
 COOKIE_NAME = "scanner_session"
 SESSION_TTL = 86400  # 24 hours
