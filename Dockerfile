@@ -7,6 +7,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-EXPOSE 18766
+ENV PORT=18766
 
 CMD ["python", "scanner_web.py"]
