@@ -93,9 +93,9 @@ def auto_scan_loop():
         except KeyboardInterrupt:
             break
         try:
+            global _last_auto_scan_date
             if datetime.now(PT).date() != _last_auto_scan_date:
                 trigger_scan()
-                global _last_auto_scan_date
                 _last_auto_scan_date = datetime.now(PT).date()
         except Exception as e:
             print('[Auto-Scan] Error during scheduled scan:', e)
