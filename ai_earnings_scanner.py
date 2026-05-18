@@ -1,5 +1,5 @@
 """AI Earnings Scanner - Pre-Earnings Momentum Strategy (1-14 day window)"""
-import argparse, csv, os, sys
+import argparse, csv, os, sys, time
 from datetime import datetime, timedelta
 from dataclasses import dataclass
 from typing import List, Optional
@@ -9,6 +9,28 @@ try:
     YF_AVAILABLE = True
 except ImportError:
     YF_AVAILABLE = False
+
+
+def fetch_ai_stocks_from_finviz() -> List[str]:
+    """Fetch all AI-tagged stocks from finviz screener (Technology sector + AI keyword filter)."""
+    try:
+        import urllib.request
+        # finviz screener: Technology sector, sorted by market cap desc
+        url = "https://finviz.com/screener.ashx?v=152&f=sec_technology&o=ticker&r=1"
+        req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+        with urllib.request.urlopen(req, timeout=15) as resp:
+            html = resp.read().decode('utf-8', errors='replace')
+        # Extract tickers from the screener table
+        import re
+        tickers = re.findall(r'tickers\.add\(\"(NYSE|NASDAQ|AMEX)?:?([A-Z]{1,5})\"\);', html)
+        cleaned = list(set(t.replace('.', '-').upper() for _, t in tickers))
+        # Filter to actual valid tickers (1-5 chars, no dots, mostly uppercase)
+        valid = [t for t in cleaned if re.match(r'^[A-Z]{1,5}$', t) and len(t) <= 5]
+        print(f"[AI Stocks] Fetched {len(valid)} stocks from finviz")
+        return valid
+    except Exception as e:
+        print(f"[AI Stocks] Finviz fetch failed: {e}. Using cached list.")
+        return AI_TICKERS
 
 
 def fetch_top_news(ticker: str, count: int = 1) -> List[dict]:
@@ -460,10 +482,15 @@ def main():
     print("AI Earnings Scanner - Pre-Earnings Momentum (1-14 Day Window)"); print("="*55)
     if not YF_AVAILABLE: print("ERROR: yfinance not installed. Run: python -m pip install yfinance"); sys.exit(1)
 
+    # Fetch dynamic AI stock list from finviz (Technology sector = broad AI coverage)
+    print("Fetching AI stocks from finviz screener...")
+    all_tickers = fetch_ai_stocks_from_finviz()
+    print(f"Total stocks to scan: {len(all_tickers)}")
+
     # First scan to get all earnings in window with real dates
     all_results = []
     today = datetime.now().date()
-    for ticker in AI_TICKERS:
+    for ticker in all_tickers:
         if ticker in EXCLUDED_TICKERS: continue
         try:
             if ticker in EARNINGS_OVERRIDES:
