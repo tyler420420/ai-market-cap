@@ -1,0 +1,15 @@
+# Generated scan files - don't commit old scans
+ai_earnings_57day_*.html
+ai_earnings_57day_*.csv
+ai_earnings_report_*.html
+ai_earnings_report_*.csv
+
+# Generated login HTML
+login.html
+
+# Images
+matrix-media-*.png
+
+# Python caches
+__pycache__/
+*.pyc
