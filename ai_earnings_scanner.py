@@ -114,7 +114,7 @@ AI_TICKERS = [
     'UAA', 'LYFT', 'DOCU',
 ]
 
-# Permanently excluded tickers (failed / high risk ΓÇö do not scan)
+# Permanently excluded tickers (failed / high risk -- do not scan)
 EXCLUDED_TICKERS = ['DUOT']
 
 
@@ -138,7 +138,7 @@ class EarningsSignal:
 def calculate_composite_score(stock: EarningsSignal) -> float:
     score = 0.0; signals = []
 
-    # === 1. ANALYST COVERAGE (PRIMARY ΓÇö institutional validation = safety) ===
+    # === 1. ANALYST COVERAGE (PRIMARY -- institutional validation = safety) ===
     if stock.total_analysts == 0:
         signals.append('WARNING: No analyst coverage (high risk, avoid)')
         score += 5
@@ -158,13 +158,13 @@ def calculate_composite_score(stock: EarningsSignal) -> float:
         if stock.buy_rating_pct >= 80:
             signals.append(f'{stock.buy_rating_pct:.0f}% bullish ({stock.strong_buy_rating} SB + {stock.buy_rating} B)')
 
-    # === 3. 5D UPSIDE (options-implied move, bonus ΓÇö more sensitive in 5-15% range) ===
+    # === 3. 5D UPSIDE (options-implied move, bonus -- more sensitive in 5-15% range) ===
     if stock.post_earnings_5d_upside_pct > 0:
         # Scale: 10% = 10pts, 20% = 16pts, 30%+ = 20pts (max)
         upside_score = min(stock.post_earnings_5d_upside_pct / 1.5, 20); score += upside_score
         if upside_score >= 10: signals.append(f"+{stock.post_earnings_5d_upside_pct:.0f}% 5-day move")
 
-    # === 4. STRONG BUY COUNT (analyst conviction multiplier ΓÇö 2pts per SB, max 20pts) ===
+    # === 4. STRONG BUY COUNT (analyst conviction multiplier -- 2pts per SB, max 20pts) ===
     sb_score = min(stock.strong_buy_rating * 2, 20); score += sb_score
 
     stock.composite_score = min(score, 100); stock.signals = signals
@@ -399,7 +399,7 @@ def generate_html_report(stocks: list, output_path: str):
     html += '</style><meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"><meta http-equiv="Pragma" content="no-cache"><meta http-equiv="Expires" content="0"></head><body>'
 
     # Ticker strip
-    # Ticker strip ΓÇö live daily price change
+    # Ticker strip -- live daily price change
     ticker_items = ''
     for s in stocks:
         chg = s.price_change_pct
@@ -467,7 +467,7 @@ def generate_html_report(stocks: list, output_path: str):
     html += '</script>'
     html += '<tbody id="stockTableBody"></tbody></table>'
     html += '<div class=note><b>Scoring:</b> Analyst (30pts) + Buy% (30pts) + 5D Upside (20pts) + SB Count (2pts each, max 20) | <b>PE Target:</b> straddle x1 (conservative) | <b>3-Day Momentum:</b> straddle x3 (mid) | <b>5-Day Momentum:</b> straddle x5 (max upside) | <b>Entry:</b> 1-14 days pre-earnings | <b>Exit:</b> 1-5 days after beat</div>'
-    html += '<div class=disclaimer>&#9888; <b>Not a financial advisor.</b> This scanner is for informational purposes only. Options data and targets are estimates based on ATM straddles ΓÇö actual results may vary. Stocks carry risk; always do your own research before trading. I am not liable for any losses incurred from trades based on this data.</div>'
+    html += '<div class=disclaimer>&#9888; <b>Not a financial advisor.</b> This scanner is for informational purposes only. Options data and targets are estimates based on ATM straddles -- actual results may vary. Stocks carry risk; always do your own research before trading. I am not liable for any losses incurred from trades based on this data.</div>'
     html += "<script>var scanBtn=document.getElementById('scanBtn');var warnMsg=document.getElementById('warnMsg');var pollTimer=null;function clearDoneMsg(){var d=document.querySelector('[data-done-msg]');if(d)d.remove();}function onScanDone(){if(pollTimer){clearInterval(pollTimer);pollTimer=null;}var done=document.createElement('div');done.style.cssText='margin:8px 0;padding:10px 16px;background:#1f2937;border:1px solid #2ea043;border-radius:6px;font-size:0.85em;color:#2ea043';done.setAttribute('data-done-msg','1');done.innerHTML='<b>Scan complete!</b> Reloading in 3s...';warnMsg.parentNode.insertBefore(done,warnMsg.nextSibling);scanBtn.disabled=false;scanBtn.textContent='Run Scan';setTimeout(function(){clearDoneMsg();location.reload(true);},3000);}function checkDone(type){fetch('/status').then(function(r){if(r.ok)return r.text();}).then(function(d){try{var s=JSON.parse(d);if(type==='scan'&&s.scan_state==='done')onScanDone();}catch(e){}}).catch(function(){});}function runScan(){clearDoneMsg();if(pollTimer){clearInterval(pollTimer);pollTimer=null;}scanBtn.disabled=true;scanBtn.textContent='Scanning...';warnMsg.style.display='block';warnMsg.textContent='Running full scan... finding new stocks with earnings in 14-day window.';fetch('/run',{method:'POST'}).then(function(r){if(r.ok){pollTimer=setInterval(function(){checkDone('scan');},3000);}else{warnMsg.textContent='Server error.';scanBtn.disabled=false;}}).catch(function(){warnMsg.textContent='Scanner server not running. Please try again or refresh the page.';scanBtn.disabled=false;});}function refreshData(){location.reload(true);}</script>"
     html += "</script></body></html>"
     with open(output_path, 'w', encoding='utf-8') as f:
