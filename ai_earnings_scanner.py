@@ -349,7 +349,7 @@ def generate_html_report(stocks: list, output_path: str):
         #tbody = ''.join(rows_html)
 
     # Build full HTML
-    SCANNER_TITLE = "Tyler's Stock Scanner"
+    SCANNER_TITLE = "AI Market Cap Scanner"
     html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>' + SCANNER_TITLE + '</title>'
     html += '<style>'
     html += '*{margin:0;padding:0;box-sizing:border-box}body{font-family:Segoe UI,Arial,sans-serif;background:#0d1117;color:#c9d1d9;padding:20px}'
