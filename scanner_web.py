@@ -1,9 +1,10 @@
-"""AI Earnings Scanner ΓÇö Web + Background Scanner Server (Railway Deploy)"""
-import os, hashlib, secrets, time, subprocess, threading, sys
+"""AI Earnings Scanner — Web + Background Scanner Server (Railway Deploy)"""
+import os, hashlib, secrets, time, subprocess, threading, sys, json, re
 from pathlib import Path
 from datetime import datetime, time as dtime
 from zoneinfo import ZoneInfo
 from flask import Flask, request, redirect, send_from_directory, abort, make_response, jsonify
+import requests
 
 # ===== CONFIG =====
 PASSWORD_HASH = "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8"
@@ -166,7 +167,22 @@ def scan_latest():
             return f.read(), 200, {"Content-Type": "text/html"}
     return "No scans yet", 404
 
-@app.route("/scan/run", methods=["POST"])
+@app.route("/api/chat", methods=["POST"])
+def api_chat():
+    token = request.cookies.get(COOKIE_NAME, "")
+    if not validate_session(token):
+        abort(403)
+    try:
+        body = request.get_json(force=True)
+    except Exception:
+        body = {}
+    user_msg = (body.get("message") or "").strip()
+    if not user_msg:
+        return jsonify({"error": "No message provided"}), 400
+    if len(user_msg) > 1000:
+        return jsonify({"error": "Message too long (max 1000 chars)"}), 400
+    reply = call_llm(user_msg)
+    return jsonify({"reply": reply})
 def scan_run():
     token = request.cookies.get(COOKIE_NAME, "")
     if not validate_session(token):
@@ -196,6 +212,79 @@ def cors_preflight():
     resp.headers['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS'
     resp.headers['Access-Control-Allow-Headers'] = 'Content-Type'
     return resp
+
+# ===== LLM CHAT CONFIG =====
+OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "")
+OPENAI_MODEL  = os.environ.get("OPENAI_MODEL", "gpt-4o-mini")
+OPENAI_BASE   = os.environ.get("OPENAI_BASE_URL", "https://api.openai.com/v1")
+
+SYSTEM_PROMPT = """You are the AI assistant for "AI Market Cap Scanner" — a pre-earnings momentum scanner for AI/AI-niche stocks.
+
+CORE STRATEGY:
+- Buy 1–14 days BEFORE earnings
+- Sell 1–5 days AFTER a positive earnings beat
+- Focus on stocks with high analyst ratings, high implied volatility (IV), and strong institutional backing
+
+SCORING (composite score out of 100):
+- Analyst coverage: 5–30 pts (20+ analysts = full 30 pts)
+- Buy% (bullish ratings): up to 30 pts
+- 5-day implied upside (options straddle × 5): up to 20 pts
+- Strong Buy count (2 pts each): up to 20 pts
+
+SCORE THRESHOLDS:
+- 86+: Strong Buy (green) — best candidates
+- 76–85: Watch (blue) — good, monitor closely
+- 50–75: Caution (yellow) — marginal
+- <50: Avoid (red)
+
+COLUMNS:
+- Score: composite rating 0–100
+- PE Target: price target using 1× ATM straddle (conservative, 5–10% typical)
+- 3-Day Momentum: straddle × 3 (mid-range upside)
+- 5-Day Momentum: straddle × 5 (maximum upside shown)
+- # of Analyst Signals: total analyst ratings covering this stock
+- Strong Buy/Buy/Hold/Sell: breakdown of analyst ratings
+
+HOW TO READ A TRADE:
+- Look for Score 86+ (Strong Buy) with earnings in 1–10 days
+- PE Target gives conservative exit price — sell here or slightly above after beat
+- Never hold more than 5 days post-earnings regardless of outcome
+- High IV stocks can move 10–30% on earnings beat
+
+IMPORTANT: You are NOT a financial advisor. Always tell users to do their own research.
+Answer questions clearly and concisely. Focus on how the scanner works, what the numbers mean, and trade strategy logic."""
+
+def build_messages(user_input: str) -> list[dict]:
+    return [
+        {"role": "system", "content": SYSTEM_PROMPT},
+        {"role": "user",   "content": user_input}
+    ]
+
+def call_llm(user_input: str) -> str:
+    if not OPENAI_API_KEY:
+        return "⚠️ Chat is not configured yet. The API key hasn't been set on the server."
+    try:
+        url = f"{OPENAI_BASE.rstrip('/')}/chat/completions"
+        payload = {
+            "model": OPENAI_MODEL,
+            "messages": build_messages(user_input),
+            "temperature": 0.7,
+            "max_tokens": 400,
+        }
+        headers = {
+            "Authorization": f"Bearer {OPENAI_API_KEY}",
+            "Content-Type": "application/json",
+        }
+        resp = requests.post(url, json=payload, headers=headers, timeout=30)
+        resp.raise_for_status()
+        choices = resp.json().get("choices", [])
+        if choices:
+            return choices[0]["message"]["content"].strip()
+        return "No response from model."
+    except requests.exceptions.Timeout:
+        return "⏱️ Request timed out. Please try again."
+    except Exception as e:
+        return f"❌ Error: {str(e)}"
 
 # ===== STARTUP =====
 if __name__ == "__main__":
