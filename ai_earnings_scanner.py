@@ -406,7 +406,7 @@ def generate_html_report(stocks: list, output_path: str):
         chg_cls = 'ticker-up' if chg >= 0 else 'ticker-dn'
         chg_str = f'+{chg:.2f}%' if chg >= 0 else f'{chg:.2f}%'
         sign = '+' if s.price_change_abs >= 0 else ''
-        ticker_items += f'<span class=ticker-item><span class=ticker-sym>{s.ticker}</span> <span class=ticker-price>${round(s.current_price, 2)}</span> <span class="ticker-chg {chg_cls}">{chg_str}</span></span>'
+        ticker_items += f'<span class=ticker-item><span style="font-weight:bold;color:#00ff88">{int(s.composite_score)}</span> <span class=ticker-sym>{s.ticker}</span> <span class=ticker-price>${round(s.current_price, 2)}</span> <span class="ticker-chg {chg_cls}">{chg_str}</span></span>'
     # Duplicate for seamless loop
     html += '<div class=ticker-strip><div class=ticker-strip-inner>' + ticker_items + ticker_items + '</div></div>'
 
