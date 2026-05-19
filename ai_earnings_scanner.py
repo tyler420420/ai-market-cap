@@ -12,18 +12,31 @@ except ImportError:
 
 
 def fetch_ai_stocks_from_finviz() -> List[str]:
-    """Fetch AI-tagged stocks from finviz screener (Technology sector). Capped at 300 for performance."""
+    """Fetch Technology sector stocks from finviz screener. Capped at 760 (finviz hard limit)."""
     try:
-        import urllib.request, re
-        url = "https://finviz.com/screener.ashx?v=152&f=sec_technology&o=ticker&r=1"
-        req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
-        with urllib.request.urlopen(req, timeout=15) as resp:
-            html = resp.read().decode('utf-8', errors='replace')
-        tickers = re.findall(r'tickers\.add\(\"(?:NYSE|NASDAQ|AMEX)?:?([A-Z]{1,5})\"\);', html)
-        cleaned = list(dict.fromkeys(t.replace('.', '-').upper() for _, t in tickers))  # preserve order, dedupe
-        valid = [t for t in cleaned if re.match(r'^[A-Z]{1,5}$', t) and 1 <= len(t) <= 5]
-        capped = valid[:300]  # cap at 300 for scan speed
-        print(f"[AI Stocks] Fetched {len(valid)} from finviz, scanning top {len(capped)}")
+        import requests
+        from bs4 import BeautifulSoup
+        tickers = []
+        for page_start in range(1, 761, 20):
+            url = f"https://finviz.com/screener.ashx?v=152&f=sec_technology&o=ticker&r={page_start}"
+            resp = requests.get(url, headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'}, timeout=15)
+            soup = BeautifulSoup(resp.text, 'html.parser')
+            table = soup.find('table', class_='screener_table')
+            if not table:
+                break
+            rows = table.find_all('tr')[1:]  # skip header
+            if not rows:
+                break
+            for row in rows:
+                cells = row.find_all('td')
+                if cells:
+                    ticker = cells[1].get_text(strip=True)
+                    if ticker and ticker.isalpha() and len(ticker) <= 5:
+                        tickers.append(ticker.upper())
+            if len(rows) < 20:
+                break
+        capped = tickers[:760]
+        print(f"[AI Stocks] Fetched {len(tickers)} from finviz, scanning top {len(capped)}")
         return capped
     except Exception as e:
         print(f"[AI Stocks] Finviz fetch failed: {e}. Using cached list.")
@@ -221,7 +234,7 @@ def analyze_ticker(ticker: str, earnings_date) -> Optional[EarningsSignal]:
 
         # Get actual analyst rating breakdown from yfinance recommendations method
         # This gives us Strong Buy / Buy / Hold / Sell / Strong Sell counts
-        strong_buy_rating = 0; buy_rating = 0; buy_rating_pct = 0
+        strong_buy_rating = 0; buy_rating = 0; buy_rating_pct = 0; hold_rating = 0; sell_rating = 0
         total_analysts = info.get('numberOfAnalystOpinions', 0)
         try:
             rec_df = stock.recommendations
@@ -255,6 +268,10 @@ def analyze_ticker(ticker: str, earnings_date) -> Optional[EarningsSignal]:
         implied_volatility = 0
         post_earnings_target = 0.0
         post_earnings_upside_pct = 0.0
+        post_earnings_3d_target = 0.0
+        post_earnings_3d_upside_pct = 0.0
+        post_earnings_5d_target = 0.0
+        post_earnings_5d_upside_pct = 0.0
         try:
             opt = stock.option_chain()
             if opt.calls.shape[0] > 0 and opt.puts.shape[0] > 0 and current_price > 0:

@@ -71,12 +71,6 @@ def run_full_scan():
 
 def auto_scan_loop():
     global _last_auto_scan_date
-    try:
-        # Run an initial scan on boot so the scanner has data immediately
-        print('[Auto-Scan] Running initial scan on startup...')
-        trigger_scan()
-    except Exception as e:
-        print('[Auto-Scan] Initial scan error:', e)
     while True:
         now_pt = datetime.now(PT)
         today_date = now_pt.date()
@@ -105,7 +99,6 @@ def auto_scan_loop():
 def index():
     token = request.cookies.get(COOKIE_NAME, "")
     if validate_session(token):
-        # Logged in — show scanner
         workspace = Path(__file__).parent
         html_files = sorted(workspace.glob("ai_earnings_57day_*.html"), key=lambda f: f.stat().st_mtime, reverse=True)
         if html_files:
@@ -116,7 +109,6 @@ def index():
             resp.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
             return resp
         return send_from_directory(".", "ai_earnings_web.html")
-    # Not logged in — show landing page
     return send_from_directory(".", "index.html")
 
 @app.route("/scanner")
@@ -142,7 +134,7 @@ def login():
         resp = make_response(redirect("/scanner"))
         set_session(resp)
         return resp
-    return send_from_directory(".", "login.html")
+    return send_from_directory(".", "index.html")
 
 @app.route("/logout")
 def logout():
@@ -176,7 +168,6 @@ def scan_latest():
 
 @app.route("/scan/run", methods=["POST"])
 def scan_run():
-    """Run a fresh scan and return the new HTML"""
     token = request.cookies.get(COOKIE_NAME, "")
     if not validate_session(token):
         abort(403)
@@ -197,7 +188,6 @@ def scan_run():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-# ===== CORS preflight =====
 @app.route("/run", methods=["OPTIONS"])
 @app.route("/status", methods=["OPTIONS"])
 def cors_preflight():
@@ -209,7 +199,6 @@ def cors_preflight():
 
 # ===== STARTUP =====
 if __name__ == "__main__":
-    # Start auto-scan scheduler
     auto_thread = threading.Thread(target=auto_scan_loop, daemon=True)
     auto_thread.start()
     print(f'[AI Market Cap] Auto-scan scheduler running — next scan at 6:30 AM PT')
