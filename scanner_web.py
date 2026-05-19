@@ -1,4 +1,4 @@
-"""AI Earnings Scanner — Web + Background Scanner Server (Railway Deploy)"""
+"""AI Earnings Scanner ΓÇö Web + Background Scanner Server (Railway Deploy)"""
 import os, hashlib, secrets, time, subprocess, threading, sys
 from pathlib import Path
 from datetime import datetime, time as dtime
@@ -160,7 +160,7 @@ def scan_latest():
     if not validate_session(token):
         abort(403)
     workspace = Path(__file__).parent
-    html_files = sorted(workspace.glob("ai_earnings_57day_*.html"), reverse=True)
+    html_files = sorted(workspace.glob("ai_earnings_57day_*.html"), key=lambda f: f.stat().st_mtime, reverse=True)
     if html_files:
         with open(html_files[0], 'r', encoding='utf-8') as f:
             return f.read(), 200, {"Content-Type": "text/html"}
@@ -178,7 +178,7 @@ def scan_run():
             capture_output=True, text=True, timeout=180,
             cwd=str(workspace)
         )
-        html_files = sorted(workspace.glob("ai_earnings_57day_*.html"), reverse=True)
+        html_files = sorted(workspace.glob("ai_earnings_57day_*.html"), key=lambda f: f.stat().st_mtime, reverse=True)
         if html_files:
             with open(html_files[0], 'r', encoding='utf-8') as f:
                 return f.read(), 200, {"Content-Type": "text/html"}
@@ -201,7 +201,7 @@ def cors_preflight():
 if __name__ == "__main__":
     auto_thread = threading.Thread(target=auto_scan_loop, daemon=True)
     auto_thread.start()
-    print(f'[AI Market Cap] Auto-scan scheduler running — next scan at 6:30 AM PT')
-    print(f'[AI Market Cap] Web server — http://0.0.0.0:{PORT}')
+    print(f'[AI Market Cap] Auto-scan scheduler running ΓÇö next scan at 6:30 AM PT')
+    print(f'[AI Market Cap] Web server ΓÇö http://0.0.0.0:{PORT}')
     print(f'[AI Market Cap] Password: {PASSWORD}')
     app.run(host="0.0.0.0", port=PORT, debug=False)
