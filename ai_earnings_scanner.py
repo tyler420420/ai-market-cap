@@ -332,7 +332,6 @@ def generate_html_report(stocks: list, output_path: str):
         pick_profit = f"+{round(pick.post_earnings_upside_pct, 1)}%" if pick.post_earnings_upside_pct > 0 else 'N/A'
         pick_sell = f"${round(pick.post_earnings_target, 2)}" if pick.post_earnings_target > 0 else 'N/A'
         pick_color = score_color(pick.composite_score)
-        pick_2k_profit = f"+${round(2000 * (pick.post_earnings_upside_pct / 100), 2)}" if pick.post_earnings_upside_pct > 0 else 'N/A'
 
     # Build rows first
     rows_html = []
@@ -420,7 +419,6 @@ def generate_html_report(stocks: list, output_path: str):
         html += '<span style="font-size:0.95em;color:#8b949e">Sell: <strong style="color:#58a6ff">' + pick_sell + '</strong></span>'
         html += '<span style="font-size:0.95em;color:#8b949e">Earnings in: <strong style="color:#ffcc00">' + str(pick.days_to_earnings) + ' days</strong></span>'
         html += '<span style="font-size:0.95em;color:#8b949e">PE Profit: <strong style="color:#00ff88;font-weight:bold">' + pick_profit + '</strong></span>'
-        html += '<span style="font-size:0.95em;color:#8b949e">Investing $2,000 Projected Profit: <strong style="color:#2ea043;font-weight:bold">' + pick_2k_profit + '</strong></span>'
         html += '</div>'
     headers = [
         ('Ticker','ticker'), ('Company','company_name'), ('Score','score'),
