@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<link rel="icon" type="image/png" href="AI_Market_Cap_Logo3.png">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Market Cap — AI-Powered Pre-Earnings Stock Scanner</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: #0d1117; color: #c9d1d9; line-height: 1.6; }
+  a { color: #58a6ff; text-decoration: none; }
+  a:hover { color: #79b8ff; }
+  .container { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
+
+  /* NAV */
+  nav { background: #161b22; border-bottom: 1px solid #30363d; padding: 15px 0; position: sticky; top: 0; z-index: 100; }
+  nav .container { display: flex; align-items: center; justify-content: space-between; }
+  
+  .logo span { color: #00ff88; }
+  nav a { color: #c9d1d9; font-size: 0.9em; margin-left: 20px; }
+  nav a.btn-nav { background: #238636; color: #fff; padding: 8px 18px; border-radius: 6px; font-weight: bold; margin-left: 20px; }
+  nav a.btn-nav:hover { background: #2ea043; }
+
+  /* HERO */
+  .hero { text-align: center; padding: 80px 20px 60px; background: linear-gradient(180deg, #0d1117 0%, #161b22 100%); }
+  .hero .tag { display: inline-block; background: rgba(0,255,136,0.15); border: 1px solid #00ff88; color: #00ff88; padding: 4px 14px; border-radius: 20px; font-size: 0.82em; margin-bottom: 20px; }
+  .hero h1 { font-size: 2.8em; color: #fff; margin-bottom: 18px; line-height: 1.2; }
+  .hero h1 span { color: #00ff88; }
+  .hero p { font-size: 1.1em; color: #8b949e; max-width: 600px; margin: 0 auto 30px; }
+  .hero-btns { display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; }
+  .btn-primary { background: #238636; color: #fff; padding: 14px 32px; border-radius: 8px; font-size: 1.05em; font-weight: bold; border: none; cursor: pointer; }
+  .btn-primary:hover { background: #2ea043; }
+  .btn-secondary { background: transparent; color: #c9d1d9; padding: 14px 28px; border-radius: 8px; font-size: 1em; border: 1px solid #30363d; cursor: pointer; }
+  .btn-secondary:hover { border-color: #58a6ff; color: #58a6ff; }
+  .hero-note { color: #6e7681; font-size: 0.8em; margin-top: 15px; }
+
+  /* STATS */
+  .stats { display: flex; justify-content: center; gap: 40px; padding: 40px 20px; flex-wrap: wrap; border-top: 1px solid #21262d; border-bottom: 1px solid #21262d; }
+  .stat-item { text-align: center; }
+  .stat-num { font-size: 2em; font-weight: bold; color: #00ff88; }
+  .stat-label { font-size: 0.82em; color: #8b949e; margin-top: 4px; }
+
+  /* FEATURES */
+  .section { padding: 70px 20px; }
+  .section-title { text-align: center; font-size: 1.8em; color: #fff; margin-bottom: 10px; }
+  .section-sub { text-align: center; color: #8b949e; margin-bottom: 50px; font-size: 0.95em; }
+  .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px; }
+  .feature-card { background: #161b22; border: 1px solid #30363d; border-radius: 12px; padding: 30px; }
+  .feature-icon { font-size: 2em; margin-bottom: 15px; }
+  .feature-card h3 { color: #fff; margin-bottom: 10px; font-size: 1.05em; }
+  .feature-card p { color: #8b949e; font-size: 0.88em; line-height: 1.7; }
+
+  /* SCREENSHOT SECTION */
+  .screenshot-section { background: #161b22; }
+  .screenshot-wrap { max-width: 900px; margin: 0 auto; border: 1px solid #30363d; border-radius: 12px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
+  .screenshot-wrap img { width: 100%; height: auto; display: block; }
+  .screenshot-caption { text-align: center; color: #6e7681; font-size: 0.8em; padding: 15px; }
+
+  /* HOW IT WORKS */
+  .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 30px; max-width: 1000px; margin: 0 auto; }
+  .step { text-align: center; }
+  .step-num { width: 50px; height: 50px; background: linear-gradient(135deg, #1a2a1a, #162016); border: 2px solid #2ea043; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #00ff88; font-size: 1.2em; margin: 0 auto 20px; }
+  .step h3 { color: #fff; margin-bottom: 10px; }
+  .step p { color: #8b949e; font-size: 0.88em; }
+
+  /* PRICING */
+  .pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; max-width: 950px; margin: 0 auto; }
+  @media (max-width: 750px) { .pricing-grid { grid-template-columns: 1fr; } }
+  .plan { background: #161b22; border: 1px solid #30363d; border-radius: 16px; padding: 35px 25px; text-align: center; }
+  .plan.guest { border-color: #30363d; }
+  .plan.guest h3 { color: #8b949e; }
+  .plan.guest .price { color: #c9d1d9; }
+  .plan.monthly { border-color: #58a6ff; }
+  .plan.yearly { border-color: #2ea043; box-shadow: 0 0 40px rgba(46,160,67,0.12); position: relative; }
+  .plan-badge { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: #2ea043; color: #fff; padding: 4px 16px; border-radius: 20px; font-size: 0.78em; font-weight: bold; white-space: nowrap; }
+  .plan h3 { font-size: 1.1em; color: #fff; margin-bottom: 18px; }
+  .plan .price { font-size: 2.6em; font-weight: bold; }
+  .plan .price span { font-size: 0.45em; color: #8b949e; font-weight: normal; }
+  .plan.guest .price { color: #c9d1d9; }
+  .plan .per { color: #8b949e; font-size: 0.82em; margin-bottom: 22px; }
+  .plan ul { list-style: none; text-align: left; margin-bottom: 28px; font-size: 0.88em; }
+  .plan li { padding: 7px 0; color: #c9d1d9; border-bottom: 1px solid #21262d; }
+  .plan li:last-child { border-bottom: none; }
+  .plan li::before { content: '✓ '; color: #00ff88; font-weight: bold; margin-right: 8px; }
+  .plan .btn-plan { display: block; width: 100%; padding: 13px; border-radius: 8px; font-size: 0.95em; font-weight: bold; border: none; cursor: pointer; }
+  .plan.guest .btn-plan { background: #21262d; color: #c9d1d9; border: 1px solid #30363d; }
+  .plan.guest .btn-plan:hover { border-color: #58a6ff; color: #58a6ff; }
+  .plan.monthly .btn-plan { background: #1f6feb; color: #fff; }
+  .plan.monthly .btn-plan:hover { background: #388bfd; }
+  .plan.yearly .btn-plan { background: #238636; color: #fff; }
+  .plan.yearly .btn-plan:hover { background: #2ea043; }
+
+  /* FAQ */
+  .faq-list { max-width: 700px; margin: 0 auto; }
+  .faq-item { border-bottom: 1px solid #21262d; padding: 20px 0; }
+  .faq-q { color: #fff; font-weight: bold; margin-bottom: 8px; font-size: 0.95em; }
+  .faq-a { color: #8b949e; font-size: 0.88em; line-height: 1.7; }
+
+  /* CTA */
+  .cta-section { text-align: center; padding: 80px 20px; background: linear-gradient(135deg, #0d2b1a, #162016); border-top: 1px solid #2ea043; }
+  .cta-section h2 { font-size: 2em; color: #fff; margin-bottom: 15px; }
+  .cta-section p { color: #8b949e; margin-bottom: 30px; }
+
+  /* FOOTER */
+  footer { text-align: center; padding: 40px 20px; border-top: 1px solid #21262d; color: #6e7681; font-size: 0.82em; }
+  footer a { color: #6e7681; margin: 0 10px; }
+</style>
+</head>
+<body id="top">
+
+<!-- NAV -->
+<nav>
+  <div class="container">
+    <a href="#top" style="display:flex;align-items:center;gap:10px;text-decoration:none;"><img src="AI_Market_Cap_Logo3.png" alt="AI Market Cap" style="height:34px;border-radius:6px;"><span style="font-size:1em;font-weight:bold;color:#58a6ff;letter-spacing:-0.5px;">AI Market Cap</span></a>
+    <div>
+      <a href="#features">Features</a>
+      <a href="#how">How It Works</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#faq">FAQ</a>
+      <a href="#" class="btn-nav" onclick="document.getElementById('loginPanel').scrollIntoView({behavior:'smooth'});return false;">Login</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="container">
+    <div class="tag">AI-Powered Stock Scanner for Pre-Earnings Momentum</div>
+    <h1>Find the Best Stocks to Trade<br><span>Before Earnings Reports Drop</span></h1>
+    <p>AI Market Cap scans hundreds of AI and AI-niche companies to find the highest-scored pre-earnings setups — backed by institutional analyst ratings, options data, and real-time momentum signals.</p>
+    <div class="hero-btns">
+      <button class="btn-primary" onclick="window.open('#pricing','_self')">Start Free Trial</button>
+      <button class="btn-secondary" onclick="window.open('#how','_self')">How It Works</button>
+    </div>
+    <p class="hero-note">Free 7-day trial · No credit card required · Cancel anytime</p>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats">
+  <div class="stat-item"><div class="stat-num">1000+</div><div class="stat-label">AI/AI-Niche Stocks Monitored</div></div>
+  <div class="stat-item"><div class="stat-num">14 Day</div><div class="stat-label">Upcoming Earnings Window</div></div>
+  <div class="stat-item"><div class="stat-num">80+</div><div class="stat-label">Top Score (Strong Buy Threshold)</div></div>
+  <div class="stat-item"><div class="stat-num">Real-Time</div><div class="stat-label">Price & Options Data</div></div>
+</div>
+
+<!-- FEATURES -->
+<section class="section" id="features">
+  <div class="container">
+    <h2 class="section-title">Built for Pre-Earnings Momentum Traders</h2>
+    <p class="section-sub">Every feature is designed to help you find and act on the best pre-earnings setups before the crowd does.</p>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">&#9733;</div>
+        <h3>AI-Scored Recommendations</h3>
+        <p>Our composite scoring system ranks every stock based on institutional analyst backing, buy rating percentage, 5-day price upside, and strong buy count — so you always know which play to take next.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">&#128200;</div>
+        <h3>Live Scrolling Ticker</h3>
+        <p>A real-time ticker strip at the top of every scan shows all tracked stocks with current price and daily % change. Know what's moving before you open the table.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">&#128176;</div>
+        <h3>PE Target, 3D & 5D Momentum</h3>
+        <p>Three target levels per stock — conservative (PE Target), mid (3-Day Momentum), and maximum (5-Day Momentum) — giving you clear entry and exit zones for any risk tolerance.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">&#128220;</div>
+        <h3>Real-Time News Per Stock</h3>
+        <p>Each stock in the scan includes the latest relevant news article, so you can quickly gauge market sentiment before placing your trade.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">&#128640;</div>
+        <h3>Automated Daily Scans</h3>
+        <p>Click "Run Scan" and the scanner pulls fresh prices, updates scores, checks the 14-day earnings window, and adds any new qualifying stocks — all automatically.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">&#128305;</div>
+        <h3>Access Anywhere</h3>
+        <p>Access your scanner from any device — desktop, mobile, tablet. Your scores, targets, and picks are always up to date as soon as you run a scan.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SCREENSHOT -->
+<section class="section screenshot-section" id="preview">
+  <div class="container">
+    <h2 class="section-title">See the Scanner in Action</h2>
+    <p class="section-sub">Real data. Real targets. Every stock scored and ranked.</p>
+    <div class="screenshot-wrap">
+      <img src="screenshot.png" alt="AI Market Cap Scanner Preview" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+      <div style="display:none;padding:80px 20px;text-align:center;background:#161b22;color:#6e7681;font-size:0.9em;border:1px dashed #30363d;border-radius:8px;">
+        <p style="font-size:1.5em;margin-bottom:10px;">&#128247; Screenshot Preview</p>
+        <p>Your live scanner will appear here. Running on: AI Market Cap Scanner v1.0</p>
+      </div>
+    </div>
+    <p class="screenshot-caption">The AI Market Cap scanner showing real stocks with live prices, scores, and momentum targets</p>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="section" id="how">
+  <div class="container">
+    <h2 class="section-title">How AI Market Cap Works</h2>
+    <p class="section-sub">Three simple steps to finding your next winning trade.</p>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <h3>Run the Scan</h3>
+        <p>Click "Run Scan" — the scanner pulls fresh prices for All AI stocks and checks the 14-day earnings window for new entries.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <h3>Pick the Top Score</h3>
+        <p>AI's Suggested Trade highlights the highest-scored stock closest to earnings. Check the score, price, and PE/3D/5D targets.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <h3>Enter & Set Your Exit</h3>
+        <p>Buy 1-14 days before earnings. Set your limit sell at your target. Exit 1-5 days after the earnings beat — then rotate to the next top pick.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="section" id="pricing">
+  <div class="container">
+    <h2 class="section-title">Simple, Transparent Pricing</h2>
+    <p class="section-sub">No hidden fees. No surprises. Cancel anytime.</p>
+<div class="pricing-grid">
+      <div class="plan guest">
+        <h3>Free Trial</h3>
+        <div class="price">$0<span>/7 days</span></div>
+        <div class="per">No credit card required</div>
+        <ul>
+          <li>1 scan per week</li>
+          <li>Some AI stocks visible</li>
+          <li>Score only</li>
+          <li>Live price ticker strip</li>
+          <li>News per stock</li>
+          
+        </ul>
+        <button class="btn-plan" onclick="alert('Free trial signup coming soon!')">Start Free Trial</button>
+      </div>
+      <div class="plan monthly">
+        <h3>Monthly</h3>
+        <div class="price">$149<span>/mo</span></div>
+        <div class="per">Billed monthly · Cancel anytime</div>
+        <ul>
+          <li>Unlimited daily scans</li>
+          <li>All AI stocks monitored</li>
+          <li>Score + 3 sell targets</li>
+          <li>Live price ticker strip</li>
+          <li>News per stock</li>
+          <li>AI Suggested Trade</li>
+          
+        </ul>
+        <button class="btn-plan" onclick="alert('Stripe checkout coming soon!')">Sign Up</button>
+      </div>
+      <div class="plan">
+        <div class="plan-badge">BEST VALUE</div>
+        <h3>Annual</h3>
+        <div class="price">$999<span>/yr</span></div>
+        <div class="per">Save $789 vs monthly</div>
+        <ul>
+          <li>Everything in Monthly</li>
+          <li>Auto-scan at 6:30 AM PT daily</li>
+          <li>Early access to new features</li>
+          <li>Save $789/year</li>
+        </ul>
+        <button class="btn-plan" onclick="alert('Stripe checkout coming soon!')">Sign Up — Save $789</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="section" id="faq">
+  <div class="container">
+    <h2 class="section-title">Frequently Asked Questions</h2>
+    <p class="section-sub">&nbsp;</p>
+    <div class="faq-list">
+      <div class="faq-item">
+        <div class="faq-q">How does AI Market Cap find stocks to trade?</div>
+        <div class="faq-a">We scan All AI and AI-niche companies daily and pull those with earnings reports coming in the next 1-14 days. Each stock is scored based on institutional analyst ratings, buy percentage, 5-day upside potential, and strong buy count. The highest-scored stocks closest to earnings are highlighted as AI's Suggested Trade.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">What does the "Score" mean?</div>
+        <div class="faq-a">The composite score ranges from 0-100+. It is calculated from: Analyst count (30pts) + Buy% (30pts) + 5-Day upside target (20pts) + Strong buy ratings (2pts each, max 20). A score of 80+ is our Strong Buy threshold — these are the stocks with the most institutional backing and momentum.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">What are PE Target, 3D Momentum, and 5D Momentum?</div>
+        <div class="faq-a">All three are derived from ATM options straddles at the time of the scan. PE Target (conservative) assumes the straddle moves at face value. 3D Momentum is straddle × 3 — a mid-range target. 5D Momentum is straddle × 5 — maximum upside if the stock moves big after earnings. Use these to set your limit sell based on your risk tolerance.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Is this a buy-and-hold strategy?</div>
+        <div class="faq-a">No. This is a pre-earnings momentum strategy. You enter 1-14 days before earnings and exit 1-5 days after a positive earnings report. We rotate to the next top pick after each trade — it's a continuous cycle, not a long-term hold.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Can I cancel anytime?</div>
+        <div class="faq-a">Yes. You can cancel your subscription at any time. If you cancel annual, you'll keep access until the end of your billing period. No refunds on monthly plans once used.</div>
+      </div>
+      
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+
+<style>
+  .login-section { background: #0d1117; padding: 60px 20px; text-align: center; }
+  .login-box { max-width: 400px; margin: 0 auto; background: #161b22; border: 1px solid #30363d; border-radius: 12px; padding: 40px; }
+  .login-box h2 { color: #fff; margin-bottom: 8px; }
+  .login-box p { color: #8b949e; font-size: 0.9em; margin-bottom: 24px; }
+  .login-input { width: 100%; padding: 12px 16px; background: #0d1117; border: 1px solid #30363d; border-radius: 8px; color: #c9d1d9; font-size: 1em; margin-bottom: 12px; outline: none; box-sizing: border-box; }
+  .login-input:focus { border-color: #58a6ff; }
+  .login-btn { width: 100%; padding: 12px; background: #238636; border: none; border-radius: 8px; color: #fff; font-size: 1em; font-weight: bold; cursor: pointer; }
+  .login-btn:hover { background: #2ea043; }
+</style>
+<div class="cta-section" style="text-align:center;padding:80px 20px;background:linear-gradient(135deg,#0d2b1a,#162016);border-top:1px solid #2ea043">
+  <h2 style="font-size:2em;color:#fff;margin-bottom:15px">Ready to Find Your Next Pre-Earnings Trade?</h2>
+  <p style="color:#8b949e;margin-bottom:30px">Join traders using AI Market Cap to identify the best AI stocks before earnings season hits.</p>
+  <a href="#loginPanel" class="btn-primary" style="font-size:1.1em;padding:16px 40px;background:#238636;color:#fff;border-radius:8px;text-decoration:none;font-weight:bold;">Access the Scanner</a>
+</div>
+
+<div class="login-section" id="loginPanel">
+  <div class="login-box">
+    <h2>Access the Scanner</h2>
+    <p>Enter your password to access the AI Market Cap scanner.</p>
+    <form id="loginForm" action="/login" method="POST">
+      <input type="password" name="password" id="pw" class="login-input" placeholder="Enter password" required autofocus>
+      <button type="submit" class="login-btn">Access Scanner</button>
+    </form>
+    <p id="loginErr" style="color:#ff6b6b;font-size:0.85em;margin-top:10px;display:none;">Incorrect password. Try again.</p>
+  </div>
+</div>
+<footer>
+  <div class="container">
+    <p>&copy; 2025 AI Market Cap. All rights reserved. &nbsp;|&nbsp; <a href="#">Privacy</a> &nbsp;|&nbsp; <a href="#">Terms</a></p>
+    <p style="margin-top:8px;">&#9888; AI Market Cap is an informational tool only. Not a financial advisor. Stocks carry risk — always do your own research before trading.</p>
+  </div>
+</footer>
+
+</body>
+</html>

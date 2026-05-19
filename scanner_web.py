@@ -104,8 +104,26 @@ def auto_scan_loop():
 @app.route("/")
 def index():
     token = request.cookies.get(COOKIE_NAME, "")
+    if validate_session(token):
+        # Logged in — show scanner
+        workspace = Path(__file__).parent
+        html_files = sorted(workspace.glob("ai_earnings_57day_*.html"), key=lambda f: f.stat().st_mtime, reverse=True)
+        if html_files:
+            with open(html_files[0], 'r', encoding='utf-8') as f:
+                content = f.read()
+            resp = make_response(content)
+            resp.headers['Content-Type'] = 'text/html; charset=utf-8'
+            resp.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+            return resp
+        return send_from_directory(".", "ai_earnings_web.html")
+    # Not logged in — show landing page
+    return send_from_directory(".", "index.html")
+
+@app.route("/scanner")
+def scanner():
+    token = request.cookies.get(COOKIE_NAME, "")
     if not validate_session(token):
-        return send_from_directory(".", "login.html")
+        return redirect("/")
     workspace = Path(__file__).parent
     html_files = sorted(workspace.glob("ai_earnings_57day_*.html"), key=lambda f: f.stat().st_mtime, reverse=True)
     if html_files:
@@ -121,7 +139,7 @@ def index():
 def login():
     pw = request.form.get("password", "")
     if pw == PASSWORD:
-        resp = make_response(redirect("/"))
+        resp = make_response(redirect("/scanner"))
         set_session(resp)
         return resp
     return send_from_directory(".", "login.html")
