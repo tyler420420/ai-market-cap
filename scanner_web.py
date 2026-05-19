@@ -1,4 +1,4 @@
-"""AI Earnings Scanner — Web + Background Scanner Server (Railway Deploy)"""
+"""AI Earnings Scanner -- Web + Background Scanner Server (Railway Deploy)"""
 import os, hashlib, secrets, time, subprocess, threading, sys, json, re
 from pathlib import Path
 from datetime import datetime, time as dtime
