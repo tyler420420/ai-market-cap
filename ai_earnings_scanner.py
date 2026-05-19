@@ -406,7 +406,7 @@ def generate_html_report(stocks: list, output_path: str):
         chg_cls = 'ticker-up' if chg >= 0 else 'ticker-dn'
         chg_str = f'+{chg:.2f}%' if chg >= 0 else f'{chg:.2f}%'
         sign = '+' if s.price_change_abs >= 0 else ''
-        ticker_items += f'<span class=ticker-item><span style="font-weight:bold;color:#00ff88">{int(s.composite_score)}</span> <span class=ticker-sym>{s.ticker}</span> <span class=ticker-price>${round(s.current_price, 2)}</span> <span class="ticker-chg {chg_cls}">{chg_str}</span></span>'
+        ticker_items += f'<span class=ticker-item><span style="font-weight:bold;color:#00ff88">{round(s.composite_score)}</span> <span class=ticker-sym>{s.ticker}</span> <span class=ticker-price>${round(s.current_price, 2)}</span> <span class="ticker-chg {chg_cls}">{chg_str}</span></span>'
     # Duplicate for seamless loop
     html += '<div class=ticker-strip><div class=ticker-strip-inner>' + ticker_items + ticker_items + '</div></div>'
 
@@ -438,7 +438,7 @@ def generate_html_report(stocks: list, output_path: str):
         ('Ticker','ticker'), ('Company','company_name'), ('Score','score'),
         ('Next Report','earnings_date'), ('Days Left','days_left'), ('Price','price'),
         ('PE Target','pe_target'), ('3-Day Momentum','3d'), ('5-Day Momentum','5d'),
-        ('# of Analyst','analysts'), ('Strong Buy','sb'), ('Buy','buy'),
+        ('# of Analyst Signals','analysts'), ('Strong Buy','sb'), ('Buy','buy'),
         ('Hold','hold'), ('Sell','sell'), ('Market Cap','mktcap'), ('News','news')
     ]
     ths = ''
