@@ -368,8 +368,33 @@ def api_chat():
     if len(user_msg) > 1000:
         return jsonify({"error": "Message too long (max 1000 chars)"}), 400
 
-    reply = f"Thanks for using AI Market Cap! Full AI chat powered by GROQ coming soon. Your subscription is active."
+    reply = call_llm(user_msg)
     return jsonify({"reply": reply})
+
+
+# ===== LLM (GROQ) =====
+GROQ_API_KEY = os.environ.get("GROQ_API_KEY", "")
+
+def call_llm(user_msg):
+    if not GROQ_API_KEY:
+        return "AI chat is warming up. Please try again in a moment."
+    try:
+        import urllib.request
+        payload = json.dumps({
+            "model": "llama-3.3-70b-versatile",
+            "messages": [{"role": "user", "content": f"You are an AI stock trading assistant for AI Market Cap scanner. The user asked: {user_msg}. Provide a helpful, concise response about pre-earnings momentum trading, stock analysis, or how to use the scanner."}]
+        }).encode()
+        req = urllib.request.Request(
+            "https://api.groq.com/openai/v1/chat/completions",
+            data=payload,
+            headers={"Authorization": f"Bearer {GROQ_API_KEY}", "Content-Type": "application/json"},
+            method="POST"
+        )
+        with urllib.request.urlopen(req, timeout=15) as resp:
+            data = json.loads(resp.read())
+            return data["choices"][0]["message"]["content"]
+    except Exception as e:
+        return "I'm having trouble connecting right now. Please try again shortly."
 
 @app.route("/logout")
 def logout():
