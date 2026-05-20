@@ -86,13 +86,6 @@ def trigger_scan():
     t = threading.Thread(target=run_full_scan, daemon=True)
     t.start()
 
-def trigger_refresh():
-    scan_state.refresh_state = 'running'
-    scan_state.scan_state = 'idle'
-    print('[Scanner] Refresh triggered.')
-    t = threading.Thread(target=run_full_scan, daemon=True)
-    t.start()
-
 def run_full_scan():
     try:
         result = subprocess.run(
@@ -345,20 +338,6 @@ def api_run():
         return redirect("/pricing")
 
     trigger_scan()
-    return "ok"
-
-@app.route("/refresh", methods=["POST"])
-def api_refresh():
-    """Refresh prices - requires active subscription"""
-    token = request.cookies.get(COOKIE_NAME, "")
-    customer_id = request.cookies.get("stripe_customer", "")
-    subs = get_subscriptions()
-    is_active = subs.get(customer_id, {}).get('status') == 'active' or subs.get(token, {}).get('status') == 'active'
-
-    if not is_active:
-        return redirect("/pricing")
-
-    trigger_refresh()
     return "ok"
 
 @app.route("/status")
