@@ -369,13 +369,13 @@ def generate_html_report(stocks: list, output_path: str):
     html += '*{margin:0;padding:0;box-sizing:border-box}body{font-family:Segoe UI,Arial,sans-serif;background:#0d1117;color:#c9d1d9;padding:20px}'
     html += '.header{background:linear-gradient(135deg,#1a1f2e,#161b22);padding:25px;border-radius:12px;margin-bottom:20px;border:1px solid #30363d}'
     html += '.hdr-row{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:15px}'
-    html += 'h1{color:#58a6ff;font-size:1.8em;margin-bottom:5px}.desc{color:#8b949e;font-size:0.95em}'
+    html += 'h1{color:#58a6ff;font-size:1.8em;margin-bottom:5px}.desc{color:#fff;font-size:0.95em}'
     html += '.btn{background:#238636;border:none;color:#fff;padding:10px 22px;border-radius:6px;font-size:0.9em;cursor:pointer;font-weight:bold;flex-shrink:0}.btn:hover{background:#2ea043}.btn:disabled{background:#444;cursor:not-allowed}#refreshBtn{background:#1f6feb}#refreshBtn:hover{background:#388bfd}'
     
     html += '.ticker-strip{display:flex;overflow:hidden;white-space:nowrap;background:#0a0f18;border-bottom:1px solid #30363d;padding:8px 0;font-size:0.82em}'
     html += '.ticker-strip-inner{display:flex;gap:0;animation:scroll-ticker 40s linear infinite}'
     html += '.ticker-item{display:inline-flex;align-items:center;gap:6px;padding:0 18px;border-right:1px solid #30363d;flex-shrink:0}'
-    html += '.ticker-sym{font-weight:bold;color:#58a6ff}.ticker-price{color:#c9d1d9}'
+    html += '.ticker-sym{font-weight:bold;color:#58a6ff}.ticker-price{color:#fff}'
     html += '.ticker-up{color:#00ff88}.ticker-dn{color:#ff6b6b}'
     html += '@keyframes scroll-ticker{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}'
     html += '.ticker-strip:hover .ticker-strip-inner{animation-play-state:paused}'
@@ -388,15 +388,15 @@ def generate_html_report(stocks: list, output_path: str):
     html += '.stat{background:#161b22;padding:12px 18px;border-radius:8px;text-align:center;border:1px solid #30363d;min-width:90px}'
     html += '.stat-val{font-size:1.4em;font-weight:bold;color:#58a6ff}.stat-lbl{font-size:0.75em;color:#8b949e;margin-top:3px}'
     html += 'table{width:100%;border-collapse:collapse;background:#161b22;border-radius:8px;overflow:hidden;margin-top:10px}'
-    html += 'th{background:#1f2937;padding:10px 12px;text-align:left;font-size:0.78em;color:#8b949e;text-transform:uppercase;border-bottom:2px solid #30363d;cursor:pointer;user-select:none;white-space:nowrap}'
+    html += 'th{background:#1f2937;padding:10px 12px;text-align:left;font-size:0.78em;color:#8b949e;text-transform:uppercase;border-bottom:2px solid #30363d;cursor:pointer;user-select:none;white-space:nowrap}th:hover{color:#c9d1d9}thead th{color:#fff!important}thead th:hover{color:#8b949e}thead tr{border-bottom:2px solid #3fb950;box-shadow:0 2px 10px rgba(63,185,80,0.5)}th:hover{color:#c9d1d9}thead th{color:#fff!important}thead th:hover{color:#8b949e}thead tr{border-bottom:2px solid #3fb950;box-shadow:0 2px 10px rgba(63,185,80,0.5)}'
     html += 'th:hover{color:#c9d1d9}'
     html += 'th.sorted-asc::after{content:" ▲";color:#00ff88}'
     html += 'th.sorted-desc::after{content:" ▓";color:#00ff88}'
-    html += 'td{padding:18px 12px;border-bottom:1px solid #30363d;font-size:0.88em}tr{height:54px}tr:hover{background:#1c2128}'
+    html += 'td{padding:10px 10px;border-bottom:1px solid #30363d;font-size:0.88em;color:#fff}td:nth-child(6){border-right:2px solid #3fb950;box-shadow:1px 0 8px rgba(63,185,80,0.5)}tr{height:auto}tr:hover{background:#1c2128}'
     html += '.note{margin-top:20px;padding:12px 18px;background:#161b22;border-radius:8px;font-size:0.82em;color:#8b949e;border:1px solid #30363d}'
     html += '.disclaimer{margin-top:12px;padding:12px 18px;background:#1a1a1a;border-radius:8px;font-size:0.80em;color:#999;border:1px solid #c0392b}'
-    html += ".pick-banner{background:linear-gradient(135deg,#1a2a1a,#162016);border:1px solid #2ea043;border-radius:8px;padding:40px 18px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;min-height:120px}"
-    html += '#chat-btn{position:fixed;bottom:24px;right:24px;background:#238636;color:#fff;border:none;border-radius:8px;padding:12px 24px;font-size:0.95em;font-weight:bold;cursor:pointer;box-shadow:0 4px 20px rgba(0,0,0,0.5);z-index:9999;transition:background .2s}'
+    html += ".pick-banner{background:linear-gradient(135deg,#2a1a00,#ffd700);border:2px solid #ffd700;border-radius:8px;padding:40px 18px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;min-height:120px}"
+    html += '#chat-btn{position:fixed;bottom:24px;right:24px;background:#238636;color:#fff;border:none;border-radius:8px;padding:12px 24px;font-size:0.95em;font-weight:bold;cursor:pointer;box-shadow:0 4px 20px rgba(0,0,0,0.5);z-index:9999;transition:background .2s}@keyframes feat-glow{0%,100%{box-shadow:0 0 8px rgba(255,215,0,.5)}50%{box-shadow:0 0 25px rgba(255,215,0,.9)}}@keyframes sb-glow{0%,100%{box-shadow:0 0 4px rgba(63,185,80,.3)}50%{box-shadow:0 0 10px rgba(63,185,80,.6)}}tr[style*="rgba(0,255,136,0.12)"]{animation:sb-glow 2.5s ease-in-out infinite;border-left:3px solid #3fb950}.pick-banner{animation:feat-glow 2s ease-in-out infinite}'
     html += '#chat-btn:hover{background:#2ea043}'
     html += '#chat-panel{position:fixed;bottom:80px;right:24px;width:360px;max-height:520px;background:#161b22;border:1px solid #30363d;border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,0.6);display:none;flex-direction:column;z-index:9998;overflow:hidden}'
     html += '#chat-panel.open{display:flex}'
@@ -436,7 +436,7 @@ def generate_html_report(stocks: list, output_path: str):
     html += '<div class=stats-bar><div class=legend><span><span class=dot style=background:#00ff88></span> Score 80+: Strong Buy</span><span><span class=dot style=background:#58a6ff></span> Score &lt;80: Watch</span></div></div>'
 
     if pick:
-        html += '<div class=pick-banner style="background:linear-gradient(135deg,#0d2b1a,#162016);border:1px solid #2ea043;border-radius:8px;padding:40px 18px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:15px 0;min-height:120px">'
+        html += '<div class=pick-banner style="background:linear-gradient(135deg,#2a1a00,#ffd700);border:2px solid #ffd700;border-radius:8px;padding:40px 18px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:15px 0;min-height:120px">'
         html += '<span style="font-size:1.3em;color:#2ea043;font-weight:bold">&#9733; AI\'s Suggested Trade</span>'
         html += '<span style="font-size:1.2em;font-weight:bold;color:#fff">' + pick.ticker + '</span>'
         html += '<span style="font-size:0.95em;color:#8b949e">' + pick.company_name[:28] + ('...' if len(pick.company_name) > 28 else '') + '</span>'
@@ -449,15 +449,15 @@ def generate_html_report(stocks: list, output_path: str):
 
     headers = [
         ('Ticker','ticker'), ('Company','company_name'), ('Score','score'),
-        ('Next Report','earnings_date'), ('Days Left','days_left'), ('Price','price'),
-        ('PE Target','pe_target'), ('3-Day Momentum','3d'), ('5-Day Momentum','5d'),
-        ('# of Analyst Signals','analysts'), ('Strong Buy','sb'), ('Buy','buy'),
+        ('Next Earnings','earnings_date'), ('Days<br>Left','days_left'), ('Current<br>Price','price'),
+        ('Post Earnings<br>Target','pe_target'), ('Great Earnings Report','3d'), ('Excellent Earnings Report','5d'),
+        ('Analyst<br>Reports','analysts'), ('S-BUY','sb'), ('Buy','buy'),
         ('Hold','hold'), ('Sell','sell'), ('Market Cap','mktcap'), ('News','news')
     ]
     ths = ''
     for h, col in headers:
         ths += '<th onclick="sortBy(\'' + col + '\')" data-col="' + col + '">' + h + '</th>'
-    html += '<table id="stockTable"><thead><tr>' + ths + '</tr></thead>'
+    html += '<table id="stockTable"><thead><tr>' + ths + '</tr></thead><tbody id="stockTableBody">'
 
     rows_data = []
     for i, stock in enumerate(stocks[:20], 1):
@@ -511,22 +511,23 @@ def generate_html_report(stocks: list, output_path: str):
         static_rows += '<td><strong style="color:' + c_color + '">' + str(r['score']) + '</strong></td>'
         static_rows += '<td>' + r['earnings_date'] + '</td>'
         static_rows += '<td style="color:' + d_color + ';font-weight:bold">' + str(r['days_left']) + 'd</td>'
-        static_rows += '<td>$' + str(r['price']) + '</td>'
-        static_rows += '<td>$' + str(r['pe_target']) + ' | +' + str(r['pe_upside']) + '%</td>'
-        static_rows += '<td>$' + str(r['3d']) + ' | +' + str(r['3d_up']) + '%</td>'
-        static_rows += '<td>$' + str(r['5d']) + ' | +' + str(r['5d_up']) + '%</td>'
+        static_rows += '<td style="font-weight:bold">$' + str(r['price']) + '</td>'
+        static_rows += '<td style="font-weight:bold">$' + str(r['pe_target']) + '<br><span style="color:#00ff88">+' + str(r['pe_upside']) + '%</span></td>'
+        static_rows += '<td>$' + str(r['3d']) + '<br><span style="color:#00ff88">+' + str(r['3d_up']) + '%</span></td>'
+        static_rows += '<td>$' + str(r['5d']) + '<br><span style="color:#00ff88">+' + str(r['5d_up']) + '%</span></td>'
         static_rows += '<td>' + str(r['analysts']) + '</td>'
         static_rows += '<td style="color:#00ff88">' + str(r['sb']) + '</td>'
-        static_rows += '<td>' + str(r['buy']) + '</td>'
-        static_rows += '<td>' + str(r['hold']) + '</td>'
+        static_rows += '<td style="color:#58a6ff">' + str(r['buy']) + '</td>'
+        static_rows += '<td style="color:#ffcc00">' + str(r['hold']) + '</td>'
         static_rows += '<td style="color:#ff6b6b">' + str(r['sell']) + '</td>'
         static_rows += '<td>' + fmt_mktcap(r['mktcap']) + '</td>'
         static_rows += '<td>' + news_cell + '</td>'
         static_rows += '</tr>'
 
-    html += static_rows + '</table>'
+    html += static_rows + '</tbody></table>'
     html += '<script>var rowsData=' + json.dumps(rows_data) + ';\n'
-    html += "var sortCol='days_left';var sortAsc=true;function getVal(r,col){var m={'ticker':r.ticker,'company_name':r.company_name,'score':r.score,'earnings_date':r.earnings_date,'days_left':r.days_left,'price':r.price,'pe_target':r.pe_target,'3d':r['3d'],'5d':r['5d'],'analysts':r.analysts,'sb':r.sb,'buy':r.buy,'hold':r.hold,'sell':r.sell,'mktcap':r.mktcap'};return m[col]||r[col]||0;}function sortBy(col){if(sortCol===col){sortAsc=!sortAsc;}else{sortCol=col;sortAsc=col==='days_left'||col==='score'||col==='analysts'||col==='sb'||col==='buy'||col==='hold'||col==='sell'||col==='price'||col==='pe_target'||col==='3d'||col==='5d'||col==='mktcap';}var dirs={'ticker':1,'company_name':1};var asc=dirs[col]?sortAsc:!sortAsc;rowsData.sort(function(a,b){var va=getVal(a,col),vb=getVal(b,col);if(typeof va==='number')return asc?va-vb:vb-va;return asc?String(va).localeCompare(String(vb)):String(vb).localeCompare(String(va));});renderTable();}function scoreColor(s){return s>=80?'#00ff88':'#58a6ff';}function newsHtml(n){if(!n)return'';var u=n.url||'';var t=n.title||'';return u?'<a href=\"'+u+'\" target=\"_blank\" style=\"color:#fff;text-decoration:none\">&#128240; '+t+'</a>':'<span style=\"color:#fff\">&#128240; '+t+'</span>';}function renderTable(){var tbody=document.getElementById('stockTableBody');if(!tbody)return;var html='';rowsData.forEach(function(r){var c=scoreColor(r.score);var bg=r.score>=80?'rgba(0,255,136,0.12)':'rgba(31,111,235,0.12)';html+='<tr style=\"background:'+bg+'\"><td><strong><a href=\"https://finance.yahoo.com/quote/'+r.ticker+'\" target=\"_blank\" style=\"color:#66b2ff\">'+r.ticker+'</a></strong></td>';html+='<td>'+r.company_name.substring(0,35)+(r.company_name.length>35?'...':'')+'</td>';html+='<td><strong style=\"color:'+c+'\">'+r.score+'</strong></td>';html+='<td>'+r.earnings_date+'</td>';html+='<td style=\"color:'+(r.days_left<=7?'#00ff88':'#ffcc00')+';font-weight:bold\">'+r.days_left+'d</td>';html+='<td>$'+r.price+'</td>';html+='<td>$'+r.pe_target+' | +'+r.pe_upside+'%</td>';html+='<td>$'+r['3d']+' | +'+r['3d_up']+'%</td>';html+='<td>$'+r['5d']+' | +'+r['5d_up']+'%</td>';html+='<td>'+r.analysts+'</td>';html+='<td style=\"color:#00ff88\">'+r.sb+'</td>';html+='<td>'+r.buy+'</td>';html+='<td>'+r.hold+'</td>';html+='<td style=\"color:#ff6b6b\">'+r.sell+'</td>';html+='<td>'+r.mktcap+'</td>';html+='<td>'+newsHtml(r.news)+'</td></tr>';});tbody.innerHTML=html;}renderTable();"
+    html += "var sortCol='days_left';var sortAsc=true;function getVal(r,col){var m={'ticker':r.ticker,'company_name':r.company_name,'score':r.score,'earnings_date':r.earnings_date,'days_left':r.days_left,'price':r.price,'pe_target':r.pe_target,'3d':r['3d'],'5d':r['5d'],'analysts':r.analysts,'sb':r.sb,'buy':r.buy,'hold':r.hold,'sell':r.sell,'mktcap':r.mktcap'};return m[col]||r[col]||0;}function updateArrows(){document.querySelectorAll('th[data-col]').forEach(function(th){th.classList.remove('sorted-asc','sorted-desc');});var th=document.querySelector('th[data-col=\"'+sortCol+'\"]');if(th){th.classList.add(sortAsc?'sorted-asc':'sorted-desc');}}function sortBy(col){if(sortCol===col){sortAsc=!sortAsc;}else{sortCol=col;sortAsc=col==='days_left'||col==='score'||col==='analysts'||col==='sb'||col==='buy'||col==='hold'||col==='sell'||col==='price'||col==='pe_target'||col==='3d'||col==='5d'||col==='mktcap';}var dirs={'ticker':1,'company_name':1};var asc=dirs[col]?sortAsc:!sortAsc;rowsData.sort(function(a,b){var va=getVal(a,col),vb=getVal(b,col);if(typeof va==='number')return asc?va-vb:vb-va;return asc?String(va).localeCompare(String(vb)):String(vb).localeCompare(String(va));});renderTable();updateArrows();}function fmtMktcap(v){if(v>=1000)return'$'+Math.round(v/1000*100)/100+'T';if(v>=1)return'$'+Math.round(v*100)/100+'B';return'$'+Math.round(v*1000)+'M';}function scoreColor(s){return s>=80?'#00ff88':'#58a6ff';}function newsHtml(n){if(!n)return'';var u=n.url||'';var t=n.title||'';return u?'<a href=\"'+u+'\" target=\"_blank\" style=\"color:#fff;text-decoration:none\">&#128240; '+t+'</a>':'<span style=\"color:#fff\">&#128240; '+t+'</span>';}function renderTable(){var tbody=document.getElementById('stockTableBody');if(!tbody)return;var html='';rowsData.forEach(function(r){var c=scoreColor(r.score);var bg=r.score>=80?'rgba(0,255,136,0.12)':'rgba(31,111,235,0.12)';html+='<tr style=\"background:'+bg+'\"><td><strong><a href=\"https://finance.yahoo.com/quote/'+r.ticker+'\" target=\"_blank\" style=\"color:#66b2ff\">'+r.ticker+'</a></strong></td>';html+='<td>'+r.company_name.substring(0,35)+(r.company_name.length>35?'...':'')+'</td>';html+='<td><strong style=\"color:'+c+'\">'+r.score+'</strong></td>';html+='<td>'+r.earnings_date+'</td>';html+='<td style=\"color:'+(r.days_left<=7?'#00ff88':'#ffcc00')+';font-weight:bold\">'+r.days_left+'d</td>';html+='<td>$'+r.price+'</td>';html+='<td>$'+r.pe_target+' | +'+r.pe_upside+'%</td>';html+='<td>$'+r['3d']+' | +'+r['3d_up']+'%</td>';html+='<td>$'+r['5d']+' | +'+r['5d_up']+'%</td>';html+='<td>'+r.analysts+'</td>';html+='<td style=\"color:#00ff88\">'+r.sb+'</td>';html+='<td style=\"color:#58a6ff\">'+r.buy+'</td>';html+='<td style=\"color:#ffcc00\">'+r.hold+'</td>';html+='<td style=\"color:#ff6b6b\">'+r.sell+'</td>';html+='<td>'+fmtMktcap(r.mktcap)+'</td>';html+='<td>'+newsHtml(r.news)+'</td></tr>';});tbody.innerHTML=html;};sortBy('days_left');"
+
     html += '</script>'
     html += '<div class=note><b>Scoring:</b> Analyst (30pts) + Buy% (30pts) + 5D Upside (20pts) + SB Count (2pts each, max 20) | <b>PE Target:</b> straddle x1 (conservative) | <b>3-Day Momentum:</b> straddle x3 (mid) | <b>5-Day Momentum:</b> straddle x5 (max upside) | <b>Entry:</b> 1-14 days pre-earnings | <b>Exit:</b> 1-5 days after beat</div>'
     html += '<div class=disclaimer>&#9888; <b>Not a financial advisor.</b> This scanner is for informational purposes only. Options data and targets are estimates based on ATM straddles -- actual results may vary. Stocks carry risk; always do your own research before trading. I am not liable for any losses incurred from trades based on this data.</div>'
