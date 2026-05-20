@@ -414,7 +414,76 @@ def generate_html_report(stocks: list, output_path: str):
     html += '#chat-send{background:#238636;border:none;color:#fff;border-radius:8px;padding:8px 16px;font-size:0.88em;cursor:pointer;font-weight:bold}#chat-send:hover{background:#2ea043}#chat-send:disabled{background:#444;cursor:not-allowed}'
     html += '</style></head><body>'
 
-    # Chat widget HTML + JS - clean, no encoding issues
+    # Ticker strip
+    ticker_items = ''
+    for s in stocks:
+        chg = s.price_change_pct
+        chg_cls = 'ticker-up' if chg >= 0 else 'ticker-dn'
+        chg_str = f'+{chg:.2f}%' if chg >= 0 else f'{chg:.2f}%'
+        ticker_items += f'<span class=ticker-item><span style="font-weight:bold;color:#00ff88">{round(s.composite_score)}</span> <span class=ticker-sym>{s.ticker}</span> <span class=ticker-price>${round(s.current_price, 2)}</span> <span class="ticker-chg {chg_cls}">{chg_str}</span></span>'
+    html += '<div class=ticker-strip><div class=ticker-strip-inner>' + ticker_items + ticker_items + '</div></div>'
+
+    html += '<div class=header><div class=hdr-row><div><h1>' + SCANNER_TITLE + '</h1><div class=desc>Pre-earnings momentum scanner for AI/AI-niche sector | Entry 1-14 days before | Exit 1-5 days after beat</div></div>'
+    html += '<div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end;margin-left:auto">'
+    html += '<div style="display:flex;gap:6px;align-items:center">'
+    html += '<span style="background:#161b22;border:1px solid #2ea043;border-radius:5px;padding:3px 10px;font-size:0.82em"><span style="font-weight:bold;color:#2ea043">' + str(strong_count) + '</span> <span style="color:#8b949e">Strong Buy</span></span>'
+    html += '<span style="background:#161b22;border:1px solid #1f6feb;border-radius:5px;padding:3px 10px;font-size:0.82em"><span style="font-weight:bold;color:#58a6ff">' + str(sum(1 for s in stocks if round(s.composite_score) < 80)) + '</span> <span style="color:#8b949e">Watch</span></span>'
+    html += '<button class=btn id=refreshBtn onclick=refreshData()>Refresh</button>'
+    html += "<button class=btn id=scanBtn onclick=runScan()>Run Scan</button>"
+    html += '</div></div></div>'
+    html += '<div class=warn id=warnMsg></div>'
+    html += '<div class=updated>Updated: ' + timestamp + ' | Price data from Yahoo Finance | Options data via Yahoo Finance</div>'
+    html += '<div class=stats-bar><div class=legend><span><span class=dot style=background:#00ff88></span> Score 80+: Strong Buy</span><span><span class=dot style=background:#58a6ff></span> Score &lt;80: Watch</span></div></div>'
+
+    if pick:
+        html += '<div class=pick-banner style="background:linear-gradient(135deg,#0d2b1a,#162016);border:1px solid #2ea043;border-radius:8px;padding:40px 18px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:15px 0;min-height:120px">'
+        html += '<span style="font-size:1.3em;color:#2ea043;font-weight:bold">&#9733; AI\'s Suggested Trade</span>'
+        html += '<span style="font-size:1.2em;font-weight:bold;color:#fff">' + pick.ticker + '</span>'
+        html += '<span style="font-size:0.95em;color:#8b949e">' + pick.company_name[:28] + ('...' if len(pick.company_name) > 28 else '') + '</span>'
+        html += '<span style="font-size:0.95em;color:#8b949e">Score: <strong style="color:' + pick_color + '">' + str(round(pick.composite_score)) + '</strong></span>'
+        html += '<span style="font-size:0.95em;color:#8b949e">Price: <strong style="color:#00ff88">$' + str(round(pick.current_price, 2)) + '</strong></span>'
+        html += '<span style="font-size:0.95em;color:#8b949e">Sell: <strong style="color:#58a6ff">' + pick_sell + '</strong></span>'
+        html += '<span style="font-size:0.95em;color:#8b949e">Earnings in: <strong style="color:#ffcc00">' + str(pick.days_to_earnings) + ' days</strong></span>'
+        html += '<span style="font-size:0.95em;color:#8b949e">PE Profit: <strong style="color:#00ff88;font-weight:bold">' + pick_profit + '</strong></span>'
+        html += '</div>'
+
+    headers = [
+        ('Ticker','ticker'), ('Company','company_name'), ('Score','score'),
+        ('Next Report','earnings_date'), ('Days Left','days_left'), ('Price','price'),
+        ('PE Target','pe_target'), ('3-Day Momentum','3d'), ('5-Day Momentum','5d'),
+        ('# of Analyst Signals','analysts'), ('Strong Buy','sb'), ('Buy','buy'),
+        ('Hold','hold'), ('Sell','sell'), ('Market Cap','mktcap'), ('News','news')
+    ]
+    ths = ''
+    for h, col in headers:
+        ths += '<th onclick="sortBy(\'' + col + '\')" data-col="' + col + '">' + h + '</th>'
+    html += '<table id="stockTable"><thead><tr>' + ths + '</tr></thead>'
+
+    rows_data = []
+    for i, stock in enumerate(stocks[:20], 1):
+        rows_data.append({
+            'rank': i, 'ticker': stock.ticker, 'company_name': stock.company_name,
+            'score': round(stock.composite_score), 'earnings_date': stock.earnings_date,
+            'days_left': stock.days_to_earnings, 'price': round(stock.current_price, 2),
+            'pe_target': round(stock.post_earnings_target, 2), 'pe_upside': round(stock.post_earnings_upside_pct, 1),
+            '3d': round(stock.post_earnings_3d_target, 2), '3d_up': round(stock.post_earnings_3d_upside_pct, 1),
+            '5d': round(stock.post_earnings_5d_target, 2), '5d_up': round(stock.post_earnings_5d_upside_pct, 1),
+            'analysts': stock.total_analysts, 'sb': stock.strong_buy_rating,
+            'buy': stock.buy_rating, 'hold': stock.hold_rating, 'sell': stock.sell_rating,
+            'mktcap': stock.market_cap,
+            'news': stock.top_news[0] if stock.top_news else None
+        })
+
+    import json
+    html += '<script>var rowsData=' + json.dumps(rows_data) + ';\n'
+    html += "var sortCol='days_left';var sortAsc=true;function getVal(r,col){var m={'ticker':r.ticker,'company_name':r.company_name,'score':r.score,'earnings_date':r.earnings_date,'days_left':r.days_left,'price':r.price,'pe_target':r.pe_target,'3d':r['3d'],'5d':r['5d'],'analysts':r.analysts,'sb':r.sb,'buy':r.buy,'hold':r.hold,'sell':r.sell,'mktcap':r.mktcap'};return m[col]||r[col]||0;}function sortBy(col){if(sortCol===col){sortAsc=!sortAsc;}else{sortCol=col;sortAsc=col==='days_left'||col==='score'||col==='analysts'||col==='sb'||col==='buy'||col==='hold'||col==='sell'||col==='price'||col==='pe_target'||col==='3d'||col==='5d'||col==='mktcap';}var dirs={'ticker':1,'company_name':1};var asc=dirs[col]?sortAsc:!sortAsc;rowsData.sort(function(a,b){var va=getVal(a,col),vb=getVal(b,col);if(typeof va==='number')return asc?va-vb:vb-va;return asc?String(va).localeCompare(String(vb)):String(vb).localeCompare(String(va));});renderTable();}function scoreColor(s){return s>=80?'#00ff88':'#58a6ff';}function newsHtml(n){if(!n)return'';var u=n.url||'';var t=n.title||'';return u?'<a href=\"'+u+'\" target=\"_blank\" style=\"color:#fff;text-decoration:none\">&#128240; '+t+'</a>':'<span style=\"color:#fff\">&#128240; '+t+'</span>';}function renderTable(){var tbody=document.getElementById('stockTableBody');if(!tbody)return;var html='';rowsData.forEach(function(r){var c=scoreColor(r.score);var bg=r.score>=80?'rgba(0,255,136,0.12)':'rgba(31,111,235,0.12)';html+='<tr style=\"background:'+bg+'\"><td><strong><a href=\"https://finance.yahoo.com/quote/'+r.ticker+'\" target=\"_blank\" style=\"color:#66b2ff\">'+r.ticker+'</a></strong></td>';html+='<td>'+r.company_name.substring(0,35)+(r.company_name.length>35?'...':'')+'</td>';html+='<td><strong style=\"color:'+c+'\">'+r.score+'</strong></td>';html+='<td>'+r.earnings_date+'</td>';html+='<td style=\"color:'+(r.days_left<=7?'#00ff88':'#ffcc00')+';font-weight:bold\">'+r.days_left+'d</td>';html+='<td>$'+r.price+'</td>';html+='<td>$'+r.pe_target+' | +'+r.pe_upside+'%</td>';html+='<td>$'+r['3d']+' | +'+r['3d_up']+'%</td>';html+='<td>$'+r['5d']+' | +'+r['5d_up']+'%</td>';html+='<td>'+r.analysts+'</td>';html+='<td style=\"color:#00ff88\">'+r.sb+'</td>';html+='<td>'+r.buy+'</td>';html+='<td>'+r.hold+'</td>';html+='<td style=\"color:#ff6b6b\">'+r.sell+'</td>';html+='<td>'+r.mktcap+'</td>';html+='<td>'+newsHtml(r.news)+'</td></tr>';});tbody.innerHTML=html;}document.addEventListener('DOMContentLoaded',renderTable);"
+    html += '</script>'
+    html += '<tbody id="stockTableBody"></tbody></table>'
+    html += '<div class=note><b>Scoring:</b> Analyst (30pts) + Buy% (30pts) + 5D Upside (20pts) + SB Count (2pts each, max 20) | <b>PE Target:</b> straddle x1 (conservative) | <b>3-Day Momentum:</b> straddle x3 (mid) | <b>5-Day Momentum:</b> straddle x5 (max upside) | <b>Entry:</b> 1-14 days pre-earnings | <b>Exit:</b> 1-5 days after beat</div>'
+    html += '<div class=disclaimer>&#9888; <b>Not a financial advisor.</b> This scanner is for informational purposes only. Options data and targets are estimates based on ATM straddles -- actual results may vary. Stocks carry risk; always do your own research before trading. I am not liable for any losses incurred from trades based on this data.</div>'
+    html += "<script>var scanBtn=document.getElementById('scanBtn');var warnMsg=document.getElementById('warnMsg');var pollTimer=null;function runScan(){if(scanBtn.disabled)return;scanBtn.disabled=true;warnMsg.textContent='Scanning... Please wait.';fetch('/run',{method:'POST'}).then(function(){pollTimer=setInterval(function(){fetch('/status').then(function(r){return r.json()}).then(function(d){if(d.scan_state==='done'){clearInterval(pollTimer);warnMsg.textContent='Scan complete! Reloading...';setTimeout(function(){location.reload(true);},1500);}}).catch(function(){});},2000);}).catch(function(){warnMsg.textContent='Scanner server not running. Please try again or refresh the page.';scanBtn.disabled=false;});}function refreshData(){location.reload(true);}</script>"
+
+    # Chat widget - clean plain JS, no HTML entities
     html += '<button id="chat-btn" onclick="toggleChat()">Chat</button>'
     html += '<div id="chat-panel">'
     html += '<div id="chat-header"><span>AI Scanner Assistant</span><button id="chat-close" onclick="toggleChat()">X</button></div>'
