@@ -490,6 +490,13 @@ def generate_html_report(stocks: list, output_path: str):
         if url:
             return '<a href="' + url + '" target="_blank" style="color:#fff;text-decoration:none">&#128240; ' + title[:60] + '</a>'
         return '<span style="color:#fff">&#128240; ' + title[:60] + '</span>'
+    def fmt_mktcap(val):
+        if val >= 1000:
+            return '$' + str(round(val / 1000, 2)) + 'T'
+        elif val >= 1:
+            return '$' + str(round(val, 2)) + 'B'
+        else:
+            return '$' + str(round(val * 1000, 0)) + 'M'
 
     static_rows = ''
     for r in rows_data:
@@ -513,7 +520,7 @@ def generate_html_report(stocks: list, output_path: str):
         static_rows += '<td>' + str(r['buy']) + '</td>'
         static_rows += '<td>' + str(r['hold']) + '</td>'
         static_rows += '<td style="color:#ff6b6b">' + str(r['sell']) + '</td>'
-        static_rows += '<td>' + str(r['mktcap']) + '</td>'
+        static_rows += '<td>' + fmt_mktcap(r['mktcap']) + '</td>'
         static_rows += '<td>' + news_cell + '</td>'
         static_rows += '</tr>'
 
@@ -523,7 +530,7 @@ def generate_html_report(stocks: list, output_path: str):
     html += '</script>'
     html += '<div class=note><b>Scoring:</b> Analyst (30pts) + Buy% (30pts) + 5D Upside (20pts) + SB Count (2pts each, max 20) | <b>PE Target:</b> straddle x1 (conservative) | <b>3-Day Momentum:</b> straddle x3 (mid) | <b>5-Day Momentum:</b> straddle x5 (max upside) | <b>Entry:</b> 1-14 days pre-earnings | <b>Exit:</b> 1-5 days after beat</div>'
     html += '<div class=disclaimer>&#9888; <b>Not a financial advisor.</b> This scanner is for informational purposes only. Options data and targets are estimates based on ATM straddles -- actual results may vary. Stocks carry risk; always do your own research before trading. I am not liable for any losses incurred from trades based on this data.</div>'
-    html += "<script>var scanBtn=document.getElementById('scanBtn');var warnMsg=document.getElementById('warnMsg');var pollTimer=null;function runScan(){if(scanBtn.disabled)return;scanBtn.disabled=true;warnMsg.textContent='Scanning... Please wait.';fetch('/run',{method:'POST'}).then(function(){pollTimer=setInterval(function(){fetch('/status').then(function(r){return r.json()}).then(function(d){if(d.scan_state==='done'){clearInterval(pollTimer);warnMsg.textContent='Scan complete! Reloading...';setTimeout(function(){location.reload(true);},1500);}}).catch(function(){});},2000);}).catch(function(){warnMsg.textContent='Scanner server not running. Please try again or refresh the page.';scanBtn.disabled=false;});}function refreshData(){location.reload(true);}</script>"
+    html += "<script>var scanBtn=document.getElementById('scanBtn');var warnMsg=document.getElementById('warnMsg');function runScan(){if(scanBtn.disabled)return;scanBtn.disabled=true;warnMsg.textContent='Starting scanner...';var serverWin=window.open('about:blank','scanner_window','width=400,height=200');if(!serverWin){warnMsg.textContent='Popup blocked! Allow popups for this site.';scanBtn.disabled=false;return;}serverWin.document.write('<html><body style=\"font-family:Arial;background:#1a1a2e;color:#fff;padding:20px\"><h3>AI Market Cap Scanner</h3><p>Starting scan server...</p><p>If this window doesn\\'t close in 5 seconds, <a href=\"http://localhost:18765/run\" target=\"_blank\">click here</a> after starting scanner_web.py</p><script>fetch(\\'http://localhost:18765/run\\',{method:\\'POST\\'}).then(()=>{document.body.innerHTML=\\'<p>Scan started! This window will close.</p>\\';setTimeout(()=>window.close(),2000);}).catch(e=>{document.body.innerHTML=\\'<p style=\"color:#ff6b6b\">Error: Make sure scanner_web.py is running!</p><button onclick=\\\"window.close()\\\">Close</button>\\';});<\\/script></body></html>');setTimeout(function(){warnMsg.textContent='Server launched! Reloading scanner...';location.reload(true);},3000);}function refreshData(){location.reload(true);}</script>"
 
     # Chat widget - clean plain JS, no HTML entities
     html += '<button id="chat-btn" onclick="toggleChat()">Chat</button>'
