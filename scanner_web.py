@@ -120,6 +120,7 @@ def scanner():
     if not validate_session(token):
         return redirect("/")
     workspace = Path(__file__).parent
+    # Always serve the TIMESTAMPED file (newest), not the static ai_earnings_web.html
     html_files = sorted(workspace.glob("ai_earnings_57day_*.html"), key=lambda f: f.stat().st_mtime, reverse=True)
     if html_files:
         with open(html_files[0], 'r', encoding='utf-8') as f:
@@ -127,8 +128,8 @@ def scanner():
         resp = make_response(content)
         resp.headers['Content-Type'] = 'text/html; charset=utf-8'
         resp.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0'
+        resp.headers['Last-Modified'] = '0'
         return resp
-    # Fallback: serve static file with no-cache
     resp = make_response(send_from_directory(".", "ai_earnings_web.html"))
     resp.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0'
     return resp
@@ -219,7 +220,7 @@ def cors_preflight():
     return resp
 
 # ===== LLM CHAT CONFIG =====
-# GROQ free tier — no credit card, no expiry, Llama 3.3 70B
+# GROQ free tier — llama-3.3-70b-versatile, no credit card, no expiry
 OPENAI_API_KEY = os.environ.get("GROQ_API_KEY", "")
 OPENAI_MODEL  = os.environ.get("GROQ_MODEL", "llama-3.3-70b-versatile")
 OPENAI_BASE   = os.environ.get("OPENAI_BASE_URL", "https://api.groq.com/openai/v1")
