@@ -219,9 +219,10 @@ def cors_preflight():
     return resp
 
 # ===== LLM CHAT CONFIG =====
-OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "")
-OPENAI_MODEL  = os.environ.get("OPENAI_MODEL", "gpt-4o-mini")
-OPENAI_BASE   = os.environ.get("OPENAI_BASE_URL", "https://api.openai.com/v1")
+# GROQ free tier — no credit card, no expiry, Llama 3.3 70B
+OPENAI_API_KEY = os.environ.get("GROQ_API_KEY", "")
+OPENAI_MODEL  = os.environ.get("GROQ_MODEL", "llama-3.3-70b-versatile")
+OPENAI_BASE   = os.environ.get("OPENAI_BASE_URL", "https://api.groq.com/openai/v1")
 
 SYSTEM_PROMPT = """You are the AI assistant for "AI Market Cap Scanner" — a pre-earnings momentum scanner for AI/AI-niche stocks.
 
@@ -295,7 +296,7 @@ def call_llm(user_input: str) -> str:
 if __name__ == "__main__":
     auto_thread = threading.Thread(target=auto_scan_loop, daemon=True)
     auto_thread.start()
-    print(f'[AI Market Cap] Auto-scan scheduler running ΓÇö next scan at 6:30 AM PT')
-    print(f'[AI Market Cap] Web server ΓÇö http://0.0.0.0:{PORT}')
+    print(f'[AI Market Cap] Auto-scan scheduler running — next scan at 6:30 AM PT')
+    print(f'[AI Market Cap] Web server — http://0.0.0.0:{PORT}')
     print(f'[AI Market Cap] Password: {PASSWORD}')
     app.run(host="0.0.0.0", port=PORT, debug=False)
