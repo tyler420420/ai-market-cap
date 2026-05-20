@@ -107,9 +107,11 @@ def index():
                 content = f.read()
             resp = make_response(content)
             resp.headers['Content-Type'] = 'text/html; charset=utf-8'
-            resp.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+            resp.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0'
             return resp
-        return send_from_directory(".", "ai_earnings_web.html")
+        resp = make_response(send_from_directory(".", "ai_earnings_web.html"))
+        resp.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0'
+        return resp
     return send_from_directory(".", "index.html")
 
 @app.route("/scanner")
@@ -124,9 +126,12 @@ def scanner():
             content = f.read()
         resp = make_response(content)
         resp.headers['Content-Type'] = 'text/html; charset=utf-8'
-        resp.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+        resp.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0'
         return resp
-    return send_from_directory(".", "ai_earnings_web.html")
+    # Fallback: serve static file with no-cache
+    resp = make_response(send_from_directory(".", "ai_earnings_web.html"))
+    resp.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0'
+    return resp
 
 @app.route("/login", methods=["POST"])
 def login():
