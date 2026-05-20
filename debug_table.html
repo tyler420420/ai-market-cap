@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"><title>DEBUG</title></head>
+<body>
+<pre id="log"></pre>
+<script>
+var rowsData=[{"rank":1,"ticker":"NVDA","score":99}];
+function renderTable(){
+    var tbody=document.getElementById('stockTableBody');
+    var log=document.getElementById('log');
+    log.textContent='tbody found: '+(tbody?'YES':'NO');
+    log.textContent+='\nrowsData length: '+rowsData.length;
+    if(!tbody) return;
+    var html='';
+    rowsData.forEach(function(r){html+='<tr><td>'+r.ticker+'</td><td>'+r.score+'</td></tr>';});
+    tbody.innerHTML=html;
+}
+document.addEventListener('DOMContentLoaded', function(){
+    document.getElementById('log').textContent += '\nDOM loaded, calling renderTable...';
+    renderTable();
+});
+</script>
+<table><tbody id="stockTableBody"></tbody></table>
+</body></html>

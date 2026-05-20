@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en" class=" dark">
+<head>
+<title>Stock Screener - Custom technology ticker</title>
+<meta charset="UTF-8"><meta name="viewport" content="width=1024"><meta name="description" content="Stock screener for investors and traders, financial visualizations.">
+<meta name="robots" content="noindex">
+
+            <link rel="preload" href="/fonts/ibm-plex-sans-latin-normal.woff2" as="font" type="font/woff2" crossorigin>
+            <link rel="preload" href="/fonts/ibm-plex-sans-latin-italic.woff2" as="font" type="font/woff2" crossorigin>
+            <script>
+        if (location.pathname.endsWith('.ashx')) history.replaceState(null, '', location.pathname.slice(0, -5) + location.search + location.hash);
+        window.notificationsArray = [];
+        window.renderScriptNotLoaded = function () {};
+        window.handleScriptNotLoaded = function (element) {
+            window.notificationsArray.push(element);
+            window.sentryDisabled = true;
+            window.handleScriptNotLoaded = function () {};
+        };
+        // window.openEliteFeaturesDialog ... MUST NOT HAVE FALLBACK!
+        window.openGenericAlertDialog ??= (message) => new Promise(resolve => resolve(alert(message)));
+        window.openGenericConfirmDialog ??= (message) => new Promise(resolve => resolve(confirm(message) || undefined));
+        window.openGenericDeleteDialog ??= (message) => new Promise(resolve => resolve(confirm(message) || undefined));
+        window.openGenericPromptDialog ??= (message, value = "") => new Promise(resolve => resolve(prompt(message, value) ?? undefined));
+        window.showFailureNotification ??= (message) => alert(message);
+        window.showSuccessNotification ??= (message) => alert(message);
+        window.showDefaultNotification ??= (message) => alert(message);
+    </script><link rel="stylesheet" href="/assets/dist-legacy/redesign.7110eb94.css" type="text/css" onerror="window.handleScriptNotLoaded(this)">
+<link rel="stylesheet" href="/assets/dist-legacy/main.b792c9ce.css" type="text/css" onerror="window.handleScriptNotLoaded(this)">
+<script src="/assets/dist-legacy/4740.v1.d09d584b.js" onerror="window.handleScriptNotLoaded(this)" defer></script><script src="/assets/dist-legacy/9736.v1.249ce595.js" onerror="window.handleScriptNotLoaded(this)" defer></script><script src="/assets/dist-legacy/finviz_t.v1.0c473390.js" onerror="window.handleScriptNotLoaded(this)" defer></script><script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-537M973G');</script>
+
+<script>
+    window.dataLayer = window.dataLayer || [];
+
+    function getFvt() {
+        var cookie = document.cookie.split('; ').find(function(row) { return row.startsWith('finviz_t='); });
+        if (cookie) return decodeURIComponent(cookie.split('=')[1]);
+        try { return localStorage.getItem('finviz_t'); } catch (e) { return null; }
+    }
+
+    function gtag(command, key, value) {
+        var fvt = getFvt();
+        if (command === 'set' && key === 'page_path') {
+            var pageviewData = {
+                event: 'virtual_pageview',
+                page_path: value,
+                ...(fvt && { anon_id: fvt })
+            };
+            dataLayer.push(pageviewData);
+            return;
+        }
+
+        if (command === 'event') {
+            var eventData = {
+                event: key,
+                ...(value || {}),
+                ...(fvt && { anon_id: fvt })
+            };
+            dataLayer.push(eventData);
+            return;
+        }
+
+        dataLayer.push(arguments);
+    }
+</script><link rel="icon" type="image/png" href="/favicon_2x.png" sizes="32x32">
+<link rel="icon" type="image/png" href="/favicon.png" sizes="16x16">
+<script async=true>
+    !(function(q,_name){q[_name]=q[_name]||function k(){(k.q=k.q||[]).push(arguments)},q[_name].v=q[_name].v||2,q[_name].s="1";!(function(q,k,F,H){function m(F,H){try{m=q.localStorage,(F=JSON.parse(m[decodeURI(decodeURI('%67%25%365%25%37%34I%257%34e%6d'))]("_aQS01OUU2MkU1RURCQzRDMzUyMTIwQkM4ODYtMTE0")).lgk||[])&&(H=q[k].pubads())&&F.forEach((function(q){q&&q[0]&&H.setTargeting(q[0],q[1]||"")}))}catch(N){}var m}try{(H=q[k]=q[k]||{}).cmd=H.cmd||[],typeof H.pubads===F?m():typeof H.cmd.unshift===F?H.cmd.unshift(m):H.cmd.push(m)}catch(N){}})(window,decodeURI(decodeURI('%25%367o%25%36fg%256c%25%36%35%2574%256%31%25%36%37')),"function");;!(function(q){q.__admiral_getConsentForGTM=function(k){function F(q,F){k((function(q,k){const F=q&&q.purpose&&q.purpose.consents||{};return{adConsentGranted:k||!!F[1],adUserData:k||!!F[7],adPersonalization:k||!!F[3],analyticsConsentGranted:k||!!F[1],personalizationConsentGranted:k||!!F[5],functionalityConsentGranted:k||!1,securityConsentGranted:k||!0}})(q,!F))}q[_name]("after","cmp.loaded",(function(k){k&&k.tcData&&k.tcData.gdprApplies?(k.consentKnown&&F(k.tcData,!0),q[_name]("after","cmp.updated",(function(q){F(q.tcData,!0)}))):F({},!1)}))}})(window);})(window,decodeURI(decodeURI('a%256%34m%25%369%25%37%32%256%31l')));!(function(q,k,F,H){F=q.createElement(k),q=q.getElementsByTagName(k)[0],F.async=1,F.src="https://urbanlaurel.com/assets/js/q2o3um29vhadcznq.vendor.js",(H=0)&&H(F),q.parentNode.insertBefore(F,q)})(document,"script");;;!(function(q,k,F,H,m){function N(){for(var q=[],F=0;F<arguments.length;F++)q.push(arguments[F]);if(!q.length)return m;"ping"===q[0]?q[2]({gdprAppliesGlobally:!!k[decodeURI(decodeURI('_%25%35%66c%6d%25%37%30%254%37%25%364%25%370%257%32A%2570%25%370%256%63%2569%65%73%2547%256%63o%25%36%32%25%361%25%36%63%6c%79'))],cmpLoaded:!1,cmpStatus:"stub"}):q.length>0&&m.push(q)}function L(q){if(q&&q.data&&q.source){var H,m=q.source,N="__tcfapiCall",L="string"==typeof q.data&&q.data.indexOf(N)>=0;(H=L?((function(q){try{return JSON.parse(q)}catch(k){}})(q.data)||{})[N]:(q.data||{})[N])&&k[F](H.command,H.version,(function(q,k){var F={__tcfapiReturn:{returnValue:q,success:k,callId:H.callId}};m&&m.postMessage(L?JSON.stringify(F):F,"*")}),H.parameter)}}!(function t(){if(!k.frames[H]){var F=q.body;if(F){var m=q.createElement("iframe");m.style.display="none",m.name=H,F.appendChild(m)}else setTimeout(t,5)}})(),N.v=1,"function"!=typeof k[F]&&(k[F]=k[F]||N,k.addEventListener?k.addEventListener("message",L,!1):k.attachEvent&&k.attachEvent("onmessage",L))})(document,window,"__tcfapi","__tcfapiLocator",[]);;;!(function(q,k,F,H,m,N,L,t,A,K,R){function Y(){for(var q=[],k=arguments.length,F=0;F<k;F++)q.push(arguments[F]);var H,m=q[1],N=typeof m===L,t=q[2],Y={gppVersion:"1.1",cmpStatus:"stub",cmpDisplayStatus:"hidden",signalStatus:"not ready",supportedAPIs:["7:usnat"].reduce((function(q,k){return k&&q.push(k),q}),[]),cmpId:9,sectionList:[],applicableSections:[0],gppString:"",parsedSections:{}};function v(q){N&&m(q,!0)}switch(q[0]){case"ping":return v(Y);case"queue":return A;case"events":return K;case"addEventListener":return N&&(H=++R,K.push({id:H,callback:m,parameter:t})),v({eventName:"listenerRegistered",listenerId:H,data:!0,pingData:Y});case"removeEventListener":for(H=!1,F=0;F<K.length;F++)if(K[F].id===t){K.splice(F,1),H=!0;break}return v(H);case"hasSection":case"getSection":case"getField":return v(null);default:return void A.push(q)}}Y.v=2,typeof k[F]!==L&&(k[F]=k[F]||Y,k[t]&&k[t]("message",(function(q,H){var L="string"==typeof q.data;(H=L?((function(q){try{return JSON.parse(q)}catch(k){}})(q.data)||{})[m]:(q.data||{})[m])&&k[F](H.command,(function(k,F){var m={__gppReturn:{returnValue:k,success:F,callId:H.callId}};q.source&&q.source.postMessage(L?JSON.stringify(m):m,"*")}),N in H?H[N]:null,H.version||1)}),!1),(function v(){if(!k.frames[H]){var F=q.body;if(F){var m=q.createElement("iframe");m.style.display="none",m.name=H,F.appendChild(m)}else setTimeout(v,5)}})())})(document,window,"__gpp","__gppLocator","__gppCall","parameter","function","addEventListener",[],[],0);
+    ;(function () {
+        window.ic_privacySelectorLoaded = false;
+
+        window.admiral("after", "candidate.dismissed", function () {
+            if (window.checkBannersLoaded) checkBannersLoaded();
+        });
+
+        window.admiral("after", "cmp.loaded", function (eventArg) {
+            console.log("Admiral CMP Loaded ", eventArg);
+            if (eventArg.euVisitor) return;
+            try {
+                __gpp("addEventListener", function (tcData) {
+                    window.ic_privacySelectorLoaded = true;
+                });
+            } catch (e) {
+                console.error(e)
+            }
+        });
+    })();
+</script><script type="text/javascript">
+    (function(c,l,a,r,i,t,y){
+        c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+        t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+        y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+    })(window, document, "clarity", "script", "unkwe89mcc");
+</script><script>
+            FinvizSettings = {
+                versionImages: 908067644,
+                hasUserPremium: false,
+                userId: null,
+                name: "",
+                email: "",
+                nodeChartsDomain: "https://charts2-node.finviz.com",
+                hasUserStickyHeader: false,
+                adsProvider: 1,
+                hasRedesignEnabled: true,
+                hasRedesignPortfolio: false,
+                hasDarkTheme: true,
+                quoteSearchExt: '',
+                isJoinBannerVisible: false,
+                hasKnowledgeBase: false,
+                hasCustomColumns: true,
+                hasBFPromo: false,
+                featureFlags: {"redesign":true,"stockswhymoving":true,"customcolumns":true,"dunningbanner":true,"googleonetap":true},
+                featureDiscovery: []
+            };
+        
+FinvizSettings.hoverCharts = { stock: { timeframe: 'd', dateRange: null, width: 466, height: 219, barWidth: 1, barMargin: 1, borderWidth: 1 }, forex: { timeframe: 'd', dateRange: null, width: 466, height: 219, barWidth: 2, barMargin: 1, borderWidth: 1 }, futures: { timeframe: 'd', dateRange: null, width: 466, height: 219, barWidth: 2, barMargin: 1, borderWidth: 1 } }</script><script src="/assets/dist-legacy/script/browser_check.v1.1605ca48.js?v=4"></script><script src="/assets/dist-legacy/script/notice.v1.bee4cea4.js" onerror="window.handleScriptNotLoaded(this)" defer></script><script src="/assets/dist-legacy/runtime.v1.9c279a80.js" onerror="window.handleScriptNotLoaded(this)" defer></script><script src="/assets/dist-legacy/libs_init.v1.5a5d4c01.js" onerror="window.handleScriptNotLoaded(this)" defer></script><script src="/assets/dist-legacy/4740.v1.d09d584b.js" onerror="window.handleScriptNotLoaded(this)" defer></script><script src="/assets/dist-legacy/9736.v1.249ce595.js" onerror="window.handleScriptNotLoaded(this)" defer></script><script src="/assets/dist-legacy/8095.v1.d9ce7d17.js" onerror="window.handleScriptNotLoaded(this)" defer></script><script src="/assets/dist-legacy/6590.v1.5c9ae07e.js" onerror="window.handleScriptNotLoaded(this)" defer></script><script src="/assets/dist-legacy/7711.v1.132f0f10.js" onerror="window.handleScriptNotLoaded(this)" defer></script><script src="/assets/dist-legacy/6971.v1.d100d662.js" onerror="window.handleScriptNotLoaded(this)" defer></script><script src="/assets/dist-legacy/3589.v1.55914024.js" onerror="window.handleScriptNotLoaded(this)" defer></script><script src="/assets/dist-legacy/1633.v1.527f1547.js" onerror="window.handleScriptNotLoaded(this)" defer></script><script src="/assets/dist-legacy/header.v1.3db75d3a.js" onerror="window.handleScriptNotLoaded(this)" defer></script><script type="text/javascript">
+            var portfolioRowsLimit=50;
+            function ScreenerSelectOnChange() {}
+            FinvizSettings.screenerCurrentTimeframe = {timeframe: "d", dateRange: null}
+
+            function trackPagination(source) {
+                window.gtag && window.gtag('event', 'click', {
+                    event_category: 'pagination',
+                    event_label: source });
+            }
+
+            function handleETFCheckboxClick(input) {
+                fetch('/api/set_cookie?cookie=disabledETFFiltersAll&value=' + !input.checked )
+                    .catch(function(){})
+                    .then(function(){ location.reload() })
+            }
+        </script><script src="/assets/dist-legacy/script/screener.v1.bf398aaa.js" type="text/javascript" onerror="window.handleScriptNotLoaded(this)"></script>
+<script>FinvizSettings.defaultPeriod = 'd'</script>
+<link rel="preload" as="script" href="/assets/dist-legacy/screener-presets-select.v1.176a0c20.js" data-chunk-id="screener-presets-select"><script src="/assets/dist-legacy/5746.v1.3b43d7f3.js" onerror="window.handleScriptNotLoaded(this)" defer></script><script src="/assets/dist-legacy/1318.v1.f1f45e9d.js" onerror="window.handleScriptNotLoaded(this)" defer></script><script src="/assets/dist-legacy/5754.v1.ad469c5d.js" onerror="window.handleScriptNotLoaded(this)" defer></script><script src="/assets/dist-legacy/31.v1.5ef83a25.js" onerror="window.handleScriptNotLoaded(this)" defer></script><script src="/assets/dist-legacy/2695.v1.033e12b3.js" onerror="window.handleScriptNotLoaded(this)" defer></script><script src="/assets/dist-legacy/screener.v1.6c5003be.js" onerror="window.handleScriptNotLoaded(this)" defer></script></head>
+
+          <script>
+            const channelIdToLabel = {
+                '1': 'MarketWatch',
+                '2': 'WSJ',
+                '3': 'Reuters',
+                '4': 'Yahoo Finance',
+                '5': 'CNN',
+                '6': 'The New York Times',
+                '7': 'Bloomberg',
+                '9': 'BBC',
+                '10': 'CNBC',
+                '11': 'Fox Business',
+                '102': 'Mish\'s Global Economic Trend Analysis',
+                '105': 'Trader Feed',
+                '113': 'Howard Lindzon',
+                '114': 'Seeking Alpha',
+                '123': 'Fallond Stock Picks',
+                '132': 'Zero Hedge',
+                '133': 'market folly',
+                '136': 'Daily Reckoning',
+                '141': 'Abnormal Returns',
+                '142': 'Calculated Risk',
+            }
+            function trackAndOpenNews(event, channel, url) {
+              event.preventDefault()
+              window.open(url, '_blank')
+
+              let channelLabel
+              if (typeof channel === 'string') {
+                const isInternalNewsUrl = url.startsWith('/news/')
+                channelLabel = isInternalNewsUrl ? 'internal-' + channel : channel
+              } else {
+                const label = channelIdToLabel[channel]
+                channelLabel = label !== undefined ? label : channel
+              }
+              window.gtag && window.gtag('event', 'click', {
+                non_interaction: true,
+                event_category: 'news',
+                event_label: channelLabel,
+                value: 1 });
+            }
+          </script>
+          <body class="m-0 is-screener"><div id="js-elite-features-root"></div>
+            <script>
+                window.adLayoutVersion = 'control';
+                window.adLoggedIn = 'NotLoggedIn';
+
+                var cookieName = 'fv_block';
+                var selector = '[data-google-query-id]';
+                var selectorFrame = selector + ' iframe, ' + selector + ' [id*=aax]';
+                var cookieExpiry = 5 * 60 * 1000; // 5min
+                var checkTimeout = 20 * 1000; // 20sec
+
+                function getCookie(value) {
+                    var expiration = +new Date() + cookieExpiry;
+                    return cookieName + '=' + value + '; expires=' + (new Date(expiration)).toUTCString() + '; path=/';
+                }
+
+                var finvizBannersLoaded = false;
+                function loadFinvizBanners(setCookie) {
+                    
+                    if (setCookie) document.cookie = getCookie('block');
+                    finvizBannersLoaded = true;
+                    var s = document.createElement('script');
+                    s.type = 'text/javascript';
+                    s.async = true;
+                    s.src = '/assets/dist-legacy/script/finviz_b.v1.68cd7310.js';
+                    document.head.appendChild(s);
+                }
+
+                function checkBannersLoaded() {
+                    var checkEnd = +new Date() + checkTimeout;
+                    function asyncCheckIfExists(selector, resolve) {
+                        var now = +new Date();
+                        var container = document.querySelector(selector);
+                        if (!container && checkEnd > now) return setTimeout(function () { asyncCheckIfExists(selector, resolve) }, 1000)
+                        resolve(!!container);
+                    }
+
+                    asyncCheckIfExists(selector, function (exists) {
+                        if (!exists) return loadFinvizBanners(true);
+
+                        asyncCheckIfExists(selectorFrame, function (hasIframe) {
+                            if (!hasIframe) return loadFinvizBanners(true);
+                        })
+                    })
+                }
+
+                if (document.cookie.indexOf(cookieName) >= 0) {
+                    loadFinvizBanners(false);
+                } else {
+                    var s = document.createElement('script');
+                    s.type = 'text/javascript';
+                    s.async = true;
+                    s.onerror = loadFinvizBanners;
+                    s.src = 'https://u5.investingchannel.com/static/uat.js';
+                    document.head.appendChild(s);
+
+                    InvestingChannelQueue = window.InvestingChannelQueue || [];
+                    var ic_page;
+
+                    function refreshAd(container, refreshes) {
+                        var placementTag, adslot;
+                        window.InvestingChannelQueue.push(function () {
+                            var pubTags = ic_page.getPubTag.call(ic_page, container.id);
+                            if (!pubTags) return;
+                            var pubTag = pubTags[0];
+                            placementTag = pubTag.mPlacements[0].mTagToRender;
+                            adslot = pubTag.mPlacements[0].mPublisherKval.adslot[0];
+                            // Update div ID
+                            var id = container.id.split('_');
+                            var numberOfDivs = document.querySelectorAll('[id*=' + id.slice(0, id.length - 1).join('_') + ']').length;
+                            var newDivNumber = Number(id.pop()) + numberOfDivs * refreshes;
+                            container.setAttribute('id', id.join('_') + '_' + newDivNumber);
+                            // Destroy previous pubtag & reset container html (loading span)
+                            pubTag.destroy();
+                            container.innerHTML = '';
+                        });
+                        window.InvestingChannelQueue.push(function () {
+                            if (!placementTag || !adslot) return
+                            // Create new pub tag
+                            var newTag;
+                            var layoutId = placementTag.mNativeLayout ? placementTag.mNativeLayout.nativelayoutid : null;
+                            if (layoutId) {
+                                newTag = ic_page.defineNativeTag('finviz/' + placementTag.mTarget.dfpkeyname, placementTag.mAdSize, container.id, layoutId);
+                                var nativeLayout, layoutData
+
+                                try {
+                                  nativeLayout = newTag.mPlacements[0].mTags[0].mNativeLayout;
+                                } catch (e) {
+                                    console.log(e.message)
+                                }
+
+                                try {
+                                  layoutData = newTag.mTemplate.mNativeLayout[layoutId].Data
+                                  if (layoutData && nativeLayout && !nativeLayout.layout) {
+                                    newTag.mPlacements[0].mTags[0].mNativeLayout = layoutData
+                                  }
+                                } catch (e) {
+                                    console.log(e.message)
+                                }
+                            } else {
+                                newTag = ic_page.defineTag('finviz/' + placementTag.mTarget.dfpkeyname, placementTag.mAdSize, container.id);
+                            }
+                            // Set adslot param
+                            newTag.setKval({ adslot: adslot });
+                            newTag.setKval({ kw: 'ajax' });
+                            newTag.render();
+                        });
+                    }
+
+                    var refreshCount = 1;
+                    function refreshAds(selectors) {
+                        if (window.ic_page) {
+                            document.querySelectorAll(selectors).forEach(function (element) {
+                                try {
+                                    refreshAd(element, refreshCount);
+                                } catch (e) {
+                                    console.log('Ad refresh error for:', element, e);
+                                }
+                            });
+                            window.ic_page.loadMore();
+                            refreshCount++;
+                        }
+                    }
+
+
+                    InvestingChannelQueue.push(function() {
+                        var icConfig = window['FINVIZ_IC_UAT_CONFIG'] = {};
+                        
+                        ic_page = InvestingChannel.UAT.Run('df0d0d52-cc7f-11e8-82a5-0abbb61c4a6a', icConfig);
+                    });
+
+                    var hash = null;
+                    if (typeof hash === 'string') {
+                      InvestingChannelQueue.push(function() {
+                          if (ic_page) {
+                              ic_page.setUser({'SHA256': hash}, 'hash', '');
+                          }
+                      });
+                    }
+                }
+            </script>
+            <script>
+                (function () {
+                    var detectionEl = document.createElement('div');
+                    detectionEl.style.position='absolute';
+                    detectionEl.style.top='-9999px';
+                    detectionEl.style.width='100px';
+                    detectionEl.style.height='100px';
+                    detectionEl.style.overflow='scroll';
+                    document.body.appendChild(detectionEl);
+                    document.documentElement.style.setProperty('--fv-scrollbar-width', (detectionEl.offsetWidth - detectionEl.clientWidth) + 'px');
+                    document.body.removeChild(detectionEl);
+                })()
+            </script>
+        <div id="notifications-container"></div><div id="notifications-react-root"></div><div id="dialogs-react-root"></div><div id="dialog-portal-root" style="display:contents"></div><table class="header ">
+    <tr class="align-top">
+        <td>
+            <table class="header-container">
+                <tr>
+                    <td class="w-[30%]">
+                        <table class="w-full">
+                            <tr>
+                                <td class="h-[50px] align-middle">
+                                    <a href="/" class="logo"><svg width="225" height="32" class="block">
+  <use href="/img/logo.svg#free" class="dark:hidden" />
+  <use href="/img/logo.svg#free-dark" class="hidden dark:block" />
+</svg></a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td id="search" style="padding-top: 7px">
+                                    <div class="navbar-search-placeholder">
+    <span class="icon-wrapper">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon" fill="none" viewBox="0 0 24 24" width="16" height="16">
+            <path d="M16.9 15.5l4 4c.2.2.1.5 0 .7l-.7.7a.5.5 0 01-.8 0l-4-4c0-.2-.2-.3-.3-.4l-.7-1a7 7 0 01-11.2-4 7 7 0 1112.2 3l1 .6.5.4zM5 10a5 5 0 1010 0 5 5 0 00-10 0z" />
+        </svg>
+    </span>
+    <input placeholder="Search ticker, company or profile" class="search-input is-free"/>
+</div>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                    <td class="align-bottom pb-1">
+                        <div id="microbar_position" class="hidden xl:flex items-center h-[37px] pl-2"><div>
+                        <div id="IC_D_88x31_1"class="relative overflow-hidden flex items-center justify-center w-full mx-auto" style="width:88px;height:31px;max-height:31px"></div>
+                        </div></div>
+                    </td>
+                    <td class="relative w-[730px] text-right">
+                        <div id="banner_position" class="overflow-hidden absolute top-0 right-0 w-full h-[96px]">
+                        <div id="IC_D_728x90_1"class="relative overflow-hidden flex items-center justify-center w-full mx-auto" style="width:728px;height:90px;max-height:90px"></div>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+    <tr>
+        <td class="w-[994px] leading-none" style="font-size:0">
+            <img src="/gfx/nic2x2.gif" class="w-[994px] h-px" alt="">
+        </td>
+    </tr>
+</table>
+            <table class="navbar ">
+                <tr>
+                    <td class="h-[30px]">
+                        <table class="header-container">
+                            <tr><td><a class="nav-link is-first" href="/">Home</a></td><td><a class="nav-link" href="/news">News</a></td><td><a class="nav-link is-active" href="/screener">Screener</a></td><td><a class="nav-link" href="javascript:window.openEliteFeaturesDialog?.('multi-charts', event)">Charts</a></td><td><a class="nav-link" href="/map">Maps</a></td><td><a class="nav-link" href="/groups">Groups</a></td><td><a class="nav-link" href="/portfolio">Portfolio</a></td><td><a class="nav-link" href="/insidertrading">Insider</a></td><td><a class="nav-link" href="/futures">Futures</a></td><td><a class="nav-link" href="/forex">Forex</a></td><td><a class="nav-link" href="/crypto">Crypto</a></td><td><a class="nav-link" href="/calendar/economic">Calendar</a></td><td><a class="nav-link is-elite" href="/elite">Pricing</a></td><td class="w-full relative"><div class="absolute bottom-0 left-0 right-0 top-0"><div id="time" class="pr-1"></div></div></td>
+                    <td class="nav relative">
+        <a data-testid="chart-layout-theme" href="#" class="!flex !bg-transparent !border-b-0 mt-1 !py-0 !px-1" style='border-left: 1px solid #444a57' title="Toggle Light/Dark mode" onclick="setChartThemeCookie('light', true)">
+            <div class='relative box-content flex rounded-full w-10 h-5 border border-gray-750 bg-gray-800 text-white justify-end'>
+                <div class='box-border w-1/2 rounded-full p-px border border-gray-800 bg-[#4c5261] flex justify-center items-center'>
+                    <svg width="16" height="16" class="fill-current text-white inline-block -ml-px">
+    <use href="/assets/dist-icons/icons.svg?rev=908067644#moonOutlined"/>
+</svg>
+                </div>
+            </div>
+            <span class='ml-1 select-none font-normal text-xs text-white'>Theme</span>
+        </a>
+    </td>
+    
+                <td>
+                    <a href="/help/screener" class="nav-link is-help border-l border-[#444a57]"><span class="fa fa-question-circle"></span>Help</a>
+                </td>
+                <td><a href="/login" class="nav-link sign-in">Login</a></td>
+                <td><a href="/register" class="nav-link sign-up">Register</a></td>
+            
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        
+          <script>
+            function reloadPage () { location.reload() }
+            function setChartThemeCookie(chartsTheme) {
+              fetch('/api/set_cookie?cookie=chartsTheme&value=' + chartsTheme ).catch(function(){}).then(function(){
+                window.gtag && window.gtag('event', 'click', { event_category: 'theme', event_label: 'toggle', value: chartsTheme, eventCallback: reloadPage });
+                setTimeout(reloadPage,1000);
+              })
+            }
+          </script><div id="js-feature-discovery-root"></div>    <div class="w-full flex justify-center dark:bg-violet-800 bg-violet-600 font-sans" data-fv-notice="promo-screens-from-advanced-charts" data-nosnippet>
+        <div class="h-10 relative flex gap-2.5 items-center dark:text-violet-200 text-white">
+            <div class="py-3 text-sm font-medium dark:text-violet-200 text-violet-100">
+                    <p>
+        <span class="text-white">New Elite Feature:</span>
+         Screen & Chart at the same time
+    </p>
+            </div>
+            <a title="Learn more" href="/blog/access-stock-screens-from-advanced-charts-on-finviz/" class="inline-flex items-center justify-center rounded-md border-none outline-none ring-gray-200 font-medium focus-visible:ring-2 dark:ring-gray-500 bg-violet-500 hover:bg-gray-200/50 dark:bg-gray-500/30 dark:text-gray-50 text-white dark:hover:bg-gray-500/50 h-7 min-w-8 px-2.5 text-2xs" onclick="window.FinvizCloseNoticeRedirect(event, 'promo-screens-from-advanced-charts', this.href)">Learn More</a>
+            <a title="Close" class="flex h-6 w-6 items-center justify-center" style="filter: drop-shadow(0.5px 0.5px 0px rgba(34, 38, 47, 0.8));" href="javascript:void(0)" onclick="window.FinvizCloseNotice('promo-screens-from-advanced-charts');">
+                <svg width="20" height="20" class="shrink-0">
+    <use href="/assets/dist-icons/icons.svg?rev=908067644#clear"/>
+</svg>
+            </a>
+        </div>
+    </div><div class="content "><table cellpadding="0" class="fv-container is-tight"><script>(function(){(window.__fv_deferred_gtag=window.__fv_deferred_gtag||[]).push(['screener_apply_filter',{"filter":["sec"],"value":["technology"],"result_count":779,"order_by":"ticker","order":"asc","view":"Custom"}]);})();</script><tr>
+<td>
+<div id="screener-react"></div>
+<table id="filter-table-top" class="screener-groups_table-filter filter-table-filters" width="100%" cellpadding="0" cellspacing="0" border="0">
+<tr>
+<td><img class="w-1.5 h-1.5" src="gfx/nic2x2.gif" alt="" border="0"></td>
+<td align="center" valign="center" width="17%" style="max-width:0">
+<script type="application/json" id="screener-presets-data">{"screeners":[],"portfolios":[],"presetsUrl":"v=152\u0026f=sec_technology\u0026o=ticker","canSaveScreen":true,"hasUser":false,"userId":null,"selectedId":null,"selectedType":null,"selectedName":null}</script>
+<div id="screener-presets-root" style="width:100%"><div class="relative w-full"><button class="fv-select block w-full cursor-pointer overflow-hidden bg-none! text-left" type="button"><span class="block truncate">My Presets</span><svg width="16" height="16" class="pointer-events-none block shrink-0 fill-current absolute top-1/2 right-1 -translate-y-1/2 text-muted transition-transform duration-200 motion-reduce:duration-0">
+    <use href="/assets/dist-icons/icons.svg?rev=908067644#caretDown"/>
+</svg></button></div></div></td>
+<td class="screener-groups_filter-label text-right" width="6%">
+<span class="body-combo-title" style="cursor:pointer;" data-boxover-html="&lt;div style=&#39;max-width:300px&#39;&gt;&lt;b&gt;Order by&lt;/b&gt;&lt;br&gt;Select the criteria by which the output information will be sorted. The order settings apply to all views. Use the &lt;b&gt;ascending&lt;/b&gt; and &lt;b&gt;descending&lt;/b&gt; option to invert the current order.&lt;br&gt;&lt;br&gt; TIP: In table views you can click on top of a column to sort the table by the underlying values.&lt;/div&gt;">Order by</span></td>
+<td align="left" width="20%" class="pl-1">
+<select id="orderSelect" style="width:100%;" class="body-combo-text fv-select" onchange='window.location=document.getElementById("orderSelect").value'>
+<option selected="selected" value="screener?v=152&f=sec_technology&o=ticker">Ticker</option><option value="screener?v=152&f=sec_technology&o=tickersfilter">Tickers Input Filter</option><option value="screener?v=152&f=sec_technology&o=company">Company</option><option value="screener?v=152&f=sec_technology&o=sector">Sector</option><option value="screener?v=152&f=sec_technology&o=industry">Industry</option><option value="screener?v=152&f=sec_technology&o=country">Country</option><option value="screener?v=152&f=sec_technology&o=index">Index</option><option value="screener?v=152&f=sec_technology&o=exchange">Exchange</option><option value="screener?v=152&f=sec_technology&o=marketcap">Market Cap.</option><option value="screener?v=152&f=sec_technology&o=pe">Price/Earnings</option><option value="screener?v=152&f=sec_technology&o=forwardpe">Forward Price/Earnings</option><option value="screener?v=152&f=sec_technology&o=peg">PEG (Price/Earnings/Growth)</option><option value="screener?v=152&f=sec_technology&o=ps">Price/Sales</option><option value="screener?v=152&f=sec_technology&o=pb">Price/Book</option><option value="screener?v=152&f=sec_technology&o=pc">Price/Cash</option><option value="screener?v=152&f=sec_technology&o=pfcf">Price/Free Cash Flow</option><option value="screener?v=152&f=sec_technology&o=dividendyield">Dividend Yield</option><option value="screener?v=152&f=sec_technology&o=payoutratio">Payout Ratio</option><option value="screener?v=152&f=sec_technology&o=eps">EPS (TTM)</option><option value="screener?v=152&f=sec_technology&o=estq1">EPS Estimate Next Quarter</option><option value="screener?v=152&f=sec_technology&o=epsyoy">EPS Growth This Year</option><option value="screener?v=152&f=sec_technology&o=epsyoy1">EPS Growth Next Year</option><option value="screener?v=152&f=sec_technology&o=eps3years">EPS Growth Past 3 Years</option><option value="screener?v=152&f=sec_technology&o=eps5years">EPS Growth Past 5 Years</option><option value="screener?v=152&f=sec_technology&o=estltgrowth">EPS Growth Next 5 Years</option><option value="screener?v=152&f=sec_technology&o=epsqoq">EPS Growth Qtr Over Qtr</option><option value="screener?v=152&f=sec_technology&o=epsyoyttm">EPS Year Over Year TTM</option><option value="screener?v=152&f=sec_technology&o=sales3years">Sales Growth Past 3 Years</option><option value="screener?v=152&f=sec_technology&o=sales5years">Sales Growth Past 5 Years</option><option value="screener?v=152&f=sec_technology&o=salesqoq">Sales Growth Qtr Over Qtr</option><option value="screener?v=152&f=sec_technology&o=salesyoyttm">Sales Year Over Year TTM</option><option value="screener?v=152&f=sec_technology&o=epssurprise">EPS Surprise</option><option value="screener?v=152&f=sec_technology&o=revenuesurprise">Revenue Surprise</option><option value="screener?v=152&f=sec_technology&o=sharesoutstanding2">Shares Outstanding</option><option value="screener?v=152&f=sec_technology&o=sharesfloat">Shares Float</option><option value="screener?v=152&f=sec_technology&o=floatoutstandingpct">Float/Outstanding</option><option value="screener?v=152&f=sec_technology&o=insiderown">Insider Ownership</option><option value="screener?v=152&f=sec_technology&o=insidertrans">Insider Transactions</option><option value="screener?v=152&f=sec_technology&o=instown">Institutional Ownership</option><option value="screener?v=152&f=sec_technology&o=insttrans">Institutional Transactions</option><option value="screener?v=152&f=sec_technology&o=shortinterestshare">Short Interest Share</option><option value="screener?v=152&f=sec_technology&o=shortinterestratio">Short Interest Ratio</option><option value="screener?v=152&f=sec_technology&o=shortinterest">Short Interest</option><option value="screener?v=152&f=sec_technology&o=earningsdate">Earnings Date</option><option value="screener?v=152&f=sec_technology&o=news_date">Latest News</option><option value="screener?v=152&f=sec_technology&o=roa">Return on Assets</option><option value="screener?v=152&f=sec_technology&o=roe">Return on Equity</option><option value="screener?v=152&f=sec_technology&o=roi">Return on Invested Capital</option><option value="screener?v=152&f=sec_technology&o=curratio">Current Ratio</option><option value="screener?v=152&f=sec_technology&o=quickratio">Quick Ratio</option><option value="screener?v=152&f=sec_technology&o=ltdebteq">LT Debt/Equity</option><option value="screener?v=152&f=sec_technology&o=debteq">Total Debt/Equity</option><option value="screener?v=152&f=sec_technology&o=grossmargin">Gross Margin</option><option value="screener?v=152&f=sec_technology&o=opermargin">Operating Margin</option><option value="screener?v=152&f=sec_technology&o=netmargin">Net Profit Margin</option><option value="screener?v=152&f=sec_technology&o=recom">Analyst Recommendation</option><option value="screener?v=152&f=sec_technology&o=perf1w">Performance (Week)</option><option value="screener?v=152&f=sec_technology&o=perf4w">Performance (Month)</option><option value="screener?v=152&f=sec_technology&o=perf13w">Performance (Quarter)</option><option value="screener?v=152&f=sec_technology&o=perf26w">Performance (Half Year)</option><option value="screener?v=152&f=sec_technology&o=perfytd">Performance (Year To Date)</option><option value="screener?v=152&f=sec_technology&o=perf52w">Performance (Year)</option><option value="screener?v=152&f=sec_technology&o=perf3y">Performance (3 Years)</option><option value="screener?v=152&f=sec_technology&o=perf5y">Performance (5 Years)</option><option value="screener?v=152&f=sec_technology&o=perf10y">Performance (10 Years)</option><option value="screener?v=152&f=sec_technology&o=beta">Beta</option><option value="screener?v=152&f=sec_technology&o=averagetruerange">Average True Range</option><option value="screener?v=152&f=sec_technology&o=volatility1w">Volatility (Week)</option><option value="screener?v=152&f=sec_technology&o=volatility4w">Volatility (Month)</option><option value="screener?v=152&f=sec_technology&o=sma20">20-Day SMA (Relative)</option><option value="screener?v=152&f=sec_technology&o=sma50">50-Day SMA (Relative)</option><option value="screener?v=152&f=sec_technology&o=sma200">200-Day SMA (Relative)</option><option value="screener?v=152&f=sec_technology&o=high50d">50-Day High (Relative)</option><option value="screener?v=152&f=sec_technology&o=low50d">50-Day Low (Relative)</option><option value="screener?v=152&f=sec_technology&o=high52w">52-Week High (Relative)</option><option value="screener?v=152&f=sec_technology&o=low52w">52-Week Low (Relative)</option><option value="screener?v=152&f=sec_technology&o=52wrange">52-Week Range</option><option value="screener?v=152&f=sec_technology&o=highat">All-Time High (Relative)</option><option value="screener?v=152&f=sec_technology&o=lowat">All-Time Low (Relative)</option><option value="screener?v=152&f=sec_technology&o=rsi">Relative Strength Index (14)</option><option value="screener?v=152&f=sec_technology&o=averagevolume">Average Volume (3 Month)</option><option value="screener?v=152&f=sec_technology&o=relativevolume">Relative Volume</option><option value="screener?v=152&f=sec_technology&o=change">Change</option><option value="screener?v=152&f=sec_technology&o=changeopen">Change from Open</option><option value="screener?v=152&f=sec_technology&o=gap">Gap</option><option value="screener?v=152&f=sec_technology&o=volume">Volume</option><option value="screener?v=152&f=sec_technology&o=open">Open</option><option value="screener?v=152&f=sec_technology&o=high">High</option><option value="screener?v=152&f=sec_technology&o=low">Low</option><option value="screener?v=152&f=sec_technology&o=price">Price</option><option value="screener?v=152&f=sec_technology&o=prevclose">Previous Close</option><option value="screener?v=152&f=sec_technology&o=targetprice">Target Price</option><option value="screener?v=152&f=sec_technology&o=ipodate">IPO Date</option><option value="screener?v=152&f=sec_technology&o=book">Book Value per Share</option><option value="screener?v=152&f=sec_technology&o=cashpershare">Cash per Share</option><option value="screener?v=152&f=sec_technology&o=dividend">Dividend</option><option value="screener?v=152&f=sec_technology&o=dividendexdate">Dividend Ex-Date</option><option value="screener?v=152&f=sec_technology&o=dividendttm">Dividend TTM</option><option value="screener?v=152&f=sec_technology&o=dividend1y">Dividend Growth (1 Year)</option><option value="screener?v=152&f=sec_technology&o=dividend3y">Dividend Growth (3 Year)</option><option value="screener?v=152&f=sec_technology&o=dividend5y">Dividend Growth (5 Year)</option><option value="screener?v=152&f=sec_technology&o=employees">Employees</option><option value="screener?v=152&f=sec_technology&o=income">Income</option><option value="screener?v=152&f=sec_technology&o=sales">Sales</option><option value="screener?v=152&f=sec_technology&o=enterpriseValue">Enterprise Value</option><option value="screener?v=152&f=sec_technology&o=evebitda">EV/EBITDA</option><option value="screener?v=152&f=sec_technology&o=evsales">EV/Sales</option><option value="screener?v=152&f=sec_technology&o=optionable">Optionable</option><option value="screener?v=152&f=sec_technology&o=shortable">Shortable</option><option value="screener?v=152&f=sec_technology&o=newsurl">News URL</option><option value="screener?v=152&f=sec_technology&o=newstitle">News Title</option><option value="screener?v=152&f=sec_technology&o=newstime">News Time</option><option value="screener?v=152&f=sec_technology&o=wiimdailydigest">Daily Digest</option><option value="screener?v=152&f=sec_technology&o=e.category">ETF - Single Category</option><option value="screener?v=152&f=sec_technology&o=e.tags">ETF - Tags</option><option value="screener?v=152&f=sec_technology&o=e.totalholdings">ETF - Total Holdings</option><option value="screener?v=152&f=sec_technology&o=e.assetsundermanagement">ETF - Assets Under Management</option><option value="screener?v=152&f=sec_technology&o=e.netflows1month">ETF - Net Fund Flows (1 Month)</option><option value="screener?v=152&f=sec_technology&o=e.netflows1monthpct">ETF - Net Fund Flows% (1 Month)</option><option value="screener?v=152&f=sec_technology&o=e.netflows3month">ETF - Net Fund Flows (3 Month)</option><option value="screener?v=152&f=sec_technology&o=e.netflows3monthpct">ETF - Net Fund Flows% (3 Month)</option><option value="screener?v=152&f=sec_technology&o=e.netflowsytd">ETF - Net Fund Flows (YTD)</option><option value="screener?v=152&f=sec_technology&o=e.netflowsytdpct">ETF - Net Fund Flows% (YTD)</option><option value="screener?v=152&f=sec_technology&o=e.return1year">ETF - Annualized Return (1 Year)</option><option value="screener?v=152&f=sec_technology&o=e.return3year">ETF - Annualized Return (3 Year)</option><option value="screener?v=152&f=sec_technology&o=e.return5year">ETF - Annualized Return (5 Year)</option><option value="screener?v=152&f=sec_technology&o=e.netexpenseratio">ETF - Net Expense Ratio</option><option value="screener?v=152&f=sec_technology&o=e.activepassive">ETF - Active Passive</option><option value="screener?v=152&f=sec_technology&o=e.assettype">ETF - Asset Type</option><option value="screener?v=152&f=sec_technology&o=e.etftype">ETF - Type</option><option value="screener?v=152&f=sec_technology&o=e.sectortheme">ETF - Sector/Theme</option></select>
+</td>
+<td align="left" width="6%" class="pl-1">
+<select id="orderDirSelect" style="width: 100%;" class="body-combo-text fv-select" onchange='window.location=document.getElementById("orderDirSelect").value'>
+<option selected="selected" value="screener?v=152&f=sec_technology&o=ticker">Asc</option><option value="screener?v=152&f=sec_technology&o=-ticker">Desc</option></select>
+</td>
+<td class="screener-groups_filter-label text-right" width="6%">
+<span class="body-combo-title" style="cursor:pointer;" data-boxover-html="&lt;div style=&#39;max-width:300px&#39;&gt;&lt;b&gt;Signal&lt;/b&gt;&lt;br&gt;You can screen the stocks by signal - an event, by which traders usually enter or exit positions.&lt;/div&gt;">Signal</span></td>
+<td align="left" width="15%" class="pl-1">
+<select id="signalSelect" style="width: 100%;"  class="fv-select body-combo-text" onchange='window.location=document.getElementById("signalSelect").value'>
+<option selected="selected" value="screener?v=152&f=sec_technology&o=ticker">None (all stocks)</option><option value="screener?v=152&s=ta_topgainers&f=sec_technology&o=ticker">Top Gainers</option><option value="screener?v=152&s=ta_toplosers&f=sec_technology&o=ticker">Top Losers</option><option value="screener?v=152&s=ta_newhigh&f=sec_technology&o=ticker">New High</option><option value="screener?v=152&s=ta_newlow&f=sec_technology&o=ticker">New Low</option><option value="screener?v=152&s=ta_mostvolatile&f=sec_technology&o=ticker">Most Volatile</option><option value="screener?v=152&s=ta_mostactive&f=sec_technology&o=ticker">Most Active</option><option value="screener?v=152&s=ta_unusualvolume&f=sec_technology&o=ticker">Unusual Volume</option><option value="screener?v=152&s=ta_overbought&f=sec_technology&o=ticker">Overbought</option><option value="screener?v=152&s=ta_oversold&f=sec_technology&o=ticker">Oversold</option><option value="screener?v=152&s=n_downgrades&f=sec_technology&o=ticker">Downgrades</option><option value="screener?v=152&s=n_upgrades&f=sec_technology&o=ticker">Upgrades</option><option value="screener?v=152&s=n_earningsbefore&f=sec_technology&o=ticker">Earnings Before</option><option value="screener?v=152&s=n_earningsafter&f=sec_technology&o=ticker">Earnings After</option><option value="screener?v=152&s=it_latestbuys&f=sec_technology&o=ticker">Recent Insider Buying</option><option value="screener?v=152&s=it_latestsales&f=sec_technology&o=ticker">Recent Insider Selling</option><option value="screener?v=152&s=n_majornews&f=sec_technology&o=ticker">Major News</option><option value="screener?v=152&s=ta_p_horizontal&f=sec_technology&o=ticker">Horizontal S/R</option><option value="screener?v=152&s=ta_p_tlresistance&f=sec_technology&o=ticker">TL Resistance</option><option value="screener?v=152&s=ta_p_tlsupport&f=sec_technology&o=ticker">TL Support</option><option value="screener?v=152&s=ta_p_wedgeup&f=sec_technology&o=ticker">Wedge Up</option><option value="screener?v=152&s=ta_p_wedgedown&f=sec_technology&o=ticker">Wedge Down</option><option value="screener?v=152&s=ta_p_wedgeresistance&f=sec_technology&o=ticker">Triangle Ascending</option><option value="screener?v=152&s=ta_p_wedgesupport&f=sec_technology&o=ticker">Triangle Descending</option><option value="screener?v=152&s=ta_p_wedge&f=sec_technology&o=ticker">Wedge</option><option value="screener?v=152&s=ta_p_channelup&f=sec_technology&o=ticker">Channel Up</option><option value="screener?v=152&s=ta_p_channeldown&f=sec_technology&o=ticker">Channel Down</option><option value="screener?v=152&s=ta_p_channel&f=sec_technology&o=ticker">Channel</option><option value="screener?v=152&s=ta_p_doubletop&f=sec_technology&o=ticker">Double Top</option><option value="screener?v=152&s=ta_p_doublebottom&f=sec_technology&o=ticker">Double Bottom</option><option value="screener?v=152&s=ta_p_multipletop&f=sec_technology&o=ticker">Multiple Top</option><option value="screener?v=152&s=ta_p_multiplebottom&f=sec_technology&o=ticker">Multiple Bottom</option><option value="screener?v=152&s=ta_p_headandshoulders&f=sec_technology&o=ticker">Head & Shoulders</option><option value="screener?v=152&s=ta_p_headandshouldersinv&f=sec_technology&o=ticker">Head & Shoulders Inverse</option></select>
+</td>
+<td class="screener-groups_filter-label text-right" width="6%">
+<span class="body-combo-title" style="cursor:pointer;" data-boxover-html="&lt;div style=&#39;max-width:300px&#39;&gt;&lt;b&gt;Tickers&lt;/b&gt;&lt;br&gt;To screen through a selected set of stocks, you can enter one or more tickers directly, such as &#39;MSFT,GOOG,AAPL&#39;. The screening process will run only on the specified stocks. No input ticker(s) equals all stocks. The &lt;b&gt;open in screener&lt;/b&gt; option in the &lt;b&gt;Search&lt;/b&gt;, will copy the listed tickers to the screener&#39;s ticker box automatically.&lt;/div&gt;">Tickers</span></td>
+<td align="left" width="24%" class="pl-1">
+<table width="100%" cellpadding="0" cellspacing="0" style="table-layout:fixed;">
+<tr>
+<td align="left" width="100%">
+<input id="tickersInput" class="fv-input body-combo-text" style="width:100%" value="" type="text" onkeypress="if(event.keyCode==13){window.location='screener?v=152&f=sec_technology&o=ticker&t=' + window.FLibs.getSanitizedTicker(document.getElementById('tickersInput').value, true)}">
+</td>
+</tr>
+</table>
+</td>
+<td class="pl-1">
+<button data-boxover-text="Submit tickers" class="screener-combo-button fv-button screener_button is-arrow" style="cursor:pointer" onclick="window.location='screener?v=152&f=sec_technology&o=ticker&t=' +tickersInput.value"/>
+    <svg width="16" height="16" class="-mx-1">
+    <use href="/assets/dist-icons/icons.svg?rev=908067644#chevronRight"/>
+</svg>
+</button></td>
+<td align="left" valign="center" class="pl-2"><a href="screener?v=151&f=sec_technology&o=ticker" class="screener-combo-button fv-button is-small is-border screener_button is-active" data-boxover-html="&lt;div style=&#39;max-width:300px&#39;&gt;&lt;b&gt;Filters&lt;/b&gt;&lt;br&gt;To optimize the screening by various stock-related criteria, you can use one or more &lt;b&gt;Filters&lt;/b&gt;.&lt;/div&gt;">Filters <svg width="16" height="16" class="ml-1 -mr-px">
+    <use href="/assets/dist-icons/icons.svg?rev=908067644#caretDown"/>
+</svg></a></td>
+<td><img class="w-1.5 h-1.5" src="gfx/nic2x2.gif" alt="" border="0"></td>
+</tr>
+</table>
+</td>
+</tr>
+<tr><td>
+<div id="screener-content">
+<table id="screener-views-table" width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td width="100%">
+<table width="100%" cellpadding="0" cellspacing="0" class="screener-view-table screener-view-switch">
+<tr>
+<td class="screener-view-button is-screener " style="cursor:pointer;"><a href="screener?v=112&f=sec_technology&o=ticker">Overview</a></td>
+<td class="screener-view-button is-screener " style="cursor:pointer;"><a href="screener?v=122&f=sec_technology&o=ticker">Valuation</a></td>
+<td class="screener-view-button is-screener " style="cursor:pointer;"><a href="screener?v=162&f=sec_technology&o=ticker">Financial</a></td>
+<td class="screener-view-button is-screener " style="cursor:pointer;"><a href="screener?v=132&f=sec_technology&o=ticker">Ownership</a></td>
+<td class="screener-view-button is-screener " style="cursor:pointer;"><a href="screener?v=142&f=sec_technology&o=ticker">Performance</a></td>
+<td class="screener-view-button is-screener " style="cursor:pointer;"><a href="screener?v=172&f=sec_technology&o=ticker">Technical</a></td>
+<td class="screener-view-button is-screener " style="cursor:pointer;"><a href="screener?v=182&f=sec_technology&o=ticker">ETF</a></td>
+<td class="screener-view-button is-screener " style="cursor:pointer;"><a href="screener?v=192&f=sec_technology&o=ticker">ETF Perf</a></td>
+<td class="screener-view-button is-screener is-active" style="cursor:pointer;"><a href="screener?v=152&f=sec_technology&o=ticker">Custom</a></td>
+<td class="screener-view-button is-screener " style="cursor:pointer;"><a href="screener?v=212&f=sec_technology&o=ticker">Charts</a></td>
+<td class="screener-view-button is-screener " style="cursor:pointer;"><a href="screener?v=412&f=sec_technology&o=ticker">Tickers</a></td>
+<td class="screener-view-button is-screener " style="cursor:pointer;"><a href="screener?v=312&f=sec_technology&o=ticker">Basic</a></td>
+<td class="screener-view-button is-screener " style="cursor:pointer;"><a href="screener?v=352&f=sec_technology&o=ticker">TA</a></td>
+<td class="screener-view-button is-screener " style="cursor:pointer;"><a href="screener?v=322&f=sec_technology&o=ticker">News</a></td>
+<td class="screener-view-button is-screener " style="cursor:pointer;"><a href="screener?v=342&f=sec_technology&o=ticker">Snapshot</a></td>
+<td class="screener-view-button is-screener " style="cursor:pointer;"><a href="screener?v=712&f=sec_technology&o=ticker">Maps</a></td>
+<td class="screener-view-button is-screener " style="cursor:pointer;"><a href="javascript:window.openEliteFeaturesDialog?.('stats', event)">Stats</a></td>
+</tr>
+</table>
+</td>
+</tr>
+<tr><td width="100%"><img src="gfx/nic2x2.gif" style="display:block;width:2px;height:6px" alt="" border="0"></td></tr>
+<tr>
+<td width="100%">
+<div class="relative w-full min-h-6"><div class="absolute bottom-0 left-0 right-0 top-0 flex justify-between items-center gap-x-6">
+<div id="screener-total" class="count-text whitespace-nowrap">#1 / 779 Total</div>
+<div id="screener-fullview-links" class="fullview-links flex space-x-3 lg:space-x-5 justify-center items-center overflow-hidden text-link"">
+<span class="tab-link whitespace-nowrap">
+<a href="javascript:SavePortfolio(779,'v=152&f=sec_technology&o=ticker')" class="tab-link">save as portfolio</a> | 
+<a data-testid="screener-create-alert-link" href="javascript:window.openEliteFeaturesDialog?.('notifications', event)" class="tab-link">create alert</a></span>
+<span style="white-space: nowrap"><span class="count-text"><b>Refresh:</b></span> <a href="/screener?v=152&f=sec_technology&o=ticker&ar=180" class="tab-link ">3min</a> | <a href="/screener?v=152&f=sec_technology&o=ticker" class="tab-link font-bold">off</a></div><div class="grow"></div>
+    <div id="screener-table-config" class="ml-3" data-active-tab="columns">
+        <button class="flex items-center justify-center font-medium border border-transparent bg-gray-200/30 dark:bg-gray-500/30 px-1.5 text-2xs h-6 min-w-6 rounded-md shrink-0 whitespace-nowrap ring-gray-200 dark:ring-gray-500">
+            <span class="flex w-3 items-center justify-center"><svg width="16" height="16" class="block shrink-0 fill-current">
+    <use href="/assets/dist-icons/icons.svg?rev=908067644#settings"/>
+</svg></span>
+            <span class="grow text-left ml-1.5">Customize</span>
+        </button>
+    </div><div id="screener-page-select" class="flex justify-center items-center gap-1"><span class="screener-combo-button screener_button fv-button is-arrow is-disabled"><svg width="16" height="16">
+    <use href="/assets/dist-icons/icons.svg?rev=908067644#arrowBackward"/>
+</svg></span><select id="pageSelect"  class="pages-combo fv-select" onchange='trackPagination("top");url="screener?v=152&f=sec_technology&o=ticker&r=123456";row="r=" + document.getElementById("pageSelect").value;url=url.replace(/r=123456/,row);window.location=url;'>
+<option selected="selected" value=1>Page 1 / 39</option><option value=21>Page 2 / 39</option><option value=41>Page 3 / 39</option><option value=61>Page 4 / 39</option><option value=81>Page 5 / 39</option><option value=101>Page 6 / 39</option><option value=121>Page 7 / 39</option><option value=141>Page 8 / 39</option><option value=161>Page 9 / 39</option><option value=181>Page 10 / 39</option><option value=201>Page 11 / 39</option><option value=221>Page 12 / 39</option><option value=241>Page 13 / 39</option><option value=261>Page 14 / 39</option><option value=281>Page 15 / 39</option><option value=301>Page 16 / 39</option><option value=321>Page 17 / 39</option><option value=341>Page 18 / 39</option><option value=361>Page 19 / 39</option><option value=381>Page 20 / 39</option><option value=401>Page 21 / 39</option><option value=421>Page 22 / 39</option><option value=441>Page 23 / 39</option><option value=461>Page 24 / 39</option><option value=481>Page 25 / 39</option><option value=501>Page 26 / 39</option><option value=521>Page 27 / 39</option><option value=541>Page 28 / 39</option><option value=561>Page 29 / 39</option><option value=581>Page 30 / 39</option><option value=601>Page 31 / 39</option><option value=621>Page 32 / 39</option><option value=641>Page 33 / 39</option><option value=661>Page 34 / 39</option><option value=681>Page 35 / 39</option><option value=701>Page 36 / 39</option><option value=721>Page 37 / 39</option><option value=741>Page 38 / 39</option><option value=761>Page 39 / 39</option></select>
+<a href="screener?v=152&f=sec_technology&o=ticker&r=21" class="screener-combo-button screener_button fv-button is-arrow" onclick="trackPagination('top')"><svg width="16" height="16">
+    <use href="/assets/dist-icons/icons.svg?rev=908067644#arrowForward"/>
+</svg></a></div></div></div></td>
+</tr>
+<tr><td width="100%" colspan="30"><img src="gfx/nic2x2.gif" style="display:block;width:2px;height:6px" alt="" border="0"></td></tr>
+<tr id="screener-table"><td><table width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
+<td>
+<table class="styled-table-new is-rounded is-tabular-nums w-full screener_table">
+<thead>
+<tr align="center" valign="middle">
+<th class="table-header is-static cursor-default" align="right">No.</th>
+<th class="table-header cursor-pointer is-selected is-ascending" align="left" onclick="window.location='screener?v=152&f=sec_technology&o=-ticker'">Ticker<svg width="16" height="16" class="inline-block -mt-[3px] -mb-0.5">
+    <use href="/assets/dist-icons/icons.svg?rev=908067644#chevronUp"/>
+</svg></th>
+<th class="table-header cursor-pointer" align="left" onclick="window.location='screener?v=152&f=sec_technology&o=company'">Company</th>
+<th class="table-header cursor-pointer" align="left" onclick="window.location='screener?v=152&f=sec_technology&o=sector'">Sector</th>
+<th class="table-header cursor-pointer" align="left" onclick="window.location='screener?v=152&f=sec_technology&o=industry'">Industry</th>
+<th class="table-header cursor-pointer" align="left" onclick="window.location='screener?v=152&f=sec_technology&o=country'">Country</th>
+<th class="table-header cursor-pointer" align="right" onclick="window.location='screener?v=152&f=sec_technology&o=marketcap'">Market Cap</th>
+<th class="table-header cursor-pointer" align="right" onclick="window.location='screener?v=152&f=sec_technology&o=pe'">P/E</th>
+<th class="table-header cursor-pointer" align="right" onclick="window.location='screener?v=152&f=sec_technology&o=volume'">Volume</th>
+<th class="table-header cursor-pointer" align="right" onclick="window.location='screener?v=152&f=sec_technology&o=price'">Price</th>
+<th class="table-header cursor-pointer" align="right" onclick="window.location='screener?v=152&f=sec_technology&o=change'">Change</th>
+</thead>
+<tr class="styled-row is-bordered is-rounded is-hoverable is-striped has-color-text" valign="top">
+<td height="10" align="right"><a href="quote?t=AAOI&ty=c&p=d&b=1" ">1</a></td><td height="10" align="left"data-boxover-ticker="AAOI" data-boxover-company="Applied Optoelectronics Inc" data-boxover-industry="Communication Equipment" data-boxover-country="USA" data-boxover-value="13.90B"><a href="quote?t=AAOI&ty=c&p=d&b=1" class="tab-link">AAOI</a></td><td height="10" align="left"><a href="quote?t=AAOI&ty=c&p=d&b=1" ">Applied Optoelectronics Inc</a></td><td height="10" align="left"><a href="quote?t=AAOI&ty=c&p=d&b=1" ">Technology</a></td><td height="10" align="left"><a href="quote?t=AAOI&ty=c&p=d&b=1" ">Communication Equipment</a></td><td height="10" align="left"><a href="quote?t=AAOI&ty=c&p=d&b=1" ">USA</a></td><td height="10" align="right"><a href="quote?t=AAOI&ty=c&p=d&b=1" ">13.90B</a></td><td height="10" align="right"><a href="quote?t=AAOI&ty=c&p=d&b=1" ">-</a></td><td height="10" align="right"><a href="quote?t=AAOI&ty=c&p=d&b=1" ">13,127,129</a></td><td height="10" align="right"data-boxover-ticker="AAOI" data-boxover-company="Applied Optoelectronics Inc" data-boxover-industry="Communication Equipment" data-boxover-country="USA" data-boxover-value="13.90B"><a href="quote?t=AAOI&ty=c&p=d&b=1" "><span class="color-text is-negative">173.26</span></a></td><td height="10" align="right"><a href="quote?t=AAOI&ty=c&p=d&b=1" "><span class="color-text is-negative">-8.98%</span></a></td></tr><tr class="styled-row is-bordered is-rounded is-hoverable is-striped has-color-text" valign="top">
+<td height="10" align="right"><a href="quote?t=AAPL&ty=c&p=d&b=1" ">2</a></td><td height="10" align="left"data-boxover-ticker="AAPL" data-boxover-company="Apple Inc" data-boxover-industry="Consumer Electronics" data-boxover-country="USA" data-boxover-value="4374.48B"><a href="quote?t=AAPL&ty=c&p=d&b=1" class="tab-link">AAPL</a></td><td height="10" align="left"><a href="quote?t=AAPL&ty=c&p=d&b=1" ">Apple Inc</a></td><td height="10" align="left"><a href="quote?t=AAPL&ty=c&p=d&b=1" ">Technology</a></td><td height="10" align="left"><a href="quote?t=AAPL&ty=c&p=d&b=1" ">Consumer Electronics</a></td><td height="10" align="left"><a href="quote?t=AAPL&ty=c&p=d&b=1" ">USA</a></td><td height="10" align="right"><a href="quote?t=AAPL&ty=c&p=d&b=1" ">4374.48B</a></td><td height="10" align="right"><a href="quote?t=AAPL&ty=c&p=d&b=1" ">36.03</a></td><td height="10" align="right"><a href="quote?t=AAPL&ty=c&p=d&b=1" ">34,422,117</a></td><td height="10" align="right"data-boxover-ticker="AAPL" data-boxover-company="Apple Inc" data-boxover-industry="Consumer Electronics" data-boxover-country="USA" data-boxover-value="4374.48B"><a href="quote?t=AAPL&ty=c&p=d&b=1" "><span class="color-text is-negative">297.84</span></a></td><td height="10" align="right"><a href="quote?t=AAPL&ty=c&p=d&b=1" "><span class="color-text is-negative">-0.80%</span></a></td></tr><tr class="styled-row is-bordered is-rounded is-hoverable is-striped has-color-text" valign="top">
+<td height="10" align="right"><a href="quote?t=ACFN&ty=c&p=d&b=1" ">3</a></td><td height="10" align="left"data-boxover-ticker="ACFN" data-boxover-company="Acorn Energy Inc" data-boxover-industry="Scientific &amp; Technical Instruments" data-boxover-country="USA" data-boxover-value="41.41M"><a href="quote?t=ACFN&ty=c&p=d&b=1" class="tab-link">ACFN</a></td><td height="10" align="left"><a href="quote?t=ACFN&ty=c&p=d&b=1" ">Acorn Energy Inc</a></td><td height="10" align="left"><a href="quote?t=ACFN&ty=c&p=d&b=1" ">Technology</a></td><td height="10" align="left"><a href="quote?t=ACFN&ty=c&p=d&b=1" ">Scientific & Technical Instruments</a></td><td height="10" align="left"><a href="quote?t=ACFN&ty=c&p=d&b=1" ">USA</a></td><td height="10" align="right"><a href="quote?t=ACFN&ty=c&p=d&b=1" ">41.41M</a></td><td height="10" align="right"><a href="quote?t=ACFN&ty=c&p=d&b=1" ">21.31</a></td><td height="10" align="right"><a href="quote?t=ACFN&ty=c&p=d&b=1" ">3,496</a></td><td height="10" align="right"data-boxover-ticker="ACFN" data-boxover-company="Acorn Energy Inc" data-boxover-industry="Scientific &amp; Technical Instruments" data-boxover-country="USA" data-boxover-value="41.41M"><a href="quote?t=ACFN&ty=c&p=d&b=1" "><span class="color-text is-negative">16.51</span></a></td><td height="10" align="right"><a href="quote?t=ACFN&ty=c&p=d&b=1" "><span class="color-text is-negative">-0.54%</span></a></td></tr><tr class="styled-row is-bordered is-rounded is-hoverable is-striped has-color-text" valign="top">
+<td height="10" align="right"><a href="quote?t=ACIW&ty=c&p=d&b=1" ">4</a></td><td height="10" align="left"data-boxover-ticker="ACIW" data-boxover-company="ACI Worldwide Inc" data-boxover-industry="Software - Infrastructure" data-boxover-country="USA" data-boxover-value="4.35B"><a href="quote?t=ACIW&ty=c&p=d&b=1" class="tab-link">ACIW</a></td><td height="10" align="left"><a href="quote?t=ACIW&ty=c&p=d&b=1" ">ACI Worldwide Inc</a></td><td height="10" align="left"><a href="quote?t=ACIW&ty=c&p=d&b=1" ">Technology</a></td><td height="10" align="left"><a href="quote?t=ACIW&ty=c&p=d&b=1" ">Software - Infrastructure</a></td><td height="10" align="left"><a href="quote?t=ACIW&ty=c&p=d&b=1" ">USA</a></td><td height="10" align="right"><a href="quote?t=ACIW&ty=c&p=d&b=1" ">4.35B</a></td><td height="10" align="right"><a href="quote?t=ACIW&ty=c&p=d&b=1" ">21.52</a></td><td height="10" align="right"><a href="quote?t=ACIW&ty=c&p=d&b=1" ">924,320</a></td><td height="10" align="right"data-boxover-ticker="ACIW" data-boxover-company="ACI Worldwide Inc" data-boxover-industry="Software - Infrastructure" data-boxover-country="USA" data-boxover-value="4.35B"><a href="quote?t=ACIW&ty=c&p=d&b=1" "><span class="color-text is-positive">42.80</span></a></td><td height="10" align="right"><a href="quote?t=ACIW&ty=c&p=d&b=1" "><span class="color-text is-positive">2.74%</span></a></td></tr><tr class="styled-row is-bordered is-rounded is-hoverable is-striped has-color-text" valign="top">
+<td height="10" align="right"><a href="quote?t=ACLS&ty=c&p=d&b=1" ">5</a></td><td height="10" align="left"data-boxover-ticker="ACLS" data-boxover-company="Axcelis Technologies Inc" data-boxover-industry="Semiconductor Equipment &amp; Materials" data-boxover-country="USA" data-boxover-value="4.49B"><a href="quote?t=ACLS&ty=c&p=d&b=1" class="tab-link">ACLS</a></td><td height="10" align="left"><a href="quote?t=ACLS&ty=c&p=d&b=1" ">Axcelis Technologies Inc</a></td><td height="10" align="left"><a href="quote?t=ACLS&ty=c&p=d&b=1" ">Technology</a></td><td height="10" align="left"><a href="quote?t=ACLS&ty=c&p=d&b=1" ">Semiconductor Equipment & Materials</a></td><td height="10" align="left"><a href="quote?t=ACLS&ty=c&p=d&b=1" ">USA</a></td><td height="10" align="right"><a href="quote?t=ACLS&ty=c&p=d&b=1" ">4.49B</a></td><td height="10" align="right"><a href="quote?t=ACLS&ty=c&p=d&b=1" "><span class="color-text is-negative">45.56</span></a></td><td height="10" align="right"><a href="quote?t=ACLS&ty=c&p=d&b=1" ">608,756</a></td><td height="10" align="right"data-boxover-ticker="ACLS" data-boxover-company="Axcelis Technologies Inc" data-boxover-industry="Semiconductor Equipment &amp; Materials" data-boxover-country="USA" data-boxover-value="4.49B"><a href="quote?t=ACLS&ty=c&p=d&b=1" "><span class="color-text is-negative">146.24</span></a></td><td height="10" align="right"><a href="quote?t=ACLS&ty=c&p=d&b=1" "><span class="color-text is-negative">-5.76%</span></a></td></tr><tr class="styled-row is-bordered is-rounded is-hoverable is-striped has-color-text" valign="top">
+<td height="10" align="right"><a href="quote?t=ACMR&ty=c&p=d&b=1" ">6</a></td><td height="10" align="left"data-boxover-ticker="ACMR" data-boxover-company="ACM Research Inc" data-boxover-industry="Semiconductor Equipment &amp; Materials" data-boxover-country="USA" data-boxover-value="4.19B"><a href="quote?t=ACMR&ty=c&p=d&b=1" class="tab-link">ACMR</a></td><td height="10" align="left"><a href="quote?t=ACMR&ty=c&p=d&b=1" ">ACM Research Inc</a></td><td height="10" align="left"><a href="quote?t=ACMR&ty=c&p=d&b=1" ">Technology</a></td><td height="10" align="left"><a href="quote?t=ACMR&ty=c&p=d&b=1" ">Semiconductor Equipment & Materials</a></td><td height="10" align="left"><a href="quote?t=ACMR&ty=c&p=d&b=1" ">USA</a></td><td height="10" align="right"><a href="quote?t=ACMR&ty=c&p=d&b=1" ">4.19B</a></td><td height="10" align="right"><a href="quote?t=ACMR&ty=c&p=d&b=1" "><span class="color-text is-negative">48.09</span></a></td><td height="10" align="right"><a href="quote?t=ACMR&ty=c&p=d&b=1" ">1,208,846</a></td><td height="10" align="right"data-boxover-ticker="ACMR" data-boxover-company="ACM Research Inc" data-boxover-industry="Semiconductor Equipment &amp; Materials" data-boxover-country="USA" data-boxover-value="4.19B"><a href="quote?t=ACMR&ty=c&p=d&b=1" "><span class="color-text is-negative">63.25</span></a></td><td height="10" align="right"><a href="quote?t=ACMR&ty=c&p=d&b=1" "><span class="color-text is-negative">-0.66%</span></a></td></tr><tr class="styled-row is-bordered is-rounded is-hoverable is-striped has-color-text" valign="top">
+<td height="10" align="right"><a href="quote?t=ACN&ty=c&p=d&b=1" ">7</a></td><td height="10" align="left"data-boxover-ticker="ACN" data-boxover-company="Accenture plc" data-boxover-industry="Information Technology Services" data-boxover-country="Ireland" data-boxover-value="109.00B"><a href="quote?t=ACN&ty=c&p=d&b=1" class="tab-link">ACN</a></td><td height="10" align="left"><a href="quote?t=ACN&ty=c&p=d&b=1" ">Accenture plc</a></td><td height="10" align="left"><a href="quote?t=ACN&ty=c&p=d&b=1" ">Technology</a></td><td height="10" align="left"><a href="quote?t=ACN&ty=c&p=d&b=1" ">Information Technology Services</a></td><td height="10" align="left"><a href="quote?t=ACN&ty=c&p=d&b=1" ">Ireland</a></td><td height="10" align="right"><a href="quote?t=ACN&ty=c&p=d&b=1" ">109.00B</a></td><td height="10" align="right"><a href="quote?t=ACN&ty=c&p=d&b=1" "><span class="color-text is-positive">14.54</span></a></td><td height="10" align="right"><a href="quote?t=ACN&ty=c&p=d&b=1" ">5,363,158</a></td><td height="10" align="right"data-boxover-ticker="ACN" data-boxover-company="Accenture plc" data-boxover-industry="Information Technology Services" data-boxover-country="Ireland" data-boxover-value="109.00B"><a href="quote?t=ACN&ty=c&p=d&b=1" "><span class="color-text is-positive">177.55</span></a></td><td height="10" align="right"><a href="quote?t=ACN&ty=c&p=d&b=1" "><span class="color-text is-positive">5.17%</span></a></td></tr><tr class="styled-row is-bordered is-rounded is-hoverable is-striped has-color-text" valign="top">
+<td height="10" align="right"><a href="quote?t=ADBE&ty=c&p=d&b=1" ">8</a></td><td height="10" align="left"data-boxover-ticker="ADBE" data-boxover-company="Adobe Inc" data-boxover-industry="Software - Application" data-boxover-country="USA" data-boxover-value="103.33B"><a href="quote?t=ADBE&ty=c&p=d&b=1" class="tab-link">ADBE</a></td><td height="10" align="left"><a href="quote?t=ADBE&ty=c&p=d&b=1" ">Adobe Inc</a></td><td height="10" align="left"><a href="quote?t=ADBE&ty=c&p=d&b=1" ">Technology</a></td><td height="10" align="left"><a href="quote?t=ADBE&ty=c&p=d&b=1" ">Software - Application</a></td><td height="10" align="left"><a href="quote?t=ADBE&ty=c&p=d&b=1" ">USA</a></td><td height="10" align="right"><a href="quote?t=ADBE&ty=c&p=d&b=1" ">103.33B</a></td><td height="10" align="right"><a href="quote?t=ADBE&ty=c&p=d&b=1" "><span class="color-text is-positive">14.89</span></a></td><td height="10" align="right"><a href="quote?t=ADBE&ty=c&p=d&b=1" ">5,555,420</a></td><td height="10" align="right"data-boxover-ticker="ADBE" data-boxover-company="Adobe Inc" data-boxover-industry="Software - Application" data-boxover-country="USA" data-boxover-value="103.33B"><a href="quote?t=ADBE&ty=c&p=d&b=1" "><span class="color-text is-positive">255.64</span></a></td><td height="10" align="right"><a href="quote?t=ADBE&ty=c&p=d&b=1" "><span class="color-text is-positive">3.25%</span></a></td></tr><tr class="styled-row is-bordered is-rounded is-hoverable is-striped has-color-text" valign="top">
+<td height="10" align="right"><a href="quote?t=ADEA&ty=c&p=d&b=1" ">9</a></td><td height="10" align="left"data-boxover-ticker="ADEA" data-boxover-company="Adeia Inc" data-boxover-industry="Software - Application" data-boxover-country="USA" data-boxover-value="3.02B"><a href="quote?t=ADEA&ty=c&p=d&b=1" class="tab-link">ADEA</a></td><td height="10" align="left"><a href="quote?t=ADEA&ty=c&p=d&b=1" ">Adeia Inc</a></td><td height="10" align="left"><a href="quote?t=ADEA&ty=c&p=d&b=1" ">Technology</a></td><td height="10" align="left"><a href="quote?t=ADEA&ty=c&p=d&b=1" ">Software - Application</a></td><td height="10" align="left"><a href="quote?t=ADEA&ty=c&p=d&b=1" ">USA</a></td><td height="10" align="right"><a href="quote?t=ADEA&ty=c&p=d&b=1" ">3.02B</a></td><td height="10" align="right"><a href="quote?t=ADEA&ty=c&p=d&b=1" ">25.39</a></td><td height="10" align="right"><a href="quote?t=ADEA&ty=c&p=d&b=1" ">2,735,414</a></td><td height="10" align="right"data-boxover-ticker="ADEA" data-boxover-company="Adeia Inc" data-boxover-industry="Software - Application" data-boxover-country="USA" data-boxover-value="3.02B"><a href="quote?t=ADEA&ty=c&p=d&b=1" "><span class="color-text is-negative">27.40</span></a></td><td height="10" align="right"><a href="quote?t=ADEA&ty=c&p=d&b=1" "><span class="color-text is-negative">-8.30%</span></a></td></tr><tr class="styled-row is-bordered is-rounded is-hoverable is-striped has-color-text" valign="top">
+<td height="10" align="right"><a href="quote?t=ADI&ty=c&p=d&b=1" ">10</a></td><td height="10" align="left"data-boxover-ticker="ADI" data-boxover-company="Analog Devices Inc" data-boxover-industry="Semiconductors" data-boxover-country="USA" data-boxover-value="204.35B"><a href="quote?t=ADI&ty=c&p=d&b=1" class="tab-link">ADI</a></td><td height="10" align="left"><a href="quote?t=ADI&ty=c&p=d&b=1" ">Analog Devices Inc</a></td><td height="10" align="left"><a href="quote?t=ADI&ty=c&p=d&b=1" ">Technology</a></td><td height="10" align="left"><a href="quote?t=ADI&ty=c&p=d&b=1" ">Semiconductors</a></td><td height="10" align="left"><a href="quote?t=ADI&ty=c&p=d&b=1" ">USA</a></td><td height="10" align="right"><a href="quote?t=ADI&ty=c&p=d&b=1" ">204.35B</a></td><td height="10" align="right"><a href="quote?t=ADI&ty=c&p=d&b=1" "><span class="color-text is-negative">76.46</span></a></td><td height="10" align="right"><a href="quote?t=ADI&ty=c&p=d&b=1" ">4,226,096</a></td><td height="10" align="right"data-boxover-ticker="ADI" data-boxover-company="Analog Devices Inc" data-boxover-industry="Semiconductors" data-boxover-country="USA" data-boxover-value="204.35B"><a href="quote?t=ADI&ty=c&p=d&b=1" "><span class="color-text is-positive">418.58</span></a></td><td height="10" align="right"><a href="quote?t=ADI&ty=c&p=d&b=1" "><span class="color-text is-positive">0.26%</span></a></td></tr><tr class="styled-row is-bordered is-rounded is-hoverable is-striped has-color-text" valign="top">
+<td height="10" align="right"><a href="quote?t=ADP&ty=c&p=d&b=1" ">11</a></td><td height="10" align="left"data-boxover-ticker="ADP" data-boxover-company="Automatic Data Processing Inc" data-boxover-industry="Software - Application" data-boxover-country="USA" data-boxover-value="89.12B"><a href="quote?t=ADP&ty=c&p=d&b=1" class="tab-link">ADP</a></td><td height="10" align="left"><a href="quote?t=ADP&ty=c&p=d&b=1" ">Automatic Data Processing Inc</a></td><td height="10" align="left"><a href="quote?t=ADP&ty=c&p=d&b=1" ">Technology</a></td><td height="10" align="left"><a href="quote?t=ADP&ty=c&p=d&b=1" ">Software - Application</a></td><td height="10" align="left"><a href="quote?t=ADP&ty=c&p=d&b=1" ">USA</a></td><td height="10" align="right"><a href="quote?t=ADP&ty=c&p=d&b=1" ">89.12B</a></td><td height="10" align="right"><a href="quote?t=ADP&ty=c&p=d&b=1" ">20.78</a></td><td height="10" align="right"><a href="quote?t=ADP&ty=c&p=d&b=1" ">3,233,549</a></td><td height="10" align="right"data-boxover-ticker="ADP" data-boxover-company="Automatic Data Processing Inc" data-boxover-industry="Software - Application" data-boxover-country="USA" data-boxover-value="89.12B"><a href="quote?t=ADP&ty=c&p=d&b=1" "><span class="color-text is-positive">222.94</span></a></td><td height="10" align="right"><a href="quote?t=ADP&ty=c&p=d&b=1" "><span class="color-text is-positive">3.94%</span></a></td></tr><tr class="styled-row is-bordered is-rounded is-hoverable is-striped has-color-text" valign="top">
+<td height="10" align="right"><a href="quote?t=ADSK&ty=c&p=d&b=1" ">12</a></td><td height="10" align="left"data-boxover-ticker="ADSK" data-boxover-company="Autodesk Inc" data-boxover-industry="Software - Application" data-boxover-country="USA" data-boxover-value="51.41B"><a href="quote?t=ADSK&ty=c&p=d&b=1" class="tab-link">ADSK</a></td><td height="10" align="left"><a href="quote?t=ADSK&ty=c&p=d&b=1" ">Autodesk Inc</a></td><td height="10" align="left"><a href="quote?t=ADSK&ty=c&p=d&b=1" ">Technology</a></td><td height="10" align="left"><a href="quote?t=ADSK&ty=c&p=d&b=1" ">Software - Application</a></td><td height="10" align="left"><a href="quote?t=ADSK&ty=c&p=d&b=1" ">USA</a></td><td height="10" align="right"><a href="quote?t=ADSK&ty=c&p=d&b=1" ">51.41B</a></td><td height="10" align="right"><a href="quote?t=ADSK&ty=c&p=d&b=1" "><span class="color-text is-negative">46.54</span></a></td><td height="10" align="right"><a href="quote?t=ADSK&ty=c&p=d&b=1" ">1,744,632</a></td><td height="10" align="right"data-boxover-ticker="ADSK" data-boxover-company="Autodesk Inc" data-boxover-industry="Software - Application" data-boxover-country="USA" data-boxover-value="51.41B"><a href="quote?t=ADSK&ty=c&p=d&b=1" "><span class="color-text is-positive">243.49</span></a></td><td height="10" align="right"><a href="quote?t=ADSK&ty=c&p=d&b=1" "><span class="color-text is-positive">2.90%</span></a></td></tr><tr class="styled-row is-bordered is-rounded is-hoverable is-striped has-color-text" valign="top">
+<td height="10" align="right"><a href="quote?t=ADTN&ty=c&p=d&b=1" ">13</a></td><td height="10" align="left"data-boxover-ticker="ADTN" data-boxover-company="ADTRAN Holdings Inc" data-boxover-industry="Communication Equipment" data-boxover-country="USA" data-boxover-value="1.21B"><a href="quote?t=ADTN&ty=c&p=d&b=1" class="tab-link">ADTN</a></td><td height="10" align="left"><a href="quote?t=ADTN&ty=c&p=d&b=1" ">ADTRAN Holdings Inc</a></td><td height="10" align="left"><a href="quote?t=ADTN&ty=c&p=d&b=1" ">Technology</a></td><td height="10" align="left"><a href="quote?t=ADTN&ty=c&p=d&b=1" ">Communication Equipment</a></td><td height="10" align="left"><a href="quote?t=ADTN&ty=c&p=d&b=1" ">USA</a></td><td height="10" align="right"><a href="quote?t=ADTN&ty=c&p=d&b=1" ">1.21B</a></td><td height="10" align="right"><a href="quote?t=ADTN&ty=c&p=d&b=1" ">-</a></td><td height="10" align="right"><a href="quote?t=ADTN&ty=c&p=d&b=1" ">2,088,247</a></td><td height="10" align="right"data-boxover-ticker="ADTN" data-boxover-company="ADTRAN Holdings Inc" data-boxover-industry="Communication Equipment" data-boxover-country="USA" data-boxover-value="1.21B"><a href="quote?t=ADTN&ty=c&p=d&b=1" "><span class="color-text is-positive">14.96</span></a></td><td height="10" align="right"><a href="quote?t=ADTN&ty=c&p=d&b=1" "><span class="color-text is-positive">0.34%</span></a></td></tr><tr class="styled-row is-bordered is-rounded is-hoverable is-striped has-color-text" valign="top">
+<td height="10" align="right"><a href="quote?t=AEHR&ty=c&p=d&b=1" ">14</a></td><td height="10" align="left"data-boxover-ticker="AEHR" data-boxover-company="Aehr Test Systems" data-boxover-industry="Semiconductor Equipment &amp; Materials" data-boxover-country="USA" data-boxover-value="2.63B"><a href="quote?t=AEHR&ty=c&p=d&b=1" class="tab-link">AEHR</a></td><td height="10" align="left"><a href="quote?t=AEHR&ty=c&p=d&b=1" ">Aehr Test Systems</a></td><td height="10" align="left"><a href="quote?t=AEHR&ty=c&p=d&b=1" ">Technology</a></td><td height="10" align="left"><a href="quote?t=AEHR&ty=c&p=d&b=1" ">Semiconductor Equipment & Materials</a></td><td height="10" align="left"><a href="quote?t=AEHR&ty=c&p=d&b=1" ">USA</a></td><td height="10" align="right"><a href="quote?t=AEHR&ty=c&p=d&b=1" ">2.63B</a></td><td height="10" align="right"><a href="quote?t=AEHR&ty=c&p=d&b=1" ">-</a></td><td height="10" align="right"><a href="quote?t=AEHR&ty=c&p=d&b=1" ">3,921,633</a></td><td height="10" align="right"data-boxover-ticker="AEHR" data-boxover-company="Aehr Test Systems" data-boxover-industry="Semiconductor Equipment &amp; Materials" data-boxover-country="USA" data-boxover-value="2.63B"><a href="quote?t=AEHR&ty=c&p=d&b=1" "><span class="color-text is-negative">83.57</span></a></td><td height="10" align="right"><a href="quote?t=AEHR&ty=c&p=d&b=1" "><span class="color-text is-negative">-16.01%</span></a></td></tr><tr class="styled-row is-bordered is-rounded is-hoverable is-striped has-color-text" valign="top">
+<td height="10" align="right"><a href="quote?t=AEVA&ty=c&p=d&b=1" ">15</a></td><td height="10" align="left"data-boxover-ticker="AEVA" data-boxover-company="Aeva Technologies Inc" data-boxover-industry="Software - Infrastructure" data-boxover-country="USA" data-boxover-value="1.23B"><a href="quote?t=AEVA&ty=c&p=d&b=1" class="tab-link">AEVA</a></td><td height="10" align="left"><a href="quote?t=AEVA&ty=c&p=d&b=1" ">Aeva Technologies Inc</a></td><td height="10" align="left"><a href="quote?t=AEVA&ty=c&p=d&b=1" ">Technology</a></td><td height="10" align="left"><a href="quote?t=AEVA&ty=c&p=d&b=1" ">Software - Infrastructure</a></td><td height="10" align="left"><a href="quote?t=AEVA&ty=c&p=d&b=1" ">USA</a></td><td height="10" align="right"><a href="quote?t=AEVA&ty=c&p=d&b=1" ">1.23B</a></td><td height="10" align="right"><a href="quote?t=AEVA&ty=c&p=d&b=1" ">-</a></td><td height="10" align="right"><a href="quote?t=AEVA&ty=c&p=d&b=1" ">2,066,195</a></td><td height="10" align="right"data-boxover-ticker="AEVA" data-boxover-company="Aeva Technologies Inc" data-boxover-industry="Software - Infrastructure" data-boxover-country="USA" data-boxover-value="1.23B"><a href="quote?t=AEVA&ty=c&p=d&b=1" "><span class="color-text is-negative">19.45</span></a></td><td height="10" align="right"><a href="quote?t=AEVA&ty=c&p=d&b=1" "><span class="color-text is-negative">-5.01%</span></a></td></tr><tr class="styled-row is-bordered is-rounded is-hoverable is-striped has-color-text" valign="top">
+<td height="10" align="right"><a href="quote?t=AEYE&ty=c&p=d&b=1" ">16</a></td><td height="10" align="left"data-boxover-ticker="AEYE" data-boxover-company="AudioEye Inc" data-boxover-industry="Software - Application" data-boxover-country="USA" data-boxover-value="90.30M"><a href="quote?t=AEYE&ty=c&p=d&b=1" class="tab-link">AEYE</a></td><td height="10" align="left"><a href="quote?t=AEYE&ty=c&p=d&b=1" ">AudioEye Inc</a></td><td height="10" align="left"><a href="quote?t=AEYE&ty=c&p=d&b=1" ">Technology</a></td><td height="10" align="left"><a href="quote?t=AEYE&ty=c&p=d&b=1" ">Software - Application</a></td><td height="10" align="left"><a href="quote?t=AEYE&ty=c&p=d&b=1" ">USA</a></td><td height="10" align="right"><a href="quote?t=AEYE&ty=c&p=d&b=1" ">90.30M</a></td><td height="10" align="right"><a href="quote?t=AEYE&ty=c&p=d&b=1" ">-</a></td><td height="10" align="right"><a href="quote?t=AEYE&ty=c&p=d&b=1" ">126,013</a></td><td height="10" align="right"data-boxover-ticker="AEYE" data-boxover-company="AudioEye Inc" data-boxover-industry="Software - Application" data-boxover-country="USA" data-boxover-value="90.30M"><a href="quote?t=AEYE&ty=c&p=d&b=1" "><span class="color-text is-positive">7.26</span></a></td><td height="10" align="right"><a href="quote?t=AEYE&ty=c&p=d&b=1" "><span class="color-text is-positive">4.76%</span></a></td></tr><tr class="styled-row is-bordered is-rounded is-hoverable is-striped has-color-text" valign="top">
+<td height="10" align="right"><a href="quote?t=AGMH&ty=c&p=d&b=1" ">17</a></td><td height="10" align="left"data-boxover-ticker="AGMH" data-boxover-company="AGM Group Holdings Inc" data-boxover-industry="Computer Hardware" data-boxover-country="Hong Kong" data-boxover-value="2.46M"><a href="quote?t=AGMH&ty=c&p=d&b=1" class="tab-link">AGMH</a></td><td height="10" align="left"><a href="quote?t=AGMH&ty=c&p=d&b=1" ">AGM Group Holdings Inc</a></td><td height="10" align="left"><a href="quote?t=AGMH&ty=c&p=d&b=1" ">Technology</a></td><td height="10" align="left"><a href="quote?t=AGMH&ty=c&p=d&b=1" ">Computer Hardware</a></td><td height="10" align="left"><a href="quote?t=AGMH&ty=c&p=d&b=1" ">Hong Kong</a></td><td height="10" align="right"><a href="quote?t=AGMH&ty=c&p=d&b=1" ">2.46M</a></td><td height="10" align="right"><a href="quote?t=AGMH&ty=c&p=d&b=1" "><span class="color-text is-positive">0.03</span></a></td><td height="10" align="right"><a href="quote?t=AGMH&ty=c&p=d&b=1" ">73,167</a></td><td height="10" align="right"data-boxover-ticker="AGMH" data-boxover-company="AGM Group Holdings Inc" data-boxover-industry="Computer Hardware" data-boxover-country="Hong Kong" data-boxover-value="2.46M"><a href="quote?t=AGMH&ty=c&p=d&b=1" "><span class="color-text is-positive">1.22</span></a></td><td height="10" align="right"><a href="quote?t=AGMH&ty=c&p=d&b=1" "><span class="color-text is-positive">4.27%</span></a></td></tr><tr class="styled-row is-bordered is-rounded is-hoverable is-striped has-color-text" valign="top">
+<td height="10" align="right"><a href="quote?t=AGPU&ty=c&p=d&b=1" ">18</a></td><td height="10" align="left"data-boxover-ticker="AGPU" data-boxover-company="Axe Compute Inc" data-boxover-industry="Software - Infrastructure" data-boxover-country="USA" data-boxover-value="25.92M"><a href="quote?t=AGPU&ty=c&p=d&b=1" class="tab-link">AGPU</a></td><td height="10" align="left"><a href="quote?t=AGPU&ty=c&p=d&b=1" ">Axe Compute Inc</a></td><td height="10" align="left"><a href="quote?t=AGPU&ty=c&p=d&b=1" ">Technology</a></td><td height="10" align="left"><a href="quote?t=AGPU&ty=c&p=d&b=1" ">Software - Infrastructure</a></td><td height="10" align="left"><a href="quote?t=AGPU&ty=c&p=d&b=1" ">USA</a></td><td height="10" align="right"><a href="quote?t=AGPU&ty=c&p=d&b=1" ">25.92M</a></td><td height="10" align="right"><a href="quote?t=AGPU&ty=c&p=d&b=1" ">-</a></td><td height="10" align="right"><a href="quote?t=AGPU&ty=c&p=d&b=1" ">439,571</a></td><td height="10" align="right"data-boxover-ticker="AGPU" data-boxover-company="Axe Compute Inc" data-boxover-industry="Software - Infrastructure" data-boxover-country="USA" data-boxover-value="25.92M"><a href="quote?t=AGPU&ty=c&p=d&b=1" "><span class="color-text is-negative">4.68</span></a></td><td height="10" align="right"><a href="quote?t=AGPU&ty=c&p=d&b=1" "><span class="color-text is-negative">-20.00%</span></a></td></tr><tr class="styled-row is-bordered is-rounded is-hoverable is-striped has-color-text" valign="top">
+<td height="10" align="right"><a href="quote?t=AGYS&ty=c&p=d&b=1" ">19</a></td><td height="10" align="left"data-boxover-ticker="AGYS" data-boxover-company="Agilysys Inc" data-boxover-industry="Software - Application" data-boxover-country="USA" data-boxover-value="1.97B"><a href="quote?t=AGYS&ty=c&p=d&b=1" class="tab-link">AGYS</a></td><td height="10" align="left"><a href="quote?t=AGYS&ty=c&p=d&b=1" ">Agilysys Inc</a></td><td height="10" align="left"><a href="quote?t=AGYS&ty=c&p=d&b=1" ">Technology</a></td><td height="10" align="left"><a href="quote?t=AGYS&ty=c&p=d&b=1" ">Software - Application</a></td><td height="10" align="left"><a href="quote?t=AGYS&ty=c&p=d&b=1" ">USA</a></td><td height="10" align="right"><a href="quote?t=AGYS&ty=c&p=d&b=1" ">1.97B</a></td><td height="10" align="right"><a href="quote?t=AGYS&ty=c&p=d&b=1" "><span class="color-text is-negative">65.49</span></a></td><td height="10" align="right"><a href="quote?t=AGYS&ty=c&p=d&b=1" ">756,980</a></td><td height="10" align="right"data-boxover-ticker="AGYS" data-boxover-company="Agilysys Inc" data-boxover-industry="Software - Application" data-boxover-country="USA" data-boxover-value="1.97B"><a href="quote?t=AGYS&ty=c&p=d&b=1" "><span class="color-text is-positive">70.20</span></a></td><td height="10" align="right"><a href="quote?t=AGYS&ty=c&p=d&b=1" "><span class="color-text is-positive">4.25%</span></a></td></tr><tr class="styled-row is-bordered is-rounded is-hoverable is-striped has-color-text" valign="top">
+<td height="10" align="right"><a href="quote?t=AI&ty=c&p=d&b=1" ">20</a></td><td height="10" align="left"data-boxover-ticker="AI" data-boxover-company="C3.ai Inc" data-boxover-industry="Software - Infrastructure" data-boxover-country="USA" data-boxover-value="1.27B"><a href="quote?t=AI&ty=c&p=d&b=1" class="tab-link">AI</a></td><td height="10" align="left"><a href="quote?t=AI&ty=c&p=d&b=1" ">C3.ai Inc</a></td><td height="10" align="left"><a href="quote?t=AI&ty=c&p=d&b=1" ">Technology</a></td><td height="10" align="left"><a href="quote?t=AI&ty=c&p=d&b=1" ">Software - Infrastructure</a></td><td height="10" align="left"><a href="quote?t=AI&ty=c&p=d&b=1" ">USA</a></td><td height="10" align="right"><a href="quote?t=AI&ty=c&p=d&b=1" ">1.27B</a></td><td height="10" align="right"><a href="quote?t=AI&ty=c&p=d&b=1" ">-</a></td><td height="10" align="right"><a href="quote?t=AI&ty=c&p=d&b=1" ">4,649,331</a></td><td height="10" align="right"data-boxover-ticker="AI" data-boxover-company="C3.ai Inc" data-boxover-industry="Software - Infrastructure" data-boxover-country="USA" data-boxover-value="1.27B"><a href="quote?t=AI&ty=c&p=d&b=1" "><span class="color-text is-positive">8.75</span></a></td><td height="10" align="right"><a href="quote?t=AI&ty=c&p=d&b=1" "><span class="color-text is-positive">1.16%</span></a></td></tr></table></td></tr></table>
+</td>
+</tr>
+<tr>
+<td>
+<table width="100%" cellpadding="0" cellspacing="0" border="0">
+<tr>
+<td align="left" class="count-text"><b>Filters:</b> sec:technology</td><td align="right" style="color:#1E6DC0"><a href="javascript:window.openEliteFeaturesDialog?.('export', event)" class="tab-link">export</a></td></tr>
+</table>
+</td>
+</tr>
+<tr><td><img src="gfx/nic2x2.gif" style="display:block;width:2px;height:6px" alt="" border="0"></td></tr>
+<tr>
+<td width="100%" align="center" valign="top" id="screener_pagination" class="body-table screener_pagination">
+<a href="screener?v=152&f=sec_technology&o=ticker" class="screener-pages is-selected" onclick="trackPagination('bottom')"><b>1</b></a><a href="screener?v=152&f=sec_technology&o=ticker&r=21" class="screener-pages" onclick="trackPagination('bottom')">2</a><a href="screener?v=152&f=sec_technology&o=ticker&r=41" class="screener-pages" onclick="trackPagination('bottom')">3</a><a href="screener?v=152&f=sec_technology&o=ticker&r=61" class="screener-pages" onclick="trackPagination('bottom')">4</a><a href="screener?v=152&f=sec_technology&o=ticker&r=81" class="screener-pages" onclick="trackPagination('bottom')">5</a><a href="screener?v=152&f=sec_technology&o=ticker&r=101" class="screener-pages" onclick="trackPagination('bottom')">6</a><span class="is-ellipsis">⋯</span><a href="screener?v=152&f=sec_technology&o=ticker&r=181" class="screener-pages" onclick="trackPagination('bottom')">10</a><span class="is-ellipsis">⋯</span><a href="screener?v=152&f=sec_technology&o=ticker&r=381" class="screener-pages" onclick="trackPagination('bottom')">20</a><span class="is-ellipsis">⋯</span><a href="screener?v=152&f=sec_technology&o=ticker&r=581" class="screener-pages" onclick="trackPagination('bottom')">30</a><span class="is-ellipsis">⋯</span><a href="screener?v=152&f=sec_technology&o=ticker&r=761" class="screener-pages" onclick="trackPagination('bottom')">39</a><a href="screener?v=152&f=sec_technology&o=ticker&r=21" class="screener-pages is-next" onclick="trackPagination('bottom')"><svg width="16" height="16">
+    <use href="/assets/dist-icons/icons.svg?rev=908067644#arrowForward"/>
+</svg></a>
+</td>
+</tr>
+<tr><td><img src="gfx/nic2x2.gif" style="width:2px;height:10px" alt="" border="0"></td></tr>
+</table>
+<div id="IC_D_3x3_1"class="relative overflow-hidden flex items-center justify-center w-full mx-auto" style="width:970px;height:250px;max-height:250px"></div></div>
+</td></tr><!-- TS
+AAOI|173.26|13127129
+AAPL|297.84|34422117
+ACFN|16.51|3496
+ACIW|42.80|924320
+ACLS|146.24|608756
+ACMR|63.25|1208846
+ACN|177.55|5363158
+ADBE|255.64|5555420
+ADEA|27.40|2735414
+ADI|418.58|4226096
+ADP|222.94|3233549
+ADSK|243.49|1744632
+ADTN|14.96|2088247
+AEHR|83.57|3921633
+AEVA|19.45|2066195
+AEYE|7.26|126013
+AGMH|1.22|73167
+AGPU|4.68|439571
+AGYS|70.20|756980
+AI|8.75|4649331
+TE -->
+
+            <script type="text/javascript">
+                ScreenerRefreshInit(0, 10);
+            </script>
+        </table></div></div>
+              <div id="root"></div>
+              <script id="route-init-data" type="application/json">{"tableSettings":{"tableName":"screener-custom","availableColumns":["row","ticker","company","index","sector","industry","country","exchange","marketCap","PE","forwardPE","PEG","PS","PB","PC","PFCF","book","cashPerShare","dividend","dividendYield","dividendTTM","dividendExDate","dividend1y","dividend3y","dividend5y","payoutRatio","eps","estQ1","epsYoY","epsYoY1","eps3Years","eps5Years","estLTGrowth","sales3Years","sales5Years","salesQoQ","epsQoQ","epsYoYTTM","salesYoYTTM","sales","income","epsSurprise","revenueSurprise","enterpriseValue","evEbitda","evSales","sharesOutstanding2","sharesFloat","floatoutstandingpct","insiderOwn","insiderTrans","instOwn","instTrans","shortInterestShare","shortInterestRatio","shortInterest","roa","roe","roi","curRatio","quickRatio","ltdebtEq","debtEq","grossMargin","operMargin","netMargin","perf1w","perf4w","perf13w","perf26w","perfYtd","perf52w","perf3y","perf5y","perf10y","beta","averageTrueRange","volatility1w","volatility4w","sma20","sma50","sma200","high50d","low50d","high52w","low52w","52Wrange","highAt","lowAt","rsi","earningsDate","ipoDate","optionable","shortable","employees","changeopen","gap","recom","averageVolume","relativeVolume","volume","targetPrice","prevClose","open","high","low","price","change","newsTime","newsUrl","newsTitle","wiimDailyDigest","e.Category","e.AssetType","e.NetExpenseRatio","e.TotalHoldings","e.AssetsUnderManagement","e.NetFlows1Month","e.NetFlows1MonthPct","e.NetFlows3Month","e.NetFlows3MonthPct","e.NetFlowsYTD","e.NetFlowsYTDPct","e.Return1Year","e.Return3Year","e.Return5Year","e.Tags"],"selectedColumns":["row","ticker","company","sector","industry","country","marketCap","PE","volume","price","change"],"defaultColumns":["row","ticker","company","sector","industry","country","marketCap","PE","volume","price","change"],"columnsMap":{"row":{"id":"row","title":"No.","index":0,"categoryIndex":0},"ticker":{"id":"ticker","title":"Ticker","index":1,"categoryIndex":0},"company":{"id":"company","title":"Company","index":2,"categoryIndex":0},"index":{"id":"index","title":"Index","index":79,"categoryIndex":0},"sector":{"id":"sector","title":"Sector","index":3,"categoryIndex":0},"industry":{"id":"industry","title":"Industry","index":4,"categoryIndex":0},"country":{"id":"country","title":"Country","index":5,"categoryIndex":0},"exchange":{"id":"exchange","title":"Exchange","index":129,"categoryIndex":0},"marketCap":{"id":"marketCap","title":"Market Cap.","index":6,"categoryIndex":1},"PE":{"id":"PE","title":"P/E","index":7,"categoryIndex":1},"forwardPE":{"id":"forwardPE","title":"Forward P/E","index":8,"categoryIndex":1},"PEG":{"id":"PEG","title":"PEG","index":9,"categoryIndex":1},"PS":{"id":"PS","title":"P/S","index":10,"categoryIndex":1},"PB":{"id":"PB","title":"P/B","index":11,"categoryIndex":1},"PC":{"id":"PC","title":"P/Cash","index":12,"categoryIndex":1},"PFCF":{"id":"PFCF","title":"P/Free Cash Flow","index":13,"categoryIndex":1},"book":{"id":"book","title":"Book Value per Share","index":73,"categoryIndex":2},"cashPerShare":{"id":"cashPerShare","title":"Cash per Share","index":74,"categoryIndex":2},"dividend":{"id":"dividend","title":"Dividend","index":75,"categoryIndex":3},"dividendYield":{"id":"dividendYield","title":"Dividend Yield","index":14,"categoryIndex":3},"dividendTTM":{"id":"dividendTTM","title":"Dividend TTM","index":130,"categoryIndex":3},"dividendExDate":{"id":"dividendExDate","title":"Dividend Ex-Date","index":131,"categoryIndex":3},"dividend1y":{"id":"dividend1y","title":"Dividend Growth 1 Year","index":147,"categoryIndex":3},"dividend3y":{"id":"dividend3y","title":"Dividend Growth 3 Years","index":148,"categoryIndex":3},"dividend5y":{"id":"dividend5y","title":"Dividend Growth 5 Years","index":149,"categoryIndex":3},"payoutRatio":{"id":"payoutRatio","title":"Payout Ratio","index":15,"categoryIndex":3},"eps":{"id":"eps","title":"EPS","index":16,"categoryIndex":4},"estQ1":{"id":"estQ1","title":"EPS Estimate Next quarter","index":77,"categoryIndex":4},"epsYoY":{"id":"epsYoY","title":"EPS Growth This Year","index":17,"categoryIndex":4},"epsYoY1":{"id":"epsYoY1","title":"EPS Growth Next Year","index":18,"categoryIndex":4},"eps3Years":{"id":"eps3Years","title":"EPS Growth Past 3 Years","index":142,"categoryIndex":4},"eps5Years":{"id":"eps5Years","title":"EPS Growth Past 5 Years","index":19,"categoryIndex":4},"estLTGrowth":{"id":"estLTGrowth","title":"EPS Growth Next 5 Years","index":20,"categoryIndex":4},"sales3Years":{"id":"sales3Years","title":"Sales Growth Past 3 Years","index":143,"categoryIndex":4},"sales5Years":{"id":"sales5Years","title":"Sales Growth Past 5 Years","index":21,"categoryIndex":4},"salesQoQ":{"id":"salesQoQ","title":"Sales Growth Qtr Over Qtr","index":23,"categoryIndex":4},"epsQoQ":{"id":"epsQoQ","title":"EPS Growth Qtr Over Qtr","index":22,"categoryIndex":4},"epsYoYTTM":{"id":"epsYoYTTM","title":"EPS Year Over Year TTM","index":132,"categoryIndex":4},"salesYoYTTM":{"id":"salesYoYTTM","title":"Sales Year Over Year TTM","index":133,"categoryIndex":4},"sales":{"id":"sales","title":"Sales","index":82,"categoryIndex":4},"income":{"id":"income","title":"Income","index":78,"categoryIndex":4},"epsSurprise":{"id":"epsSurprise","title":"EPS Surprise","index":127,"categoryIndex":4},"revenueSurprise":{"id":"revenueSurprise","title":"Revenue Surprise","index":128,"categoryIndex":4},"enterpriseValue":{"id":"enterpriseValue","title":"Enterprise Value","index":144,"categoryIndex":1},"evEbitda":{"id":"evEbitda","title":"EV/EBITDA","index":145,"categoryIndex":1},"evSales":{"id":"evSales","title":"EV/Sales","index":146,"categoryIndex":1},"sharesOutstanding2":{"id":"sharesOutstanding2","title":"Shares Outstanding","index":24,"categoryIndex":5},"sharesFloat":{"id":"sharesFloat","title":"Shares Float","index":25,"categoryIndex":5},"floatoutstandingpct":{"id":"floatoutstandingpct","title":"Float/Outstanding","index":85,"categoryIndex":5},"insiderOwn":{"id":"insiderOwn","title":"Insider Ownership","index":26,"categoryIndex":5},"insiderTrans":{"id":"insiderTrans","title":"Insider Transactions","index":27,"categoryIndex":5},"instOwn":{"id":"instOwn","title":"Institutional Ownership","index":28,"categoryIndex":5},"instTrans":{"id":"instTrans","title":"Institutional Transactions","index":29,"categoryIndex":5},"shortInterestShare":{"id":"shortInterestShare","title":"Short Float","index":30,"categoryIndex":5},"shortInterestRatio":{"id":"shortInterestRatio","title":"Short Ratio","index":31,"categoryIndex":5},"shortInterest":{"id":"shortInterest","title":"Short Interest","index":84,"categoryIndex":5},"roa":{"id":"roa","title":"Return on Assets","index":32,"categoryIndex":2},"roe":{"id":"roe","title":"Return on Equity","index":33,"categoryIndex":2},"roi":{"id":"roi","title":"Return on Invested Capital","index":34,"categoryIndex":2},"curRatio":{"id":"curRatio","title":"Current Ratio","index":35,"categoryIndex":2},"quickRatio":{"id":"quickRatio","title":"Quick Ratio","index":36,"categoryIndex":2},"ltdebtEq":{"id":"ltdebtEq","title":"Long Term Debt/Equity","index":37,"categoryIndex":2},"debtEq":{"id":"debtEq","title":"Total Debt/Equity","index":38,"categoryIndex":2},"grossMargin":{"id":"grossMargin","title":"Gross Margin","index":39,"categoryIndex":4},"operMargin":{"id":"operMargin","title":"Operating Margin","index":40,"categoryIndex":4},"netMargin":{"id":"netMargin","title":"Net Profit Margin","index":41,"categoryIndex":4},"perf1w":{"id":"perf1w","title":"Performance (Week)","index":42,"categoryIndex":6},"perf4w":{"id":"perf4w","title":"Performance (Month)","index":43,"categoryIndex":6},"perf13w":{"id":"perf13w","title":"Performance (Quarter)","index":44,"categoryIndex":6},"perf26w":{"id":"perf26w","title":"Performance (Half Year)","index":45,"categoryIndex":6},"perfYtd":{"id":"perfYtd","title":"Performance (Year To Date)","index":47,"categoryIndex":6},"perf52w":{"id":"perf52w","title":"Performance (Year)","index":46,"categoryIndex":6},"perf3y":{"id":"perf3y","title":"Performance (3 Years)","index":138,"categoryIndex":6},"perf5y":{"id":"perf5y","title":"Performance (5 Years)","index":139,"categoryIndex":6},"perf10y":{"id":"perf10y","title":"Performance (10 Years)","index":140,"categoryIndex":6},"beta":{"id":"beta","title":"Beta","index":48,"categoryIndex":7},"averageTrueRange":{"id":"averageTrueRange","title":"Average True Range","index":49,"categoryIndex":7},"volatility1w":{"id":"volatility1w","title":"Volatility (Week)","index":50,"categoryIndex":7},"volatility4w":{"id":"volatility4w","title":"Volatility (Month)","index":51,"categoryIndex":7},"sma20":{"id":"sma20","title":"20-Day Simple Moving Average","index":52,"categoryIndex":7},"sma50":{"id":"sma50","title":"50-Day Simple Moving Average","index":53,"categoryIndex":7},"sma200":{"id":"sma200","title":"200-Day Simple Moving Average","index":54,"categoryIndex":7},"high50d":{"id":"high50d","title":"50-Day High","index":55,"categoryIndex":7},"low50d":{"id":"low50d","title":"50-Day Low","index":56,"categoryIndex":7},"high52w":{"id":"high52w","title":"52-Week High","index":57,"categoryIndex":7},"low52w":{"id":"low52w","title":"52-Week Low","index":58,"categoryIndex":7},"52Wrange":{"id":"52Wrange","title":"52-Week Range","index":134,"categoryIndex":7},"highAt":{"id":"highAt","title":"All-Time High","index":125,"categoryIndex":7},"lowAt":{"id":"lowAt","title":"All-Time Low","index":126,"categoryIndex":7},"rsi":{"id":"rsi","title":"RSI","index":59,"categoryIndex":7},"earningsDate":{"id":"earningsDate","title":"Earnings Date","index":68,"categoryIndex":0},"ipoDate":{"id":"ipoDate","title":"IPO Date","index":70,"categoryIndex":0},"optionable":{"id":"optionable","title":"Optionable","index":80,"categoryIndex":0},"shortable":{"id":"shortable","title":"Shortable","index":83,"categoryIndex":0},"employees":{"id":"employees","title":"Employees","index":76,"categoryIndex":0},"changeopen":{"id":"changeopen","title":"Change from Open","index":60,"categoryIndex":8},"gap":{"id":"gap","title":"Gap","index":61,"categoryIndex":8},"recom":{"id":"recom","title":"Analyst Recom.","index":62,"categoryIndex":9},"averageVolume":{"id":"averageVolume","title":"Average Volume","index":63,"categoryIndex":8},"relativeVolume":{"id":"relativeVolume","title":"Relative Volume","index":64,"categoryIndex":8},"volume":{"id":"volume","title":"Volume","index":67,"categoryIndex":8},"targetPrice":{"id":"targetPrice","title":"Target Price","index":69,"categoryIndex":9},"prevClose":{"id":"prevClose","title":"Previous Close","index":81,"categoryIndex":8},"open":{"id":"open","title":"Open","index":86,"categoryIndex":8},"high":{"id":"high","title":"High","index":87,"categoryIndex":8},"low":{"id":"low","title":"Low","index":88,"categoryIndex":8},"price":{"id":"price","title":"Price","index":65,"categoryIndex":8},"change":{"id":"change","title":"Change","index":66,"categoryIndex":8},"newsTime":{"id":"newsTime","title":"News Time","index":135,"categoryIndex":10},"newsUrl":{"id":"newsUrl","title":"News URL","index":136,"categoryIndex":10},"newsTitle":{"id":"newsTitle","title":"News Title","index":137,"categoryIndex":10},"wiimDailyDigest":{"id":"wiimDailyDigest","title":"Daily Digest","index":150,"categoryIndex":10},"e.Category":{"id":"e.Category","title":"Category","index":103,"categoryIndex":11},"e.AssetType":{"id":"e.AssetType","title":"Asset Type","index":100,"categoryIndex":11},"e.NetExpenseRatio":{"id":"e.NetExpenseRatio","title":"Net Expense Ratio","index":107,"categoryIndex":11},"e.TotalHoldings":{"id":"e.TotalHoldings","title":"Total Holdings","index":108,"categoryIndex":11},"e.AssetsUnderManagement":{"id":"e.AssetsUnderManagement","title":"AUM","index":109,"categoryIndex":11},"e.NetFlows1Month":{"id":"e.NetFlows1Month","title":"Net Flows 1M","index":112,"categoryIndex":11},"e.NetFlows1MonthPct":{"id":"e.NetFlows1MonthPct","title":"Net Flows% 1M","index":113,"categoryIndex":11},"e.NetFlows3Month":{"id":"e.NetFlows3Month","title":"Net Flows 3M","index":114,"categoryIndex":11},"e.NetFlows3MonthPct":{"id":"e.NetFlows3MonthPct","title":"Net Flows% 3M","index":115,"categoryIndex":11},"e.NetFlowsYTD":{"id":"e.NetFlowsYTD","title":"Net Flows YTD","index":116,"categoryIndex":11},"e.NetFlowsYTDPct":{"id":"e.NetFlowsYTDPct","title":"Net Flows% YTD","index":117,"categoryIndex":11},"e.Return1Year":{"id":"e.Return1Year","title":"Return% 1Y","index":120,"categoryIndex":11},"e.Return3Year":{"id":"e.Return3Year","title":"Return% 3Y","index":121,"categoryIndex":11},"e.Return5Year":{"id":"e.Return5Year","title":"Return% 5Y","index":122,"categoryIndex":11},"e.Tags":{"id":"e.Tags","title":"Tags","index":105,"categoryIndex":11}},"categories":[{"id":"identification-classification","title":"Identification \u0026 Classification"},{"id":"valuation","title":"Valuation"},{"id":"balance-sheet-ratios","title":"Balance Sheet \u0026 Ratios"},{"id":"dividend","title":"Dividend"},{"id":"income-statements-ratios","title":"Income Statements \u0026 Ratios"},{"id":"ownership","title":"Ownership"},{"id":"performance","title":"Performance"},{"id":"technical-indicators","title":"Technical Indicators"},{"id":"intraday","title":"Intraday"},{"id":"sentiment-analyst-data","title":"Sentiment \u0026 Analyst Data"},{"id":"news","title":"News"},{"id":"etf","title":"ETF"}]},"pageSettings":null}</script>
+              <script src="/assets/dist-legacy/5746.v1.3b43d7f3.js" onerror="window.handleScriptNotLoaded(this)" defer></script><script src="/assets/dist-legacy/1318.v1.f1f45e9d.js" onerror="window.handleScriptNotLoaded(this)" defer></script><script src="/assets/dist-legacy/4740.v1.d09d584b.js" onerror="window.handleScriptNotLoaded(this)" defer></script><script src="/assets/dist-legacy/9736.v1.249ce595.js" onerror="window.handleScriptNotLoaded(this)" defer></script><script src="/assets/dist-legacy/8095.v1.d9ce7d17.js" onerror="window.handleScriptNotLoaded(this)" defer></script><script src="/assets/dist-legacy/959.v1.21d31ad6.js" onerror="window.handleScriptNotLoaded(this)" defer></script><script src="/assets/dist-legacy/6590.v1.5c9ae07e.js" onerror="window.handleScriptNotLoaded(this)" defer></script><script src="/assets/dist-legacy/7711.v1.132f0f10.js" onerror="window.handleScriptNotLoaded(this)" defer></script><script src="/assets/dist-legacy/6971.v1.d100d662.js" onerror="window.handleScriptNotLoaded(this)" defer></script><script src="/assets/dist-legacy/3589.v1.55914024.js" onerror="window.handleScriptNotLoaded(this)" defer></script><script src="/assets/dist-legacy/2695.v1.033e12b3.js" onerror="window.handleScriptNotLoaded(this)" defer></script><script src="/assets/dist-legacy/2203.v1.23d5ee2e.js" onerror="window.handleScriptNotLoaded(this)" defer></script><script src="/assets/dist-legacy/1633.v1.527f1547.js" onerror="window.handleScriptNotLoaded(this)" defer></script><script src="/assets/dist-legacy/main.v1.660b3c89.js" onerror="window.handleScriptNotLoaded(this)" defer></script>
+            
+            <div class="footer" style="margin-top: 20px;padding-bottom: 115px">
+                <div class="footer_links">
+                    <a class="tab-link" href="/affiliate">Affiliate</a>
+                    <span class="footer_dot"> • </span>
+                    <a class="tab-link" href="/advertise">Advertise</a>
+                    <span class="footer_dot"> • </span>
+                    <a class="tab-link" href="/careers">Careers</a>
+                    <span class="footer_dot"> • </span>
+                    <a class="tab-link" href="/contact">Contact</a>
+                    <span class="footer_dot"> • </span>
+                    <a class="tab-link" href="/blog">Blog</a>
+                    <span class="footer_dot"> • </span>
+                    <a class="tab-link" href="/help/screener">Help</a>
+                    <span class="footer_dot"> • </span>
+                    <a class="tab-link" href="/privacy">Privacy</a>
+                    <span class="footer_dot"> • </span>
+                    <a class="tab-link" href="https://x.com/finviz_com" target="_blank">Follow us on X</a><span class="footer_dot"> • </span> <a id="ic_us_privacy" class="tab-link relative overflow-hidden [&>a]:absolute [&>a]:inset-0 [&>a]:-indent-[9999em]" href="#">Do Not Sell My Personal Information</a>    </div>
+    Quotes delayed 15 minutes for NASDAQ, NYSE and AMEX.
+    <br>
+    Copyright © 2007-2026 Finviz.com. All Rights Reserved.
+    
+    <a href="/api/v1/screener-export-csv" class="internal-data-link" rel="nofollow">Export All Screener Data (CSV)</a>
+</div><noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-537M973G" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript><script>window.GoogleOneTapConfig={clientId:'1033214272054-5de9gp5rii5o7cuv4qf1ephgaic4r1e3.apps.googleusercontent.com',autoSelect:true};</script>
+<script src="/assets/dist-legacy/4740.v1.d09d584b.js" onerror="window.handleScriptNotLoaded(this)" defer></script><script src="/assets/dist-legacy/google_one_tap.v1.d6a17162.js" onerror="window.handleScriptNotLoaded(this)" defer></script>    <script>
+      function getSystemTheme() {
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+          return 'Dark';
+        }
+        else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
+          return 'Light';
+        }
+        return 'No Preference';
+      }
+
+      var systemTheme = getSystemTheme()
+
+      const headlessChrome = navigator.userAgent.includes('HeadlessChrome')
+      const webdriver = navigator.webdriver === true
+      const hrnecMeduCookie = document.cookie.includes('fv_segment_audit=true')
+      const fvt = window.getFvt?.()
+
+      dataLayer.push({
+            event: 'ga_context',
+            
+            dimension1: 'NotLoggedIn',
+            dimension3: window.devicePixelRatio,
+            layoutTheme: 'dark',
+            systemTheme: systemTheme,
+            bundle: 'legacy',
+            prefTheme: 'dark',
+            themeFlag: 'modern',
+            innerWidth: window.innerWidth,
+            innerHeight: window.innerHeight,
+            webdriver: webdriver,
+            isBot: headlessChrome || webdriver || hrnecMeduCookie,
+            icAdsVariant: 'control',
+            ...(fvt && { anon_id: fvt })
+          });
+
+      if(window.__fv_deferred_gtag){
+        window.__fv_deferred_gtag.forEach(function(e){
+          if(window.gtag){ window.gtag('event',e[0],e[1]); }
+        });
+      }
+
+    </script>    <script type="text/javascript">
+        window._qevents = window._qevents || [];
+
+        (function() {
+            var elem = document.createElement('script');
+            elem.src = (document.location.protocol == "https:" ? "https://secure" : "http://edge") + ".quantserve.com/quant.js";
+            elem.async = true;
+            elem.type = "text/javascript";
+            var scpt = document.getElementsByTagName('script')[0];
+            scpt.parentNode.insertBefore(elem, scpt);
+        })();
+
+        window._qevents.push({
+            qacct:"p-c2W8esUZ6Q8oA"
+        });
+    </script>
+    <noscript>
+        <div style="display:none;">
+            <img src="//pixel.quantserve.com/pixel/p-c2W8esUZ6Q8oA.gif" border="0" height="1" width="1" alt="Quantcast"/>
+        </div>
+    </noscript><div id="IC_D_1x1_1"class="relative overflow-hidden flex items-center justify-center w-full mx-auto"></div><div id="modal-elite-ad" class="modal-elite-ad">
+                            <div id="modal-elite-ad_content" class="modal-elite-ad_content">
+			                    <button id="modal-elite-ad-close" type="button" class="modal-elite-ad_close">×</button>
+
+                                <!--<div id="modal-elite-ad-content-0" style="display: none">
+			                        <h2>Ever heard of Finviz Elite?</h2>
+                                    <p>
+                                        Our premium service offers you real-time quotes, advanced visualizations, technical studies, and much more.<br>
+                                        Become Elite and make informed financial decisions.
+                                    </p>
+                                    <a href="/elite?utm_source=finviz&utm_medium=banner&utm_campaign=modal-0" id="modal-elite-ad-btn-0" class="" target="_blank">Find out more</a>
+                                </div>-->
+
+                                <div id="modal-elite-ad-content-1" style="display: block">
+			                        <h2>Upgrade your Finviz experience</h2>
+                                    <p>
+                                        Join thousands of traders who make more informed decisions with&nbsp;our&nbsp;premium features.
+                                        Real-time quotes, advanced&nbsp;visualizations, alerts, and much more.
+                                    </p>
+                                    <a href="/elite?utm_source=finviz&utm_medium=banner&utm_campaign=modal-1" id="modal-elite-ad-btn-1" class="modal-elite_button" target="_blank">Learn more about Finviz Elite</a>
+                                </div>
+                            </div>
+                         </div><script src="/assets/dist-legacy/script/pv.v1.b5e0f9bc.js" async></script><script>window.renderScriptNotLoaded();</script>
+<script src="/assets/dist-legacy/4740.v1.d09d584b.js" onerror="window.handleScriptNotLoaded(this)" defer></script><script src="/assets/dist-legacy/9736.v1.249ce595.js" onerror="window.handleScriptNotLoaded(this)" defer></script><script src="/assets/dist-legacy/8095.v1.d9ce7d17.js" onerror="window.handleScriptNotLoaded(this)" defer></script><script src="/assets/dist-legacy/6590.v1.5c9ae07e.js" onerror="window.handleScriptNotLoaded(this)" defer></script><script src="/assets/dist-legacy/elite_features_dialog.v1.5e18a673.js" onerror="window.handleScriptNotLoaded(this)" defer></script><script defer src="https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447" integrity="sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==" data-cf-beacon='{"version":"2024.11.0","token":"e53f08f6c9e04bfd9760701085ec93b4","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+</body>
+</html>
