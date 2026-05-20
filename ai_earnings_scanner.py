@@ -395,7 +395,7 @@ def generate_html_report(stocks: list, output_path: str):
     html += 'td{padding:18px 12px;border-bottom:1px solid #30363d;font-size:0.88em}tr{height:54px}tr:hover{background:#1c2128}'
     html += '.note{margin-top:20px;padding:12px 18px;background:#161b22;border-radius:8px;font-size:0.82em;color:#8b949e;border:1px solid #30363d}'
     html += '.disclaimer{margin-top:12px;padding:12px 18px;background:#1a1a1a;border-radius:8px;font-size:0.80em;color:#999;border:1px solid #c0392b}'
-html += '.pick-banner{background:linear-gradient(135deg,#1a2a1a,#162016);border:1px solid #2ea043;border-radius:8px;padding:40px 18px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;min-height:120px}'
+    html += ".pick-banner{background:linear-gradient(135deg,#1a2a1a,#162016);border:1px solid #2ea043;border-radius:8px;padding:40px 18px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;min-height:120px}"
     html += '#chat-btn{position:fixed;bottom:24px;right:24px;background:#238636;color:#fff;border:none;border-radius:8px;padding:12px 24px;font-size:0.95em;font-weight:bold;cursor:pointer;box-shadow:0 4px 20px rgba(0,0,0,0.5);z-index:9999;transition:background .2s}'
     html += '#chat-btn:hover{background:#2ea043}'
     html += '#chat-panel{position:fixed;bottom:80px;right:24px;width:360px;max-height:520px;background:#161b22;border:1px solid #30363d;border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,0.6);display:none;flex-direction:column;z-index:9998;overflow:hidden}'
