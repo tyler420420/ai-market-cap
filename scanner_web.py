@@ -209,13 +209,12 @@ h2 { color: #fff; font-size: 2em; margin-bottom: 10px; }
             <div class=price>$149<span>/mo</span></div>
             <div class=period>Billed monthly</div>
             <ul>
-                <li>Unlimited daily scans</li>
                 <li>All AI stocks monitored</li>
                 <li>Score + PE/3D/5D targets</li>
                 <li>AI Suggested Trade</li>
                 <li>Live price ticker</li>
                 <li>News per stock</li>
-                <li class=off>Auto-scan at 6:30 AM</li>
+                <li>Auto-scan at 6:30 AM PT daily</li>
             </ul>
             <a href="/create-checkout?plan=monthly" class=cta>Subscribe - $149/mo</a>
         </div>
@@ -225,7 +224,7 @@ h2 { color: #fff; font-size: 2em; margin-bottom: 10px; }
             <div class=period>Save $789 vs monthly</div>
             <ul>
                 <li>Everything in Monthly</li>
-                <li>Auto-scan at 6:30 AM PT daily</li>
+                <li>Unlimited daily scans</li>
                 <li>Early access to new features</li>
                 <li>Priority support</li>
                 <li>Save $789/year</li>
