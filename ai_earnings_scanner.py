@@ -439,12 +439,12 @@ def generate_html_report(stocks: list, output_path: str):
         html += '<div class=pick-banner style="background:linear-gradient(135deg,#2a1a00,#ffd700);border:2px solid #ffd700;border-radius:8px;padding:40px 18px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:15px 0;min-height:120px">'
         html += '<span style="font-size:1.3em;color:#2ea043;font-weight:bold">&#9733; AI\'s Suggested Trade</span>'
         html += '<span style="font-size:1.2em;font-weight:bold;color:#fff">' + pick.ticker + '</span>'
-        html += '<span style="font-size:0.95em;color:#8b949e">' + pick.company_name[:28] + ('...' if len(pick.company_name) > 28 else '') + '</span>'
-        html += '<span style="font-size:0.95em;color:#8b949e">Score: <strong style="color:' + pick_color + '">' + str(round(pick.composite_score)) + '</strong></span>'
-        html += '<span style="font-size:0.95em;color:#8b949e">Price: <strong style="color:#00ff88">$' + str(round(pick.current_price, 2)) + '</strong></span>'
-        html += '<span style="font-size:0.95em;color:#8b949e">Sell: <strong style="color:#58a6ff">' + pick_sell + '</strong></span>'
-        html += '<span style="font-size:0.95em;color:#8b949e">Earnings in: <strong style="color:#ffcc00">' + str(pick.days_to_earnings) + ' days</strong></span>'
-        html += '<span style="font-size:0.95em;color:#8b949e">PE Profit: <strong style="color:#00ff88;font-weight:bold">' + pick_profit + '</strong></span>'
+        html += '<span style="font-size:0.95em;color:#fff">' + pick.company_name[:28] + ('...' if len(pick.company_name) > 28 else '') + '</span>'
+        html += '<span style="font-size:0.95em;color:#fff">Score: <strong style="color:' + pick_color + '">' + str(round(pick.composite_score)) + '</strong></span>'
+        html += '<span style="font-size:0.95em;color:#fff">Price: <strong style="color:#00ff88">$' + str(round(pick.current_price, 2)) + '</strong></span>'
+        html += '<span style="font-size:0.95em;color:#fff">Sell: <strong style="color:#58a6ff">' + pick_sell + '</strong></span>'
+        html += '<span style="font-size:0.95em;color:#fff">Earnings in: <strong style="color:#ffcc00">' + str(pick.days_to_earnings) + ' days</strong></span>'
+        html += '<span style="font-size:0.95em;color:#fff">PE Profit: <strong style="color:#00ff88;font-weight:bold">' + pick_profit + '</strong></span>'
         html += '</div>'
 
     headers = [
