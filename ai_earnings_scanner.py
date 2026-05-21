@@ -455,7 +455,7 @@ def generate_html_report(stocks: list, output_path: str):
     headers = [
         ('Ticker','ticker'), ('Company','company_name'), ('Score','score'),
         ('Next Earnings','earnings_date'), ('Days<br>Left','days_left'), ('Current<br>Price','price'),
-        ('Post Earnings<br>Target','pe_target'), ('Great Earnings Report','3 Day'), ('Excellent Earnings Report','5 Day'),
+        ('Post Earnings<br>Target','pe_target'), ('3 Day PE','3 Day PE'), ('5 Day PE','5 Day PE'),
         ('Analyst<br>Reports','analysts'), ('S-BUY','sb'), ('Buy','buy'),
         ('Hold','hold'), ('Sell','sell'), ('Market Cap','mktcap'), ('News','news')
     ]
