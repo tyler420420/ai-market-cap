@@ -424,7 +424,7 @@ def generate_html_report(stocks: list, output_path: str):
         ticker_items += f'<span class=ticker-item><span style="font-weight:bold;color:#00ff88">{round(s.composite_score)}</span> <span class=ticker-sym>{s.ticker}</span> <span class=ticker-price>${round(s.current_price, 2)}</span> <span class="ticker-chg {chg_cls}">{chg_str}</span></span>'
     html += '<div class=ticker-strip><div class=ticker-strip-inner>' + ticker_items + ticker_items + '</div></div>'
 
-    html += '<div class=header><div class=hdr-row><div><h1>' + SCANNER_TITLE + '</h1><div class=desc>Pre-earnings momentum scanner for AI/AI-niche sector | Auto-runs daily at 6:30 AM PT | Subscribe to unlock Run Scan & Chat</div></div>'
+    html += '<div class=header><div class=hdr-row><div><h1>' + SCANNER_TITLE + '</h1><div class=desc>Pre-earnings momentum scanner for Tech sector | Auto-runs daily at 6:30 AM PT | Subscribe to unlock Run Scan & Chat</div></div>'
     html += '<div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end;margin-left:auto">'
     html += '<div style="display:flex;gap:6px;align-items:center">'
     html += '<span style="background:#161b22;border:1px solid #2ea043;border-radius:5px;padding:3px 10px;font-size:0.82em"><span style="font-weight:bold;color:#2ea043">' + str(strong_count) + '</span> <span style="color:#8b949e">Strong Buy</span></span>'
