@@ -531,7 +531,7 @@ def generate_html_report(stocks: list, output_path: str):
     html += '</script>'
     html += '<div class=note><b>Scoring:</b> Analyst (30pts) + Buy% (30pts) + 5D Upside (20pts) + SB Count (2pts each, max 20) | <b>PE Target:</b> straddle x1 (conservative) | <b>3-Day Momentum:</b> straddle x3 (mid) | <b>5-Day Momentum:</b> straddle x5 (max upside) | <b>Entry:</b> 1-14 days pre-earnings | <b>Exit:</b> 1-5 days after beat</div>'
     html += '<div class=disclaimer>&#9888; <b>Not a financial advisor.</b> This scanner is for informational purposes only. Options data and targets are estimates based on ATM straddles -- actual results may vary. Stocks carry risk; always do your own research before trading. I am not liable for any losses incurred from trades based on this data.</div>'
-    html += "<script>var scanBtn=document.getElementById('scanBtn');var warnMsg=document.getElementById('warnMsg');function runScan(){scanBtn.disabled=true;warnMsg.textContent='Starting scan...';fetch('/run',{method:'POST'}).then(function(r){return r.text();}).then(function(t){if(t.includes('/pricing')||t===''){window.location.href='/pricing';}else{warnMsg.textContent='Scan started! Reloading...';location.reload(true);}}).catch(function(){scanBtn.disabled=false;warnMsg.textContent='Error - try again.';setTimeout(function(){warnMsg.style.display='none';},4000);});}function refreshData(){location.reload(true);}</script>"
+    html += "<script>var scanBtn=document.getElementById('scanBtn');var warnMsg=document.getElementById('warnMsg');function runScan(){scanBtn.disabled=true;warnMsg.textContent='Starting scan...';var x=new XMLHttpRequest();x.open('POST','/run',true);x.onload=function(){if(x.responseURL&&x.responseURL.endsWith('/pricing')){window.location.href='/pricing';return;}warnMsg.textContent='Scan started! Reloading...';location.reload(true);};x.onerror=function(){scanBtn.disabled=false;warnMsg.textContent='Error - try again.';setTimeout(function(){warnMsg.style.display='none';},4000);};x.send();}function refreshData(){location.reload(true);}</script>"
 
     # Chat widget - clean plain JS, no HTML entities
     html += '<button id="chat-btn" onclick="toggleChat()">Chat</button>'
@@ -562,7 +562,7 @@ def generate_html_report(stocks: list, output_path: str):
     html += 'loadingDiv.textContent="Thinking...";'
     html += 'ms.appendChild(loadingDiv);'
     html += 'ms.scrollTop=ms.scrollHeight;'
-    html += 'fetch("/api/chat",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({message:m})}).then(function(r){if(r.status===403){window.location.href="/pricing";return Promise.reject("redirect");}return r.ok?r.json():Promise.reject("Server error");}).then(function(d){'
+    html += "fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:m})}).then(function(r){if(r.redirected||r.url.includes('/pricing')){window.location.href='/pricing';return Promise.reject('redirect');}return r.json();}).then(function(d){"
     html += 'loadingDiv.remove();'
     html += 'var botDiv=document.createElement("div");'
     html += 'botDiv.className="msg msg-bot";'
