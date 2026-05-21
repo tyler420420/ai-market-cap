@@ -269,6 +269,10 @@ def analyze_ticker(ticker: str, earnings_date) -> Optional[EarningsSignal]:
         implied_volatility = 0
         post_earnings_target = 0.0
         post_earnings_upside_pct = 0.0
+        post_earnings_3d_target = 0.0
+        post_earnings_3d_upside_pct = 0.0
+        post_earnings_5d_target = 0.0
+        post_earnings_5d_upside_pct = 0.0
         try:
             opt = stock.option_chain()
             if opt.calls.shape[0] > 0 and opt.puts.shape[0] > 0 and current_price > 0:
