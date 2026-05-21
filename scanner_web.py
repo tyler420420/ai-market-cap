@@ -365,7 +365,7 @@ def api_chat():
     is_active = subs.get(customer_id, {}).get('status') == 'active'
 
     if not is_active:
-        return jsonify({"error": "subscription_required", "redirect": "/pricing"}), 403
+        return redirect("/pricing")
 
     try:
         body = request.get_json(force=True)
