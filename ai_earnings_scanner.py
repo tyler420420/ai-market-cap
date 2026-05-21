@@ -663,8 +663,11 @@ def main():
     timestamp = datetime.now().strftime('%Y%m%d_%H%M'); out_dir = os.path.dirname(__file__) or '.'
     html_path = os.path.join(out_dir, f'ai_earnings_57day_{timestamp}.html')
     csv_path = os.path.join(out_dir, f'ai_earnings_57day_{timestamp}.csv')
+    today_path = os.path.join(out_dir, 'ai_earnings_today.html')
     print(f"Generating HTML report...")
     generate_html_report(stocks[:args.top], html_path)
+    # Also save as ai_earnings_today.html so the web server can serve it directly
+    generate_html_report(stocks[:args.top], today_path)
     print(f"Generating CSV report...")
     generate_csv_report(stocks, csv_path)
     print("Done!")
