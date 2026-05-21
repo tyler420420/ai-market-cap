@@ -132,7 +132,8 @@ def cron():
     """Triggered by Railway cron job at 6:30 AM PT daily"""
     now = datetime.now(PT)
     today = now.date()
-    if getattr(cron, 'last_run', None) == today:
+    force = request.args.get('force') == '1'
+    if not force and getattr(cron, 'last_run', None) == today:
         return "Already ran today", 200
     cron.last_run = today
     # Run scan in background thread
