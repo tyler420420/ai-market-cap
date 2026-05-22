@@ -528,7 +528,7 @@ def generate_html_report(stocks: list, output_path: str):
         static_rows += '<td style="color:#ffcc00">' + str(r['hold']) + '</td>'
         static_rows += '<td style="color:#ff6b6b">' + str(r['sell']) + '</td>'
         static_rows += '<td>' + fmt_mktcap(r['mktcap']) + '</td>'
-        static_rows += '<td style="color:#ffd700">' + str(r['short_int']) + '%</td>'
+        static_rows += '<td style="color:#fff">' + str(r['short_int']) + '%</td>'
         static_rows += '<td style="color:#bf8fff">' + str(r['iv']) + '%</td>'
         static_rows += '<td>' + news_cell + '</td>'
         static_rows += '</tr>'
