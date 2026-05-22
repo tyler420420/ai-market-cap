@@ -421,7 +421,7 @@ def generate_html_report(stocks: list, output_path: str):
     html += '#chat-input{flex:1;background:#0d1117;border:1px solid #30363d;border-radius:8px;color:#c9d1d9;padding:8px 12px;font-size:0.88em;resize:none;outline:none;font-family:Segoe UI,Arial,sans-serif}'
     html += '#chat-input:focus{border-color:#58a6ff}'
     html += '#chat-send{background:#238636;border:none;color:#fff;border-radius:8px;padding:8px 16px;font-size:0.88em;cursor:pointer;font-weight:bold}#chat-send:hover{background:#2ea043}#chat-send:disabled{background:#444;cursor:not-allowed}'
-    html += '</style></head><body>'
+    html += '</style></head><body><div style="max-width:1400px;margin:0 auto">'
 
     # Ticker strip
     ticker_items = ''
