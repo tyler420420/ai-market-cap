@@ -445,7 +445,9 @@ a {{ background: #238636; color: #fff; padding: 12px 24px; border-radius: 8px; t
 <p>Click below to access your scanner.</p>
 <a href="/">Go to Scanner →</a>
 </body></html>"""
-        return make_response(success_html, 200, {"Content-Type": "text/html; charset=utf-8"})
+        resp = make_response(success_html, 200, {"Content-Type": "text/html; charset=utf-8"})
+        resp.set_cookie("stripe_customer", customer_id, max_age=86400*30, httponly=True, samesite='Lax')
+        return resp
     except Exception as e:
         return f"Error: {e}", 500
 
