@@ -732,6 +732,28 @@ def main():
     generate_html_report(stocks[:args.top], today_path)
     print(f"Generating CSV report...")
     generate_csv_report(stocks, csv_path)
+
+    # Self-validate: ensure rowsData is complete
+    with open(today_path, 'r', encoding='utf-8') as f:
+        content = f.read()
+    idx = content.find('var rowsData=')
+    if idx >= 0:
+        arr_depth, json_end = 0, idx
+        for i in range(idx + 12, len(content)):
+            ch = content[i]
+            if ch == '[': arr_depth += 1
+            elif ch == ']':
+                arr_depth -= 1
+                if arr_depth == 0:
+                    json_end = i
+                    break
+        json_len = json_end - (idx + 12) + 1
+        print(f"[Validate] rowsData = {json_len} bytes")
+        if json_len < 5000:
+            print(f"[Validate] WARNING: rowsData too short ({json_len} bytes). Check scan output.")
+        else:
+            print(f"[Validate] rowsData OK ({len(stocks[:args.top])} stocks)")
+
     print("Done!")
 
 

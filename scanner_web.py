@@ -168,12 +168,36 @@ def cron():
     # Run scan in background thread
     def do_scan():
         try:
-            subprocess.run(
+            result = subprocess.run(
                 [sys.executable, str(Path(__file__).parent / "ai_earnings_scanner.py")],
                 capture_output=True, text=True,
                 encoding='utf-8', errors='replace', timeout=180,
                 cwd=str(Path(__file__).parent)
             )
+            # Validate: ensure ai_earnings_today.html has full rowsData (min 5000 chars = at least ~15 stocks)
+            today_path = Path(__file__).parent / "ai_earnings_today.html"
+            if today_path.exists():
+                content = today_path.read_text(encoding='utf-8')
+                idx = content.find('var rowsData=')
+                if idx >= 0:
+                    arr_depth, json_end = 0, idx
+                    for i in range(idx + 12, len(content)):
+                        ch = content[i]
+                        if ch == '[': arr_depth += 1
+                        elif ch == ']':
+                            arr_depth -= 1
+                            if arr_depth == 0:
+                                json_end = i
+                                break
+                    json_len = json_end - (idx + 12) + 1
+                    if json_len < 5000:
+                        print(f"[Cron] rowsData too short ({json_len} bytes), restoring backup")
+                        # Restore from latest dated scan
+                        backups = sorted(Path(__file__).parent.glob("ai_earnings_57day_*.html"), key=lambda f: f.stat().st_mtime, reverse=True)
+                        if backups:
+                            backups[0].replace(today_path)
+                            print(f"[Cron] Restored {backups[0].name}")
+            print("[Cron] Scan output:", result.stdout[-500:] if result.stdout else "no output")
         except Exception as e:
             print("[Cron] Scan error:", e)
     threading.Thread(target=do_scan, daemon=True).start()
