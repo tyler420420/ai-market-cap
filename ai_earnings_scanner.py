@@ -11,6 +11,33 @@ except ImportError:
     YF_AVAILABLE = False
 
 
+def get_earnings_sentiment(ticker: str) -> str:
+    """Return 'Positive' | 'Mixed' | 'Negative' based on last 4 qtrs EPS surprise %."""
+    try:
+        t = yf.Ticker(ticker)
+        eh = t.earnings_history
+        if eh is None or len(eh) == 0:
+            return ''
+        surprises = []
+        for _, row in eh.iterrows():
+            sp = row.get('surprisePercent', 0) or row.get('Surprise %', 0)
+            if sp is not None and sp != 0:
+                surprises.append(float(sp))
+        if not surprises:
+            return ''
+        avg = sum(surprises) / len(surprises)
+        # surprisePercent is stored as decimal (0.13 = 13%), convert to % for thresholds
+        avg_pct = avg * 100
+        if avg_pct > 5:
+            return 'Positive'
+        elif avg_pct < -5:
+            return 'Negative'
+        else:
+            return 'Mixed'
+    except:
+        return ''
+
+
 def fetch_ai_stocks_from_finviz() -> List[str]:
     """Fetch tech sector stocks dollar10B+ from finviz (cap_large + cap_mega)."""
     try:
@@ -128,6 +155,7 @@ class EarningsSignal:
     implied_volatility: float = 0.0
     strong_buy_rating: int = 0; buy_rating: int = 0; hold_rating: int = 0; sell_rating: int = 0; total_analysts: int = 0; buy_rating_pct: float = 0.0
     short_interest: float = 0.0; avg_volume: int = 0; sector: str = 'Technology'; market_cap: float = 0.0
+    earnings_sentiment: str = ''  # 'Positive' | 'Mixed' | 'Negative' based on last 4 qtrs earnings surprise
     composite_score: float = 0.0; signals: List[str] = None
     top_news: List[str] = None; price_change_pct: float = 0.0; price_change_abs: float = 0.0
     def __post_init__(self):
@@ -326,9 +354,12 @@ def analyze_ticker(ticker: str, earnings_date) -> Optional[EarningsSignal]:
             total_analysts=total_analysts, buy_rating_pct=buy_rating_pct, implied_volatility=implied_volatility,
             short_interest=round(short_interest,2) if short_interest else 0, avg_volume=avg_volume, sector=sector,
             price_change_pct=price_change_pct, price_change_abs=price_change_abs,
-            market_cap=round(market_cap_raw / 1e9, 2) if market_cap_raw else 0)
+            market_cap=round(market_cap_raw / 1e9, 2) if market_cap_raw else 0,
+            earnings_sentiment='')  # set below after fetching
         calculate_composite_score(signal)
         signal.top_news = fetch_top_news(ticker, count=1)
+        # Fetch earnings sentiment from last 4 quarters
+        signal.earnings_sentiment = get_earnings_sentiment(ticker)
         return signal
     except Exception as e:
         import traceback; traceback.print_exc(); return None
@@ -462,7 +493,7 @@ def generate_html_report(stocks: list, output_path: str):
         ('Next<br>Earnings','earnings_date'), ('Days<br>Left','days_left'), ('Current<br>Price','price'),
         ('PE Target','pe_target'), ('3 Day','3 Day'), ('5 Day','5 Day'),
         ('Analyst<br>Reports','analysts'), ('S-BUY','sb'), ('Buy','buy'),
-        ('Hold','hold'), ('Sell','sell'), ('Market Cap','mktcap'), ('Short %','short_int'), ('IV','iv'), ('News','news')
+        ('Hold','hold'), ('Sell','sell'), ('Market Cap','mktcap'), ('Short %','short_int'), ('IV','iv'), ('Earnings<br>Trend','sentiment'), ('News','news')
     ]
     ths = ''
     for h, col in headers:
@@ -483,6 +514,7 @@ def generate_html_report(stocks: list, output_path: str):
             'mktcap': stock.market_cap,
             'short_int': round(stock.short_interest, 1) if stock.short_interest else 0,
             'iv': round(stock.implied_volatility, 1) if stock.implied_volatility else 0,
+            'sentiment': stock.earnings_sentiment,
             'news': stock.top_news[0] if stock.top_news else None
         })
 
@@ -535,12 +567,22 @@ def generate_html_report(stocks: list, output_path: str):
         static_rows += '<td>' + fmt_mktcap(r['mktcap']) + '</td>'
         static_rows += '<td style="color:#fff">' + str(r['short_int']) + '%</td>'
         static_rows += '<td style="color:#fff">' + str(r['iv']) + '%</td>'
+        sent = r.get('sentiment', '')
+        if sent == 'Positive':
+            sent_badge = '<span style="background:#1a2a1a;border:1px solid #2ea043;border-radius:5px;padding:2px 8px;font-size:0.75em;font-weight:bold;color:#00ff88">' + sent + '</span>'
+        elif sent == 'Negative':
+            sent_badge = '<span style="background:#2a1a1a;border:1px solid #ff4444;border-radius:5px;padding:2px 8px;font-size:0.75em;font-weight:bold;color:#ff6b6b">' + sent + '</span>'
+        elif sent == 'Mixed':
+            sent_badge = '<span style="background:#2a2a1a;border:1px solid #ffd700;border-radius:5px;padding:2px 8px;font-size:0.75em;font-weight:bold;color:#ffd700">' + sent + '</span>'
+        else:
+            sent_badge = '—'
+        static_rows += '<td>' + sent_badge + '</td>'
         static_rows += '<td>' + news_cell + '</td>'
         static_rows += '</tr>'
 
     html += static_rows + '</tbody></table>'
     html += '<script>var rowsData=' + json.dumps(rows_data) + ';\n'
-    html += "var sortCol='days_left';var sortAsc=true;function getVal(r,col){var m={'ticker':r.ticker,'company_name':r.company_name,'score':r.score,'earnings_date':r.earnings_date,'days_left':r.days_left,'price':r.price,'pe_target':r.pe_target,'3d':r['3d'],'5d':r['5d'],'analysts':r.analysts,'sb':r.sb,'buy':r.buy,'hold':r.hold,'sell':r.sell,'mktcap':r.mktcap,'short_int':r.short_int,'iv':r.iv};return m[col]||r[col]||0;}function updateArrows(){document.querySelectorAll('th[data-col]').forEach(function(th){th.classList.remove('sorted-asc','sorted-desc');});var th=document.querySelector('th[data-col=\"'+sortCol+'\"]');if(th){th.classList.add(sortAsc?'sorted-asc':'sorted-desc');}}function sortBy(col){if(sortCol===col){sortAsc=!sortAsc;}else{sortCol=col;sortAsc=col==='days_left'||col==='score'||col==='analysts'||col==='sb'||col==='buy'||col==='hold'||col==='sell'||col==='price'||col==='pe_target'||col==='3d'||col==='5d'||col==='mktcap'||col==='short_int'||col==='iv';}var dirs={'ticker':1,'company_name':1};var asc=dirs[col]?sortAsc:!sortAsc;rowsData.sort(function(a,b){var va=getVal(a,col),vb=getVal(b,col);if(typeof va==='number')return asc?va-vb:vb-va;return asc?String(va).localeCompare(String(vb)):String(vb).localeCompare(String(va));});renderTable();updateArrows();}function fmtMktcap(v){if(v>=1000)return'$'+Math.round(v/1000*100)/100+'T';if(v>=1)return'$'+Math.round(v*100)/100+'B';return'$'+Math.round(v*1000)+'M';}function scoreColor(s){return s>=80?'#00ff88':'#58a6ff';}function newsHtml(n){if(!n)return'';var u=n.url||'';var t=n.title||'';return u?'<a href=\"'+u+'\" target=\"_blank\" style=\"color:#fff;text-decoration:none\">&#128240; '+t+'</a>':'<span style=\"color:#fff\">&#128240; '+t+'</span>';}function renderTable(){var tbody=document.getElementById('stockTableBody');if(!tbody)return;var html='';rowsData.forEach(function(r){var c=scoreColor(r.score);var bg=r.score>=80?'rgba(0,255,136,0.12)':'rgba(31,111,235,0.12)';html+='<tr style=\"background:'+bg+'\"><td><strong><a href=\"https://finance.yahoo.com/quote/'+r.ticker+'\" target=\"_blank\" style=\"color:#66b2ff\">'+r.ticker+'</a></strong></td>';html+='<td>'+r.company_name.substring(0,35)+(r.company_name.length>35?'...':'')+'</td>';html+='<td><strong style=\"color:'+c+';font-size:1.3em\">'+r.score+'</strong></td>';html+='<td class=earn-cell>'+r.earnings_date.replace(chr(10),'<br>')+'</td>';html+='<td style=\"color:'+(r.days_left<=7?'#00ff88':'#ffcc00')+';font-weight:bold\">'+r.days_left+'d</td>';html+='<td>$'+r.price+'</td>';html+='<td>$'+r.pe_target+' | +'+r.pe_upside+'%</td>';html+='<td>$'+r['3d']+' | +'+r['3d_up']+'%</td>';html+='<td>$'+r['5d']+' | +'+r['5d_up']+'%</td>';html+='<td>'+r.analysts+'</td>';html+='<td style=\"color:#00ff88\">'+r.sb+'</td>';html+='<td style=\"color:#58a6ff\">'+r.buy+'</td>';html+='<td style=\"color:#ffcc00\">'+r.hold+'</td>';html+='<td style=\"color:#ff6b6b\">'+r.sell+'</td>';html+='<td>'+fmtMktcap(r.mktcap)+'</td>';html+='<td style=\'color:#fff\'>'+r.short_int+'%</td>';html+='<td style=\'color:#fff\'>'+r.iv+'%</td>';html+='<td>'+newsHtml(r.news)+'</td></tr>';});tbody.innerHTML=html;};sortBy('days_left');"
+    html += "var sortCol='days_left';var sortAsc=true;function getVal(r,col){var m={'ticker':r.ticker,'company_name':r.company_name,'score':r.score,'earnings_date':r.earnings_date,'days_left':r.days_left,'price':r.price,'pe_target':r.pe_target,'3d':r['3d'],'5d':r['5d'],'analysts':r.analysts,'sb':r.sb,'buy':r.buy,'hold':r.hold,'sell':r.sell,'mktcap':r.mktcap,'short_int':r.short_int,'iv':r.iv,'sentiment':r.sentiment};return m[col]||r[col]||0;}function updateArrows(){document.querySelectorAll('th[data-col]').forEach(function(th){th.classList.remove('sorted-asc','sorted-desc');});var th=document.querySelector('th[data-col=\"'+sortCol+'\"]');if(th){th.classList.add(sortAsc?'sorted-asc':'sorted-desc');}}function sortBy(col){if(sortCol===col){sortAsc=!sortAsc;}else{sortCol=col;sortAsc=col==='days_left'||col==='score'||col==='analysts'||col==='sb'||col==='buy'||col==='hold'||col==='sell'||col==='price'||col==='pe_target'||col==='3d'||col==='5d'||col==='mktcap'||col==='short_int'||col==='iv'||col==='sentiment';}var dirs={'ticker':1,'company_name':1};var asc=dirs[col]?sortAsc:!sortAsc;rowsData.sort(function(a,b){var va=getVal(a,col),vb=getVal(b,col);if(typeof va==='number')return asc?va-vb:vb-va;return asc?String(va).localeCompare(String(vb)):String(vb).localeCompare(String(va));});renderTable();updateArrows();}function fmtMktcap(v){if(v>=1000)return'$'+Math.round(v/1000*100)/100+'T';if(v>=1)return'$'+Math.round(v*100)/100+'B';return'$'+Math.round(v*1000)+'M';}function scoreColor(s){return s>=80?'#00ff88':'#58a6ff';}function newsHtml(n){if(!n)return'';var u=n.url||'';var t=n.title||'';return u?'<a href=\"'+u+'\" target=\"_blank\" style=\"color:#fff;text-decoration:none\">&#128240; '+t+'</a>':'<span style=\"color:#fff\">&#128240; '+t+'</span>';}function renderTable(){var tbody=document.getElementById('stockTableBody');if(!tbody)return;var html='';rowsData.forEach(function(r){var c=scoreColor(r.score);var bg=r.score>=80?'rgba(0,255,136,0.12)':'rgba(31,111,235,0.12)';html+='<tr style=\"background:'+bg+'\"><td><strong><a href=\"https://finance.yahoo.com/quote/'+r.ticker+'\" target=\"_blank\" style=\"color:#66b2ff\">'+r.ticker+'</a></strong></td>';html+='<td>'+r.company_name.substring(0,35)+(r.company_name.length>35?'...':'')+'</td>';html+='<td><strong style=\"color:'+c+';font-size:1.3em\">'+r.score+'</strong></td>';html+='<td class=earn-cell>'+r.earnings_date.replace(chr(10),'<br>')+'</td>';html+='<td style=\"color:'+(r.days_left<=7?'#00ff88':'#ffcc00')+';font-weight:bold\">'+r.days_left+'d</td>';html+='<td>$'+r.price+'</td>';html+='<td>$'+r.pe_target+' | +'+r.pe_upside+'%</td>';html+='<td>$'+r['3d']+' | +'+r['3d_up']+'%</td>';html+='<td>$'+r['5d']+' | +'+r['5d_up']+'%</td>';html+='<td>'+r.analysts+'</td>';html+='<td style=\"color:#00ff88\">'+r.sb+'</td>';html+='<td style=\"color:#58a6ff\">'+r.buy+'</td>';html+='<td style=\"color:#ffcc00\">'+r.hold+'</td>';html+='<td style=\"color:#ff6b6b\">'+r.sell+'</td>';html+='<td>'+fmtMktcap(r.mktcap)+'</td>';html+='<td style=\'color:#fff\'>'+r.short_int+'%</td>';html+='<td style=\'color:#fff\'>'+r.iv+'%</td>';html+='<td>'+(r.squeeze?'<span style=\'background:#1a2a1a;border:1px solid #2ea043;border-radius:5px;padding:2px 8px;font-size:0.75em;font-weight:bold;color:#00ff88\'>Yes</span>':'—')+'</td>';html+='<td>'+newsHtml(r.news)+'</td></tr>';});tbody.innerHTML=html;};sortBy('days_left');"
 
     html += '</script>'
     html += '<div class=note><b>Scoring:</b> Analyst (30pts) + Buy% (30pts) + 5D Upside (20pts) + SB Count (2pts each, max 20) | <b>PE Target:</b> straddle x1 (conservative) | <b>3-Day Momentum:</b> straddle x3 (mid) | <b>5-Day Momentum:</b> straddle x5 (max upside) | <b>Entry:</b> 1-14 days pre-earnings | <b>Exit:</b> 1-5 days after beat</div>'
