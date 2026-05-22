@@ -1,0 +1,1 @@
+html += '<script>var rowsData=' + json.dumps(rows_data) + ';\n'

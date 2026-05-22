@@ -1,0 +1,5 @@
+f=open('scanner_web.py','r',encoding='utf-8')
+c=f.read()
+f.close()
+idx=c.find('@app.route("/cron")')
+print(c[idx:idx+600])

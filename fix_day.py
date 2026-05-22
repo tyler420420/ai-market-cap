@@ -1,0 +1,5 @@
+c=open('ai_earnings_scanner.py','r',encoding='utf-8').read()
+c=c.replace("'3 Day PE'","'3 Day'")
+c=c.replace("'5 Day PE'","'5 Day'")
+open('ai_earnings_scanner.py','w',encoding='utf-8').write(c)
+print('Done')

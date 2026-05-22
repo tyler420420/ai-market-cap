@@ -1,0 +1,1 @@
+turn asc?String(va).localeCompare(String(vb)):String(vb).localeCompare(String(va));});renderTable();updateArrows();}func

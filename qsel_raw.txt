@@ -1,0 +1,1 @@
+tion updateArrows(){document.querySelectorAll('th[data-col]').forEach(function(t

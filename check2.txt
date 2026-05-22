@@ -1,0 +1,8 @@
+stockTableBody in file: True
+onclick=sortBy in file: True
+data-col= in file: True
+tbody.innerHTML in file: True
+Table: <table id="stockTable"><thead><tr><th onclick="sortBy('ticker')" data-col="ticker">Ticker</th><th onclick="sortBy('company_name')" data-col="company_name">Company</th><th onclick="sortBy('score')" data-col="score">Score</th><th onclick="sortBy('earnings_date')" data-col="earnings_date">Next Report</
+tbody at: 14769
+tbody: <tbody id="stockTableBody"><tr style="background:r
+</table> at: 26868

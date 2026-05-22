@@ -1,0 +1,1 @@
+<th onclick="sortBy('ticker')" data-col="ticker">Ticker</th><th onclick="sortBy('company_name')" data-col="company_name">Company</th><th onclick="sortBy('score')" data-col="score">Score</th><th onclic

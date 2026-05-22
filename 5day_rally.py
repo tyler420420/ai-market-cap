@@ -1,0 +1,6 @@
+with open(r'C:\Users\Tyler_AI\Desktop\test_scanner.html', 'r', encoding='utf-8') as f:
+    c = f.read()
+c = c.replace('>5 Day</th>', '>5 Day<br>Rally Target</th>')
+with open(r'C:\Users\Tyler_AI\Desktop\test_scanner.html', 'w', encoding='utf-8') as f:
+    f.write(c)
+print('Done')

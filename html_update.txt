@@ -1,0 +1,1 @@
+updateArrows(){document.querySelectorAll('th[data-col]').forEach(function(th){th.classList.remove('sorted-asc','sorted-desc');});var th=document.querySelector('th[data-col=+sortCol+]');if(th){th.class

@@ -1,0 +1,1 @@
+querySelector('th[data-col=+sortCol+]');if(th){th.classList.

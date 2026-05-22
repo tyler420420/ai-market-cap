@@ -1,0 +1,4 @@
+Script 2 starts at 44836
+Script 3 starts at 45555
+Between (44836 to 45555):
+<script>var scanBtn=document.getElementById('scanBtn');var warnMsg=document.getElementById('warnMsg');function runScan(){if(scanBtn.disabled)return;scanBtn.disabled=true;warnMsg.textContent='Starting scanner...';var serverWin=window.open('about:blank','scanner_window','width=400,height=200');if(!serverWin){warnMsg.textContent='Popup blocked! Allow popups for this site.';scanBtn.disabled=false;return;}serverWin.document.write('<html><body style="font-family:Arial;background:#1a1a2e;color:#fff;padding:20px"><h3>AI Market Cap Scanner</h3><p>Starting scan server...</p><p>If this window doesn\'t close in 5 seconds, <a href="http://localhost:18765/run" target="_blank">click here</a> after starting scanner_web.py</p>

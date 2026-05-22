@@ -1,0 +1,3 @@
+Total length: 48094
+At 13965: ft">Days Left</th><t
+First th onclick after 13000: <th onclick="sortBy('ticker')" data-col="ticker">T

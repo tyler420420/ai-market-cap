@@ -1,0 +1,11 @@
+Open script tags: 4
+Close script tags: 3
+Script 1 at: 30787 -> <script>var rowsData=[{"rank": 1, "ticker": "SNOW"
+Script 2 at: 44836 -> <script>var scanBtn=document.getElementById('scanB
+Script 3 at: 45555 -> <script>fetch(\'http://localhost:18765/run\',{meth
+Script 4 at: 46687 -> <script>var chatOpen=false;function toggleChat(){c
+
+Script ends:
+End 1 at: 44153 -> </script>
+End 2 at: 46090 -> </script>
+End 3 at: 48071 -> </script>

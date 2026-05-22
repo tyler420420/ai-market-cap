@@ -1,0 +1,1 @@
+html += "var sortCol='days_left';var sortAsc=true;function getVal(r,col){var m={'ticker':r.ticker,'company_name':r.company_name,'score':r.score,'earnings_date':r.earnings_date,'days_left':r.days_left,

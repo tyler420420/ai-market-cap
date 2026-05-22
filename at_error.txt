@@ -1,0 +1,1 @@
+)" data-col="earnings_date">Next Report</th><th onclick="sortBy('days_left')" data-col="days_left">Days Left</th><th onclick="sortBy('price')" data-co

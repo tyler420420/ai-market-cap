@@ -1,0 +1,5 @@
+onclick on TH: True
+sortBy function exists: True
+tbody innerHTML: True
+First TH onclick: <th onclick="sortBy('ticker')" data-col="ticker">T
+sortBy(days_left) call: >Next Report</th><th onclick="sortBy('days_left')" data-col=

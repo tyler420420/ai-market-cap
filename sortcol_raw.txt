@@ -1,0 +1,1 @@
+th[data-col="'+sortCol+'"]');if(th){th.classList.add(sortAsc?'sorted-asc':'sorted-desc');}}function 

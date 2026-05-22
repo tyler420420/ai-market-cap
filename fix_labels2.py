@@ -1,0 +1,13 @@
+c = open('C:\\Users\\Tyler_AI\\Desktop\\test_scanner.html','r',encoding='utf-8').read()
+c = c.replace("'3 Day'","'3 Day PE'")
+c = c.replace("'5 Day'","'5 Day PE'")
+c = c.replace('>3 Day<','>3 Day PE<')
+c = c.replace('>5 Day<','>5 Day PE<')
+c = c.replace('Great Earnings Report','3 Day PE')
+c = c.replace('Excellent Earnings Report','5 Day PE')
+open('C:\\Users\\Tyler_AI\\Desktop\\test_scanner.html','w',encoding='utf-8').write(c)
+import shutil
+shutil.copy('C:\\Users\\Tyler_AI\\Desktop\\test_scanner.html','C:\\Users\\Tyler_AI\\Desktop\\AI_Market_Cap_Scanner_v2.html')
+print('Done')
+print('3 Day PE in file:', '3 Day PE' in c)
+print('5 Day PE in file:', '5 Day PE' in c)

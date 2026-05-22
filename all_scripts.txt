@@ -1,0 +1,18 @@
+=== Script 1 ===
+Open at: 30787
+Close at: 44153
+Content preview: <script>var rowsData=[{"rank": 1, "ticker": "SNOW", "company_name": "Snowflake I
+At close-20: sortBy('days_left');</script>
+
+=== Script 2 ===
+Open at: 44836
+Close at: 46090
+Content preview: <script>var scanBtn=document.getElementById('scanBtn');var warnMsg=document.getE
+At close-20: ation.reload(true);}</script>
+
+=== Script 3 ===
+Open at: 46687
+Close at: 48071
+Content preview: <script>var chatOpen=false;function toggleChat(){chatOpen=!chatOpen;var p=docume
+At close-20: tContent="Send";});}</script>
+

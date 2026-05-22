@@ -1,0 +1,5 @@
+c=open('ai_earnings_scanner.py','r',encoding='utf-8').read()
+idx=c.find('viewport')
+print('viewport in source:', idx>=0)
+idx=c.find('<meta charset')
+print('<meta charset:', repr(c[c.find('<meta charset'):c.find('<meta charset')+50]))

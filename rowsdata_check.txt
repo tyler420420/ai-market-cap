@@ -1,0 +1,2 @@
+rowsData is valid JSON, length: 20
+First item: {'rank': 1, 'ticker': 'SNOW', 'company_name': 'Snowflake Inc.', 'score': 95, 'earnings_date': '2026-05-27', 'days_left': 7, 'price': 169.55, 'pe_target': 179.3, 'pe_upside': 5.8, '3d': 198.8, '3d_up': 17.3, '5d': 218.3, '5d_up': 28.8, 'analysts': 48, 'sb': 10, 'buy': 34, 'hold': 6, 'sell': 1, 'mktcap': 58.77, 'news': {'title': 'Google-Blackstone AI venture weighs on CoreWeave stock, Snowflake jumps', 'url': 'https://finance.yahoo.com/video/google-blackstone-ai-venture-weighs-on-coreweave-stock-snowflake-jumps-144332095.html'}}

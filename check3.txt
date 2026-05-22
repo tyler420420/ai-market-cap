@@ -1,0 +1,7 @@
+onclick on body: False
+onclick on table: False
+onclick on thead: False
+onclick on tr: False
+document.onclick: False
+global onclick: True
+Total onclick occurrences: 22

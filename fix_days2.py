@@ -1,0 +1,11 @@
+c = open('ai_earnings_today.html', encoding='utf-8').read()
+old = "';font-weight:bold\">'+r.days_left+'d</td>'"
+new = "';cursor:pointer;text-decoration:underline' onclick=sortBy('days_left')>'+r.days_left+'d</td>'"
+if old in c:
+    c = c.replace(old, new)
+    open('ai_earnings_today.html', 'w', encoding='utf-8').write(c)
+    print('Done')
+else:
+    print('NOT found - checking...')
+    idx = c.find("days_left<=7")
+    print(repr(c[idx-30:idx+150]))

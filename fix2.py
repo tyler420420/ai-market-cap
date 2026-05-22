@@ -1,0 +1,12 @@
+import sys
+f=open('C:\\Users\\Tyler_AI\\Desktop\\test_scanner.html','r',encoding='utf-8')
+c=f.read()
+f.close()
+c=c.replace('for AI/AI-niche sector','for tech stocks')
+c=c.replace('Auto-runs daily at 6:30 AM PT','Auto-runs free daily at 6:30 AM PT')
+c=c.replace('Subscribe to unlock Run Scan & Chat','Upgrade for Run Scan + Chat')
+c=c.replace('color:#58a6ff\">Sell:','color:#00ff88\">Sell:')
+f=open('C:\\Users\\Tyler_AI\\Desktop\\test_scanner.html','w',encoding='utf-8')
+f.write(c)
+f.close()
+print('done')

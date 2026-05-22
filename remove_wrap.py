@@ -1,0 +1,6 @@
+c = open('ai_earnings_today.html', encoding='utf-8').read()
+c = c.replace('<div style="max-width:1400px;margin:0 auto">', '')
+c = c.replace('</div></body>', '</body>')
+open('ai_earnings_today.html', 'w', encoding='utf-8').write(c)
+print('Done - container removed')
+print('Contains max-width:', 'max-width' in c)
