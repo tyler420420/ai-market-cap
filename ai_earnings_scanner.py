@@ -4,6 +4,8 @@ from datetime import datetime, timedelta
 from dataclasses import dataclass
 from typing import List, Optional
 
+LOCAL_MODE = False
+
 try:
     import yfinance as yf
     YF_AVAILABLE = True
@@ -400,7 +402,8 @@ def generate_html_report(stocks: list, output_path: str):
     # Build full HTML
     SCANNER_TITLE = "AI Market Cap Scanner"
     html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>' + SCANNER_TITLE + '</title>'
-    html += '<link rel="icon" type="image/png" href="/static/logo.png">'
+    favicon_path = "file:///C:/Users/Tyler_AI/Desktop/logo.png" if LOCAL_MODE else "/static/logo.png"
+    html += '<link rel="icon" type="image/png" href="' + favicon_path + '">'
     html += '<meta name="description" content="AI pre-earnings momentum scanner for tech stocks. Track scores, analyst ratings, PE targets, and implied moves before earnings reports.">'
     html += '<meta property="og:title" content="AI Market Cap Scanner">'
     html += '<meta property="og:description" content="Pre-earnings momentum scanner for AI/tech stocks. Scores, PE targets, 3-day and 5-day implied moves.">'
@@ -660,8 +663,12 @@ EARNINGS_OVERRIDES = {
 
 
 def main():
-    parser = argparse.ArgumentParser(); parser.add_argument('--days', type=int, default=14, help='Days ahead to scan (1-14)'); parser.add_argument('--top', type=int, default=20)
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--days', type=int, default=14, help='Days ahead to scan (1-14)')
+    parser.add_argument('--top', type=int, default=20)
+    parser.add_argument('--local', action='store_true', help='Use local desktop paths (favicon, etc.)')
     args = parser.parse_args()
+    LOCAL_MODE = args.local
     print("AI Earnings Scanner - Pre-Earnings Momentum (1-14 Day Window)"); print("="*55)
     if not YF_AVAILABLE: print("ERROR: yfinance not installed. Run: python -m pip install yfinance"); sys.exit(1)
 
