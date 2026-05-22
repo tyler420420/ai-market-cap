@@ -256,7 +256,7 @@ def analyze_ticker(ticker: str, earnings_date) -> Optional[EarningsSignal]:
                 hold_rating = h
                 sell_rating = s + ss
                 buy_rating_pct = round((sb + b) / total * 100, 1) if total > 0 else 0
-                if total_analysts == 0: total_analysts = total
+                total_analysts = total
         except Exception: pass
 
         # Fallback: if recommendations method didn't work, use info dict
@@ -336,7 +336,7 @@ def analyze_ticker(ticker: str, earnings_date) -> Optional[EarningsSignal]:
 
 def generate_html_report(stocks: list, output_path: str):
     import math
-    timestamp = datetime.now().strftime('%Y-%m-%d %H:%M')
+    timestamp = datetime.now().strftime('%B %d, %Y at %I:%M %p PT')
 
     def score_color(s):
         return '#00ff88' if round(s) >= 80 else '#58a6ff'
@@ -369,6 +369,10 @@ def generate_html_report(stocks: list, output_path: str):
     # Build full HTML
     SCANNER_TITLE = "AI Market Cap Scanner"
     html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>' + SCANNER_TITLE + '</title>'
+    html += '<link rel="icon" type="image/png" href="/static/logo.png">'
+    html += '<meta name="description" content="AI pre-earnings momentum scanner for tech stocks. Track scores, analyst ratings, PE targets, and implied moves before earnings reports.">'
+    html += '<meta property="og:title" content="AI Market Cap Scanner">'
+    html += '<meta property="og:description" content="Pre-earnings momentum scanner for AI/tech stocks. Scores, PE targets, 3-day and 5-day implied moves.">'
     html += '<style>'
     html += '*{margin:0;padding:0;box-sizing:border-box}body{font-family:Segoe UI,Arial,sans-serif;background:#0d1117;color:#c9d1d9;padding:20px}'
     html += '.header{background:linear-gradient(135deg,#1a1f2e,#161b22);padding:25px;border-radius:12px;margin-bottom:20px;border:1px solid #30363d}'
@@ -426,18 +430,20 @@ def generate_html_report(stocks: list, output_path: str):
         chg_cls = 'ticker-up' if chg >= 0 else 'ticker-dn'
         chg_str = f'+{chg:.2f}%' if chg >= 0 else f'{chg:.2f}%'
         ticker_items += f'<span class=ticker-item><span style="font-weight:bold;color:#00ff88">{round(s.composite_score)}</span> <span class=ticker-sym>{s.ticker}</span> <span class=ticker-price>${round(s.current_price, 2)}</span> <span class="ticker-chg {chg_cls}">{chg_str}</span></span>'
+    html += '<div style="background:#1a2a1a;border-bottom:2px solid #2ea043;padding:10px 20px;text-align:center;font-size:0.9em"><span style="color:#2ea043">&#10003;</span> Free scan runs daily at 6:30 AM PT &nbsp;|&nbsp; <a href="/pricing" style="color:#ffd700;font-weight:bold;text-decoration:none">Subscribe to run additional scans</a> &nbsp;|&nbsp; <a href="/pricing" style="color:#ffd700;text-decoration:none">+ AI Trading Chat Assistant</a></div>'
     html += '<div class=ticker-strip><div class=ticker-strip-inner>' + ticker_items + ticker_items + '</div></div>'
 
-    html += '<div class=header><div class=hdr-row><div><h1>' + SCANNER_TITLE + '</h1><div class=desc>Pre-earnings momentum scanner for Tech sector | Auto-runs daily at 6:30 AM PT | Subscribe to unlock Run Scan & Chat</div></div>'
+    html += '<div class=header><div class=hdr-row><div><a href="https://aismarketcap.com" style="color:#58a6ff;text-decoration:none"><h1>' + SCANNER_TITLE + '</h1></a><div class=desc>Pre-earnings momentum scanner for Tech sector</div></div>'
     html += '<div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end;margin-left:auto">'
     html += '<div style="display:flex;gap:6px;align-items:center">'
     html += '<span style="background:#161b22;border:1px solid #2ea043;border-radius:5px;padding:3px 10px;font-size:0.82em"><span style="font-weight:bold;color:#2ea043">' + str(strong_count) + '</span> <span style="color:#8b949e">Strong Buy</span></span>'
     html += '<span style="background:#161b22;border:1px solid #1f6feb;border-radius:5px;padding:3px 10px;font-size:0.82em"><span style="font-weight:bold;color:#58a6ff">' + str(sum(1 for s in stocks if round(s.composite_score) < 80)) + '</span> <span style="color:#8b949e">Watch</span></span>'
+    html += '<a href="/about" class=btn style="background:#1a2a2a;border:1px solid #30363d;color:#fff;padding:10px 18px;border-radius:6px;font-size:0.9em;text-decoration:none;font-weight:normal;box-shadow:none">How It Works</a>'
     html += '<button class=btn id=refreshBtn onclick=refreshData()>Refresh</button>'
     html += "<button class=btn id=scanBtn onclick=runScan()>Run Scan</button>"
     html += '</div></div></div>'
     html += '<div class=warn id=warnMsg></div>'
-    html += '<div class=updated>Updated: ' + timestamp + ' | Price data from Yahoo Finance | Options data via Yahoo Finance</div>'
+    html += '<div class=updated>Last Updated: ' + timestamp + '</div>'
     html += '<div class=stats-bar><div class=legend><span><span class=dot style=background:#00ff88></span> Score 80+: Strong Buy</span><span><span class=dot style=background:#58a6ff></span> Score &lt;80: Watch</span></div></div>'
 
     if pick:
