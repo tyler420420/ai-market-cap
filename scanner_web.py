@@ -36,6 +36,8 @@ _last_auto_scan_date = None
 # ===== SUBSCRIPTION MANAGEMENT =====
 # Simple file-based subscription store (for demo - use DB in production)
 SUBS_FILE = Path(__file__).parent / "subscriptions.json"
+SCAN_COUNTS_FILE = Path(__file__).parent / "scan_counts.json"
+MAX_SCANS_PER_DAY = 2
 
 def get_subscriptions():
     if SUBS_FILE.exists():
@@ -44,6 +46,33 @@ def get_subscriptions():
         except:
             return {}
     return {}
+
+def get_scan_counts():
+    if SCAN_COUNTS_FILE.exists():
+        try:
+            return json.loads(SCAN_COUNTS_FILE.read_text())
+        except:
+            return {}
+    return {}
+
+def get_scans_today(customer_id):
+    counts = get_scan_counts()
+    today = datetime.now(PT).strftime("%Y-%m-%d")
+    key = f"{customer_id}:{today}"
+    return counts.get(key, 0)
+
+def increment_scan_count(customer_id):
+    counts = get_scan_counts()
+    today = datetime.now(PT).strftime("%Y-%m-%d")
+    key = f"{customer_id}:{today}"
+    counts[key] = counts.get(key, 0) + 1
+    save_scan_counts(counts)
+
+def save_scan_counts(counts):
+    # clean up old dates
+    today = datetime.now(PT).strftime("%Y-%m-%d")
+    counts = {k: v for k, v in counts.items() if k.split(":")[0] == today}
+    SCAN_COUNTS_FILE.write_text(json.dumps(counts))
 
 def save_subscription(customer_id, plan, status):
     subs = get_subscriptions()
@@ -226,30 +255,31 @@ h2 { color: #fff; font-size: 2em; margin-bottom: 10px; }
 .plan .cta { display: block; background: #238636; color: #fff; text-align: center; padding: 12px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 0.95em; }
 .plan .cta:hover { background: #2ea043; }
 .plan.featured { border-color: #ffd700; box-shadow: 0 0 20px rgba(255,215,0,0.2); }
-.plan.featured .cta { background: linear-gradient(135deg,#2a1a00,#ffd700); color: #fff; }
-.plan.featured .cta:hover { background: linear-gradient(135deg,#3a2000,#ffe033); }
+.plan.featured .cta { background: #238636; }
+.plan.featured .cta:hover { background: #2ea043; }
 .back-link { display: inline-block; margin-top: 40px; color: #58a6ff; text-decoration: none; font-size: 0.9em; }
 .back-link:hover { color: #79b8ff; }
 </style></head><body>
 <div class=header>
-    <h1>AI Market Cap</h1>
+    <h1><a href="/" style="color:#58a6ff;text-decoration:none">AI Market Cap</a></h1>
     <a href="/">View Scanner</a>
 </div>
+<div style="background:#1a2a1a;border:1px solid #2ea043;border-radius:8px;padding:12px 18px;margin:30px auto;max-width:880px;text-align:center;font-size:0.9em;color:#2ea043">Full scan runs once daily for free at 6:30 AM PT — auto-updated every market day</div>
 <div class=container>
-    <h2>Unlock Full Access</h2>
-    <p class=subtitle>Get unlimited daily scans, real-time prices, and AI-powered trade picks.</p>
+    <h2>Subscribe to run additional scans<br>and use the AI chat assistant.</h2>
+    <p class=subtitle>Unlock full access to the scanner</p>
     <div class=plans>
         <div class=plan>
             <h3>Monthly</h3>
             <div class=price>$149<span>/mo</span></div>
             <div class=period>Billed monthly</div>
             <ul>
-                <li>All AI stocks monitored</li>
+                <li>2 additional scans per day</li>
+                <li>AI Chat Assistant</li>
                 <li>Score + PE/3D/5D targets</li>
                 <li>AI Suggested Trade</li>
                 <li>Live price ticker</li>
                 <li>News per stock</li>
-                <li>Auto-scan at 6:30 AM PT daily</li>
             </ul>
             <a href="/create-checkout?plan=monthly" class=cta>Subscribe - $149/mo</a>
         </div>
@@ -259,9 +289,6 @@ h2 { color: #fff; font-size: 2em; margin-bottom: 10px; }
             <div class=period>Save $789 vs monthly</div>
             <ul>
                 <li>Everything in Monthly</li>
-                <li>Unlimited daily scans</li>
-                <li>Early access to new features</li>
-                <li>Priority support</li>
                 <li>Save $789/year</li>
             </ul>
             <a href="/create-checkout?plan=annual" class=cta>Subscribe - $999/yr</a>
@@ -327,6 +354,13 @@ a {{ background: #238636; color: #fff; padding: 12px 24px; border-radius: 8px; t
     except Exception as e:
         return f"Error: {e}", 500
 
+@app.route("/api/scans", methods=["GET"])
+def api_scans():
+    customer_id = request.cookies.get("stripe_customer", "")
+    token = request.cookies.get(COOKIE_NAME, "")
+    used = get_scans_today(customer_id) if customer_id else get_scans_today(token)
+    return jsonify({'used': used, 'limit': MAX_SCANS_PER_DAY, 'remaining': max(0, MAX_SCANS_PER_DAY - used)})
+
 @app.route("/webhook", methods=["POST"])
 def webhook():
     """Stripe webhook handler"""
@@ -361,7 +395,7 @@ def webhook():
 
 @app.route("/run", methods=["POST"])
 def api_run():
-    """Run scan - requires active subscription"""
+    """"Run scan - requires active subscription + max 2/day"""
     token = request.cookies.get(COOKIE_NAME, "")
     customer_id = request.cookies.get("stripe_customer", "")
 
@@ -372,7 +406,13 @@ def api_run():
     if not is_active:
         return redirect("/pricing")
 
+    # Check scan limit
+    key_id = customer_id if customer_id else token
+    if get_scans_today(key_id) >= MAX_SCANS_PER_DAY:
+        return jsonify({'error': 'limit_reached', 'message': f'Daily scan limit reached ({MAX_SCANS_PER_DAY}/day). Try again tomorrow.'}), 429
+
     trigger_scan()
+    increment_scan_count(key_id)
     return "ok"
 
 @app.route("/status")
