@@ -219,11 +219,6 @@ def index():
     resp.headers['Content-Type'] = 'text/html; charset=utf-8'
     return resp
 
-@app.route("/about")
-def about():
-    """Original landing page"""
-    return send_from_directory(".", "index.html")
-
 @app.route("/pricing")
 def pricing():
     """Pricing page with Stripe Checkout"""
