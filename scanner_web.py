@@ -181,6 +181,15 @@ def cron():
 
 # ===== WEB ROUTES =====
 
+@app.route("/robots.txt")
+def robots():
+    return "User-agent: *\nAllow: /\n\nSitemap: https://aismarketcap.com/sitemap.xml", 200, {"Content-Type": "text/plain"}
+
+@app.route("/sitemap.xml")
+def sitemap():
+    xml = '<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url><loc>https://aismarketcap.com/</loc><lastmod>2026-05-21</lastmod><priority>1.0</priority></url><url><loc>https://aismarketcap.com/about</loc><lastmod>2026-05-21</lastmod><priority>0.8</priority></url><url><loc>https://aismarketcap.com/pricing</loc><lastmod>2026-05-21</lastmod><priority>0.9</priority></url></urlset>'
+    return xml, 200, {"Content-Type": "application/xml"}
+
 @app.route("/")
 def index():
     """Home page = scanner (no login required)"""
