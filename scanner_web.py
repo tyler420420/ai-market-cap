@@ -190,13 +190,22 @@ def cron():
                                 json_end = i
                                 break
                     json_len = json_end - (idx + 12) + 1
-                    if json_len < 5000:
+if json_len < 5000:
                         print(f"[Cron] rowsData too short ({json_len} bytes), restoring backup")
-                        # Restore from latest dated scan
                         backups = sorted(Path(__file__).parent.glob("ai_earnings_57day_*.html"), key=lambda f: f.stat().st_mtime, reverse=True)
                         if backups:
                             backups[0].replace(today_path)
                             print(f"[Cron] Restored {backups[0].name}")
+            # Post to X after scan
+            try:
+                subprocess.run(
+                    [sys.executable, str(Path(__file__).parent / "x_poster.py"), "--post-scan"],
+                    capture_output=True, text=True,
+                    encoding='utf-8', errors='replace', timeout=60,
+                    cwd=str(Path(__file__).parent)
+                )
+            except Exception as e:
+                print("[Cron] X post error:", e)
             print("[Cron] Scan output:", result.stdout[-500:] if result.stdout else "no output")
         except Exception as e:
             print("[Cron] Scan error:", e)
