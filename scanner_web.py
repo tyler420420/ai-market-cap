@@ -190,7 +190,7 @@ def cron():
                                 json_end = i
                                 break
                     json_len = json_end - (idx + 12) + 1
-if json_len < 5000:
+                    if json_len < 5000:
                         print(f"[Cron] rowsData too short ({json_len} bytes), restoring backup")
                         backups = sorted(Path(__file__).parent.glob("ai_earnings_57day_*.html"), key=lambda f: f.stat().st_mtime, reverse=True)
                         if backups:
