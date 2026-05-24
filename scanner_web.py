@@ -165,8 +165,17 @@ def cron():
     if not force and getattr(cron, 'last_run', None) == today:
         return "Already ran today", 200
     cron.last_run = today
-    # Run scan in background thread
+
     def do_scan():
+        today_path = Path(__file__).parent / "ai_earnings_today.html"
+        fallback_path = Path(__file__).parent / "ai_earnings_fallback.html"
+
+        # STEP 1: Always save current "good" file as fallback BEFORE running scan
+        if today_path.exists():
+            import shutil
+            shutil.copy2(today_path, fallback_path)
+            print("[Cron] Saved fallback backup")
+
         try:
             result = subprocess.run(
                 [sys.executable, str(Path(__file__).parent / "ai_earnings_scanner.py")],
@@ -174,8 +183,7 @@ def cron():
                 encoding='utf-8', errors='replace', timeout=180,
                 cwd=str(Path(__file__).parent)
             )
-            # Validate: ensure ai_earnings_today.html has full rowsData (min 5000 chars = at least ~15 stocks)
-            today_path = Path(__file__).parent / "ai_earnings_today.html"
+            # STEP 2: Validate - ensure ai_earnings_today.html has full rowsData
             if today_path.exists():
                 content = today_path.read_text(encoding='utf-8')
                 idx = content.find('var rowsData=')
@@ -191,15 +199,37 @@ def cron():
                                 break
                     json_len = json_end - (idx + 12) + 1
                     if json_len < 5000:
-                        print(f"[Cron] rowsData too short ({json_len} bytes), restoring backup")
-                        backups = sorted(Path(__file__).parent.glob("ai_earnings_57day_*.html"), key=lambda f: f.stat().st_mtime, reverse=True)
-                        if backups:
-                            backups[0].replace(today_path)
-                            print(f"[Cron] Restored {backups[0].name}")
-            # X posting disabled
-            print("[Cron] Scan output:", result.stdout[-500:] if result.stdout else "no output")
+                        print(f"[Cron] rowsData too short ({json_len} bytes), restoring fallback")
+                        if fallback_path.exists():
+                            import shutil
+                            shutil.copy2(fallback_path, today_path)
+                            print("[Cron] Restored from fallback - site stays up")
+                    else:
+                        print(f"[Cron] Validation passed ({json_len} bytes, ~{20 + (json_len-11500)//300} stocks)")
+                else:
+                    print("[Cron] rowsData not found, restoring fallback")
+                    if fallback_path.exists():
+                        import shutil
+                        shutil.copy2(fallback_path, today_path)
+            # STEP 3: Always save successful scan as new backup (rename old fallback to backup)
+            backup_name = f"ai_earnings_57day_{today.strftime('%Y%m%d')}.html"
+            backup_path = Path(__file__).parent / backup_name
+            if today_path.exists():
+                import shutil
+                shutil.copy2(today_path, backup_path)
+                print(f"[Cron] Saved as {backup_name}")
+            # Clean up fallback
+            if fallback_path.exists():
+                fallback_path.unlink()
+                print("[Cron] Fallback cleaned up")
+            print("[Cron] Scan complete:", result.stdout[-500:] if result.stdout else "no output")
         except Exception as e:
             print("[Cron] Scan error:", e)
+            # On any crash, restore fallback so site stays up
+            if fallback_path.exists():
+                import shutil
+                shutil.copy2(fallback_path, today_path)
+                print("[Cron] Restored fallback after error - site stays up")
     threading.Thread(target=do_scan, daemon=True).start()
     return "Scan triggered", 200
 
