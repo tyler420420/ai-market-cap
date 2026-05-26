@@ -1,8 +1,10 @@
 ﻿"""AI Earnings Scanner - Pre-Earnings Momentum Strategy (1-14 day window)"""
 import argparse, csv, os, sys, time
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from dataclasses import dataclass
 from typing import List, Optional
+
+PT = timezone(timedelta(hours=-7))
 
 LOCAL_MODE = False
 
@@ -369,7 +371,7 @@ def analyze_ticker(ticker: str, earnings_date) -> Optional[EarningsSignal]:
 
 def generate_html_report(stocks: list, output_path: str):
     import math
-    timestamp = datetime.now().strftime('%B %d, %Y at %I:%M %p PT')
+    timestamp = datetime.now(PT).strftime('%B %d, %Y at %I:%M %p PT')
 
     def score_color(s):
         return '#00ff88' if round(s) >= 80 else '#58a6ff'
