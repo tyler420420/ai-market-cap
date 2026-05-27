@@ -221,9 +221,10 @@ def post_milestones(state):
         return
     
     top6 = picks[:6]
-    lines = ["Daily Top Strong Buy Targets 🎯 - aismarketcap.com"]
+    lines = ["Daily Top Strong Buy Targets - aismarketcap.com", ""]
     for i, p in enumerate(top6, 1):
         lines.append(f"{i}. {p['ticker']} {p['score']} | ${p['price']:.0f} -> ${p['pe_target']:.0f} (+{p['pe_upside']:.0f}%)")
+    lines.append("")
     lines.append("#AIStocks #StockMarket #Nasdaq #OptionsTrading #Trading #Investing")
     
     msg = '\n'.join(lines)
@@ -251,6 +252,29 @@ def run_daily_scan():
 
 # ============ MAIN LOOP ============
 def main():
+    import os, sys
+    lock_file = os.path.join(os.path.dirname(__file__), 'tracker.lock')
+    if os.path.exists(lock_file):
+        try:
+            pid = int(open(lock_file).read())
+            import psutil
+            if psutil.pid_exists(pid):
+                log(f"[LOCK] Another instance running (PID {pid}), exiting")
+                sys.exit(0)
+            else:
+                log(f"[LOCK] Stale lock file (PID {pid} dead), removing")
+                os.remove(lock_file)
+        except:
+            os.remove(lock_file)
+    with open(lock_file, 'w') as f:
+        f.write(str(os.getpid()))
+    try:
+        _main()
+    finally:
+        if os.path.exists(lock_file):
+            os.remove(lock_file)
+
+def _main():
     log("=== AI Market Cap Tracker Started ===")
     
     # Check args
@@ -307,4 +331,17 @@ def main():
             time.sleep(7200)  # Check every 2 hours
 
 if __name__ == '__main__':
-    main()
+    import sys
+    max_retries = 10
+    retry_count = 0
+    while True:
+        try:
+            main()
+        except Exception as e:
+            retry_count += 1
+            if retry_count > max_retries:
+                log(f"[FATAL] Max retries ({max_retries}) exceeded, exiting")
+                sys.exit(1)
+            wait = min(300, 60 * retry_count)  # 1min, 2min, ... up to 5min
+            log(f"[ERROR] Tracker crashed: {e}, restarting in {wait}s (attempt {retry_count}/{max_retries})")
+            time.sleep(wait)
