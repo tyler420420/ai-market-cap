@@ -168,14 +168,10 @@ def cron():
 
     def do_scan():
         today_path = Path(__file__).parent / "ai_earnings_today.html"
-        fallback_path = Path(__file__).parent / "ai_earnings_fallback.html"
+        golden_path = Path(__file__).parent / "ai_earnings_golden.html"
 
-        # STEP 1: Always save current "good" file as fallback BEFORE running scan
-        if today_path.exists():
-            import shutil
-            shutil.copy2(today_path, fallback_path)
-            print("[Cron] Saved fallback backup")
-
+        # STEP 1: Run scan, capture result
+        scan_succeeded = False
         try:
             result = subprocess.run(
                 [sys.executable, str(Path(__file__).parent / "ai_earnings_scanner.py")],
@@ -183,7 +179,7 @@ def cron():
                 encoding='utf-8', errors='replace', timeout=180,
                 cwd=str(Path(__file__).parent)
             )
-            # STEP 2: Validate - ensure ai_earnings_today.html has full rowsData
+            # STEP 2: Validate - must have rowsData >= 10000 bytes AND contain real stocks
             if today_path.exists():
                 content = today_path.read_text(encoding='utf-8')
                 idx = content.find('var rowsData=')
@@ -198,38 +194,34 @@ def cron():
                                 json_end = i
                                 break
                     json_len = json_end - (idx + 12) + 1
-                    if json_len < 5000:
-                        print(f"[Cron] rowsData too short ({json_len} bytes), restoring fallback")
-                        if fallback_path.exists():
-                            import shutil
-                            shutil.copy2(fallback_path, today_path)
-                            print("[Cron] Restored from fallback - site stays up")
-                    else:
-                        print(f"[Cron] Validation passed ({json_len} bytes, ~{20 + (json_len-11500)//300} stocks)")
-                else:
-                    print("[Cron] rowsData not found, restoring fallback")
-                    if fallback_path.exists():
+                    # Count stocks in JSON by counting ticker entries
+                    stock_count = content.count('"ticker":')
+                    print(f"[Cron] rowsData={json_len} bytes, stocks={stock_count}")
+                    # MUST have: rowsData >= 10000 bytes AND at least 5 stocks
+                    if json_len >= 10000 and stock_count >= 5:
+                        # SUCCESS - update golden backup
                         import shutil
-                        shutil.copy2(fallback_path, today_path)
-            # STEP 3: Always save successful scan as new backup (rename old fallback to backup)
-            backup_name = f"ai_earnings_57day_{today.strftime('%Y%m%d')}.html"
-            backup_path = Path(__file__).parent / backup_name
-            if today_path.exists():
-                import shutil
-                shutil.copy2(today_path, backup_path)
-                print(f"[Cron] Saved as {backup_name}")
-            # Clean up fallback
-            if fallback_path.exists():
-                fallback_path.unlink()
-                print("[Cron] Fallback cleaned up")
-            print("[Cron] Scan complete:", result.stdout[-500:] if result.stdout else "no output")
+                        shutil.copy2(today_path, golden_path)
+                        print(f"[Cron] VALID - Golden backup updated ({stock_count} stocks)")
+                        scan_succeeded = True
+                    else:
+                        print(f"[Cron] INVALID - rowsData={json_len} or stocks={stock_count} too low, restoring golden")
+                        if golden_path.exists():
+                            shutil.copy2(golden_path, today_path)
+                            print("[Cron] Restored from golden backup - site stays up")
+                        else:
+                            print("[Cron] No golden backup found, leaving current file")
+                else:
+                    print("[Cron] rowsData not found, restoring golden")
+                    if golden_path.exists():
+                        shutil.copy2(golden_path, today_path)
+            print("[Cron] Scan output:", result.stdout[-500:] if result.stdout else "no output")
         except Exception as e:
-            print("[Cron] Scan error:", e)
-            # On any crash, restore fallback so site stays up
-            if fallback_path.exists():
+            print(f"[Cron] Scan error: {e}")
+            if golden_path.exists():
                 import shutil
-                shutil.copy2(fallback_path, today_path)
-                print("[Cron] Restored fallback after error - site stays up")
+                shutil.copy2(golden_path, today_path)
+                print("[Cron] Restored from golden after error - site stays up")
     threading.Thread(target=do_scan, daemon=True).start()
     return "Scan triggered", 200
 
