@@ -116,6 +116,8 @@ def trigger_scan():
     t.start()
 
 def run_full_scan():
+    today_path = Path(__file__).parent / "ai_earnings_today.html"
+    golden_path = Path(__file__).parent / "ai_earnings_golden.html"
     try:
         result = subprocess.run(
             [sys.executable, str(SCANNER_PATH)],
@@ -124,9 +126,43 @@ def run_full_scan():
             cwd=str(Path(__file__).parent)
         )
         print('[Scanner] Full scan complete. Exit code:', result.returncode)
+        # Validate output before going live - golden backup always wins if bad
+        if today_path.exists():
+            content = today_path.read_text(encoding='utf-8')
+            idx = content.find('var rowsData=')
+            if idx >= 0:
+                arr_depth, json_end = 0, idx
+                for i in range(idx + 12, len(content)):
+                    ch = content[i]
+                    if ch == '[': arr_depth += 1
+                    elif ch == ']':
+                        arr_depth -= 1
+                        if arr_depth == 0:
+                            json_end = i
+                            break
+                json_len = json_end - (idx + 12) + 1
+                stock_count = content.count('"ticker":')
+                print(f'[Scanner] rowsData={json_len} bytes, stocks={stock_count}')
+                if json_len >= 5000 and stock_count >= 3:
+                    import shutil
+                    shutil.copy2(today_path, golden_path)
+                    print(f'[Scanner] VALID - golden updated ({stock_count} stocks)')
+                else:
+                    print(f'[Scanner] INVALID - restoring golden')
+                    if golden_path.exists():
+                        shutil.copy2(golden_path, today_path)
+                        print('[Scanner] Restored from golden backup')
+            else:
+                print('[Scanner] No rowsData - restoring golden')
+                if golden_path.exists():
+                    shutil.copy2(golden_path, today_path)
         scan_state.scan_state = 'done'
     except Exception as e:
         print('[Scanner] Scan error:', e)
+        if golden_path.exists():
+            import shutil
+            shutil.copy2(golden_path, today_path)
+            print('[Scanner] Restored from golden after error')
         scan_state.scan_state = 'done'
 
 def auto_scan_loop():
