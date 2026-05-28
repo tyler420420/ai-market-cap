@@ -233,8 +233,9 @@ def cron():
                     # Count stocks in JSON by counting ticker entries
                     stock_count = content.count('"ticker":')
                     print(f"[Cron] rowsData={json_len} bytes, stocks={stock_count}")
-                    # MUST have: rowsData >= 10000 bytes AND at least 5 stocks
-                    if json_len >= 10000 and stock_count >= 5:
+                    # MUST have: rowsData >= 5000 bytes AND at least 5 stocks
+                    # 5000 bytes = minimum for a valid scan (was 10000, but 17-stock scans run ~9900 bytes)
+                    if json_len >= 5000 and stock_count >= 5:
                         # SUCCESS - update golden backup
                         import shutil
                         shutil.copy2(today_path, golden_path)
