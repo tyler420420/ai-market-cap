@@ -503,10 +503,10 @@ def generate_html_report(stocks: list, output_path: str):
         html += '<span style="font-size:1.2em;font-weight:bold;color:#fff">' + pick.ticker + '</span>'
         html += '<span style="font-size:0.95em;color:#fff">' + pick.company_name[:28] + ('...' if len(pick.company_name) > 28 else '') + '</span>'
         html += '<span style="font-size:0.95em;color:#fff">Score: <strong style="color:' + pick_color + '">' + str(round(pick.composite_score)) + '</strong></span>'
-        html += '<span style="font-size:0.95em;color:#fff">Price: <strong style="color:#00ff88">$' + str(round(pick.current_price, 2)) + '</strong></span>'
-        html += '<span style="font-size:0.95em;color:#fff">Sell: <strong style="color:#00ff88">' + pick_sell + '</strong></span>'
+        html += '<span style="font-size:0.95em;color:#fff">Buy Price: <strong style="color:#00ff88">$' + str(round(pick.current_price, 2)) + '</strong></span>'
+        html += '<span style="font-size:0.95em;color:#fff">Sell Target: <strong style="color:#00ff88">' + pick_sell + '</strong></span>'
         html += '<span style="font-size:0.95em;color:#fff">Earnings in: <strong style="color:#00ff88">' + str(pick.days_to_earnings) + ' days</strong></span>'
-        html += '<span style="font-size:0.95em;color:#fff">PE Profit: <strong style="color:#00ff88;font-weight:bold">' + pick_profit + '</strong></span>'
+        html += '<span style="font-size:0.95em;color:#fff">Expected Profit: <strong style="color:#00ff88;font-weight:bold">' + pick_profit + '</strong></span>'
         html += '</div>'
 
     headers = [
