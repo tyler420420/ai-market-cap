@@ -170,35 +170,50 @@ class EarningsSignal:
 def calculate_composite_score(stock: EarningsSignal) -> float:
     score = 0.0; signals = []
 
-    # === 1. ANALYST COVERAGE (PRIMARY -- institutional validation = safety) ===
-    if stock.total_analysts == 0:
-        signals.append('WARNING: No analyst coverage (high risk, avoid)')
-        score += 5
-    elif stock.total_analysts < 10:
-        signals.append(f'Thin coverage: {stock.total_analysts} analysts')
-        score += 15
-    elif stock.total_analysts >= 20:
-        score += 30
-        signals.append(f'{stock.total_analysts} analysts (institutional backing)')
-    elif stock.total_analysts >= 10:
-        score += 20
+    # === 1. ANALYST COVERAGE (25pts max) ===
+    # 1pt each, linear to 25
+    analyst_score = min(stock.total_analysts, 25)
+    score += analyst_score
+    if stock.total_analysts >= 10:
         signals.append(f'{stock.total_analysts} analysts')
 
-    # === 2. BUY% (analyst conviction) ===
-    if stock.buy_rating_pct > 0:
-        buy_score = (stock.buy_rating_pct / 100) * 30; score += buy_score
-        if stock.buy_rating_pct >= 80:
-            signals.append(f'{stock.buy_rating_pct:.0f}% bullish ({stock.strong_buy_rating} SB + {stock.buy_rating} B)')
+    # === 2. BUY % CONVICTION (25pts max) ===
+    # % of bullish analysts (SB + B out of all ratings)
+    if stock.total_analysts > 0:
+        bullish = stock.strong_buy_rating + stock.buy_rating
+        total_ratings = bullish + stock.hold_rating + stock.sell_rating
+        if total_ratings > 0:
+            buy_pct = (bullish / total_ratings) * 100
+            buy_score = min(buy_pct * 0.25, 25)  # 100% bullish = 25pts
+            score += buy_score
+            if buy_pct >= 75:
+                signals.append(f'{buy_pct:.0f}% bullish ({stock.strong_buy_rating} SB + {stock.buy_rating} B)')
 
-    # === 3. 5D UPSIDE (options-implied move, bonus -- more sensitive in 5-15% range) ===
+    # === 3. STRONG BUY COUNT (20pts max) ===
+    # 2pts each
+    sb_score = min(stock.strong_buy_rating * 2, 20)
+    score += sb_score
+
+    # === 4. 5D UPSIDE (15pts max) ===
+    # Options implied move — 15% move = 15pts
     if stock.post_earnings_5d_upside_pct > 0:
-        # Scale: 10% = 10pts, 20% = 16pts, 30%+ = 20pts (max)
-        upside_score = min(stock.post_earnings_5d_upside_pct / 1.5, 20); score += upside_score
-        if upside_score >= 10: signals.append(f"+{stock.post_earnings_5d_upside_pct:.0f}% 5-day move")
+        upside_score = min(stock.post_earnings_5d_upside_pct, 15)
+        score += upside_score
+        if upside_score >= 10:
+            signals.append(f"+{stock.post_earnings_5d_upside_pct:.0f}% implied move")
 
-    # === 4. STRONG BUY COUNT (analyst conviction multiplier -- 2pts per SB, max 20pts) ===
-    sb_score = min(stock.strong_buy_rating * 2, 20); score += sb_score
+    # === 5. EARNINGS SENTIMENT (15pts max) ===
+    # Recent beat/miss history
+    if stock.earnings_sentiment == 'Positive':
+        score += 15
+        signals.append('Positive earnings trend')
+    elif stock.earnings_sentiment == 'Mixed':
+        score += 7
+        signals.append('Mixed earnings trend')
+    elif stock.earnings_sentiment == 'Negative':
+        score += 0  # No points for negative
 
+    # Cap at 100
     stock.composite_score = min(score, 100); stock.signals = signals
     return stock.composite_score
 
@@ -348,6 +363,8 @@ def analyze_ticker(ticker: str, earnings_date) -> Optional[EarningsSignal]:
         company_name = info.get('longName', info.get('shortName', ticker))
         days_to_earnings = (earnings_date - datetime.now().date()).days
         earnings_date_str = earnings_date.strftime('%Y-%m-%d')
+        # Fetch earnings sentiment from last 4 quarters (MUST be before calculate_composite_score)
+        earnings_sentiment = get_earnings_sentiment(ticker)
         signal = EarningsSignal(ticker=ticker, company_name=company_name, earnings_date=earnings_date_str, days_to_earnings=days_to_earnings,
             current_price=round(current_price,2) if current_price else 0, price_target=round(price_target,2) if price_target else 0,
             target_upside_pct=round(target_upside_pct,1) if target_upside_pct else 0,
@@ -359,11 +376,9 @@ def analyze_ticker(ticker: str, earnings_date) -> Optional[EarningsSignal]:
             short_interest=round(short_interest,2) if short_interest else 0, avg_volume=avg_volume, sector=sector,
             price_change_pct=price_change_pct, price_change_abs=price_change_abs,
             market_cap=round(market_cap_raw / 1e9, 2) if market_cap_raw else 0,
-            earnings_sentiment='')  # set below after fetching
+            earnings_sentiment=earnings_sentiment)
         calculate_composite_score(signal)
         signal.top_news = fetch_top_news(ticker, count=1)
-        # Fetch earnings sentiment from last 4 quarters
-        signal.earnings_sentiment = get_earnings_sentiment(ticker)
         return signal
     except Exception as e:
         import traceback; traceback.print_exc(); return None
