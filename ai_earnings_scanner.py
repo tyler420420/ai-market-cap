@@ -1,4 +1,4 @@
-﻿"""AI Earnings Scanner - Pre-Earnings Momentum Strategy (1-14 day window)"""
+"""AI Earnings Scanner - Pre-Earnings Momentum Strategy (1-14 day window)"""
 import argparse, csv, os, sys, time
 from datetime import datetime, timedelta, timezone
 from dataclasses import dataclass
@@ -474,7 +474,7 @@ def generate_html_report(stocks: list, output_path: str):
     html += '<div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end;margin-left:auto">'
     html += '<div style="display:flex;gap:6px;align-items:center">'
     html += '<a href="/about" class=btn style="background:#1a2a2a;border:1px solid #30363d;color:#fff;padding:10px 18px;border-radius:6px;font-size:0.9em;text-decoration:none;font-weight:normal;box-shadow:none">How It Works</a>'
-html += '<button class=btn id=scanBtn onclick=runScan()>Run Scan</button>'
+    html += '<button class=btn id=scanBtn onclick=runScan()>Run Scan</button>'
     html += '</div><div style="display:flex;gap:6px;align-items:center;margin-top:6px"><span style="background:#161b22;border:1px solid #2ea043;border-radius:5px;padding:3px 10px;font-size:0.82em"><span style="font-weight:bold;color:#2ea043">' + str(strong_count) + '</span> <span style="color:#8b949e">Strong Buy</span></span><span style="background:#161b22;border:1px solid #1f6feb;border-radius:5px;padding:3px 10px;font-size:0.82em"><span style="font-weight:bold;color:#58a6ff">' + str(sum(1 for s in stocks if round(s.composite_score) < 80)) + '</span> <span style="color:#8b949e">Watch</span></span><a href="https://x.com/AIMoneyMach" target="_blank" style="color:#58a6ff;text-decoration:none;display:flex;align-items:center;margin-left:4px"><svg height="16" width="16" viewBox="0 0 24 24" fill="#fff"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a></div></div></div>'
     html += '<div class=warn id=warnMsg></div>'
     html += '<div class=updated>Last Updated: ' + timestamp + '</div>'
