@@ -462,6 +462,8 @@ def generate_html_report(stocks: list, output_path: str):
     # Ticker strip
     ticker_items = ''
     for s in stocks:
+        if round(s.composite_score) < 50:
+            continue
         chg = s.price_change_pct
         chg_cls = 'ticker-up' if chg >= 0 else 'ticker-dn'
         chg_str = f'+{chg:.2f}%' if chg >= 0 else f'{chg:.2f}%'
