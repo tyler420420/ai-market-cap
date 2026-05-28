@@ -258,8 +258,50 @@ def cron():
                 import shutil
                 shutil.copy2(golden_path, today_path)
                 print("[Cron] Restored from golden after error - site stays up")
+
+        # STEP 3: Post top picks to Twitter after successful scan
+        if scan_succeeded:
+            try:
+                sys.path.insert(0, str(Path(__file__).parent))
+                from x_poster import post_daily_scan_to_twitter
+                print("[Cron] Posting scan to Twitter...")
+                post_daily_scan_to_twitter()
+            except Exception as e:
+                print(f"[Cron] Twitter post error: {e}")
+
     threading.Thread(target=do_scan, daemon=True).start()
     return "Scan triggered", 200
+
+
+@app.route("/cron-twitter")
+def cron_twitter():
+    """Post top 6 picks to Twitter. Hit by cron-job.org after morning scan."""
+    def do_twitter():
+        try:
+            sys.path.insert(0, str(Path(__file__).parent))
+            from x_poster import post_daily_scan_to_twitter
+            post_daily_scan_to_twitter()
+        except Exception as e:
+            print(f"[Cron-Twitter] Error: {e}")
+    threading.Thread(target=do_twitter, daemon=True).start()
+    return "Twitter post triggered", 200
+
+
+@app.route("/cron-price-alerts")
+def cron_price_alerts():
+    """Check PE targets and fire winning trade alerts. Hit by cron-job.org every 2 hours."""
+    def do_alerts():
+        try:
+            sys.path.insert(0, str(Path(__file__).parent))
+            from x_poster import check_price_alerts, load_state, save_state
+            state = load_state()
+            results = check_price_alerts(state)
+            save_state(state)
+            print(f"[Cron-PriceAlerts] Checked. Alerts fired: {results}")
+        except Exception as e:
+            print(f"[Cron-PriceAlerts] Error: {e}")
+    threading.Thread(target=do_alerts, daemon=True).start()
+    return "Price alert check triggered", 200
 
 # ===== WEB ROUTES =====
 
