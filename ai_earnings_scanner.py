@@ -118,8 +118,12 @@ def fetch_top_news(ticker: str, count: int = 1) -> List[dict]:
                             if matched:
                                 break
                     if matched:
-                        if len(title_clean) > 100:
-                            title_clean = title_clean[:97] + '...'
+                        if len(title_clean) > 45:
+                            cutoff = title_clean[:45]
+                            last_space = cutoff.rfind(' ')
+                            remainder = title_clean[last_space+1:last_space+16]
+                            title_clean = cutoff[:last_space] + ' ' + remainder if last_space > 20 else title_clean[:45]
+                            title_clean += '...'
                         headlines.append({'title': title_clean, 'url': url})
                         if len(headlines) >= count:
                             break
@@ -408,10 +412,17 @@ def generate_html_report(stocks: list, output_path: str):
         news_lines = ''
         if stock.top_news:
             item = stock.top_news[0]
+            t = item['title']
+            if len(t) > 45:
+                cutoff = t[:45]
+                last_space = cutoff.rfind(' ')
+                remainder = t[last_space+1:last_space+16]
+                t = cutoff[:last_space] + ' ' + remainder if last_space > 20 else t[:45]
+                t += '...'
             if item.get('url'):
-                news_lines = '<a href="' + item['url'] + '" target="_blank" rel="noopener noreferrer" style="color:#fff;text-decoration:none">&#128240; ' + item['title'] + '</a>'
+                news_lines = '<a href="' + item['url'] + '" target="_blank" rel="noopener noreferrer" style="color:#fff;text-decoration:none">' + t + '</a>'
             else:
-                news_lines = '<span style="color:#fff">&#128240; ' + item['title'] + '</span>'
+                news_lines = '<span style="color:#fff">' + t + '</span>'
         days_color = '#00ff88' if stock.days_to_earnings <= 7 else '#ffcc00'
         bg = 'rgba(0,255,136,0.12)' if round(stock.composite_score)>=80 else 'rgba(31,111,235,0.12)'
         #tbody = ''.join(rows_html)
@@ -513,8 +524,8 @@ def generate_html_report(stocks: list, output_path: str):
         ('Ticker<br>Symbol','ticker'), ('Company<br>Name','company_name'), ('Overall<br>Score','score'),
         ('Upcoming<br>Earnings','earnings_date'), ('Days<br>Left','days_left'), ('Current<br>Price','price'),
         ('Post Earnings<br>Target','pe_target'), ('3 Day<br>Target','3d'), ('5 Day<br>Target','5d'),
-        ('Total Analyst<br>Suggestions','analysts'), ('Strong<br>Buy','sb'), ('Buy','buy'),
-        ('Hold','hold'), ('Sell','sell'), ('Market<br>Cap','mktcap'), ('Total<br>Shorts','short_int'), ('Implied<br>Volatility','iv'), ('Earnings<br>Trend','sentiment'), ('Recent<br>News','news')
+        ('Total<br>Analyst','analysts'),         ('Strong<br>Buy','sb'), ('Buy<br>Ratings','buy'),
+        ('Hold<br>Ratings','hold'), ('Sell<br>Ratings','sell'), ('Market<br>Cap','mktcap'), ('Total<br>Shorts','short_int'), ('Implied<br>Volatility','iv'), ('Earnings<br>Trend','sentiment'), ('Recent<br>News','news')
     ]
     ths = ''
     for h, col in headers:
@@ -553,17 +564,24 @@ def generate_html_report(stocks: list, output_path: str):
         return '#00ff88' if days <= 7 else '#ffcc00'
     def news_link(news):
         if not news:
-            return '&#128240; --'
+            return '--'
         url = news.get('url', '')
         title = news.get('title', '')
+        # Cut at 45 chars but include the next complete word so sentences make sense, add ...
+        if len(title) > 45:
+            cutoff = title[:45]
+            last_space = cutoff.rfind(' ')
+            remainder = title[last_space+1:last_space+16]
+            title = cutoff[:last_space] + ' ' + remainder if last_space > 20 else title[:45]
+            title += '...'
         if url:
-            return '<a href="' + url + '" target="_blank" style="color:#fff;text-decoration:none">&#128240; ' + title[:60] + '</a>'
-        return '<span style="color:#fff">&#128240; ' + title[:60] + '</span>'
+            return '<a href="' + url + '" target="_blank" style="color:#fff;text-decoration:none">' + title + '</a>'
+        return '<span style="color:#fff">' + title + '</span>'
     def fmt_mktcap(val):
         if val >= 1000:
-            return '$' + str(round(val / 1000, 2)) + 'T'
+            return '$' + str(round(val / 1000, 1)) + 'T'
         elif val >= 1:
-            return '$' + str(round(val, 2)) + 'B'
+            return '$' + str(round(val, 1)) + 'B'
         else:
             return '$' + str(round(val * 1000, 0)) + 'M'
 
@@ -607,7 +625,7 @@ def generate_html_report(stocks: list, output_path: str):
 
     html += static_rows + '</tbody></table>'
     html += '<script>var rowsData=' + json.dumps(rows_data) + ';\n'
-    html += "var sortCol='score';var sortAsc=false;function getVal(r,col){var m={'ticker':r.ticker,'company_name':r.company_name,'score':r.score,'earnings_date':r.earnings_date,'days_left':r.days_left,'price':r.price,'pe_target':r.pe_target,'3d':r['3d'],'5d':r['5d'],'analysts':r.analysts,'sb':r.sb,'buy':r.buy,'hold':r.hold,'sell':r.sell,'mktcap':r.mktcap,'short_int':r.short_int,'iv':r.iv,'sentiment':r.sentiment};return m[col]||r[col]||0;}function updateArrows(){document.querySelectorAll('th[data-col]').forEach(function(th){th.classList.remove('sorted-asc','sorted-desc');});var th=document.querySelector('th[data-col=\"'+sortCol+'\"]');if(th){th.classList.add(sortAsc?'sorted-asc':'sorted-desc');}}function sortBy(col){if(sortCol===col){sortAsc=!sortAsc;}else{sortCol=col;sortAsc=col==='score'||col==='analysts'||col==='sb'||col==='buy'||col==='hold'||col==='sell'||col==='price'||col==='pe_target'||col==='3d'||col==='5d'||col==='mktcap'||col==='short_int'||col==='iv';}var dirs={'ticker':1,'company_name':1};var asc=dirs[col]?sortAsc:!sortAsc;rowsData.sort(function(a,b){var va=getVal(a,col),vb=getVal(b,col);if(typeof va==='number')return asc?va-vb:vb-va;return asc?String(va).localeCompare(String(vb)):String(vb).localeCompare(String(va));});renderTable();updateArrows();}function fmtMktcap(v){if(v>=1000)return'$'+Math.round(v/1000*100)/100+'T';if(v>=1)return'$'+Math.round(v*100)/100+'B';return'$'+Math.round(v*1000)+'M';}function scoreColor(s){return s>=80?'#00ff88':'#58a6ff';}function newsHtml(n){if(!n)return'';var u=n.url||'';var t=n.title||'';return u?'<a href=\"'+u+'\" target=\"_blank\" style=\"color:#fff;text-decoration:none\">&#128240; '+t+'</a>':'<span style=\"color:#fff\">&#128240; '+t+'</span>';}function renderTable(){var tbody=document.getElementById('stockTableBody');if(!tbody)return;var html='';rowsData.forEach(function(r){if(r.score<50)return;var c=scoreColor(r.score);var bg=r.score>=80?'rgba(0,255,136,0.12)':'rgba(31,111,235,0.12)';html+='<tr style=\"background:'+bg+'\"><td><strong><a href=\"https://finance.yahoo.com/quote/'+r.ticker+'\" target=\"_blank\" style=\"color:#66b2ff\">'+r.ticker+'</a></strong></td>';html+='<td>'+r.company_name.substring(0,35)+(r.company_name.length>35?'...':'')+'</td>';html+='<td><strong style=\"color:'+c+';font-size:1.3em\">'+r.score+'</strong></td>';html+='<td class=earn-cell>'+r.earnings_date.replace(chr(10),'<br>')+'</td>';html+='<td style=\"color:'+(r.days_left<=7?'#00ff88':'#ffcc00')+';font-weight:bold\">'+r.days_left+'d</td>';html+='<td>$'+r.price+'</td>';html+='<td>$'+r.pe_target+' | +'+r.pe_upside+'%</td>';html+='<td>$'+r['3d']+' | +'+r['3d_up']+'%</td>';html+='<td>$'+r['5d']+' | +'+r['5d_up']+'%</td>';html+='<td>'+r.analysts+'</td>';html+='<td style=\"color:#00ff88\">'+r.sb+'</td>';html+='<td style=\"color:#58a6ff\">'+r.buy+'</td>';html+='<td style=\"color:#ffcc00\">'+r.hold+'</td>';html+='<td style=\"color:#ff6b6b\">'+r.sell+'</td>';html+='<td>'+fmtMktcap(r.mktcap)+'</td>';html+='<td style=\'color:#fff\'>'+r.short_int+'%</td>';html+='<td style=\'color:#fff\'>'+r.iv+'%</td>';html+='<td>'+(r.squeeze?'<span style=\'background:#1a2a1a;border:1px solid #2ea043;border-radius:5px;padding:2px 8px;font-size:0.75em;font-weight:bold;color:#00ff88\'>Yes</span>':'â€”')+'</td>';html+='<td>'+newsHtml(r.news)+'</td></tr>';});tbody.innerHTML=html;};sortBy('days_left');"
+    html += "var sortCol='score';var sortAsc=false;function getVal(r,col){var m={'ticker':r.ticker,'company_name':r.company_name,'score':r.score,'earnings_date':r.earnings_date,'days_left':r.days_left,'price':r.price,'pe_target':r.pe_target,'3d':r['3d'],'5d':r['5d'],'analysts':r.analysts,'sb':r.sb,'buy':r.buy,'hold':r.hold,'sell':r.sell,'mktcap':r.mktcap,'short_int':r.short_int,'iv':r.iv,'sentiment':r.sentiment};return m[col]||r[col]||0;}function updateArrows(){document.querySelectorAll('th[data-col]').forEach(function(th){th.classList.remove('sorted-asc','sorted-desc');});var th=document.querySelector('th[data-col=\"'+sortCol+'\"]');if(th){th.classList.add(sortAsc?'sorted-asc':'sorted-desc');}}function sortBy(col){if(sortCol===col){sortAsc=!sortAsc;}else{sortCol=col;sortAsc=col==='score'||col==='analysts'||col==='sb'||col==='buy'||col==='hold'||col==='sell'||col==='price'||col==='pe_target'||col==='3d'||col==='5d'||col==='mktcap'||col==='short_int'||col==='iv';}var dirs={'ticker':1,'company_name':1};var asc=dirs[col]?sortAsc:!sortAsc;rowsData.sort(function(a,b){var va=getVal(a,col),vb=getVal(b,col);if(typeof va==='number')return asc?va-vb:vb-va;return asc?String(va).localeCompare(String(vb)):String(vb).localeCompare(String(va));});renderTable();updateArrows();}function fmtMktcap(v){if(v>=1000)return'$'+Math.round(v/1000*10)/10+'T';if(v>=1)return'$'+Math.round(v*10)/10+'B';return'$'+Math.round(v*1000)+'M';}function scoreColor(s){return s>=80?'#00ff88':'#58a6ff';}function newsHtml(n){if(!n)return'';var u=n.url||'';var t=n.title||'';if(t.length>45){var sp=t.lastIndexOf(' ',45);var rm=sp>0?t.substring(sp+1,sp+16):'';t=sp>20?t.substring(0,sp)+' '+rm:t.substring(0,45);t+='...';}return u?'<a href=\"'+u+'\" target=\"_blank\" style=\"color:#fff;text-decoration:none\">'+t+'</a>':'<span style=\"color:#fff\">'+t+'</span>';}function renderTable(){var tbody=document.getElementById('stockTableBody');if(!tbody)return;var html='';rowsData.forEach(function(r){if(r.score<50)return;var c=scoreColor(r.score);var bg=r.score>=80?'rgba(0,255,136,0.12)':'rgba(31,111,235,0.12)';html+='<tr style=\"background:'+bg+'\"><td><strong><a href=\"https://finance.yahoo.com/quote/'+r.ticker+'\" target=\"_blank\" style=\"color:#66b2ff\">'+r.ticker+'</a></strong></td>';html+='<td>'+r.company_name.substring(0,35)+(r.company_name.length>35?'...':'')+'</td>';html+='<td><strong style=\"color:'+c+';font-size:1.3em\">'+r.score+'</strong></td>';html+='<td class=earn-cell>'+r.earnings_date.replace(chr(10),'<br>')+'</td>';html+='<td style=\"color:'+(r.days_left<=7?'#00ff88':'#ffcc00')+';font-weight:bold\">'+r.days_left+'d</td>';html+='<td>$'+r.price+'</td>';html+='<td>$'+r.pe_target+' | +'+r.pe_upside+'%</td>';html+='<td>$'+r['3d']+' | +'+r['3d_up']+'%</td>';html+='<td>$'+r['5d']+' | +'+r['5d_up']+'%</td>';html+='<td>'+r.analysts+'</td>';html+='<td style=\"color:#00ff88\">'+r.sb+'</td>';html+='<td style=\"color:#58a6ff\">'+r.buy+'</td>';html+='<td style=\"color:#ffcc00\">'+r.hold+'</td>';html+='<td style=\"color:#ff6b6b\">'+r.sell+'</td>';html+='<td>'+fmtMktcap(r.mktcap)+'</td>';html+='<td style=\'color:#fff\'>'+r.short_int+'%</td>';html+='<td style=\'color:#fff\'>'+r.iv+'%</td>';html+='<td>'+(r.squeeze?'<span style=\'background:#1a2a1a;border:1px solid #2ea043;border-radius:5px;padding:2px 8px;font-size:0.75em;font-weight:bold;color:#00ff88\'>Yes</span>':'â€”')+'</td>';html+='<td>'+newsHtml(r.news)+'</td></tr>';});tbody.innerHTML=html;};sortBy('days_left');"
 
     html += '</script>'
     html += '<div class=note><b>Scoring:</b> Analyst Coverage (25pts linear) + Buy% Conviction (25pts) + Strong Buy Count (2pts each, max 20) + 5D Upside (max 15pts) + Earnings Sentiment (max 15pts) | <b>PE Target:</b> straddle x1 (Conservative Target) | <b>3-Day Momentum:</b> straddle x3 (Mid Target) | <b>5-Day Momentum:</b> straddle x5 (High Target) | <b>Entry:</b> 1-14 days pre-earnings | <b>Exit:</b> 1-5 days after earnings beat</div>'
