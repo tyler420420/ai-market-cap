@@ -422,11 +422,17 @@ def generate_html_report(stocks: list, output_path: str):
     strong_count = sum(1 for s in stocks if round(s.composite_score) >= 80)
     strong_buys = [s for s in stocks if round(s.composite_score) >= 80]
     pick = sorted(strong_buys, key=lambda x: (x.days_to_earnings, -x.post_earnings_upside_pct, -x.composite_score))[0] if strong_buys else (stocks[0] if stocks else None)
+    pick2 = sorted(strong_buys, key=lambda x: (x.days_to_earnings, -x.post_earnings_upside_pct, -x.composite_score))[1] if len(strong_buys) > 1 else None
     pick_profit = pick_sell = pick_color = None
+    pick2_profit = pick2_sell = pick2_color = None
     if pick:
         pick_profit = f"+{round(pick.post_earnings_upside_pct, 1)}%" if pick.post_earnings_upside_pct > 0 else 'N/A'
         pick_sell = f"${round(pick.post_earnings_target, 2)}" if pick.post_earnings_target > 0 else 'N/A'
         pick_color = score_color(pick.composite_score)
+    if pick2:
+        pick2_profit = f"+{round(pick2.post_earnings_upside_pct, 1)}%" if pick2.post_earnings_upside_pct > 0 else 'N/A'
+        pick2_sell = f"${round(pick2.post_earnings_target, 2)}" if pick2.post_earnings_target > 0 else 'N/A'
+        pick2_color = '#58a6ff'
 
     # Build rows first
     rows_html = []
@@ -569,6 +575,18 @@ def generate_html_report(stocks: list, output_path: str):
         html += '<span style="font-size:0.95em;color:#fff">Sell Target: <strong style="color:#00ff88">' + pick_sell + '</strong></span>'
         html += '<span style="font-size:0.95em;color:#fff">Earnings in: <strong style="color:#00ff88">' + str(pick.days_to_earnings) + ' days</strong></span>'
         html += '<span style="font-size:0.95em;color:#fff">Expected Profit: <strong style="color:#00ff88;font-weight:bold">' + pick_profit + '</strong></span>'
+        html += '</div>'
+
+    if pick2:
+        html += '<div class=pick-banner style="background:#161b22;border:2px solid #1f6feb;border-radius:10px;padding:40px 18px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:0 0 15px;min-height:120px;box-shadow:0 0 20px rgba(31,111,235,0.4)">'
+        html += '<span style="font-size:1.3em;color:#58a6ff;font-weight:bold">&#9733; Runner-Up Pick</span>'
+        html += '<span style="font-size:1.2em;font-weight:bold;color:#fff">' + pick2.ticker + '</span>'
+        html += '<span style="font-size:0.95em;color:#fff">' + pick2.company_name[:28] + ('...' if len(pick2.company_name) > 28 else '') + '</span>'
+        html += '<span style="font-size:0.95em;color:#fff">Score: <strong style="color:' + pick2_color + '">' + str(round(pick2.composite_score)) + '</strong></span>'
+        html += '<span style="font-size:0.95em;color:#fff">Buy Price: <strong style="color:#58a6ff">$' + str(round(pick2.current_price, 2)) + '</strong></span>'
+        html += '<span style="font-size:0.95em;color:#fff">Sell Target: <strong style="color:#58a6ff">' + pick2_sell + '</strong></span>'
+        html += '<span style="font-size:0.95em;color:#fff">Earnings in: <strong style="color:#58a6ff">' + str(pick2.days_to_earnings) + ' days</strong></span>'
+        html += '<span style="font-size:0.95em;color:#fff">Expected Profit: <strong style="color:#58a6ff;font-weight:bold">' + pick2_profit + '</strong></span>'
         html += '</div>'
 
     headers = [
