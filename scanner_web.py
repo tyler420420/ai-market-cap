@@ -312,7 +312,8 @@ def robots():
 
 @app.route("/sitemap.xml")
 def sitemap():
-    xml = '<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url><loc>https://aismarketcap.com/</loc><lastmod>2026-05-21</lastmod><priority>1.0</priority></url><url><loc>https://aismarketcap.com/about</loc><lastmod>2026-05-21</lastmod><priority>0.8</priority></url><url><loc>https://aismarketcap.com/pricing</loc><lastmod>2026-05-21</lastmod><priority>0.9</priority></url></urlset>'
+    today = datetime.now(PT).strftime("%Y-%m-%d")
+    xml = '<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url><loc>https://aismarketcap.com/</loc><lastmod>' + today + '</lastmod><priority>1.0</priority></url><url><loc>https://aismarketcap.com/about</loc><lastmod>' + today + '</lastmod><priority>0.8</priority></url><url><loc>https://aismarketcap.com/pricing</loc><lastmod>' + today + '</lastmod><priority>0.9</priority></url></urlset>'
     return xml, 200, {"Content-Type": "application/xml"}
 
 @app.route("/")
