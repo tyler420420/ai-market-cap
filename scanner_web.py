@@ -313,8 +313,36 @@ def robots():
 @app.route("/sitemap.xml")
 def sitemap():
     today = datetime.now(PT).strftime("%Y-%m-%d")
-    xml = '<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url><loc>https://aismarketcap.com/</loc><lastmod>' + today + '</lastmod><priority>1.0</priority></url><url><loc>https://aismarketcap.com/about</loc><lastmod>' + today + '</lastmod><priority>0.8</priority></url><url><loc>https://aismarketcap.com/pricing</loc><lastmod>' + today + '</lastmod><priority>0.9</priority></url></urlset>'
+    xml = '<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url><loc>https://aismarketcap.com/</loc><lastmod>' + today + '</lastmod><priority>1.0</priority></url><url><loc>https://aismarketcap.com/wins</loc><lastmod>' + today + '</lastmod><priority>0.8</priority></url><url><loc>https://aismarketcap.com/wins/snowflake</loc><lastmod>' + today + '</lastmod><priority>0.7</priority></url><url><loc>https://aismarketcap.com/wins/innodata</loc><lastmod>' + today + '</lastmod><priority>0.7</priority></url><url><loc>https://aismarketcap.com/about</loc><lastmod>' + today + '</lastmod><priority>0.8</priority></url><url><loc>https://aismarketcap.com/pricing</loc><lastmod>' + today + '</lastmod><priority>0.9</priority></url></urlset>'
     return xml, 200, {"Content-Type": "application/xml"}
+
+# ---- WINS PAGES ----
+@app.route("/wins")
+def wins():
+    workspace = Path(__file__).parent
+    page = workspace / "wins.html"
+    if page.exists():
+        with open(page, 'r', encoding='utf-8') as f:
+            return f.read(), 200, {"Content-Type": "text/html"}
+    return "Wins page not found", 404
+
+@app.route("/wins/snowflake")
+def wins_snowflake():
+    workspace = Path(__file__).parent
+    page = workspace / "wins_snowflake.html"
+    if page.exists():
+        with open(page, 'r', encoding='utf-8') as f:
+            return f.read(), 200, {"Content-Type": "text/html"}
+    return "Not found", 404
+
+@app.route("/wins/innodata")
+def wins_innodata():
+    workspace = Path(__file__).parent
+    page = workspace / "wins_innodata.html"
+    if page.exists():
+        with open(page, 'r', encoding='utf-8') as f:
+            return f.read(), 200, {"Content-Type": "text/html"}
+    return "Not found", 404
 
 @app.route("/")
 def index():
@@ -463,6 +491,7 @@ li { color: #c9d1d9; font-size: 0.95em; line-height: 1.7; margin-bottom: 6px; }
 </style></head><body>
 <div class=header>
     <h1><a href="/">AI Market Cap</a></h1>
+    <a href="/wins" class=nav-link>Wins</a>
     <a href="/pricing" class=nav-link>Subscribe</a>
 </div>
 <div class=container>
