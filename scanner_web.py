@@ -415,7 +415,7 @@ h2 { color: #fff; font-size: 2em; margin-bottom: 10px; }
     <h1><a href="/" style="color:#58a6ff;text-decoration:none">AI Market Cap</a></h1>
     <a href="/">View Scanner</a>
 </div>
-<div style="background:#1a2a1a;border:1px solid #2ea043;border-radius:8px;padding:12px 18px;margin:30px auto;max-width:880px;text-align:center;font-size:0.9em;color:#2ea043">Full scan runs once daily for free at 6:30 AM PT — auto-updated every market day</div>
+
 <div class=container>
     <h2>Subscribe to run additional scans<br>and use the AI chat assistant.</h2>
     <p class=subtitle>Unlock full access to the scanner</p>
