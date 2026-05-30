@@ -579,12 +579,13 @@ def generate_html_report(stocks: list, output_path: str):
         lbl_color, lbl_text, glow = styles[i] if i < len(styles) else styles[-1]
         date_str = ipo['date'].strftime('%b %d')
         company = ipo['company']
+        deal = ipo.get('deal', '')
         link = ipo['link']
         ipo_card_html += (
             f'<div style="background:#0d1a0d;border:1px solid {lbl_color};border-radius:8px;padding:8px 14px;min-width:140px;box-shadow:0 0 10px {glow}">'
             f'<div style="color:{lbl_color};font-size:0.65em;font-weight:bold;margin-bottom:2px">&#128293; {lbl_text}</div>'
             f'<a href="{link}" target="_blank" style="color:#00ff88;font-size:0.95em;font-weight:bold;text-decoration:none">{company}</a>'
-            f'<div style="color:#8b949e;font-size:0.68em">{date_str}</div></div>'
+            f'<div style="color:#8b949e;font-size:0.68em">{date_str} | {deal}</div></div>'
         )
     ipo_card_html += '</div>'
     html += '<div class=header><div class=hdr-row>'
