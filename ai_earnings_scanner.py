@@ -569,8 +569,8 @@ def generate_html_report(stocks: list, output_path: str):
     # Build IPO cards dynamically - filters past IPOs, always shows 5 upcoming
     ipo_card_html = '<div style="display:flex;gap:6px;align-items:center;justify-content:center;flex-wrap:wrap;max-width:800px;margin:0 auto">'
     styles = [
-        ('#2ea043', 'SOONEST IPO', 'rgba(46,160,67,0.3)'),
-        ('#1f6feb', 'NEXT', 'rgba(31,111,235,0.3)'),
+        ('#2ea043', 'SOONEST TOP IPO', 'rgba(46,160,67,0.3)'),
+        ('#1f6feb', 'NEXT TOP IPO', 'rgba(31,111,235,0.3)'),
         ('#ffd700', 'TOP IPO', 'rgba(255,215,0,0.2)'),
         ('#ffd700', 'TOP IPO', 'rgba(255,215,0,0.2)'),
         ('#ffd700', 'TOP IPO', 'rgba(255,215,0,0.2)'),
