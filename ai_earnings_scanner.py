@@ -1,6 +1,7 @@
 ﻿"""AI Earnings Scanner - Pre-Earnings Momentum Strategy (1-14 day window)"""
 import argparse, csv, os, sys, time
 from datetime import datetime, timedelta, timezone
+import time as _time
 from dataclasses import dataclass
 from typing import List, Optional
 
@@ -13,6 +14,27 @@ try:
     YF_AVAILABLE = True
 except ImportError:
     YF_AVAILABLE = False
+
+
+def get_earnings_with_retry(ticker: str, retries: int = 3, delay: float = 0.3):
+    """Fetch yfinance calendar with retry on failure."""
+    for attempt in range(retries):
+        try:
+            stock = yf.Ticker(ticker)
+            cal = stock.calendar
+            if cal and 'Earnings Date' in cal:
+                return cal
+            # Empty response - retry
+            if attempt < retries - 1:
+                _time.sleep(delay)
+                continue
+        except Exception as e:
+            if attempt < retries - 1:
+                _time.sleep(delay)
+                continue
+            else:
+                print(f"  [WARN] {ticker}: yfinance failed after {retries} attempts ({e})")
+    return None
 
 
 def get_earnings_sentiment(ticker: str) -> str:
@@ -729,8 +751,12 @@ def main():
     # First scan to get all earnings in window with real dates
     all_results = []
     today = datetime.now().date()
-    for ticker in all_tickers:
+    failed_tickers = []
+    for i, ticker in enumerate(all_tickers):
         if ticker in EXCLUDED_TICKERS: continue
+        # Rate-limit: small pause every 20 tickers to avoid overwhelming yfinance
+        if i > 0 and i % 20 == 0:
+            _time.sleep(0.5)
         try:
             if ticker in EARNINGS_OVERRIDES:
                 edate = EARNINGS_OVERRIDES[ticker]
@@ -738,8 +764,7 @@ def main():
                 if 1 <= days_out <= args.days:
                     all_results.append((ticker, edate, days_out))
             else:
-                stock = yf.Ticker(ticker)
-                cal = stock.calendar
+                cal = get_earnings_with_retry(ticker)
                 if cal and 'Earnings Date' in cal:
                     ed = cal['Earnings Date']
                     if isinstance(ed, list) and ed:
@@ -748,8 +773,15 @@ def main():
                         days_out = (edate - today).days
                         if 1 <= days_out <= args.days:
                             all_results.append((ticker, edate, days_out))
+                else:
+                    failed_tickers.append(ticker)
         except Exception as e:
-            pass  # Skip tickers that 404 or have errors
+            failed_tickers.append(ticker)
+
+    if failed_tickers:
+        print(f"  [INFO] yfinance failed for {len(failed_tickers)} tickers: {', '.join(failed_tickers[:20])}")
+    all_results.sort(key=lambda x: x[2])
+    print(f"Found {len(all_results)} AI stocks with earnings in next {args.days} days:")
 
     all_results.sort(key=lambda x: x[2])
     print(f"Found {len(all_results)} AI stocks with earnings in next {args.days} days:")
