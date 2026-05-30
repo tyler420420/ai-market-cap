@@ -1,6 +1,6 @@
 """
 X/Twitter Posting Engine for AI Market Cap Scanner
-Posts top picks + fires winning trade alerts when PE targets are hit.
+Posts top 5 picks daily + fires winning trade alerts when PE targets are hit (every 4 hrs).
 Uses direct HTTP calls to Twitter v2 API — no tweepy dependency.
 """
 import sys
@@ -29,7 +29,6 @@ from requests_oauthlib import OAuth1
 _twitter_auth = None
 
 def get_twitter_auth():
-    """Get OAuth1 auth object for Twitter v2 API."""
     global _twitter_auth
     if _twitter_auth is None:
         _twitter_auth = OAuth1(
@@ -109,7 +108,7 @@ def load_state():
             return json.loads(STATE_FILE.read_text())
         except:
             pass
-    return {'tweeted_picks': {}, 'tweeted_targets': {}}
+    return {'saved_picks': {}, 'tweeted_targets': {}}
 
 
 def save_state(state):
@@ -117,41 +116,33 @@ def save_state(state):
 
 
 # ===== TWEET CONTENT GENERATORS =====
-def format_top6_tweet(stocks):
-    """Post top 6 Strong Buy picks after daily scan.
-    Twitter allows only 1 cashtag per tweet — top pick gets $, rest are plain text.
+def format_top5_tweet(stocks):
+    """Post top 5 Strong Buy picks with price -> target format.
+    Example:
+    Daily Top Strong Buy Targets - http://aismarketcap.com
+    1. ADSK 89 | $237 -> $256 (+8%)
+    ...
+    #AIStocks #StockMarket #Nasdaq #OptionsTrading #Trading #Investing
     """
     strong = [s for s in stocks if s.get('score', 0) >= 86]
     if not strong:
         print("[X] No Strong Buy picks to post")
         return False
 
-    top6 = strong[:6]
-    top = top6[0]
-    rest = top6[1:]
+    top5 = strong[:5]
 
-    ticker = top.get('ticker', '?')
-    score = top.get('score', 0)
-    price = top.get('price', 0)
-    pe_target = top.get('pe_target', 0)
-    pe_upside = top.get('pe_upside', 0)
-    days = top.get('days_left', top.get('days_to_earnings', '?'))
+    lines = ["Daily Top Strong Buy Targets - " + SITE_URL, ""]
 
-    # Build rest-of-list (no $ to avoid cashtag limit)
-    rest_str = ' / '.join(s.get('ticker', '?') for s in rest[:5]) if rest else ''
+    for i, s in enumerate(top5, 1):
+        ticker = s.get('ticker', '?')
+        score = s.get('score', 0)
+        price = s.get('price', 0)
+        pe_target = s.get('pe_target', 0)
+        pe_upside = s.get('pe_upside', 0)
+        lines.append(f"{i}. {ticker} {score} | ${price:.0f} -> ${pe_target:.0f} (+{pe_upside:.0f}%)")
 
-    now = datetime.datetime.now(PT)
-    day_str = now.strftime('%b %d')  # "May 28"
-
-    lines = [
-        f"🔥 ${ticker} | Score {score} | {day_str}",
-        f"${price:.0f} → ${pe_target:.0f} (+{pe_upside:.0f}%) | Earnings in {days}d",
-    ]
-    if rest_str:
-        lines.append(f"Also watching: {rest_str}")
-
-    lines.append(f"📊 {SITE_URL}")
-    lines.append("#AIStocks #PreEarnings")
+    lines.append("")
+    lines.append("#AIStocks #StockMarket #Nasdaq #OptionsTrading #Trading #Investing")
 
     msg = '\n'.join(lines)
     if len(msg) > 280:
@@ -160,30 +151,13 @@ def format_top6_tweet(stocks):
     return post_tweet(msg)
 
 
-def format_target_hit_tweet(ticker, name, current, target, pe_upside, gain_pct):
+def format_target_hit_tweet(ticker, name, current, target, gain_pct):
     """Tweet when a PE target is hit."""
     lines = [
-        f"🎯 TARGET HIT! ${ticker} ({name})",
-        f"Price: ${current:.0f} | Target: ${target:.0f}",
-        f"Gain: +{gain_pct:.0f}% | PE Upside Called: +{pe_upside:.0f}%",
-        "",
+        f"TARGET HIT! {ticker}",
+        f"${current:.0f} -> ${target:.0f} (+{gain_pct:.0f}%)",
         f"Track top AI picks: {SITE_URL}",
         "#AIStocks #WinningTrade #OptionsTrading"
-    ]
-    msg = '\n'.join(lines)
-    if len(msg) > 280:
-        msg = msg[:277] + "..."
-    return post_tweet(msg)
-
-
-def format_milestone_tweet(ticker, name, current, target, gain_pct):
-    """Tweet when a stock hits 5%+ without hitting PE target yet."""
-    lines = [
-        f"💰 ${ticker} ({name}) at +{gain_pct:.0f}%",
-        f"Current: ${current:.0f} | PE Target: ${target:.0f}",
-        f"",
-        f"📊 Full scan: {SITE_URL}",
-        "#AIStocks #PreEarnings"
     ]
     msg = '\n'.join(lines)
     if len(msg) > 280:
@@ -206,8 +180,8 @@ def get_current_price(ticker):
 
 
 def check_price_alerts(state):
-    """Check if any saved picks have hit PE targets or 5%+ milestones."""
-    picks = state.get('saved_picks', [])
+    """Check if any saved picks have hit PE targets."""
+    picks = state.get('saved_picks', {})
     if not picks:
         print("[X] No saved picks to check")
         return []
@@ -215,10 +189,9 @@ def check_price_alerts(state):
     tweets = []
     now = datetime.datetime.now(PT)
 
-    for pick in picks:
-        ticker = pick['ticker']
-        pe_target = pick['pe_target']
-        buy_price = pick['entry_price']
+    for ticker, pick in picks.items():
+        pe_target = pick.get('pe_target', 0)
+        buy_price = pick.get('entry_price', 0)
 
         # Check cooldown
         last_tweet = state.get('tweeted_targets', {}).get(ticker)
@@ -236,31 +209,22 @@ def check_price_alerts(state):
 
         print(f"[X] {ticker}: ${current:.2f} | Target: ${pe_target:.2f} | Gain: {gain_pct:.1f}%")
 
-        if current >= pe_target:
+        if pe_target > 0 and current >= pe_target:
             # PE target hit — winning trade!
             tweet_id = format_target_hit_tweet(
-                ticker, pick.get('name', ''), current, pe_target,
-                pick.get('pe_upside', 0), gain_pct
+                ticker, pick.get('name', ''), current, pe_target, gain_pct
             )
             if tweet_id:
                 state['tweeted_targets'][ticker] = now.isoformat()
                 tweets.append(('target_hit', ticker))
-                print(f"[X] TARGET HIT! ${ticker} posted")
-
-        elif gain_pct >= 5:
-            # 5% milestone — partial win tweet
-            tweet_id = format_milestone_tweet(ticker, pick.get('name', ''), current, pe_target, gain_pct)
-            if tweet_id:
-                state['tweeted_targets'][ticker] = now.isoformat()
-                tweets.append(('milestone', ticker))
-                print(f"[X] MILESTONE! ${ticker} at +{gain_pct:.0f}% posted")
+                print(f"[X] TARGET HIT! {ticker} posted")
 
     return tweets
 
 
 # ===== POST SCAN (called by scanner_web.py /cron endpoint) =====
 def post_daily_scan_to_twitter():
-    """Post top 6 picks after a scan run. Called from scanner_web.py."""
+    """Post top 5 picks after a scan run. Called from scanner_web.py."""
     print("[X] Posting daily scan to Twitter...")
     state = load_state()
     stocks = load_latest_scan()
@@ -269,29 +233,28 @@ def post_daily_scan_to_twitter():
         print("[X] No stocks found in scan")
         return False
 
-    # Filter to strong buys
+    # Filter to strong buys (score >= 86)
     strong = [s for s in stocks if s.get('score', 0) >= 86]
     if not strong:
         print("[X] No Strong Buy picks in scan")
         return False
 
-    # Save picks for price monitoring
-    state['saved_picks'] = [
-        {
-            'ticker': s.get('ticker'),
+    # Save picks for price monitoring (score >= 80)
+    watch_list = [s for s in stocks if s.get('score', 0) >= 80]
+    state['saved_picks'] = {
+        s.get('ticker'): {
             'name': s.get('company_name', s.get('name', '')),
             'score': s.get('score'),
             'entry_price': s.get('price'),
             'pe_target': s.get('pe_target'),
-            'pe_upside': s.get('pe_upside', 0),
             'saved_at': datetime.datetime.now(PT).isoformat(),
         }
-        for s in strong[:6]
-    ]
+        for s in watch_list[:10]
+    }
     save_state(state)
 
     # Post the tweet
-    result = format_top6_tweet(stocks)
+    result = format_top5_tweet(stocks)
     if result:
         state['last_scan_tweet'] = datetime.datetime.now(PT).isoformat()
         save_state(state)
@@ -302,7 +265,7 @@ def post_daily_scan_to_twitter():
 if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser(description="AI Market Cap Twitter Engine")
-    parser.add_argument("--post-scan", action="store_true", help="Post top 6 picks from latest scan")
+    parser.add_argument("--post-scan", action="store_true", help="Post top 5 picks from latest scan")
     parser.add_argument("--check-alerts", action="store_true", help="Check price targets and post alerts")
     parser.add_argument("--all", action="store_true", help="Run both post-scan and alerts")
     args = parser.parse_args()
