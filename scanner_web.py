@@ -420,6 +420,16 @@ h2 { color: #fff; font-size: 2em; margin-bottom: 10px; }
     <h2>Subscribe to run additional scans<br>and use the AI chat assistant.</h2>
     <p class=subtitle>Unlock full access to the scanner</p>
     <div class=plans>
+        <div class="plan featured">
+            <h3>Annual</h3>
+            <div class=price>$999<span>/yr</span></div>
+            <div class=period>Save $789 vs monthly</div>
+            <ul>
+                <li>Everything in Monthly</li>
+                <li>Save $789/year</li>
+            </ul>
+            <a href="/create-checkout?plan=annual" class=cta>Subscribe - $999/yr</a>
+        </div>
         <div class=plan>
             <h3>Monthly</h3>
             <div class=price>$149<span>/mo</span></div>
@@ -433,16 +443,6 @@ h2 { color: #fff; font-size: 2em; margin-bottom: 10px; }
                 <li>News per stock</li>
             </ul>
             <a href="/create-checkout?plan=monthly" class=cta>Subscribe - $149/mo</a>
-        </div>
-        <div class="plan featured">
-            <h3>Annual</h3>
-            <div class=price>$999<span>/yr</span></div>
-            <div class=period>Save $789 vs monthly</div>
-            <ul>
-                <li>Everything in Monthly</li>
-                <li>Save $789/year</li>
-            </ul>
-            <a href="/create-checkout?plan=annual" class=cta>Subscribe - $999/yr</a>
         </div>
     </div>
     <a href="/about" class=back-link>← Learn more about AI Market Cap</a>
