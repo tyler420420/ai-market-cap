@@ -260,7 +260,27 @@ def cron():
                 shutil.copy2(golden_path, today_path)
                 print("[Cron] Restored from golden after error - site stays up")
 
-        # STEP 3: Post top picks to Twitter after successful scan
+        # STEP 3: Self-heal — if fewer than 12 stocks, re-run once automatically
+        if scan_succeeded:
+            heal_count = today_path.read_text(encoding='utf-8').count('"ticker":')
+            if heal_count < 12:
+                print(f"[Heal] Only {heal_count} stocks, re-running scanner...")
+                try:
+                    result = subprocess.run(
+                        [sys.executable, str(Path(__file__).parent / "ai_earnings_scanner.py")],
+                        capture_output=True, text=True,
+                        encoding='utf-8', errors='replace', timeout=180,
+                        cwd=str(Path(__file__).parent)
+                    )
+                    new_content = today_path.read_text(encoding='utf-8')
+                    new_count = new_content.count('"ticker":')
+                    if new_count > heal_count:
+                        shutil.copy2(today_path, golden_path)
+                        print(f"[Heal] Re-scan improved to {new_count} stocks, golden updated")
+                except Exception as e:
+                    print(f"[Heal] Re-scan error: {e}")
+
+        # STEP 4: Post top picks to Twitter after successful scan
         if scan_succeeded:
             try:
                 sys.path.insert(0, str(Path(__file__).parent))
