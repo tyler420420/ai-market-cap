@@ -533,16 +533,21 @@ def generate_html_report(stocks: list, output_path: str):
     html += '<div style="background:#1a2a1a;border-bottom:2px solid #2ea043;padding:10px 20px;text-align:center;font-size:0.9em"><span style="color:#2ea043">&#10003;</span> Free scan runs daily at 6:30 AM PT &nbsp;|&nbsp; <a href="/pricing" style="color:#ffd700;font-weight:bold;text-decoration:none">Subscribe to run additional scans</a> &nbsp;|&nbsp; <a href="/pricing" style="color:#ffd700;text-decoration:none">+ AI Trading Chat Assistant</a></div>'
     html += '<div class=ticker-strip><div class=ticker-strip-inner>' + ticker_items + ticker_items + '</div></div>'
 
-    # IPO cards - centered middle column
-    ipo_cards = (
-        '<div style="display:flex;gap:6px;align-items:center;justify-content:center;flex-wrap:wrap;max-width:800px;margin:0 auto">'
-        '<div style="background:#0d1a0d;border:1px solid #2ea043;border-radius:8px;padding:8px 14px;min-width:140px;box-shadow:0 0 10px rgba(46,160,67,0.3)"><div style="color:#2ea043;font-size:0.65em;font-weight:bold;margin-bottom:2px">&#128293; SOONEST IPO</div><a href="https://www.prnewswire.com/news-releases/applied-aerospace--defense-inc-announces-launch-of-initial-public-offering-302781752.html" target="_blank" style="color:#00ff88;font-size:0.95em;font-weight:bold;text-decoration:none">Applied Aerospace</a><div style="color:#8b949e;font-size:0.68em">Defense | $634M | Jun 3</div></div>'
-        '<div style="background:#0d1a2e;border:1px solid #1f6feb;border-radius:8px;padding:8px 14px;min-width:140px;box-shadow:0 0 10px rgba(31,111,235,0.3)"><div style="color:#1f6feb;font-size:0.65em;font-weight:bold;margin-bottom:2px">&#128293; NEXT SOONEST</div><a href="https://www.spacex.com/ipo" target="_blank" style="color:#58a6ff;font-size:0.95em;font-weight:bold;text-decoration:none">SpaceX</a><div style="color:#8b949e;font-size:0.68em">Aerospace | $1.5T | Jun 12</div></div>'
-        '<div style="background:#0d1520;border:1px solid #ffd700;border-radius:8px;padding:8px 14px;min-width:140px"><div style="color:#ffd700;font-size:0.65em;font-weight:bold;margin-bottom:2px">&#128293; TOP IPO</div><a href="https://discord.com/ipo" target="_blank" style="color:#58a6ff;font-size:0.95em;font-weight:bold;text-decoration:none">Discord</a><div style="color:#8b949e;font-size:0.68em">Social | $15B | Q3 2026</div></div>'
-        '<div style="background:#0d1520;border:1px solid #ffd700;border-radius:8px;padding:8px 14px;min-width:140px"><div style="color:#ffd700;font-size:0.65em;font-weight:bold;margin-bottom:2px">&#128293; TOP IPO</div><a href="https://www.databricks.com/company/corporate-overview/ipo" target="_blank" style="color:#58a6ff;font-size:0.95em;font-weight:bold;text-decoration:none">Databricks</a><div style="color:#8b949e;font-size:0.68em">AI Data | $134B | Q3 2026</div></div>'
-        '<div style="background:#0d1520;border:1px solid #ffd700;border-radius:8px;padding:8px 14px;min-width:140px"><div style="color:#ffd700;font-size:0.65em;font-weight:bold;margin-bottom:2px">&#128293; TOP IPO</div><a href="https://openai.com/enterprise" target="_blank" style="color:#58a6ff;font-size:0.95em;font-weight:bold;text-decoration:none">OpenAI</a><div style="color:#8b949e;font-size:0.68em">AI | $1T | Late 2026</div></div>'
-        '</div>'
-    )
+    # IPO cards - centered middle column (auto-skips past IPOs based on date)
+    all_ipos = [
+        {'company': 'Applied Aerospace', 'date': datetime(2026, 6, 3), 'deal': '$634M', 'link': 'https://www.prnewswire.com/news-releases/applied-aerospace--defense-inc-announces-launch-of-initial-public-offering-302781752.html'},
+        {'company': 'SpaceX', 'date': datetime(2026, 6, 12), 'deal': '$1.5T', 'link': 'https://www.spacex.com/ipo'},
+        {'company': 'Discord', 'date': datetime(2026, 9, 1), 'deal': '$15B', 'link': 'https://discord.com/ipo'},
+        {'company': 'Databricks', 'date': datetime(2026, 9, 15), 'deal': '$134B', 'link': 'https://www.databricks.com/company/corporate-overview/ipo'},
+        {'company': 'OpenAI', 'date': datetime(2026, 12, 1), 'deal': '$1T', 'link': 'https://openai.com/enterprise'},
+        {'company': 'Anthropic', 'date': datetime(2026, 10, 15), 'deal': '$380B', 'link': 'https://www.anthropic.com'},
+        {'company': 'Cerebras', 'date': datetime(2026, 11, 1), 'deal': '$23B', 'link': 'https://cerebras.net'},
+    ]
+    # Filter out past IPOs and sort by date
+    today = datetime.now()
+    upcoming = [ipo for ipo in all_ipos if ipo['date'] >= today]
+    upcoming.sort(key=lambda x: x['date'])
+    ipo_list = upcoming[:5]
     # Buttons row
     buttons_row = (
         '<div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end;flex-shrink:0">'
@@ -558,9 +563,30 @@ def generate_html_report(stocks: list, output_path: str):
         '</div>'
         '</div>'
     )
+    # Build IPO cards dynamically - filters past IPOs, always shows 5 upcoming
+    ipo_card_html = '<div style="display:flex;gap:6px;align-items:center;justify-content:center;flex-wrap:wrap;max-width:800px;margin:0 auto">'
+    styles = [
+        ('#2ea043', 'SOONEST IPO', 'rgba(46,160,67,0.3)'),
+        ('#1f6feb', 'NEXT SOONEST', 'rgba(31,111,235,0.3)'),
+        ('#ffd700', 'TOP IPO', 'rgba(255,215,0,0.2)'),
+        ('#ffd700', 'TOP IPO', 'rgba(255,215,0,0.2)'),
+        ('#ffd700', 'TOP IPO', 'rgba(255,215,0,0.2)'),
+    ]
+    for i, ipo in enumerate(ipo_list):
+        lbl_color, lbl_text, glow = styles[i] if i < len(styles) else styles[-1]
+        date_str = ipo['date'].strftime('%b %d')
+        company = ipo['company']
+        link = ipo['link']
+        ipo_card_html += (
+            f'<div style="background:#0d1a0d;border:1px solid {lbl_color};border-radius:8px;padding:8px 14px;min-width:140px;box-shadow:0 0 10px {glow}">'
+            f'<div style="color:{lbl_color};font-size:0.65em;font-weight:bold;margin-bottom:2px">&#128293; {lbl_text}</div>'
+            f'<a href="{link}" target="_blank" style="color:#00ff88;font-size:0.95em;font-weight:bold;text-decoration:none">{company}</a>'
+            f'<div style="color:#8b949e;font-size:0.68em">{date_str}</div></div>'
+        )
+    ipo_card_html += '</div>'
     html += '<div class=header><div class=hdr-row>'
     html += '<div><a href="https://aismarketcap.com" style="color:#fff;text-decoration:none"><h1>' + SCANNER_TITLE + '</h1></a><div class=desc>Pre-earnings momentum scanner for Tech sector</div></div>'
-    html += ipo_cards
+    html += ipo_card_html
     html += buttons_row
     html += '</div></div>'
     html += '<div class=warn id=warnMsg></div>'
