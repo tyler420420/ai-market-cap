@@ -313,50 +313,41 @@ def robots():
 @app.route("/sitemap.xml")
 def sitemap():
     today = datetime.now(PT).strftime("%Y-%m-%d")
-    xml = '<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url><loc>https://aismarketcap.com/</loc><lastmod>' + today + '</lastmod><priority>1.0</priority></url><url><loc>https://aismarketcap.com/wins</loc><lastmod>' + today + '</lastmod><priority>0.8</priority></url><url><loc>https://aismarketcap.com/wins/snowflake</loc><lastmod>' + today + '</lastmod><priority>0.7</priority></url><url><loc>https://aismarketcap.com/wins/innodata</loc><lastmod>' + today + '</lastmod><priority>0.7</priority></url><url><loc>https://aismarketcap.com/about</loc><lastmod>' + today + '</lastmod><priority>0.8</priority></url><url><loc>https://aismarketcap.com/pricing</loc><lastmod>' + today + '</lastmod><priority>0.9</priority></url></urlset>'
+    xml = '<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url><loc>https://aismarketcap.com/</loc><lastmod>' + today + '</lastmod><priority>1.0</priority></url><url><loc>https://aismarketcap.com/wins</loc><lastmod>' + today + '</lastmod><priority>0.8</priority></url><url><loc>https://aismarketcap.com/wins/okta</loc><lastmod>' + today + '</lastmod><priority>0.7</priority></url><url><loc>https://aismarketcap.com/wins/snowflake</loc><lastmod>' + today + '</lastmod><priority>0.7</priority></url><url><loc>https://aismarketcap.com/wins/innodata</loc><lastmod>' + today + '</lastmod><priority>0.7</priority></url><url><loc>https://aismarketcap.com/about</loc><lastmod>' + today + '</lastmod><priority>0.8</priority></url><url><loc>https://aismarketcap.com/pricing</loc><lastmod>' + today + '</lastmod><priority>0.9</priority></url></urlset>'
     return xml, 200, {"Content-Type": "application/xml"}
 
 # ---- WINS PAGES ----
 @app.route("/wins")
 def wins():
-    workspace = Path(__file__).parent
-    page = workspace / "wins.html"
-    if page.exists():
-        with open(page, 'r', encoding='utf-8') as f:
-            return f.read(), 200, {"Content-Type": "text/html"}
-    return "Wins page not found", 404
+    with open(Path(__file__).parent / "wins.html", 'r', encoding='utf-8') as f:
+        content = f.read()
+    resp = make_response(content)
+    resp.headers['Content-Type'] = 'text/html; charset=utf-8'
+    return resp
+
+@app.route("/wins/okta")
+def wins_okta():
+    with open(Path(__file__).parent / "wins_okta.html", 'r', encoding='utf-8') as f:
+        content = f.read()
+    resp = make_response(content)
+    resp.headers['Content-Type'] = 'text/html; charset=utf-8'
+    return resp
 
 @app.route("/wins/snowflake")
 def wins_snowflake():
-    workspace = Path(__file__).parent
-    page = workspace / "wins_snowflake.html"
-    if page.exists():
-        with open(page, 'r', encoding='utf-8') as f:
-            return f.read(), 200, {"Content-Type": "text/html"}
-    return "Not found", 404
+    with open(Path(__file__).parent / "wins_snowflake.html", 'r', encoding='utf-8') as f:
+        content = f.read()
+    resp = make_response(content)
+    resp.headers['Content-Type'] = 'text/html; charset=utf-8'
+    return resp
 
 @app.route("/wins/innodata")
 def wins_innodata():
-    workspace = Path(__file__).parent
-    page = workspace / "wins_innodata.html"
-    if page.exists():
-        with open(page, 'r', encoding='utf-8') as f:
-            return f.read(), 200, {"Content-Type": "text/html"}
-    return "Not found", 404
-
-@app.route("/")
-def index():
-    """Home page = scanner (no login required)"""
-    workspace = Path(__file__).parent
-    # Try fresh scan file first, then fall back to latest dated scan
-    fresh = workspace / "ai_earnings_today.html"
-    if fresh.exists():
-        with open(fresh, 'r', encoding='utf-8') as f:
-            content = f.read()
-        resp = make_response(content)
-        resp.headers['Content-Type'] = 'text/html; charset=utf-8'
-        resp.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0'
-        return resp
+    with open(Path(__file__).parent / "wins_innodata.html", 'r', encoding='utf-8') as f:
+        content = f.read()
+    resp = make_response(content)
+    resp.headers['Content-Type'] = 'text/html; charset=utf-8'
+    return resp
     # Fall back to latest dated scan
     html_files = sorted(workspace.glob("ai_earnings_57day_*.html"), key=lambda f: f.stat().st_mtime, reverse=True)
     if html_files:
