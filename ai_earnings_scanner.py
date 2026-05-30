@@ -43,12 +43,13 @@ def get_earnings_sentiment(ticker: str) -> str:
 
 
 def fetch_ai_stocks_from_finviz() -> List[str]:
-    """Fetch tech sector stocks dollar10B+ from finviz (cap_large + cap_mega)."""
+    """Fetch tech sector stocks $10B+ market cap from finviz (cap_large + cap_mega = $10B+)."""
     try:
         import requests
         from bs4 import BeautifulSoup
         tickers = set()
-        for f in ['sec_technology,cap_mid', 'sec_technology,cap_large', 'sec_technology,cap_mega']:
+        # cap_large ($10B-$200B) + cap_mega ($200B+) = everything $10B+
+        for f in ['sec_technology,cap_large', 'sec_technology,cap_mega']:
             for page_start in range(1, 1001, 20):
                 url = f"https://finviz.com/screener.ashx?v=152&f={f}&o=ticker&r={page_start}"
                 resp = requests.get(url, headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'}, timeout=15)
@@ -64,7 +65,7 @@ def fetch_ai_stocks_from_finviz() -> List[str]:
                         if t.isalpha() and 1 <= len(t) <= 5: tickers.add(t)
                 if len(rows) < 20: break
         result = sorted(tickers)
-        print(f"[AI Stocks] Fetched {len(result)} tech stocks (dollar10B+) from finviz")
+        print(f"[AI Stocks] Fetched {len(result)} tech stocks ($10B+ mcap) from finviz")
         return result
     except Exception as e:
         print(f"[AI Stocks] Finviz fetch failed: {e}. Using cached list.")
