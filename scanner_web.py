@@ -381,7 +381,7 @@ def pricing():
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" type="image/png" href="/static/logo.png">
-    <meta name="description" content="Subscribe to run additional scans and use the AI chat assistant on the AI Market Cap Scanner.">
+    <meta name="description" content="Subscribe to run additional scans and use the AI Chat Analyst on the AI Market Cap Scanner.">
     <title>Pricing - AI Market Cap</title>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -417,7 +417,7 @@ h2 { color: #fff; font-size: 2em; margin-bottom: 10px; }
 </div>
 
 <div class=container>
-    <h2>Subscribe to run additional scans<br>and use the AI chat assistant.</h2>
+    <h2>Subscribe to run additional scans<br>and use the AI Chat Analyst.</h2>
     <p class=subtitle>Unlock full access to the scanner</p>
     <div class=plans>
         <div class=plan>
