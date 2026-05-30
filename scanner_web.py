@@ -435,7 +435,7 @@ h2 { color: #fff; font-size: 2em; margin-bottom: 10px; }
             <div class=price>$149<span>/mo</span></div>
             <div class=period>Billed monthly</div>
             <ul>
-                <li>2 additional scans per day</li>
+                <li>3 scans per day</li>
                 <li>AI Chat Assistant</li>
                 <li>Score + PE/3D/5D targets</li>
                 <li>AI Suggested Trade</li>
