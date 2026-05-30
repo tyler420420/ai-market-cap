@@ -165,6 +165,23 @@ def format_target_hit_tweet(ticker, name, current, target, gain_pct):
     return post_tweet(msg)
 
 
+def post_win_tweet(win_url, ticker, entry_price, sell_target, gain_pct):
+    """Post when a winning trade is confirmed. Call this after creating a win page."""
+    lines = [
+        f"WIN! {ticker} hit target",
+        f"Bought at ${entry_price:.0f} → Sold at ${sell_target:.0f} (+{gain_pct:.0f}%)",
+        f"AI Market Cap called it. See the trade: {win_url}",
+        "#AIStocks #WinningTrade #OptionsTrading #Investing"
+    ]
+    msg = '\n'.join(lines)
+    if len(msg) > 280:
+        msg = msg[:277] + "..."
+    tweet_id = post_tweet(msg)
+    if tweet_id:
+        print(f"[X] Win tweet posted for {ticker}")
+    return tweet_id
+
+
 # ===== PRICE ALERTS =====
 def get_current_price(ticker):
     """Get live price via yfinance."""
