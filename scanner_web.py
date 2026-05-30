@@ -317,6 +317,30 @@ def sitemap():
     return xml, 200, {"Content-Type": "application/xml"}
 
 # ---- WINS PAGES ----
+@app.route("/")
+def index():
+    """Home page = scanner (no login required)"""
+    workspace = Path(__file__).parent
+    fresh = workspace / "ai_earnings_today.html"
+    if fresh.exists():
+        with open(fresh, 'r', encoding='utf-8') as f:
+            content = f.read()
+        resp = make_response(content)
+        resp.headers['Content-Type'] = 'text/html; charset=utf-8'
+        resp.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0'
+        return resp
+    html_files = sorted(workspace.glob("ai_earnings_57day_*.html"), key=lambda f: f.stat().st_mtime, reverse=True)
+    if html_files:
+        with open(html_files[0], 'r', encoding='utf-8') as f:
+            content = f.read()
+        resp = make_response(content)
+        resp.headers['Content-Type'] = 'text/html; charset=utf-8'
+        resp.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0'
+        return resp
+    resp = make_response("""<!DOCTYPE html><html><head><meta charset="UTF-8"><title>AI Market Cap</title><style>body{font-family:Segoe UI,sans-serif;background:#0d1117;color:#fff;display:flex;justify-content:center;align-items:center;height:100vh;margin:0;text-align:center}h1{color:#58a6ff;font-size:2em}p{color:#8b949e}.btn{background:#238636;color:#fff;padding:12px 24px;border:none;border-radius:8px;font-size:1em;cursor:pointer;text-decoration:none;display:inline-block;margin-top:20px}</style></head><body><h1>AI Market Cap Scanner</h1><p>Scanner is warming up. Check back in a few minutes.</p><a href="/pricing" class=btn>Subscribe to Unlock Full Access</a></body></html>""")
+    resp.headers['Content-Type'] = 'text/html; charset=utf-8'
+    return resp
+
 @app.route("/wins")
 def wins():
     with open(Path(__file__).parent / "wins.html", 'r', encoding='utf-8') as f:
@@ -346,30 +370,6 @@ def wins_innodata():
     with open(Path(__file__).parent / "wins_innodata.html", 'r', encoding='utf-8') as f:
         content = f.read()
     resp = make_response(content)
-    resp.headers['Content-Type'] = 'text/html; charset=utf-8'
-    return resp
-    # Fall back to latest dated scan
-    html_files = sorted(workspace.glob("ai_earnings_57day_*.html"), key=lambda f: f.stat().st_mtime, reverse=True)
-    if html_files:
-        with open(html_files[0], 'r', encoding='utf-8') as f:
-            content = f.read()
-        resp = make_response(content)
-        resp.headers['Content-Type'] = 'text/html; charset=utf-8'
-        resp.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0'
-        return resp
-    # No scan yet - serve placeholder
-    resp = make_response("""
-    <!DOCTYPE html><html><head><meta charset="UTF-8"><title>AI Market Cap</title>
-    <style>
-        body { font-family: Segoe UI, sans-serif; background: #0d1117; color: #fff; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; text-align: center; }
-        h1 { color: #58a6ff; font-size: 2em; }
-        p { color: #8b949e; }
-        .btn { background: #238636; color: #fff; padding: 12px 24px; border: none; border-radius: 8px; font-size: 1em; cursor: pointer; text-decoration: none; display: inline-block; margin-top: 20px; }
-    </style></head><body>
-        <h1>AI Market Cap Scanner</h1>
-        <p>Scanner is warming up. Check back in a few minutes.</p>
-        <a href="/pricing" class=btn>Subscribe to Unlock Full Access</a>
-    </body></html>""")
     resp.headers['Content-Type'] = 'text/html; charset=utf-8'
     return resp
 
