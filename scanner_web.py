@@ -434,7 +434,7 @@ h2 { color: #fff; font-size: 2em; margin-bottom: 10px; }
             </ul>
             <a href="/create-checkout?plan=monthly" class=cta>Subscribe - $149/mo</a>
         </div>
-        <div class=plan>
+        <div class=plan style="border-color:#ffd700;box-shadow:0 0 16px rgba(255,215,0,.3)">
             <h3>Annual</h3>
             <div class=price>$999<span>/yr</span></div>
             <div class=period>Save $789 vs monthly</div>
