@@ -322,9 +322,20 @@ def index():
     """Home page = scanner (no login required)"""
     workspace = Path(__file__).parent
     fresh = workspace / "ai_earnings_today.html"
+
+    # Check if user is subscribed (suppress popup for subscribers)
+    customer_id = request.cookies.get("stripe_customer", "")
+    session_token = request.cookies.get(COOKIE_NAME, "")
+    subs = get_subscriptions()
+    is_subscribed = subs.get(customer_id, {}).get('status') == 'active' or subs.get(session_token, {}).get('status') == 'active'
+    sub_flag = f'<script>window.isSubscribed={"true" if is_subscribed else "false"};</script>'
+
     if fresh.exists():
         with open(fresh, 'r', encoding='utf-8') as f:
             content = f.read()
+        # Inject subscription flag before the popup script fires
+        content = content.replace('<script>setTimeout(function(){document.getElementById("sub-popup").classList.add("show")},20000)</script>',
+                                  f'{sub_flag}<script>if(!window.isSubscribed){{setTimeout(function(){{document.getElementById("sub-popup").classList.add("show")}},20000)}}else{{document.getElementById("sub-popup")&&(document.getElementById("sub-popup").style.display="none")}}</script>')
         resp = make_response(content)
         resp.headers['Content-Type'] = 'text/html; charset=utf-8'
         resp.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0'
@@ -333,6 +344,8 @@ def index():
     if html_files:
         with open(html_files[0], 'r', encoding='utf-8') as f:
             content = f.read()
+        content = content.replace('<script>setTimeout(function(){document.getElementById("sub-popup").classList.add("show")},20000)</script>',
+                                  f'{sub_flag}<script>if(!window.isSubscribed){{setTimeout(function(){{document.getElementById("sub-popup").classList.add("show")}},20000)}}else{{document.getElementById("sub-popup")&&(document.getElementById("sub-popup").style.display="none")}}</script>')
         resp = make_response(content)
         resp.headers['Content-Type'] = 'text/html; charset=utf-8'
         resp.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0'
