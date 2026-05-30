@@ -108,7 +108,7 @@ def load_state():
             return json.loads(STATE_FILE.read_text())
         except:
             pass
-    return {'saved_picks': {}, 'tweeted_targets': {}}
+    return {'saved_picks': {}, 'tweeted_targets': {}, 'pick_history': []}
 
 
 def save_state(state):
@@ -180,26 +180,60 @@ def get_current_price(ticker):
 
 
 def check_price_alerts(state):
-    """Check if any saved picks have hit PE targets."""
-    picks = state.get('saved_picks', {})
-    if not picks:
-        print("[X] No saved picks to check")
+    """Check if any picks from the last 3 days have hit their PE targets."""
+    now = datetime.datetime.now(PT)
+    three_days_ago = now - datetime.timedelta(days=3)
+
+    # Build list of all picks from current + history (last 3 days)
+    all_picks = []
+
+    # Current saved_picks (from today's scan)
+    for ticker, pick in state.get('saved_picks', {}).items():
+        saved_at_str = pick.get('saved_at', '')
+        if saved_at_str:
+            try:
+                saved_at = datetime.datetime.fromisoformat(saved_at_str)
+                if saved_at >= three_days_ago:
+                    all_picks.append((ticker, pick))
+            except:
+                pass
+
+    # Pick history (from previous days)
+    for day_picks in state.get('pick_history', []):
+        for ticker, pick in day_picks.get('picks', {}).items():
+            saved_at_str = pick.get('saved_at', '')
+            if saved_at_str:
+                try:
+                    saved_at = datetime.datetime.fromisoformat(saved_at_str)
+                    if saved_at >= three_days_ago:
+                        all_picks.append((ticker, pick))
+                except:
+                    pass
+
+    if not all_picks:
+        print("[X] No picks from last 3 days to check")
         return []
 
     tweets = []
-    now = datetime.datetime.now(PT)
 
-    for ticker, pick in picks.items():
+    for ticker, pick in all_picks:
         pe_target = pick.get('pe_target', 0)
         buy_price = pick.get('entry_price', 0)
+
+        # Skip if no valid target
+        if not pe_target or not buy_price or pe_target <= 0:
+            continue
 
         # Check cooldown
         last_tweet = state.get('tweeted_targets', {}).get(ticker)
         if last_tweet:
-            last = datetime.datetime.fromisoformat(last_tweet)
-            hours_since = (now - last).total_seconds() / 3600
-            if hours_since < TWEET_COOLDOWN_HOURS:
-                continue
+            try:
+                last = datetime.datetime.fromisoformat(last_tweet)
+                hours_since = (now - last).total_seconds() / 3600
+                if hours_since < TWEET_COOLDOWN_HOURS:
+                    continue
+            except:
+                pass
 
         current = get_current_price(ticker)
         if not current:
@@ -209,7 +243,7 @@ def check_price_alerts(state):
 
         print(f"[X] {ticker}: ${current:.2f} | Target: ${pe_target:.2f} | Gain: {gain_pct:.1f}%")
 
-        if pe_target > 0 and current >= pe_target:
+        if current >= pe_target:
             # PE target hit — winning trade!
             tweet_id = format_target_hit_tweet(
                 ticker, pick.get('name', ''), current, pe_target, gain_pct
@@ -239,7 +273,22 @@ def post_daily_scan_to_twitter():
         print("[X] No Strong Buy picks in scan")
         return False
 
-    # Save picks for price monitoring (score >= 80)
+    now = datetime.datetime.now(PT)
+
+    # Archive current picks to history (keep last 3 days)
+    if state.get('saved_picks'):
+        state.setdefault('pick_history', [])
+        state['pick_history'].append({
+            'date': now.strftime('%Y-%m-%d'),
+            'picks': state['saved_picks'],
+        })
+        # Keep only last 3 days
+        three_days_ago = (now - datetime.timedelta(days=3)).strftime('%Y-%m-%d')
+        state['pick_history'] = [
+            d for d in state['pick_history'] if d.get('date', '') >= three_days_ago
+        ]
+
+    # Save today's picks for price monitoring (score >= 80)
     watch_list = [s for s in stocks if s.get('score', 0) >= 80]
     state['saved_picks'] = {
         s.get('ticker'): {
@@ -247,7 +296,7 @@ def post_daily_scan_to_twitter():
             'score': s.get('score'),
             'entry_price': s.get('price'),
             'pe_target': s.get('pe_target'),
-            'saved_at': datetime.datetime.now(PT).isoformat(),
+            'saved_at': now.isoformat(),
         }
         for s in watch_list[:10]
     }
@@ -256,7 +305,7 @@ def post_daily_scan_to_twitter():
     # Post the tweet
     result = format_top5_tweet(stocks)
     if result:
-        state['last_scan_tweet'] = datetime.datetime.now(PT).isoformat()
+        state['last_scan_tweet'] = now.isoformat()
         save_state(state)
     return bool(result)
 
