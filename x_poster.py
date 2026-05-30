@@ -168,7 +168,7 @@ def format_target_hit_tweet(ticker, name, current, target, gain_pct):
 def post_win_tweet(win_url, ticker, entry_price, sell_target, gain_pct):
     """Post when a winning trade is confirmed. Call this after creating a win page."""
     lines = [
-        f"WIN! ✅ {ticker} hit target",
+        f"Win! ✅ ${ticker.upper()} hit target",
         "",
         f"Bought at ${entry_price:.0f} → Sold at ${sell_target:.0f} (+{gain_pct:.0f}%)",
         "",
