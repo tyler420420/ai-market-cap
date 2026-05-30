@@ -558,8 +558,6 @@ def generate_html_report(stocks: list, output_path: str):
     html += buttons_row
     html += '</div></div>'
     html += '<div class=warn id=warnMsg></div>'
-    html += '<div class=updated>Last Updated: ' + timestamp + '</div>'
-    html += '<div class=stats-bar><div class=legend><span><span class=dot style=background:#00ff88></span> Score 80+: Strong Buy</span><span><span class=dot style=background:#58a6ff></span> Score &lt;80: Watch</span></div></div>'
 
     if pick:
         html += '<div class=pick-banner style="background:#161b22;border:2px solid #2ea043;border-radius:10px;padding:40px 18px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:15px 0;min-height:120px;box-shadow:0 0 20px rgba(46,160,67,0.4)">'
