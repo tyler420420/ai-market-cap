@@ -475,7 +475,7 @@ def generate_html_report(stocks: list, output_path: str):
     html += '*{margin:0;padding:0;box-sizing:border-box}body{font-family:Segoe UI,Arial,sans-serif;background:#0d1117;color:#c9d1d9;padding:0;margin:0}'
     html += '.header{background:linear-gradient(135deg,#1a1f2e,#161b22);padding:25px;border-radius:12px;margin-bottom:20px;border:1px solid #30363d}'
     html += '.hdr-row{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:15px}'
-    html += 'h1{color:#58a6ff;font-size:1.8em;margin-bottom:5px}.desc{color:#fff;font-size:0.95em}'
+    html += 'h1{color:#fff;font-size:1.8em;margin-bottom:5px}.desc{color:#8b949e;font-size:0.95em}'
     html += '.btn{background:#ffd700;border:2px solid #000;color:#000;padding:10px 22px;border-radius:6px;font-size:0.9em;cursor:pointer;font-weight:bold;flex-shrink:0;box-shadow:0 0 12px rgba(255,215,0,0.5)}.btn:hover{background:#2ea043}.btn:active{background:#238636}.btn:disabled{background:#444;cursor:not-allowed}#refreshBtn{background:#1f6feb;border:2px solid #000;box-shadow:0 0 12px rgba(31,111,235,0.5)}#refreshBtn:hover{background:#388bfd}'
     
     html += '.ticker-strip{display:flex;overflow:hidden;white-space:nowrap;background:#0a0f18;border-bottom:1px solid #30363d;padding:8px 0;font-size:0.82em}'
