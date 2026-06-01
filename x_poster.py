@@ -246,16 +246,10 @@ def check_price_alerts(state):
         if not pe_target or not buy_price or pe_target <= 0:
             continue
 
-        # Check cooldown
+        # Check cooldown — one tweet per ticker, ever (permanent lock)
         last_tweet = state.get('tweeted_targets', {}).get(ticker)
         if last_tweet:
-            try:
-                last = datetime.datetime.fromisoformat(last_tweet)
-                hours_since = (now - last).total_seconds() / 3600
-                if hours_since < TWEET_COOLDOWN_HOURS:
-                    continue
-            except:
-                pass
+            continue  # Already fired for this ticker, skip forever
 
         current = get_current_price(ticker)
         if not current:
