@@ -144,7 +144,7 @@ def format_top5_tweet(stocks):
         lines.append(f"{i}. {ticker} {score} | ${price_val} -> ${target_val} (+{upside_val}%)")
 
     lines.append("")
-    lines.append("#AIStocks #StockMarket #Nasdaq #OptionsTrading #Trading #Investing")
+    lines.append("#StockMarket #OptionsTrading #DayTrading #Investing #AIStocks")
 
     msg = '\n'.join(lines)
     if len(msg) > 280:
@@ -159,7 +159,7 @@ def format_target_hit_tweet(ticker, name, current, target, gain_pct):
         f"TARGET HIT! {ticker}",
         f"${round(current)} -> ${round(target)} (+{round(gain_pct)}%)",
         f"Track top AI picks: {SITE_URL}",
-        "#AIStocks #WinningTrade #OptionsTrading"
+        "#StockMarket #OptionsTrading #DayTrading #Investing #AIStocks"
     ]
     msg = '\n'.join(lines)
     if len(msg) > 280:
