@@ -354,8 +354,8 @@ def index():
         with open(fresh, 'r', encoding='utf-8') as f:
             content = f.read()
         # Inject subscription flag before the popup script fires
-        content = content.replace('<script>setTimeout(function(){document.getElementById("sub-popup").classList.add("show")},20000)</script>',
-                                  f'{sub_flag}<script>if(!window.isSubscribed){{setTimeout(function(){{document.getElementById("sub-popup").classList.add("show")}},20000)}}else{{document.getElementById("sub-popup")&&(document.getElementById("sub-popup").style.display="none")}}</script>')
+        content = content.replace('<script>setTimeout(function(){document.getElementById("sub-popup").classList.add("show")},300000)</script>',
+                                  f'{sub_flag}<script>if(!window.isSubscribed){{setTimeout(function(){{document.getElementById("sub-popup").classList.add("show")}},300000)}}else{{document.getElementById("sub-popup")&&(document.getElementById("sub-popup").style.display="none")}}</script>')
         resp = make_response(content)
         resp.headers['Content-Type'] = 'text/html; charset=utf-8'
         resp.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0'
@@ -364,8 +364,8 @@ def index():
     if html_files:
         with open(html_files[0], 'r', encoding='utf-8') as f:
             content = f.read()
-        content = content.replace('<script>setTimeout(function(){document.getElementById("sub-popup").classList.add("show")},20000)</script>',
-                                  f'{sub_flag}<script>if(!window.isSubscribed){{setTimeout(function(){{document.getElementById("sub-popup").classList.add("show")}},20000)}}else{{document.getElementById("sub-popup")&&(document.getElementById("sub-popup").style.display="none")}}</script>')
+        content = content.replace('<script>setTimeout(function(){document.getElementById("sub-popup").classList.add("show")},300000)</script>',
+                                  f'{sub_flag}<script>if(!window.isSubscribed){{setTimeout(function(){{document.getElementById("sub-popup").classList.add("show")}},300000)}}else{{document.getElementById("sub-popup")&&(document.getElementById("sub-popup").style.display="none")}}</script>')
         resp = make_response(content)
         resp.headers['Content-Type'] = 'text/html; charset=utf-8'
         resp.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0'
