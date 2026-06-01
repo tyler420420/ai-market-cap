@@ -48,9 +48,8 @@ def post_tweet(text):
     try:
         resp = requests.post(
             url,
-            data=payload,
+            json={'text': text},
             auth=get_twitter_auth(),
-            headers={'Content-Type': 'application/json'},
             timeout=30
         )
         if resp.status_code == 201:
@@ -139,7 +138,10 @@ def format_top5_tweet(stocks):
         price = s.get('price', 0)
         pe_target = s.get('pe_target', 0)
         pe_upside = s.get('pe_upside', 0)
-        lines.append(f"{i}. {ticker} {score} | ${price:.0f} -> ${pe_target:.0f} (+{pe_upside:.0f}%)")
+        price_val = round(s.get('price', 0))
+        target_val = round(s.get('pe_target', 0))
+        upside_val = round(s.get('pe_upside', 0))
+        lines.append(f"{i}. {ticker} {score} | ${price_val} -> ${target_val} (+{upside_val}%)")
 
     lines.append("")
     lines.append("#AIStocks #StockMarket #Nasdaq #OptionsTrading #Trading #Investing")
@@ -155,7 +157,7 @@ def format_target_hit_tweet(ticker, name, current, target, gain_pct):
     """Tweet when a PE target is hit."""
     lines = [
         f"TARGET HIT! {ticker}",
-        f"${current:.0f} -> ${target:.0f} (+{gain_pct:.0f}%)",
+        f"${round(current)} -> ${round(target)} (+{round(gain_pct)}%)",
         f"Track top AI picks: {SITE_URL}",
         "#AIStocks #WinningTrade #OptionsTrading"
     ]
@@ -170,7 +172,7 @@ def post_win_tweet(win_url, ticker, entry_price, sell_target, gain_pct, days=1):
     lines = [
         f"Win! ✅ ${ticker.upper()} hit target in {days} days",
         "",
-        f"Bought at ${entry_price:.0f} → Sold at ${sell_target:.0f} (+{gain_pct:.0f}%)",
+        f"Bought at ${round(entry_price)} -> Sold at ${round(sell_target)} (+{round(gain_pct)}%)",
         "",
         f"AI Market Cap called it. See the trade: {win_url}",
         "",
