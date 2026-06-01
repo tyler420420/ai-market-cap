@@ -155,7 +155,7 @@ def fetch_top_news(ticker: str, count: int = 1) -> List[dict]:
     return headlines
 # AI Infrastructure
 AI_TICKERS = [
-    'NVDA', 'AMD', 'AVGO', 'MRVL', 'INTC', 'QCOM', 'MU', 'TXN', 'LRCX', 'ASML', 'KLAC', 'AMAT', 'SNPS', 'CDNS',
+    'NVDA', 'AMD', 'AVGO', 'MRVL', 'INTC', 'QCOM', 'MU', 'TXN', 'LRCX', 'ASML', 'KLAC', 'AMAT', 'SNPS', 'CDNS', 'CRDO',
     # AI Cloud/Enterprise
     'MSFT', 'GOOGL', 'AMZN', 'ORCL', 'NOW', 'SNOW', 'CRM',
     # AI Cybersecurity
@@ -245,7 +245,7 @@ def calculate_composite_score(stock: EarningsSignal) -> float:
     return stock.composite_score
 
 
-def get_earnings_window(days_ahead: int = 14, window_min: int = 1, window_max: int = 14) -> List[str]:
+def get_earnings_window(days_ahead: int = 14, window_min: int = 0, window_max: int = 14) -> List[str]:
     """Return AI tickers with earnings in the next N days, sorted by days-to-earnings."""
     results = []
     today = datetime.now().date()
@@ -798,7 +798,7 @@ def generate_csv_report(stocks: list, output_path: str):
 
 # Manual earnings date overrides (when yfinance has wrong date)
 EARNINGS_OVERRIDES = {
-    
+    'CRDO': datetime(2026, 6, 1).date(),  # Finviz: Jun 01 AMC
 }
 
 
@@ -826,10 +826,12 @@ def main():
         except Exception as e:
             print(f"Favicon generation skipped: {e}")
 
-    # Fetch dynamic AI stock list from finviz (Technology sector = broad AI coverage)
+    # Fetch dynamic AI stock list from finviz + hardcoded AI-niche tickers (merged)
     print("Fetching AI stocks from finviz screener...")
-    all_tickers = fetch_ai_stocks_from_finviz()
-    print(f"Total stocks to scan: {len(all_tickers)}")
+    finviz_tickers = fetch_ai_stocks_from_finviz()
+    # Always include hardcoded AI_TICKERS (ensures CRDO and other niche AI plays are scanned)
+    all_tickers = list(dict.fromkeys(finviz_tickers + AI_TICKERS))  # deduped, finviz first
+    print(f"Total stocks to scan: {len(all_tickers)} (finviz:{len(finviz_tickers)} + hardcoded:{len(AI_TICKERS)})")
 
     # First scan to get all earnings in window with real dates
     all_results = []
@@ -844,7 +846,7 @@ def main():
             if ticker in EARNINGS_OVERRIDES:
                 edate = EARNINGS_OVERRIDES[ticker]
                 days_out = (edate - today).days
-                if 1 <= days_out <= args.days:
+                if 0 <= days_out <= args.days:
                     all_results.append((ticker, edate, days_out))
             else:
                 cal = get_earnings_with_retry(ticker)
@@ -854,7 +856,7 @@ def main():
                         edate = ed[0]
                         if hasattr(edate, 'date'): edate = edate.date()
                         days_out = (edate - today).days
-                        if 1 <= days_out <= args.days:
+                if 0 <= days_out <= args.days:
                             all_results.append((ticker, edate, days_out))
                 else:
                     failed_tickers.append(ticker)
