@@ -25,6 +25,11 @@ SESSION_TTL = 86400
 
 app = Flask(__name__, static_folder='static', static_url_path='/static')
 
+# ===== FAVICON =====
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory(os.path.dirname(__file__), 'favicon.ico', mimetype='image/x-icon')
+
 # ===== SCAN STATE =====
 class ScanState:
     scan_state = 'idle'

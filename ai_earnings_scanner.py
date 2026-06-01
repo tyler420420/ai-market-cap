@@ -459,8 +459,8 @@ def generate_html_report(stocks: list, output_path: str):
     # Build full HTML
     SCANNER_TITLE = "AI Market Cap Scanner"
     html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>' + SCANNER_TITLE + '</title>'
-    favicon_path = "file:///C:/Users/Tyler_AI/Desktop/logo.png" if LOCAL_MODE else "/static/logo.png"
-    html += '<link rel="icon" type="image/png" href="' + favicon_path + '">'
+    favicon_path = "file:///C:/Users/Tyler_AI/ai-market-cap/favicon.ico" if LOCAL_MODE else "/favicon.ico"
+    html += '<link rel="icon" type="image/x-icon" href="' + favicon_path + '">'
     html += '<meta name="description" content="AI pre-earnings momentum scanner for tech stocks. Track scores, analyst ratings, PE targets, and implied moves before earnings reports.">'
     html += '<meta property="og:title" content="AI Market Cap Scanner">'
     html += '<meta property="og:description" content="Pre-earnings momentum scanner for AI/tech stocks. Scores, PE targets, 3-day and 5-day implied moves.">'
@@ -810,6 +810,20 @@ def main():
     LOCAL_MODE = args.local
     print("AI Earnings Scanner - Pre-Earnings Momentum (1-14 Day Window)"); print("="*55)
     if not YF_AVAILABLE: print("ERROR: yfinance not installed. Run: python -m pip install yfinance"); sys.exit(1)
+
+    # Generate favicon from logo (crop icon + resize)
+    logo_src = os.path.join(os.path.expanduser("~"), "Desktop", "logo.png")
+    favicon_dst = os.path.join(os.path.dirname(os.path.abspath(__file__)), "favicon.ico")
+    if os.path.exists(logo_src):
+        try:
+            from PIL import Image
+            img = Image.open(logo_src)
+            cropped = img.crop((0, 0, img.width, int(img.height * 0.72)))
+            favicon_ico = cropped.resize((32, 32), Image.LANCZOS)
+            favicon_ico.save(favicon_dst, format='ICO', sizes=[(16,16),(32,32),(48,48)])
+            print("Favicon generated")
+        except Exception as e:
+            print(f"Favicon generation skipped: {e}")
 
     # Fetch dynamic AI stock list from finviz (Technology sector = broad AI coverage)
     print("Fetching AI stocks from finviz screener...")
