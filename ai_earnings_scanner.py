@@ -605,7 +605,8 @@ def generate_html_report(stocks: list, output_path: str):
         html += '<span style="font-size:0.95em;color:#fff">Score: <strong style="color:' + pick_color + '">' + str(round(pick.composite_score)) + '</strong></span>'
         html += '<span style="font-size:0.95em;color:#fff">Buy Price: <strong style="color:#00ff88">$' + str(round(pick.current_price, 2)) + '</strong></span>'
         html += '<span style="font-size:0.95em;color:#fff">Sell Target: <strong style="color:#00ff88">' + pick_sell + '</strong></span>'
-        html += '<span style="font-size:0.95em;color:#fff">Earnings in: <strong style="color:#00ff88">' + str(pick.days_to_earnings) + ' days</strong></span>'
+        pick_earn_label = 'Today' if pick.days_to_earnings == 0 else (str(pick.days_to_earnings) + ' days')
+        html += '<span style="font-size:0.95em;color:#fff">Earnings in: <strong style="color:#00ff88">' + pick_earn_label + '</strong></span>'
         html += '<span style="font-size:0.95em;color:#fff">Expected Profit: <strong style="color:#00ff88;font-weight:bold">' + pick_profit + '</strong></span>'
         html += '</div>'
 
@@ -617,7 +618,8 @@ def generate_html_report(stocks: list, output_path: str):
         html += '<span style="font-size:0.95em;color:#fff">Score: <strong style="color:' + pick2_color + '">' + str(round(pick2.composite_score)) + '</strong></span>'
         html += '<span style="font-size:0.95em;color:#fff">Buy Price: <strong style="color:#58a6ff">$' + str(round(pick2.current_price, 2)) + '</strong></span>'
         html += '<span style="font-size:0.95em;color:#fff">Sell Target: <strong style="color:#58a6ff">' + pick2_sell + '</strong></span>'
-        html += '<span style="font-size:0.95em;color:#fff">Earnings in: <strong style="color:#58a6ff">' + str(pick2.days_to_earnings) + ' days</strong></span>'
+        pick2_earn_label = 'Today' if pick2.days_to_earnings == 0 else (str(pick2.days_to_earnings) + ' days')
+        html += '<span style="font-size:0.95em;color:#fff">Earnings in: <strong style="color:#58a6ff">' + pick2_earn_label + '</strong></span>'
         html += '<span style="font-size:0.95em;color:#fff">Expected Profit: <strong style="color:#58a6ff;font-weight:bold">' + pick2_profit + '</strong></span>'
         html += '</div>'
 
