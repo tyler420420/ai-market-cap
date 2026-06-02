@@ -285,8 +285,8 @@ def cron():
                 except Exception as e:
                     print(f"[Heal] Re-scan error: {e}")
 
-        # STEP 4: Post top picks to Twitter after successful scan
-        if scan_succeeded:
+        # STEP 4: Post top picks to Twitter only on morning scan (not forced rescans)
+        if scan_succeeded and not force:
             try:
                 sys.path.insert(0, str(Path(__file__).parent))
                 from x_poster import post_daily_scan_to_twitter
