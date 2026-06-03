@@ -502,7 +502,7 @@ h2 { color: #fff; font-size: 2em; margin-bottom: 10px; }
 </div>
 
 <div class=container>
-    <h2>Subscribe for additional scans<br>and AI Chat Trade Pro.</h2>
+    <h2>Subscribe for additional scans<br>and AI Chat Pro Trader.</h2>
     <p class=subtitle>Unlock full access to the scanner</p>
     <div class=plans>
         <div class=plan>
@@ -511,7 +511,7 @@ h2 { color: #fff; font-size: 2em; margin-bottom: 10px; }
             <div class=period>Billed monthly</div>
             <ul>
                 <li>3 Scans Per Day</li>
-                <li>AI Chat Trade Pro</li>
+                <li>AI Chat Pro Trader</li>
             </ul>
             <a href="/create-checkout?plan=monthly" class=cta>Subscribe - $149/mo</a>
         </div>
