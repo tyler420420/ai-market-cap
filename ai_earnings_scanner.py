@@ -898,6 +898,30 @@ def main():
     stocks.sort(key=lambda x: x.composite_score, reverse=True)
     print(f"Top picks:")
     for i, stock in enumerate(stocks[:5], 1): print(f"   {i}. {stock.ticker}: {stock.composite_score:.0f} | {stock.signals[0] if stock.signals else 'No strong signal'}")
+
+    # === SAVE PICK TRACKER ===
+    # Track AI pick and runner-up with entry prices for win tracking
+    strong_buys = [s for s in stocks if round(s.composite_score) >= 80]
+    strong_buys.sort(key=lambda x: -x.days_to_earnings)
+    pick_data = []
+    today_str = datetime.now().strftime('%Y-%m-%d')
+    for s in strong_buys[:5]:
+        pick_data.append({
+            'date': today_str,
+            'ticker': s.ticker,
+            'price': round(s.current_price, 2),
+            'score': round(s.composite_score),
+            'days_left': s.days_to_earnings,
+            'company': s.company_name,
+            'pe_target': round(s.post_earnings_target, 2) if s.post_earnings_target else 0,
+            '5d_target': round(s.post_earnings_5d_target, 2) if s.post_earnings_5d_target else 0
+        })
+    tracker_path = os.path.join(os.path.dirname(__file__) or '.', 'pick_tracker.json')
+    import json as _json
+    with open(tracker_path, 'w') as f:
+        _json.dump(pick_data, f, indent=2)
+    print(f"[Pick Tracker] saved {len(pick_data)} picks to pick_tracker.json")
+
     timestamp = datetime.now().strftime('%Y%m%d_%H%M'); out_dir = os.path.dirname(__file__) or '.'
     html_path = os.path.join(out_dir, f'ai_earnings_57day_{timestamp}.html')
     csv_path = os.path.join(out_dir, f'ai_earnings_57day_{timestamp}.csv')
