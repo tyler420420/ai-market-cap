@@ -553,7 +553,6 @@ def generate_html_report(stocks: list, output_path: str):
         {'company': 'Databricks', 'date': datetime(2026, 9, 15), 'deal': '$134B', 'link': 'https://www.databricks.com/company/corporate-overview/ipo'},
         {'company': 'OpenAI', 'date': datetime(2026, 12, 1), 'deal': '$1T', 'link': 'https://openai.com/enterprise'},
         {'company': 'Anthropic', 'date': datetime(2026, 10, 15), 'deal': '$380B', 'link': 'https://www.anthropic.com'},
-        {'company': 'Cerebras', 'date': datetime(2026, 11, 1), 'deal': '$23B', 'link': 'https://cerebras.net'},
     ]
     # Filter out past IPOs and sort by date
     today = datetime.now()
