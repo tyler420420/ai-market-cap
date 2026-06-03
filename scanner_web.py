@@ -502,7 +502,7 @@ h2 { color: #fff; font-size: 2em; margin-bottom: 10px; }
 </div>
 
 <div class=container>
-    <h2>Subscribe to run additional scans<br>and use the AI Chat Analyst.</h2>
+    <h2>Subscribe for additional scans<br>and AI Chat Trade Pro.</h2>
     <p class=subtitle>Unlock full access to the scanner</p>
     <div class=plans>
         <div class=plan>
@@ -510,12 +510,8 @@ h2 { color: #fff; font-size: 2em; margin-bottom: 10px; }
             <div class=price>$149<span>/mo</span></div>
             <div class=period>Billed monthly</div>
             <ul>
-                <li>3 scans per day</li>
-                <li>AI Chat Analyst</li>
-                <li>Score + PE/3D/5D targets</li>
-                <li>AI Suggested Trade</li>
-                <li>Live price ticker</li>
-                <li>News per stock</li>
+                <li>3 Scans Per Day</li>
+                <li>AI Chat Trade Pro</li>
             </ul>
             <a href="/create-checkout?plan=monthly" class=cta>Subscribe - $149/mo</a>
         </div>
