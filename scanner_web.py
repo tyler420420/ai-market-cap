@@ -324,15 +324,8 @@ def cron():
                 except Exception as e:
                     print(f"[Heal] Re-scan error: {e}")
 
-        # STEP 4: Post top picks to Twitter only on morning scan (not forced rescans)
-        if scan_succeeded and not force:
-            try:
-                sys.path.insert(0, str(Path(__file__).parent))
-                from x_poster import post_daily_scan_to_twitter
-                print("[Cron] Posting scan to Twitter...")
-                post_daily_scan_to_twitter()
-            except Exception as e:
-                print(f"[Cron] Twitter post error: {e}")
+        # STEP 4: Done — Twitter post is handled separately by /cron-twitter (avoid double-post)
+        return scan_succeeded
 
     threading.Thread(target=do_scan, daemon=True).start()
     return "Scan triggered", 200
