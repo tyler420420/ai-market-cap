@@ -337,34 +337,28 @@ def robots():
 
 @app.route("/sitemap.xml")
 def sitemap():
-    today = datetime.now(PT).strftime("%Y-%m-%d")
-    xml = '<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url><loc>https://aismarketcap.com/</loc><lastmod>' + today + '</lastmod><priority>1.0</priority></url><url><loc>https://aismarketcap.com/wins</loc><lastmod>' + today + '</lastmod><priority>0.8</priority></url><url><loc>https://aismarketcap.com/wins/okta</loc><lastmod>' + today + '</lastmod><priority>0.7</priority></url><url><loc>https://aismarketcap.com/wins/snowflake</loc><lastmod>' + today + '</lastmod><priority>0.7</priority></url><url><loc>https://aismarketcap.com/wins/innodata</loc><lastmod>' + today + '</lastmod><priority>0.7</priority></url><url><loc>https://aismarketcap.com/about</loc><lastmod>' + today + '</lastmod><priority>0.8</priority></url><url><loc>https://aismarketcap.com/pricing</loc><lastmod>' + today + '</lastmod><priority>0.9</priority></url></urlset>'
-    return xml, 200, {"Content-Type": "application/xml"}
-
-# ---- WINS PAGES ----
-@app.route("/")
-def index():
-    """Home page = scanner (no login required)"""
-    workspace = Path(__file__).parent
-    fresh = workspace / "ai_earnings_today.html"
-
-    # Check if user is subscribed (suppress popup for subscribers)
-    customer_id = request.cookies.get("stripe_customer", "")
-    session_token = request.cookies.get(COOKIE_NAME, "")
-    subs = get_subscriptions()
-    is_subscribed = subs.get(customer_id, {}).get('status') == 'active' or subs.get(session_token, {}).get('status') == 'active'
-    sub_flag = f'<script>window.isSubscribed={"true" if is_subscribed else "false"};</script>'
-
-    if fresh.exists():
-        with open(fresh, 'r', encoding='utf-8') as f:
-            content = f.read()
-        # Inject subscription flag before the popup script fires
-        content = content.replace('<script>setTimeout(function(){document.getElementById("sub-popup").classList.add("show")},300000)</script>',
-                                  f'{sub_flag}<script>if(!window.isSubscribed){{setTimeout(function(){{document.getElementById("sub-popup").classList.add("show")}},300000)}}else{{document.getElementById("sub-popup")&&(document.getElementById("sub-popup").style.display="none")}}</script>')
-        resp = make_response(content)
-        resp.headers['Content-Type'] = 'text/html; charset=utf-8'
-        resp.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0'
-        return resp
+    today = datetime.now().strftime("%Y-%m-%d")
+    # Dynamic: collect all wins_*.html files from the app directory
+    app_dir = Path(__file__).parent
+    static_pages = [
+        ("/", 1.0),
+        ("/wins", 0.8),
+        ("/about", 0.8),
+        ("/pricing", 0.9),
+    ]
+    wins_pages = []
+    for f in app_dir.glob("wins_*.html"):
+        ticker = f.stem.replace("wins_", "")
+        wins_pages.append((f"/wins/{ticker}", 0.7))
+    xml_urls = ""
+    for loc, priority in static_pages:
+        xml_urls += f"<url><loc>https://aismarketcap.com{loc}</loc><lastmod>{today}</lastmod><priority>{priority}</priority></url>"
+    for loc, priority in wins_pages:
+        xml_urls += f"<url><loc>https://aismarketcap.com{loc}</loc><lastmod>{today}</lastmod><priority>{priority}</priority></url>"
+    xml = f'<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">{xml_urls}</urlset>'
+    resp = make_response(xml)
+    resp.headers["Content-Type"] = "application/xml"
+    return resp
     html_files = sorted(workspace.glob("ai_earnings_57day_*.html"), key=lambda f: f.stat().st_mtime, reverse=True)
     if html_files:
         with open(html_files[0], 'r', encoding='utf-8') as f:
@@ -387,6 +381,20 @@ def wins():
     resp.headers['Content-Type'] = 'text/html; charset=utf-8'
     return resp
 
+# Dynamic wins ticker pages: /wins/<ticker> auto-serves wins_<ticker>.html
+@app.route("/wins/<ticker>")
+def wins_ticker_page(ticker):
+    app_dir = Path(__file__).parent
+    wins_file = app_dir / f"wins_{ticker}.html"
+    if wins_file.exists():
+        with open(wins_file, 'r', encoding='utf-8') as f:
+            content = f.read()
+        resp = make_response(content)
+        resp.headers['Content-Type'] = 'text/html; charset=utf-8'
+        return resp
+    return "Wins page not found", 404
+
+# Legacy hardcoded routes (keep for existing wins pages)
 @app.route("/wins/okta")
 def wins_okta():
     with open(Path(__file__).parent / "wins_okta.html", 'r', encoding='utf-8') as f:
