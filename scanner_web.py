@@ -579,14 +579,15 @@ li { color: #c9d1d9; font-size: 0.95em; line-height: 1.7; margin-bottom: 6px; }
     </div>
 
     <h2 id=methodology>Scoring Methodology</h2>
-    <p>Every stock is scored 0–100 based on four factors:</p>
+    <p>Every stock is scored 0–100 based on five factors:</p>
     <div class=highlight>
-        <strong>Analyst Ratings (30 pts max)</strong> — Total analysts covering this stock, 1 point each up to 30. More coverage = higher score.<br><br>
-        <strong>Buy Percentage (30 pts)</strong> — Raw % of analysts with Buy or Strong Buy. We weight this separately to capture conviction level.<br><br>
-        <strong>5-Day Upside (20 pts)</strong> — ATM straddle × 5, expressed as % of current stock price. Higher implied move potential = higher score.<br><br>
-        <strong>Strong Buy Count (2 pts each, max 20)</strong> — Each Strong Buy rating adds 2 points. Stocks with 10+ Strong Buy ratings get the full 20 pts.
+        <strong>Analyst Coverage (25pts max)</strong> — Total analysts covering this stock, 1 point each up to 25. More coverage = higher score.<br><br>
+        <strong>Buy % Conviction (25pts max)</strong> — Raw % of analysts with Buy or Strong Buy out of all ratings. We weight this to capture conviction level.<br><br>
+        <strong>Strong Buy Count (20pts max)</strong> — Each Strong Buy rating adds 2 points. Stocks with 10+ Strong Buy ratings get the full 20 pts.<br><br>
+        <strong>5D Upside (15pts max)</strong> — ATM straddle × 5, expressed as % of current stock price. Higher implied move potential = higher score.<br><br>
+        <strong>Earnings Sentiment (15pts max)</strong> — Recent earnings history. Positive = 15pts, Mixed = 7pts, Negative = 0pts.
     </div>
-    <p>Stocks scoring <strong style="color:#00ff88">80+</strong> are flagged Strong Buy. Stocks scoring <strong style="color:#58a6ff">65–79</strong> are Watch.</p>
+    <p>Stocks scoring <strong style="color:#00ff88">80+</strong> are flagged Strong Buy. Stocks scoring <strong style="color:#58a6ff">50+</strong> are Watch.</p>
 
     <h2 id=targets>PE / 3-Day / 5-Day Target Columns</h2>
     <h3>PE Target</h3>
@@ -610,7 +611,7 @@ li { color: #c9d1d9; font-size: 0.95em; line-height: 1.7; margin-bottom: 6px; }
     <p class=faq-q>What data sources are used?</p>
     <p>Stock prices and option data come from Yahoo Finance. Analyst ratings are pulled from Yahoo Finance's recommendations endpoint. News is sourced from Yahoo Finance market articles.</p>
     <p class=faq-q>What does "days left" mean?</p>
-    <p>Days until the next earnings report date. We only show stocks within 14 days of reporting.</p>
+    <p>Days until the next earnings report date. We only show stocks within 30 days of reporting.</p>
     <p class=faq-q>What does Short % mean?</p>
     <p>Short interest - the percentage of shares that have been sold short and not yet covered. High short interest increases squeeze potential pre-earnings.</p>
     <p class=faq-q>What does IV mean?</p>
