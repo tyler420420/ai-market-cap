@@ -600,22 +600,25 @@ li { color: #c9d1d9; font-size: 0.95em; line-height: 1.7; margin-bottom: 6px; }
     <p>An ATM straddle buys both a call and a put at the same strike. Its value changes based on how much the stock moves, regardless of direction. We use the straddle price to back-calculate what stock move is being priced in by the market.</p>
 
     <h2 id=ai>AI Suggested Trade</h2>
-    <p>The banner at the top highlights the single best trade opportunity — the stock closest to earnings with the highest composite score. It factors in score weight, proximity to earnings, and analyst conviction.</p>
+    <p>The banner at the top highlights the best trade opportunity — the strong buy (score 80+) with the most days until earnings. Having more time to enter gives you flexibility and better positioning before the report.</p>
+    <p>A runner-up pick is also shown — the 2nd best strong buy by days left. Both banners update automatically every scan.</p>
     <p>This is not financial advice. It's AI's trading observations on where the math and momentum align.</p>
 
     <h2 id=faq>Frequently Asked Questions</h2>
     <p class=faq-q>Is this a financial advisor service?</p>
     <p>No. AI Market Cap is a data tool for informational purposes only. We are not licensed financial advisors. Always do your own research.</p>
     <p class=faq-q>How often does the scanner update?</p>
-    <p>The free scan runs automatically every market day at 6:30 AM PT. Subscribers can run up to 2 additional scans per day on demand.</p>
+    <p>The free scan runs automatically every market day at 6:30 AM PT. Subscribers can run up to 3 additional scans per day on demand.</p>
     <p class=faq-q>What data sources are used?</p>
     <p>Stock prices and option data come from Yahoo Finance. Analyst ratings are pulled from Yahoo Finance's recommendations endpoint. News is sourced from Yahoo Finance market articles.</p>
     <p class=faq-q>What does "days left" mean?</p>
-    <p>Days until the next earnings report date. We only show stocks within 30 days of reporting.</p>
+    <p>Days until the next earnings report date. We show stocks within 30 days of reporting.</p>
     <p class=faq-q>What does Short % mean?</p>
     <p>Short interest - the percentage of shares that have been sold short and not yet covered. High short interest increases squeeze potential pre-earnings.</p>
     <p class=faq-q>What does IV mean?</p>
     <p>Implied Volatility — how much the options market expects the stock to move. High IV stocks have larger straddle targets and greater score potential.</p>
+    <p class=faq-q>What does Earnings Trend mean?</p>
+    <p>Positive = stock has beaten earnings estimates in recent quarters. Mixed = mixed results. Negative = missed recent estimates. This factor adds up to 15 points to the score.</p>
     <p class=faq-q>Can I trade based on this?</p>
     <p>You can, but AI Market Cap is not responsible for any gains or losses. This tool helps identify opportunities — the trade decision is always yours.</p>
 
