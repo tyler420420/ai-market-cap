@@ -421,8 +421,8 @@ def generate_html_report(stocks: list, output_path: str):
     # Pre-compute all derived values before building HTML
     strong_count = sum(1 for s in stocks if round(s.composite_score) >= 80)
     strong_buys = [s for s in stocks if round(s.composite_score) >= 80]
-    pick = sorted(strong_buys, key=lambda x: (-x.composite_score, x.days_to_earnings))[0] if strong_buys else (stocks[0] if stocks else None)
-    pick2 = sorted(strong_buys, key=lambda x: (-x.composite_score, x.days_to_earnings))[1] if len(strong_buys) > 1 else None
+    pick = sorted(strong_buys, key=lambda x: -x.days_to_earnings)[0] if strong_buys else (stocks[0] if stocks else None)
+    pick2 = sorted(strong_buys, key=lambda x: -x.days_to_earnings)[1] if len(strong_buys) > 1 else None
     pick_profit = pick_sell = pick_color = None
     pick2_profit = pick2_sell = pick2_color = None
     if pick:
