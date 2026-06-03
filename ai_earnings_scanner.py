@@ -296,119 +296,126 @@ def get_earnings_window(days_ahead: int = 30, window_min: int = 0, window_max: i
     return [t[0] for t in results]
 
 
-def analyze_ticker(ticker: str, earnings_date) -> Optional[EarningsSignal]:
-    try:
-        stock = yf.Ticker(ticker); info = stock.info
-        current_price = info.get('currentPrice') or info.get('regularMarketPrice') or info.get('targetMeanPrice', 0)
-        prev_close = info.get('previousClose') or info.get('regularMarketPreviousClose')
-        if current_price and prev_close and prev_close > 0:
-            price_change_abs = round(current_price - prev_close, 2)
-            price_change_pct = round((price_change_abs / prev_close) * 100, 2)
-        price_target = info.get('targetMeanPrice', 0) or info.get('targetHighPrice', 0) or 0
-        target_upside_pct = ((price_target - current_price) / current_price * 100) if current_price > 0 and price_target > 0 else 0
-
-        # Get actual analyst rating breakdown from yfinance recommendations method
-        # This gives us Strong Buy / Buy / Hold / Sell / Strong Sell counts
-        strong_buy_rating = 0; buy_rating = 0; buy_rating_pct = 0
-        total_analysts = info.get('numberOfAnalystOpinions', 0)
+def analyze_ticker(ticker: str, earnings_date, retries: int = 2) -> Optional[EarningsSignal]:
+    for attempt in range(retries):
         try:
-            rec_df = stock.recommendations
-            if rec_df is not None and not rec_df.empty:
-                # Prefer '0m' or '-1m' (most recent), fall back to first row
-                current_row = rec_df[rec_df['period'].isin(['0m', '-1m'])]
-                if current_row.empty:
-                    current_row = rec_df.iloc[[0]]
-                row = current_row.iloc[0]
-                sb = int(row.get('strongBuy', 0))
-                b = int(row.get('buy', 0))
-                h = int(row.get('hold', 0))
-                s = int(row.get('sell', 0))
-                ss = int(row.get('strongSell', 0))
-                total = sb + b + h + s + ss
-                strong_buy_rating = sb
-                buy_rating = b
-                hold_rating = h
-                sell_rating = s + ss
-                buy_rating_pct = round((sb + b) / total * 100, 1) if total > 0 else 0
-                total_analysts = total
-        except Exception: pass
+            stock = yf.Ticker(ticker); info = stock.info
+            current_price = info.get('currentPrice') or info.get('regularMarketPrice') or info.get('targetMeanPrice', 0)
+            if not current_price or current_price == 0:
+                if attempt < retries - 1:
+                    continue
+                return None
+            prev_close = info.get('previousClose') or info.get('regularMarketPreviousClose')
+            price_change_abs = price_change_pct = 0
+            if current_price and prev_close and prev_close > 0:
+                price_change_abs = round(current_price - prev_close, 2)
+                price_change_pct = round((price_change_abs / prev_close) * 100, 2)
+            price_target = info.get('targetMeanPrice', 0) or info.get('targetHighPrice', 0) or 0
+            target_upside_pct = ((price_target - current_price) / current_price * 100) if current_price > 0 and price_target > 0 else 0
 
-        # Fallback: if recommendations method didn't work, use info dict
-        if strong_buy_rating == 0 and total_analysts > 0:
-            rec_key = info.get('recommendationKey', '')
-            if 'strong_buy' in rec_key.lower(): strong_buy_rating = max(3, round(total_analysts * 0.6)); buy_rating = max(2, round(total_analysts * 0.3)); buy_rating_pct = 75
-            elif rec_key == 'buy': strong_buy_rating = max(2, round(total_analysts * 0.5)); buy_rating = 0; buy_rating_pct = 60
-            elif rec_key == 'outperform': strong_buy_rating = max(2, round(total_analysts * 0.5)); buy_rating = 0; buy_rating_pct = 70
+            # Get actual analyst rating breakdown from yfinance recommendations method
+            # This gives us Strong Buy / Buy / Hold / Sell / Strong Sell counts
+            strong_buy_rating = 0; buy_rating = 0; hold_rating = 0; sell_rating = 0; buy_rating_pct = 0
+            total_analysts = info.get('numberOfAnalystOpinions', 0)
+            try:
+                rec_df = stock.recommendations
+                if rec_df is not None and not rec_df.empty:
+                    # Prefer '0m' or '-1m' (most recent), fall back to first row
+                    current_row = rec_df[rec_df['period'].isin(['0m', '-1m'])]
+                    if current_row.empty:
+                        current_row = rec_df.iloc[[0]]
+                    row = current_row.iloc[0]
+                    sb = int(row.get('strongBuy', 0))
+                    b = int(row.get('buy', 0))
+                    h = int(row.get('hold', 0))
+                    s = int(row.get('sell', 0))
+                    ss = int(row.get('strongSell', 0))
+                    total = sb + b + h + s + ss
+                    strong_buy_rating = sb
+                    buy_rating = b
+                    hold_rating = h
+                    sell_rating = s + ss
+                    buy_rating_pct = round((sb + b) / total * 100, 1) if total > 0 else 0
+                    total_analysts = total
+            except Exception: pass
 
-        implied_volatility = 0
-        post_earnings_target = 0.0
-        post_earnings_upside_pct = 0.0
-        post_earnings_3d_target = 0.0
-        post_earnings_3d_upside_pct = 0.0
-        post_earnings_5d_target = 0.0
-        post_earnings_5d_upside_pct = 0.0
-        try:
-            opt = stock.option_chain()
-            if opt.calls.shape[0] > 0 and opt.puts.shape[0] > 0 and current_price > 0:
-                calls = opt.calls.copy()
-                puts = opt.puts.copy()
-                calls['abs_ITM'] = abs(calls['strike'] - current_price)
-                puts['abs_ITM'] = abs(puts['strike'] - current_price)
-                atm_call = calls.loc[calls['abs_ITM'].idxmin()]
-                atm_put = puts.loc[puts['abs_ITM'].idxmin()]
-                call_price = atm_call.get('lastPrice', 0) or atm_call.get('bid', 0) or 0
-                put_price = atm_put.get('lastPrice', 0) or atm_put.get('bid', 0) or 0
-                straddle_cost = call_price + put_price
-                iv_from_straddle = (straddle_cost / current_price) * 100
-                if iv_from_straddle > 0:
-                    implied_volatility = round(iv_from_straddle, 1)
-                    # PE target = current + straddle x1 (conservative sell)
-                    post_earnings_target = round(current_price + straddle_cost, 2)
-                    post_earnings_upside_pct = round((straddle_cost / current_price) * 100, 1)
-                    # 3D target = current + straddle x3 (mid exit)
-                    post_earnings_3d_target = round(current_price + straddle_cost * 3, 2)
-                    post_earnings_3d_upside_pct = round((straddle_cost * 3 / current_price) * 100, 1)
-                    # 5D target = current + straddle x5 (max upside rotation trade)
-                    post_earnings_5d_target = round(current_price + straddle_cost * 5, 2)
-                    post_earnings_5d_upside_pct = round((straddle_cost * 5 / current_price) * 100, 1)
-                else:
-                    atm_calls = opt.calls[opt.calls['inTheMoney'] == False]
-                    if len(atm_calls) > 0:
-                        iv = atm_calls.iloc[0].get('impliedVolatility', 0)
-                        implied_volatility = iv * 100 if iv else 0
-        except: pass
+            # Fallback: if recommendations method didn't work, use info dict
+            if strong_buy_rating == 0 and total_analysts > 0:
+                rec_key = info.get('recommendationKey', '')
+                if 'strong_buy' in rec_key.lower(): strong_buy_rating = max(3, round(total_analysts * 0.6)); buy_rating = max(2, round(total_analysts * 0.3)); buy_rating_pct = 75
+                elif rec_key == 'buy': strong_buy_rating = max(2, round(total_analysts * 0.5)); buy_rating = 0; buy_rating_pct = 60
+                elif rec_key == 'outperform': strong_buy_rating = max(2, round(total_analysts * 0.5)); buy_rating = 0; buy_rating_pct = 70
 
-        # Fallback: if options failed, scale 12-month target down to post-earnings estimate
-        if post_earnings_upside_pct == 0 and price_target > 0 and current_price > 0:
-            annual_up = ((price_target - current_price) / current_price * 100)
-            post_earnings_upside_pct = round(annual_up * 0.4, 1)
-            post_earnings_target = round(current_price * (1 + post_earnings_upside_pct / 100), 2)
-        short_interest = (info.get('shortPercentOfFloat', 0) or 0) * 100
-        avg_volume = info.get('averageVolume', 0) or info.get('averageDailyVolume10Day', 0) or 0
-        sector = info.get('sector', 'Technology')
-        market_cap_raw = info.get('marketCap', 0) or 0
-        company_name = info.get('longName', info.get('shortName', ticker))
-        days_to_earnings = (earnings_date - datetime.now().date()).days
-        earnings_date_str = earnings_date.strftime('%Y-%m-%d')
-        # Fetch earnings sentiment from last 4 quarters (MUST be before calculate_composite_score)
-        earnings_sentiment = get_earnings_sentiment(ticker)
-        signal = EarningsSignal(ticker=ticker, company_name=company_name, earnings_date=earnings_date_str, days_to_earnings=days_to_earnings,
-            current_price=round(current_price,2) if current_price else 0, price_target=round(price_target,2) if price_target else 0,
-            target_upside_pct=round(target_upside_pct,1) if target_upside_pct else 0,
-            post_earnings_target=post_earnings_target, post_earnings_upside_pct=post_earnings_upside_pct,
-            post_earnings_3d_target=post_earnings_3d_target, post_earnings_3d_upside_pct=post_earnings_3d_upside_pct,
-            post_earnings_5d_target=post_earnings_5d_target, post_earnings_5d_upside_pct=post_earnings_5d_upside_pct,
-            strong_buy_rating=strong_buy_rating, buy_rating=buy_rating, hold_rating=hold_rating, sell_rating=sell_rating,
-            total_analysts=total_analysts, buy_rating_pct=buy_rating_pct, implied_volatility=implied_volatility,
-            short_interest=round(short_interest,2) if short_interest else 0, avg_volume=avg_volume, sector=sector,
-            price_change_pct=price_change_pct, price_change_abs=price_change_abs,
-            market_cap=round(market_cap_raw / 1e9, 2) if market_cap_raw else 0,
-            earnings_sentiment=earnings_sentiment)
-        calculate_composite_score(signal)
-        signal.top_news = fetch_top_news(ticker, count=1)
-        return signal
-    except Exception as e:
-        import traceback; traceback.print_exc(); return None
+            implied_volatility = 0
+            post_earnings_target = 0.0
+            post_earnings_upside_pct = 0.0
+            post_earnings_3d_target = 0.0
+            post_earnings_3d_upside_pct = 0.0
+            post_earnings_5d_target = 0.0
+            post_earnings_5d_upside_pct = 0.0
+            try:
+                opt = stock.option_chain()
+                if opt.calls.shape[0] > 0 and opt.puts.shape[0] > 0 and current_price > 0:
+                    calls = opt.calls.copy()
+                    puts = opt.puts.copy()
+                    calls['abs_ITM'] = abs(calls['strike'] - current_price)
+                    puts['abs_ITM'] = abs(puts['strike'] - current_price)
+                    atm_call = calls.loc[calls['abs_ITM'].idxmin()]
+                    atm_put = puts.loc[puts['abs_ITM'].idxmin()]
+                    call_price = atm_call.get('lastPrice', 0) or atm_call.get('bid', 0) or 0
+                    put_price = atm_put.get('lastPrice', 0) or atm_put.get('bid', 0) or 0
+                    straddle_cost = call_price + put_price
+                    iv_from_straddle = (straddle_cost / current_price) * 100
+                    if iv_from_straddle > 0:
+                        implied_volatility = round(iv_from_straddle, 1)
+                        # PE target = current + straddle x1 (conservative sell)
+                        post_earnings_target = round(current_price + straddle_cost, 2)
+                        post_earnings_upside_pct = round((straddle_cost / current_price) * 100, 1)
+                        # 3D target = current + straddle x3 (mid exit)
+                        post_earnings_3d_target = round(current_price + straddle_cost * 3, 2)
+                        post_earnings_3d_upside_pct = round((straddle_cost * 3 / current_price) * 100, 1)
+                        # 5D target = current + straddle x5 (max upside rotation trade)
+                        post_earnings_5d_target = round(current_price + straddle_cost * 5, 2)
+                        post_earnings_5d_upside_pct = round((straddle_cost * 5 / current_price) * 100, 1)
+                    else:
+                        atm_calls = opt.calls[opt.calls['inTheMoney'] == False]
+                        if len(atm_calls) > 0:
+                            iv = atm_calls.iloc[0].get('impliedVolatility', 0)
+                            implied_volatility = iv * 100 if iv else 0
+            except: pass
+
+            # Fallback: if options failed, scale 12-month target down to post-earnings estimate
+            if post_earnings_upside_pct == 0 and price_target > 0 and current_price > 0:
+                annual_up = ((price_target - current_price) / current_price * 100)
+                post_earnings_upside_pct = round(annual_up * 0.4, 1)
+                post_earnings_target = round(current_price * (1 + post_earnings_upside_pct / 100), 2)
+            short_interest = (info.get('shortPercentOfFloat', 0) or 0) * 100
+            avg_volume = info.get('averageVolume', 0) or info.get('averageDailyVolume10Day', 0) or 0
+            sector = info.get('sector', 'Technology')
+            market_cap_raw = info.get('marketCap', 0) or 0
+            company_name = info.get('longName', info.get('shortName', ticker))
+            days_to_earnings = (earnings_date - datetime.now().date()).days
+            earnings_date_str = earnings_date.strftime('%Y-%m-%d')
+            # Fetch earnings sentiment from last 4 quarters (MUST be before calculate_composite_score)
+            earnings_sentiment = get_earnings_sentiment(ticker)
+            signal = EarningsSignal(ticker=ticker, company_name=company_name, earnings_date=earnings_date_str, days_to_earnings=days_to_earnings,
+                current_price=round(current_price,2) if current_price else 0, price_target=round(price_target,2) if price_target else 0,
+                target_upside_pct=round(target_upside_pct,1) if target_upside_pct else 0,
+                post_earnings_target=post_earnings_target, post_earnings_upside_pct=post_earnings_upside_pct,
+                post_earnings_3d_target=post_earnings_3d_target, post_earnings_3d_upside_pct=post_earnings_3d_upside_pct,
+                post_earnings_5d_target=post_earnings_5d_target, post_earnings_5d_upside_pct=post_earnings_5d_upside_pct,
+                strong_buy_rating=strong_buy_rating, buy_rating=buy_rating, hold_rating=hold_rating, sell_rating=sell_rating,
+                total_analysts=total_analysts, buy_rating_pct=buy_rating_pct, implied_volatility=implied_volatility,
+                short_interest=round(short_interest,2) if short_interest else 0, avg_volume=avg_volume, sector=sector,
+                price_change_pct=price_change_pct, price_change_abs=price_change_abs,
+                market_cap=round(market_cap_raw / 1e9, 2) if market_cap_raw else 0,
+                earnings_sentiment=earnings_sentiment)
+            calculate_composite_score(signal)
+            signal.top_news = fetch_top_news(ticker, count=1)
+            return signal
+        except Exception as e:
+            import traceback; traceback.print_exc()
+    return None
 
 
 def generate_html_report(stocks: list, output_path: str):
