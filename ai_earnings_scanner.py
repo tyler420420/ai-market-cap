@@ -452,7 +452,7 @@ def generate_html_report(stocks: list, output_path: str):
                 news_lines = '<a href="' + item['url'] + '" target="_blank" rel="noopener noreferrer" style="color:#fff;text-decoration:none">' + t + '</a>'
             else:
                 news_lines = '<span style="color:#fff">' + t + '</span>'
-        days_color = '#00ff88' if stock.days_to_earnings == 0 else ('#58a6ff' if stock.days_to_earnings <= 7 else '#ffcc00')
+        days_color = '#ff4444' if stock.days_to_earnings == 0 else ('#ffcc00' if stock.days_to_earnings <= 7 else ('#58a6ff' if stock.days_to_earnings <= 15 else '#00ff88'))
         bg = 'rgba(0,255,136,0.12)' if round(stock.composite_score)>=80 else 'rgba(31,111,235,0.12)'
         #tbody = ''.join(rows_html)
 
@@ -664,7 +664,7 @@ def generate_html_report(stocks: list, output_path: str):
     def row_bg(score):
         return 'rgba(0,255,136,0.12)' if score >= 80 else 'rgba(31,111,235,0.12)'
     def days_color(days):
-        return '#00ff88' if days == 0 else ('#58a6ff' if days <= 7 else '#ffcc00')
+        return '#ff4444' if days == 0 else ('#ffcc00' if days <= 7 else ('#58a6ff' if days <= 15 else '#00ff88'))
     def news_link(news):
         if not news:
             return '--'
