@@ -430,8 +430,9 @@ def generate_html_report(stocks: list, output_path: str):
     strong_buys = [s for s in stocks if round(s.composite_score) >= 75]
     # AI Pick: highest score first, tiebreaker by most days out
     pick = sorted(strong_buys, key=lambda x: (-round(x.composite_score), -x.days_to_earnings))[0] if strong_buys else (stocks[0] if stocks else None)
-    # Runner-up: most days out first, tiebreaker by highest score
-    pick2 = sorted(strong_buys, key=lambda x: (-x.days_to_earnings, -round(x.composite_score)))[1] if len(strong_buys) > 1 else None
+    # Runner-up: most days out first, tiebreaker by highest score (within strong buys)
+    pick2_candidates = [s for s in strong_buys if s != pick]
+    pick2 = sorted(pick2_candidates, key=lambda x: (-x.days_to_earnings, -round(x.composite_score)))[0] if pick2_candidates else None
     pick_profit = pick_sell = pick_color = None
     pick2_profit = pick2_sell = pick2_color = None
     if pick:
