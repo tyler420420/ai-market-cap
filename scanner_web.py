@@ -246,7 +246,7 @@ def cron():
         return "Already ran today", 200
     cron.last_run = today
 
-    def do_scan():
+    def do_scan(label=""):
         today_path = Path(__file__).parent / "ai_earnings_today.html"
         golden_path = Path(__file__).parent / "ai_earnings_golden.html"
 
@@ -259,7 +259,7 @@ def cron():
                 encoding='utf-8', errors='replace', timeout=180,
                 cwd=str(Path(__file__).parent)
             )
-            # STEP 2: Validate - must have rowsData >= 10000 bytes AND contain real stocks
+            # STEP 2: Validate - must have rowsData >= 5000 bytes AND at least 5 stocks
             if today_path.exists():
                 content = today_path.read_text(encoding='utf-8')
                 idx = content.find('var rowsData=')
@@ -274,41 +274,35 @@ def cron():
                                 json_end = i
                                 break
                     json_len = json_end - (idx + 12) + 1
-                    # Count stocks in JSON by counting ticker entries
                     stock_count = content.count('"ticker":')
-                    print(f"[Cron] rowsData={json_len} bytes, stocks={stock_count}")
-                    # MUST have: rowsData >= 5000 bytes AND at least 5 stocks
-                    # 5000 bytes = minimum for a valid scan (was 10000, but 17-stock scans run ~9900 bytes)
+                    print(f"[Cron{label}] rowsData={json_len} bytes, stocks={stock_count}")
                     if json_len >= 5000 and stock_count >= 5:
-                        # SUCCESS - update golden backup
                         import shutil
                         shutil.copy2(today_path, golden_path)
-                        print(f"[Cron] VALID - Golden backup updated ({stock_count} stocks)")
+                        print(f"[Cron{label}] VALID - Golden backup updated ({stock_count} stocks)")
                         scan_succeeded = True
                     else:
-                        print(f"[Cron] INVALID - rowsData={json_len} or stocks={stock_count} too low, restoring golden")
+                        print(f"[Cron{label}] INVALID - rowsData={json_len} or stocks={stock_count} too low, restoring golden")
                         if golden_path.exists():
                             shutil.copy2(golden_path, today_path)
-                            print("[Cron] Restored from golden backup - site stays up")
                         else:
                             print("[Cron] No golden backup found, leaving current file")
                 else:
-                    print("[Cron] rowsData not found, restoring golden")
+                    print(f"[Cron{label}] rowsData not found, restoring golden")
                     if golden_path.exists():
                         shutil.copy2(golden_path, today_path)
-            print("[Cron] Scan output:", result.stdout[-500:] if result.stdout else "no output")
+            print(f"[Cron{label}] Scan output:", result.stdout[-500:] if result.stdout else "no output")
         except Exception as e:
-            print(f"[Cron] Scan error: {e}")
+            print(f"[Cron{label}] Scan error: {e}")
             if golden_path.exists():
                 import shutil
                 shutil.copy2(golden_path, today_path)
-                print("[Cron] Restored from golden after error - site stays up")
 
         # STEP 3: Self-heal — if fewer than 12 stocks, re-run once automatically
         if scan_succeeded:
             heal_count = today_path.read_text(encoding='utf-8').count('"ticker":')
             if heal_count < 12:
-                print(f"[Heal] Only {heal_count} stocks, re-running scanner...")
+                print(f"[Heal{label}] Only {heal_count} stocks, re-running scanner...")
                 try:
                     result = subprocess.run(
                         [sys.executable, str(Path(__file__).parent / "ai_earnings_scanner.py")],
@@ -319,16 +313,102 @@ def cron():
                     new_content = today_path.read_text(encoding='utf-8')
                     new_count = new_content.count('"ticker":')
                     if new_count > heal_count:
+                        import shutil
                         shutil.copy2(today_path, golden_path)
-                        print(f"[Heal] Re-scan improved to {new_count} stocks, golden updated")
+                        print(f"[Heal{label}] Re-scan improved to {new_count} stocks, golden updated")
                 except Exception as e:
-                    print(f"[Heal] Re-scan error: {e}")
+                    print(f"[Heal{label}] Re-scan error: {e}")
 
-        # STEP 4: Done — Twitter post is handled separately by /cron-twitter (avoid double-post)
+        # STEP 4: Done — Twitter post handled by /cron-twitter after morning scan only
         return scan_succeeded
+
+    def do_afternoon():
+        # Separate state tracking for afternoon scan
+        now = datetime.now(PT)
+        today = now.date()
+        force = request.args.get('force') == '1'
+        if not force and getattr(do_afternoon, 'last_run', None) == today:
+            print("[Cron-Afternoon] Already ran today")
+            return
+        do_afternoon.last_run = today
+        do_scan(label="[Afternoon]")
 
     threading.Thread(target=do_scan, daemon=True).start()
     return "Scan triggered", 200
+
+
+@app.route("/cron-afternoon")
+def cron_afternoon():
+    """Triggered by cron-job.org at 1:00 PM PT daily"""
+    def do_afternoon():
+        now = datetime.now(PT)
+        today = now.date()
+        force = request.args.get('force') == '1'
+        if not force and getattr(do_afternoon, 'last_run', None) == today:
+            print("[Cron-Afternoon] Already ran today")
+            return
+        do_afternoon.last_run = today
+        today_path = Path(__file__).parent / "ai_earnings_today.html"
+        golden_path = Path(__file__).parent / "ai_earnings_golden.html"
+        scan_succeeded = False
+        try:
+            result = subprocess.run(
+                [sys.executable, str(Path(__file__).parent / "ai_earnings_scanner.py")],
+                capture_output=True, text=True,
+                encoding='utf-8', errors='replace', timeout=180,
+                cwd=str(Path(__file__).parent)
+            )
+            if today_path.exists():
+                content = today_path.read_text(encoding='utf-8')
+                idx = content.find('var rowsData=')
+                if idx >= 0:
+                    arr_depth, json_end = 0, idx
+                    for i in range(idx + 12, len(content)):
+                        ch = content[i]
+                        if ch == '[': arr_depth += 1
+                        elif ch == ']':
+                            arr_depth -= 1
+                            if arr_depth == 0:
+                                json_end = i
+                                break
+                    json_len = json_end - (idx + 12) + 1
+                    stock_count = content.count('"ticker":')
+                    print(f"[Cron-Afternoon] rowsData={json_len} bytes, stocks={stock_count}")
+                    if json_len >= 5000 and stock_count >= 5:
+                        import shutil
+                        shutil.copy2(today_path, golden_path)
+                        print(f"[Cron-Afternoon] VALID - Golden backup updated ({stock_count} stocks)")
+                        scan_succeeded = True
+                    else:
+                        print(f"[Cron-Afternoon] INVALID, restoring golden")
+                        if golden_path.exists():
+                            shutil.copy2(golden_path, today_path)
+                else:
+                    if golden_path.exists():
+                        shutil.copy2(golden_path, today_path)
+            print("[Cron-Afternoon] Scan output:", result.stdout[-500:] if result.stdout else "no output")
+        except Exception as e:
+            print(f"[Cron-Afternoon] Scan error: {e}")
+            if golden_path.exists():
+                import shutil
+                shutil.copy2(golden_path, today_path)
+        if scan_succeeded:
+            heal_count = today_path.read_text(encoding='utf-8').count('"ticker":')
+            if heal_count < 12:
+                print(f"[Heal-Afternoon] Only {heal_count} stocks, re-running...")
+                try:
+                    subprocess.run(
+                        [sys.executable, str(Path(__file__).parent / "ai_earnings_scanner.py")],
+                        capture_output=True, text=True,
+                        encoding='utf-8', errors='replace', timeout=180,
+                        cwd=str(Path(__file__).parent)
+                    )
+                    import shutil
+                    shutil.copy2(today_path, golden_path)
+                except Exception as e:
+                    print(f"[Heal-Afternoon] Re-scan error: {e}")
+    threading.Thread(target=do_afternoon, daemon=True).start()
+    return "Afternoon scan triggered", 200
 
 
 @app.route("/cron-twitter")
