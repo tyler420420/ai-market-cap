@@ -245,7 +245,7 @@ def calculate_composite_score(stock: EarningsSignal) -> float:
     return stock.composite_score
 
 
-def get_earnings_window(days_ahead: int = 30, window_min: int = 0, window_max: int = 30) -> List[str]:
+def get_earnings_window(days_ahead: int = 40, window_min: int = 0, window_max: int = 40) -> List[str]:
     """Return AI tickers with earnings in the next N days, sorted by days-to-earnings."""
     results = []
     today = datetime.now().date()
@@ -286,7 +286,7 @@ def get_earnings_window(days_ahead: int = 30, window_min: int = 0, window_max: i
                         if isinstance(earnings_date, datetime):
                             earnings_date = earnings_date.date()
                         days_out = (earnings_date - today).days
-                        if 1 <= days_out <= 30:
+                        if 1 <= days_out <= 40:
                             results.append((ticker, earnings_date, days_out))
                             print(f"  {ticker}: {earnings_date} ({days_out} days)")
             except:
@@ -814,7 +814,7 @@ EARNINGS_OVERRIDES = {
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--days', type=int, default=30, help='Days ahead to scan (1-30)')
+    parser.add_argument('--days', type=int, default=40, help='Days ahead to scan (1-40)')
     parser.add_argument('--top', type=int, default=20)
     parser.add_argument('--local', action='store_true', help='Use local desktop paths (favicon, etc.)')
     args = parser.parse_args()
