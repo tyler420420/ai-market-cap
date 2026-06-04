@@ -601,7 +601,7 @@ li { color: #c9d1d9; font-size: 0.95em; line-height: 1.7; margin-bottom: 6px; }
     <p class=faq-q>What data sources are used?</p>
     <p>Stock prices and option data come from Yahoo Finance. Analyst ratings are pulled from Yahoo Finance's recommendations endpoint. News is sourced from Yahoo Finance market articles.</p>
     <p class=faq-q>What does "days left" mean?</p>
-    <p>Days until the next earnings report date. We show stocks within 40 days of reporting.</p>
+    <p>Days until the next earnings report date. We show stocks within 45 days of reporting.</p>
     <p class=faq-q>What does Short % mean?</p>
     <p>Short interest - the percentage of shares that have been sold short and not yet covered. High short interest increases squeeze potential pre-earnings.</p>
     <p class=faq-q>What does IV mean?</p>
