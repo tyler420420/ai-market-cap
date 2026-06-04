@@ -570,7 +570,7 @@ def generate_html_report(stocks: list, output_path: str):
         '<div style="display:flex;gap:6px;align-items:center">'
         '<a href="https://x.com/AIMoneyMach" target="_blank" style="color:#58a6ff;text-decoration:none;display:flex;align-items:center;padding:0 4px"><svg height="18" width="18" viewBox="0 0 24 24" fill="#fff"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>'
         '<span style="background:#161b22;border:1px solid #2ea043;border-radius:5px;padding:3px 10px;font-size:0.82em"><span style="font-weight:bold;color:#2ea043">' + str(strong_count) + '</span> <span style="color:#8b949e">Strong Buy</span></span>'
-        '<span style="background:#161b22;border:1px solid #1f6feb;border-radius:5px;padding:3px 10px;font-size:0.82em"><span style="font-weight:bold;color:#58a6ff">' + str(sum(1 for s in stocks if 50 <= round(s.composite_score) < 80)) + '</span> <span style="color:#8b949e">Watch</span></span>'
+        '<span style="background:#161b22;border:1px solid #1f6feb;border-radius:5px;padding:3px 10px;font-size:0.82em"><span style="font-weight:bold;color:#58a6ff">' + str(sum(1 for s in stocks if 50 <= round(s.composite_score) < 75)) + '</span> <span style="color:#8b949e">Watch</span></span>'
         '</div>'
         '</div>'
     )
