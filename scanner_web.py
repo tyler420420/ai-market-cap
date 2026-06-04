@@ -583,7 +583,7 @@ h2 { color: #fff; font-size: 2em; margin-bottom: 10px; }
             <div class=price>$149<span>/mo</span></div>
             <div class=period>Billed monthly</div>
             <ul>
-                <li>3 Scans Per Day</li>
+                <li>2 Additional Scans Per Day</li>
                 <li>AI Chat Pro Trader</li>
             </ul>
             <a href="/create-checkout?plan=monthly" class=cta>Subscribe - $149/mo</a>
