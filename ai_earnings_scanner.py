@@ -423,11 +423,11 @@ def generate_html_report(stocks: list, output_path: str):
     timestamp = datetime.now(PT).strftime('%B %d, %Y at %I:%M %p PT')
 
     def score_color(s):
-        return '#00ff88' if round(s) >= 80 else '#58a6ff'
+        return '#00ff88' if round(s) >= 75 else '#58a6ff'
 
     # Pre-compute all derived values before building HTML
-    strong_count = sum(1 for s in stocks if round(s.composite_score) >= 80)
-    strong_buys = [s for s in stocks if round(s.composite_score) >= 80]
+    strong_count = sum(1 for s in stocks if round(s.composite_score) >= 75)
+    strong_buys = [s for s in stocks if round(s.composite_score) >= 75]
     pick = sorted(strong_buys, key=lambda x: -x.days_to_earnings)[0] if strong_buys else (stocks[0] if stocks else None)
     pick2 = sorted(strong_buys, key=lambda x: -x.days_to_earnings)[1] if len(strong_buys) > 1 else None
     pick_profit = pick_sell = pick_color = None
@@ -666,9 +666,9 @@ def generate_html_report(stocks: list, output_path: str):
     import json
     # Build static table rows in Python - no JS needed for display
     def score_color_css(score):
-        return '#00ff88' if score >= 80 else '#58a6ff'
+        return '#00ff88' if score >= 75 else '#58a6ff'
     def row_bg(score):
-        return 'rgba(0,255,136,0.12)' if score >= 80 else 'rgba(31,111,235,0.12)'
+        return 'rgba(0,255,136,0.12)' if score >= 75 else 'rgba(31,111,235,0.12)'
     def days_color(days):
         return '#ff4444' if days == 0 else ('#ffcc00' if days <= 7 else ('#58a6ff' if days <= 15 else '#00ff88'))
     def news_link(news):
@@ -901,7 +901,7 @@ def main():
 
     # === SAVE PICK TRACKER ===
     # Track AI pick and runner-up with entry prices for win tracking
-    strong_buys = [s for s in stocks if round(s.composite_score) >= 80]
+    strong_buys = [s for s in stocks if round(s.composite_score) >= 75]
     strong_buys.sort(key=lambda x: -x.days_to_earnings)
     pick_data = []
     today_str = datetime.now().strftime('%Y-%m-%d')

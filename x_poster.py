@@ -304,8 +304,8 @@ def post_daily_scan_to_twitter():
             d for d in state['pick_history'] if d.get('date', '') >= three_days_ago
         ]
 
-    # Save today's picks for price monitoring (score >= 80)
-    watch_list = [s for s in stocks if s.get('score', 0) >= 80]
+    # Save today's picks for price monitoring (score >= 75)
+    watch_list = [s for s in stocks if s.get('score', 0) >= 75]
     state['saved_picks'] = {
         s.get('ticker'): {
             'name': s.get('company_name', s.get('name', '')),

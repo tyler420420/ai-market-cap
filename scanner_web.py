@@ -656,7 +656,7 @@ li { color: #c9d1d9; font-size: 0.95em; line-height: 1.7; margin-bottom: 6px; }
         <strong>5D Upside (15pts max)</strong> — ATM straddle × 5, expressed as % of current stock price. Higher implied move potential = higher score.<br><br>
         <strong>Earnings Sentiment (15pts max)</strong> — Recent earnings history. Positive = 15pts, Mixed = 7pts, Negative = 0pts.
     </div>
-    <p>Stocks scoring <strong style="color:#00ff88">80+</strong> are flagged Strong Buy. Stocks scoring <strong style="color:#58a6ff">50+</strong> are Watch.</p>
+    <p>Stocks scoring <strong style="color:#00ff88">75+</strong> are flagged Strong Buy. Stocks scoring <strong style="color:#58a6ff">50+</strong> are Watch.</p>
 
     <h2 id=targets>PE / 3-Day / 5-Day Target Columns</h2>
     <h3>PE Target</h3>
@@ -669,7 +669,7 @@ li { color: #c9d1d9; font-size: 0.95em; line-height: 1.7; margin-bottom: 6px; }
     <p>An ATM straddle buys both a call and a put at the same strike. Its value changes based on how much the stock moves, regardless of direction. We use the straddle price to back-calculate what stock move is being priced in by the market.</p>
 
     <h2 id=ai>AI Suggested Trade</h2>
-    <p>The banner at the top highlights the best trade opportunity — the strong buy (score 80+) with the most days until earnings. Having more time to enter gives you flexibility and better positioning before the report.</p>
+    <p>The banner at the top highlights the best trade opportunity — the strong buy (score 75+) with the most days until earnings. Having more time to enter gives you flexibility and better positioning before the report.</p>
     <p>A runner-up pick is also shown — the 2nd best strong buy by days left. Both banners update automatically every scan.</p>
     <p>This is not financial advice. It's AI's trading observations on where the math and momentum align.</p>
 
