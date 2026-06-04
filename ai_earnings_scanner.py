@@ -1,4 +1,4 @@
-﻿"""AI Earnings Scanner - Pre-Earnings Momentum Strategy (1-30 day window)"""
+﻿"""AI Earnings Scanner - Pre-Earnings Momentum Strategy (1-45 day window)"""
 import argparse, csv, os, sys, time
 from datetime import datetime, timedelta, timezone
 import time as _time
@@ -245,7 +245,7 @@ def calculate_composite_score(stock: EarningsSignal) -> float:
     return stock.composite_score
 
 
-def get_earnings_window(days_ahead: int = 40, window_min: int = 0, window_max: int = 40) -> List[str]:
+def get_earnings_window(days_ahead: int = 45, window_min: int = 0, window_max: int = 45) -> List[str]:
     """Return AI tickers with earnings in the next N days, sorted by days-to-earnings."""
     results = []
     today = datetime.now().date()
@@ -286,7 +286,7 @@ def get_earnings_window(days_ahead: int = 40, window_min: int = 0, window_max: i
                         if isinstance(earnings_date, datetime):
                             earnings_date = earnings_date.date()
                         days_out = (earnings_date - today).days
-                        if 1 <= days_out <= 40:
+                        if 1 <= days_out <= 45:
                             results.append((ticker, earnings_date, days_out))
                             print(f"  {ticker}: {earnings_date} ({days_out} days)")
             except:
@@ -814,7 +814,7 @@ EARNINGS_OVERRIDES = {
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--days', type=int, default=40, help='Days ahead to scan (1-40)')
+    parser.add_argument('--days', type=int, default=45, help='Days ahead to scan (1-45)')
     parser.add_argument('--top', type=int, default=20)
     parser.add_argument('--local', action='store_true', help='Use local desktop paths (favicon, etc.)')
     args = parser.parse_args()
