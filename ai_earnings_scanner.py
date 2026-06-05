@@ -195,6 +195,18 @@ AI_TICKERS = [
     'VNET', 'ZTO', 'JD', 'BIDU', 'TCEHY', 'TME', 'IQ', 'YY', 'MOMO', 'TAL', 'EDU', 'BZUN',
     # ADVERTISING (12)
     'IPG', 'OMC', 'NWS', 'NWSA', 'FOX', 'FOXA', 'GCI', 'INMA', 'INOC', 'INVE', 'CTVA', 'MSGW',
+    # CUSTOM SILICON / AI ASIC (8)
+    'GOOG', 'AMZN', 'MSFT', 'META', 'NVDA', 'AMD', 'MRVL', 'INTC',
+    # SMART BUILDING / IoT (8)
+    'HON', 'EMR', 'SCHN', 'JCI', 'ETN', 'ROK', 'ABM', 'ESNT',
+    # SPACE / SATELLITE TECH (10)
+    'ASTS', 'RKLB', 'MAXR', 'SESG', 'IRDM', 'LLAWW', 'VOX', 'SATL', 'Astra', 'SpaceX',
+    # AUTONOMOUS VEHICLES / LIDAR (10)
+    'LAZR', 'CPTN', 'INVZ', 'MBLY', 'GOOG', 'TSLA', 'NVDA', 'INTC', 'QCOM', 'AAPL',
+    # AI AGENTS / AUTOMATION (12)
+    'AI', 'U', 'PATH', 'NOW', 'CRM', 'WDAY', 'ASAN', 'TEAM', 'ADSK', 'VEEV', 'HUBS', 'FROG',
+    # SMART INFRASTRUCTURE / GRID (10)
+    'VRT', 'ETN', 'XYL', 'FE', 'AES', 'EIX', 'NEE', 'DUK', 'SO', 'D',
 ]
 
 # Permanently excluded tickers (failed / high risk -- do not scan)
