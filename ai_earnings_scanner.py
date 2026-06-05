@@ -207,6 +207,10 @@ AI_TICKERS = [
     'AI', 'U', 'PATH', 'NOW', 'CRM', 'WDAY', 'ASAN', 'TEAM', 'ADSK', 'VEEV', 'HUBS', 'FROG',
     # SMART INFRASTRUCTURE / GRID (10)
     'VRT', 'ETN', 'XYL', 'FE', 'AES', 'EIX', 'NEE', 'DUK', 'SO', 'D',
+    # SPATIAL COMPUTING / AR / VR (8)
+    'SONY', 'SNAP', 'META', 'U', 'APP', 'PLTR', 'U', 'SNAP',
+    # AI PRECISION AGRICULTURE (8)
+    'TRMB', 'AGCO', 'DE', 'F', 'CAT', 'ROK', 'AMAT', 'LRCX',
 ]
 
 # Permanently excluded tickers (failed / high risk -- do not scan)
