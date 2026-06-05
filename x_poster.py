@@ -128,8 +128,8 @@ def format_top5_tweet(stocks):
         print("[X] No Strong Buy picks to post")
         return False
 
-    # Sort by highest score, tiebreaker by most days left (for main pick in tweet)
-    top5 = sorted(strong, key=lambda x: (-x.get('score', 0), -x.get('days_left', 0)))[:5]
+    # Sort by most days out (same as pick logic)
+    top5 = sorted(strong, key=lambda x: -x.get('days_left', 0))[:5]
 
     lines = ["Daily Top Strong Buy Targets - " + SITE_URL, ""]
 
