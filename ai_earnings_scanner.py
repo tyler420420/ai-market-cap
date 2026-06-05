@@ -155,21 +155,49 @@ def fetch_top_news(ticker: str, count: int = 1) -> List[dict]:
     return headlines
 # AI Infrastructure
 AI_TICKERS = [
+    # SEMICONDUCTORS / CHIP (35)
     'NVDA', 'AMD', 'AVGO', 'MRVL', 'INTC', 'QCOM', 'MU', 'TXN', 'LRCX', 'ASML', 'KLAC', 'AMAT', 'SNPS', 'CDNS', 'CRDO',
-    # AI Cloud/Enterprise
-    'MSFT', 'GOOGL', 'AMZN', 'ORCL', 'NOW', 'SNOW', 'CRM',
-    # AI Cybersecurity
-    'PANW', 'CRWD', 'ZS',
-    # AI Data/Analytics / Niche AI plays
-    'INOD', 'DDOG', 'PLTR', 'AI', 'U', 'HPC', 'RAIN', 'GRAB',
-    # Additional AI-niche
-    'INTU', 'ADBE', 'TEAM', 'ADSK', 'CFLT', 'APP', 'VEEV', 'PATH',
-    # EV/Solar AI plays
-    'ENPH', 'SEDG', 'JKS', 'FSLR',
-    # AI Healthcare/Biotech
-    'MRNA', 'BILL',
-    # AI Media/Other
-    'UAA', 'LYFT', 'DOCU',
+    'TSM', 'SMCI', 'MCHP', 'NXPI', 'ON', 'MPWR', 'QRVO', 'SWKS', 'TER', 'GEN', 'KEYS', 'FORM', 'SLAB', 'KLA', 'VEECO', 'ENTG', 'ANSS', 'CAMT', 'CRSR', 'LOGI', 'DIOD', 'MXL',
+    # AI CLOUD / HYPERSCALER (12)
+    'MSFT', 'GOOGL', 'AMZN', 'ORCL', 'NOW', 'SNOW', 'CRM', 'WDAY', 'INTU', 'SAP', 'DBX', 'ZM',
+    # AI CYBERSECURITY (10)
+    'PANW', 'CRWD', 'ZS', 'FTNT', 'NET', 'OKTA', 'SPLK', 'HUBS', 'VEEV', 'FROG',
+    # AI DATA / ANALYTICS (14)
+    'INOD', 'DDOG', 'PLTR', 'HPC', 'GRAB', 'MDB', 'EPAM', 'CFLT', 'BILL', 'APP', 'DNLI', 'GLOB', 'SUMO', 'UI',
+    # DEV TOOLS / IT MANAGEMENT (12)
+    'TEAM', 'ADSK', 'PATH', 'WIX', 'DOCU', 'TWLO', 'SMAR', 'PCTY', 'COIN', 'SQSP', 'ZEN', 'LYFT',
+    # FINTECH / PAYMENTS (14)
+    'V', 'MA', 'PYPL', 'SQ', 'AFRM', 'SOFI', 'UPST', 'GPN', 'FIS', 'FISV', 'NAVI', 'ALLY', 'WAL', 'GPRO',
+    # EV / CLEAN ENERGY / SOLAR (14)
+    'TSLA', 'ENPH', 'SEDG', 'FSLR', 'RUN', 'NEE', 'BE', 'SMR', 'CEG', 'VST', 'ENLV', 'AMCR', 'JKS', 'NOVA',
+    # BIOTECH / HEALTH AI (12)
+    'MRNA', 'EXAS', 'ILMN', 'BIIB', 'REGN', 'VRTX', 'ISRG', 'DXCM', 'ALGN', 'TECH', 'BMRN', 'EXEL',
+    # MEDIA / ENTERTAINMENT (12)
+    'NFLX', 'DIS', 'WBD', 'PARA', 'MGM', 'CMCSA', 'ROKU', 'PENN', 'DKNG', 'META', 'SPOT', 'SNAP',
+    # HARDWARE / INFRASTRUCTURE (14)
+    'AAPL', 'DELL', 'HPQ', 'HPE', 'ANET', 'PTC', 'SWK', 'ITW', 'PH', 'PKE', 'ESIO', 'HOLX', 'VRSN', 'GEHC',
+    # DEFENSE / AEROSPACE TECH (14)
+    'BA', 'LMT', 'RTX', 'NOC', 'GD', 'LHX', 'TDY', 'HII', 'SAIC', 'CACI', 'LDOS', 'TXT', 'AIMC', 'AIR',
+    # LOGISTICS / SUPPLY CHAIN (8)
+    'CHRW', 'JBHT', 'CARR', 'EXPD', 'FDX', 'UPS', 'DAL', 'GXO',
+    # CONSUMER TECH (12)
+    'UBER', 'ABNB', 'RBLX', 'CPNG', 'MELI', 'SHOP', 'SE', 'BIDU', 'BILI', 'PINS', 'UAA', 'CHWY',
+    # ROBOTICS / INDUSTRIAL AI (8)
+    'IRBT', 'ISRG', 'ROK', 'EMR', 'HON', 'ETN', 'AME', 'JCI',
+    # SEMI MATERIALS / CHEMICALS (6)
+    'APD', 'IFF', 'ECL', 'SHW', 'PPG', 'RPM',
+    # MISC LARGE TECH (8)
+    'TTD', 'MRVI', 'GOOG', 'FAST', 'DT', 'VMW', 'ADBE', 'LHX',
+    # ADDITIONAL SEMI / CHIP (10)
+    'LSCC', 'POWI', 'MSTR', 'COIN', 'RIOT', 'SMCI', 'SOXL', 'TSM', 'AMAT', 'LRCX',
+    # AI INFRA / CLOUD (10)
+    'CSCO', 'ANET', 'FSLR', 'WDC', 'STX', 'NTAP', 'HPN', 'VMW', 'DELL', 'GPRO',
+    # GAMING / ESPORTS / MEDIA (8)
+    'EA', 'TTWO', 'NTDOY', 'RBLX', 'GAME', 'IMPP', 'BILI', 'SE',
+    # FINTECH / NEO BANKING (8)
+    'AFRM', 'SOFI', 'UPST', 'RBLX', 'MELI', 'SQSP', 'NU', 'HOOD',
+    # CLEAN TECH / GRID (7)
+    'ENPH', 'SEDG', 'FSLR', 'RUN', 'NEE', 'BE', 'SMR',
 ]
 
 # Permanently excluded tickers (failed / high risk -- do not scan)
