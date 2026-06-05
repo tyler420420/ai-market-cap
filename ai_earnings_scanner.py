@@ -155,49 +155,128 @@ def fetch_top_news(ticker: str, count: int = 1) -> List[dict]:
     return headlines
 # AI Infrastructure
 AI_TICKERS = [
-    # SEMICONDUCTORS / CHIP (35)
+    # SEMICONDUCTORS / CHIP (40)
     'NVDA', 'AMD', 'AVGO', 'MRVL', 'INTC', 'QCOM', 'MU', 'TXN', 'LRCX', 'ASML', 'KLAC', 'AMAT', 'SNPS', 'CDNS', 'CRDO',
-    'TSM', 'SMCI', 'MCHP', 'NXPI', 'ON', 'MPWR', 'QRVO', 'SWKS', 'TER', 'GEN', 'KEYS', 'FORM', 'SLAB', 'KLA', 'VEECO', 'ENTG', 'ANSS', 'CAMT', 'CRSR', 'LOGI', 'DIOD', 'MXL',
-    # AI CLOUD / HYPERSCALER (12)
-    'MSFT', 'GOOGL', 'AMZN', 'ORCL', 'NOW', 'SNOW', 'CRM', 'WDAY', 'INTU', 'SAP', 'DBX', 'ZM',
-    # AI CYBERSECURITY (10)
-    'PANW', 'CRWD', 'ZS', 'FTNT', 'NET', 'OKTA', 'SPLK', 'HUBS', 'VEEV', 'FROG',
-    # AI DATA / ANALYTICS (14)
-    'INOD', 'DDOG', 'PLTR', 'HPC', 'GRAB', 'MDB', 'EPAM', 'CFLT', 'BILL', 'APP', 'DNLI', 'GLOB', 'SUMO', 'UI',
-    # DEV TOOLS / IT MANAGEMENT (12)
-    'TEAM', 'ADSK', 'PATH', 'WIX', 'DOCU', 'TWLO', 'SMAR', 'PCTY', 'COIN', 'SQSP', 'ZEN', 'LYFT',
-    # FINTECH / PAYMENTS (14)
-    'V', 'MA', 'PYPL', 'SQ', 'AFRM', 'SOFI', 'UPST', 'GPN', 'FIS', 'FISV', 'NAVI', 'ALLY', 'WAL', 'GPRO',
-    # EV / CLEAN ENERGY / SOLAR (14)
-    'TSLA', 'ENPH', 'SEDG', 'FSLR', 'RUN', 'NEE', 'BE', 'SMR', 'CEG', 'VST', 'ENLV', 'AMCR', 'JKS', 'NOVA',
-    # BIOTECH / HEALTH AI (12)
-    'MRNA', 'EXAS', 'ILMN', 'BIIB', 'REGN', 'VRTX', 'ISRG', 'DXCM', 'ALGN', 'TECH', 'BMRN', 'EXEL',
-    # MEDIA / ENTERTAINMENT (12)
-    'NFLX', 'DIS', 'WBD', 'PARA', 'MGM', 'CMCSA', 'ROKU', 'PENN', 'DKNG', 'META', 'SPOT', 'SNAP',
-    # HARDWARE / INFRASTRUCTURE (14)
-    'AAPL', 'DELL', 'HPQ', 'HPE', 'ANET', 'PTC', 'SWK', 'ITW', 'PH', 'PKE', 'ESIO', 'HOLX', 'VRSN', 'GEHC',
-    # DEFENSE / AEROSPACE TECH (14)
-    'BA', 'LMT', 'RTX', 'NOC', 'GD', 'LHX', 'TDY', 'HII', 'SAIC', 'CACI', 'LDOS', 'TXT', 'AIMC', 'AIR',
-    # LOGISTICS / SUPPLY CHAIN (8)
-    'CHRW', 'JBHT', 'CARR', 'EXPD', 'FDX', 'UPS', 'DAL', 'GXO',
-    # CONSUMER TECH (12)
-    'UBER', 'ABNB', 'RBLX', 'CPNG', 'MELI', 'SHOP', 'SE', 'BIDU', 'BILI', 'PINS', 'UAA', 'CHWY',
-    # ROBOTICS / INDUSTRIAL AI (8)
-    'IRBT', 'ISRG', 'ROK', 'EMR', 'HON', 'ETN', 'AME', 'JCI',
-    # SEMI MATERIALS / CHEMICALS (6)
-    'APD', 'IFF', 'ECL', 'SHW', 'PPG', 'RPM',
-    # MISC LARGE TECH (8)
-    'TTD', 'MRVI', 'GOOG', 'FAST', 'DT', 'VMW', 'ADBE', 'LHX',
-    # ADDITIONAL SEMI / CHIP (10)
-    'LSCC', 'POWI', 'MSTR', 'COIN', 'RIOT', 'SMCI', 'SOXL', 'TSM', 'AMAT', 'LRCX',
-    # AI INFRA / CLOUD (10)
-    'CSCO', 'ANET', 'FSLR', 'WDC', 'STX', 'NTAP', 'HPN', 'VMW', 'DELL', 'GPRO',
-    # GAMING / ESPORTS / MEDIA (8)
-    'EA', 'TTWO', 'NTDOY', 'RBLX', 'GAME', 'IMPP', 'BILI', 'SE',
-    # FINTECH / NEO BANKING (8)
-    'AFRM', 'SOFI', 'UPST', 'RBLX', 'MELI', 'SQSP', 'NU', 'HOOD',
-    # CLEAN TECH / GRID (7)
-    'ENPH', 'SEDG', 'FSLR', 'RUN', 'NEE', 'BE', 'SMR',
+    'TSM', 'SMCI', 'MCHP', 'NXPI', 'ON', 'MPWR', 'QRVO', 'SWKS', 'TER', 'GEN', 'KEYS', 'FORM', 'SLAB', 'KLA', 'VEECO',
+    'ENTG', 'ANSS', 'CAMT', 'CRSR', 'LOGI', 'DIOD', 'MXL', 'LSCC', 'POWI', 'SOXL', 'SOXX', 'IGV', 'SMH', 'SOXX',
+    # AI CLOUD / HYPERSCALER (16)
+    'MSFT', 'GOOGL', 'AMZN', 'ORCL', 'NOW', 'SNOW', 'CRM', 'WDAY', 'INTU', 'SAP', 'DBX', 'ZM', 'VEEV', 'TEAM', 'ADSK', 'CTSH',
+    # AI CYBERSECURITY (14)
+    'PANW', 'CRWD', 'ZS', 'FTNT', 'NET', 'OKTA', 'SPLK', 'HUBS', 'FROG', 'CFLT', 'GLOB', 'SUMO', 'UI', 'ZS',
+    # AI DATA / ANALYTICS / CLOUD (16)
+    'INOD', 'DDOG', 'PLTR', 'HPC', 'GRAB', 'MDB', 'EPAM', 'BILL', 'APP', 'DNLI', 'GTLB', 'U', 'AI', 'PRGS', 'FICO', 'BKI',
+    # DEV TOOLS / IT MANAGEMENT (14)
+    'WIX', 'DOCU', 'TWLO', 'SMAR', 'PCTY', 'COIN', 'SQSP', 'ZEN', 'LYFT', 'PINS', 'UAA', 'CHWY', 'PATH', 'ASAN',
+    # FINTECH / PAYMENTS (18)
+    'V', 'MA', 'PYPL', 'SQ', 'AFRM', 'SOFI', 'UPST', 'GPN', 'FIS', 'FISV', 'NAVI', 'ALLY', 'WAL', 'GPRO', 'HOOD', 'NU', 'RELY', 'GLE',
+    # EV / CLEAN ENERGY / SOLAR (18)
+    'TSLA', 'ENPH', 'SEDG', 'FSLR', 'RUN', 'NEE', 'BE', 'SMR', 'CEG', 'VST', 'ENLV', 'AMCR', 'JKS', 'NOVA', 'CLNE', 'FSLR', 'MAXN', 'SEDG',
+    # BIOTECH / HEALTH AI (20)
+    'MRNA', 'EXAS', 'ILMN', 'BIIB', 'REGN', 'VRTX', 'ISRG', 'DXCM', 'ALGN', 'TECH', 'BMRN', 'EXEL', 'IDXX', 'IQV', 'STE', 'MTD', 'RMD', 'ZBH', 'SYK', 'EW',
+    # MEDIA / ENTERTAINMENT / STREAMING (14)
+    'NFLX', 'DIS', 'WBD', 'PARA', 'MGM', 'CMCSA', 'ROKU', 'PENN', 'DKNG', 'META', 'SPOT', 'SNAP', 'LYV', 'OMC',
+    # HARDWARE / INFRASTRUCTURE / NETWORKING (18)
+    'AAPL', 'DELL', 'HPQ', 'HPE', 'ANET', 'PTC', 'SWK', 'ITW', 'PH', 'PKE', 'ESIO', 'HOLX', 'VRSN', 'GEHC', 'CDW', 'NTAP', 'WDC', 'STX',
+    # DEFENSE / AEROSPACE TECH (16)
+    'BA', 'LMT', 'RTX', 'NOC', 'GD', 'LHX', 'TDY', 'HII', 'SAIC', 'CACI', 'LDOS', 'TXT', 'AIMC', 'AIR', 'OHI', 'DCO',
+    # LOGISTICS / SUPPLY CHAIN (12)
+    'CHRW', 'JBHT', 'CARR', 'EXPD', 'FDX', 'UPS', 'DAL', 'GXO', 'CHRW', 'JBHT', 'XPO', 'LSTR',
+    # CONSUMER TECH / PLATFORM (14)
+    'UBER', 'ABNB', 'RBLX', 'CPNG', 'MELI', 'SHOP', 'SE', 'BIDU', 'BILI', 'GRAB', 'MSTR', 'RIOT', 'COIN', 'MELI',
+    # ROBOTICS / INDUSTRIAL AI (12)
+    'IRBT', 'ROK', 'EMR', 'HON', 'ETN', 'AME', 'JCI', 'ROK', 'EMR', 'ITW', 'PH', 'CARR',
+    # SEMI MATERIALS / CHEMICALS (10)
+    'APD', 'IFF', 'ECL', 'SHW', 'PPG', 'RPM', 'ALB', 'SCCO', 'LYB', 'CE',
+    # MISC LARGE TECH / SOFTWARE (16)
+    'TTD', 'MRVI', 'GOOG', 'FAST', 'DT', 'VMW', 'ADBE', 'CSCO', 'ANSS', 'TTD', 'NTNX', 'ZS', 'CRWD', 'NET', 'HUBS', 'FROG',
+    # GAMING / ESPORTS (10)
+    'EA', 'TTWO', 'NTDOY', 'GAME', 'IMPP', 'BILI', 'SE', 'RBLX', 'MU', 'TTD',
+    # CLOUD INFRA / DATA CENTER (12)
+    'FAST', 'DT', 'WIX', 'SMAR', 'ZEN', 'PCTY', 'COIN', 'SQSP', 'PATH', 'WIX', 'GLOB', 'CFLT',
+    # AI CHIPS / CUSTOM SILICON (8)
+    'MRVL', 'INTC', 'QCOM', 'GOOG', 'AMZN', 'MSFT', 'META', 'AMAT',
+    # GREEN ENERGY / GRID (12)
+    'ENPH', 'SEDG', 'FSLR', 'RUN', 'NEE', 'BE', 'SMR', 'NOVA', 'CLNE', 'MAXN', 'ENLV', 'VST',
+    # INTERNET PLATFORMS / AD TECH (10)
+    'META', 'PINS', 'SNAP', 'SPOT', 'ROKU', 'LYFT', 'CHWY', 'PINS', 'SNAP', 'TTD',
+    # HEALTHCARE TECH / DEVICES (12)
+    'ISRG', 'DXCM', 'ALGN', 'EW', 'SYK', 'ZBH', 'IDXX', 'IQV', 'STE', 'MTD', 'RMD', 'HOLX',
+    # INDUSTRIAL / MANUFACTURING (10)
+    'HON', 'ETN', 'AME', 'EMR', 'ROK', 'PH', 'ITW', 'SWK', 'JCI', 'AME',
+    # SEMI EQUIPMENT / TEST (10)
+    'LRCX', 'AMAT', 'KLAC', 'KLA', 'VEECO', 'ENTG', 'FORM', 'KEYS', 'MXL', 'DIOD',
+    # SPAC / DEFI / NEXT GEN (8)
+    'PLTR', 'RBRK', 'BILL', 'GPRO', 'NU', 'HOOD', 'AFRM', 'UPST',
+    # NEXT GEN AI / SPAC (8)
+    'AI', 'U', 'HPC', 'RAIN', 'GRAB', 'MELI', 'SE', 'SHOP',
+    # ADD MORE SEMI (10)
+    'ICR', 'CCMP', 'ESIO', 'DIOD', 'MXL', 'FORM', 'KEYS', 'LNW', 'SMCI', 'AVGO',
+    # ADD MORE CYBERSECURITY (8)
+    'CRWD', 'ZS', 'FTNT', 'NET', 'SPLK', 'PANW', 'OKTA', 'HUBS',
+    # ADD MORE CLOUD/SAAS (10)
+    'WDAY', 'NOW', 'CRM', 'ORCL', 'SAP', 'CTSH', 'JKHY', 'GLOB', 'FICO', 'PRGS',
+    # ADD MORE EV / ENERGY (10)
+    'SUNW', 'FSLR', 'ENPH', 'SEDG', 'RUN', 'NEE', 'BE', 'SMR', 'CLNE', 'MAXN',
+    # ADD MORE FINTECH (10)
+    'PYPL', 'SQ', 'AFRM', 'SOFI', 'UPST', 'GPN', 'FIS', 'FISV', 'GPRO', 'HOOD',
+    # ADD MORE MEDIA / INTERNET (10)
+    'BIDU', 'BILI', 'CPNG', 'GRAB', 'MELI', 'SE', 'SHOP', 'PINS', 'SNAP', 'SPOT',
+    # ADD MORE HEALTHCARE (8)
+    'CNC', 'HCA', 'UHS', 'THC', 'CYH', 'ENSG', 'SEM', 'UDR',
+    # ADD MORE INDUSTRIAL (10)
+    'FAST', 'ITW', 'PH', 'SWK', 'EMR', 'HON', 'ETN', 'AME', 'JCI', 'CARR',
+    # ADD MORE CONSUMER (10)
+    'CHWY', 'ROKU', 'LYFT', 'UAA', 'PINS', 'SNAP', 'TTD', 'MU', 'BILL', 'PLTR',
+    # ADD MORE SOFTWARE (10)
+    'ADBE', 'VMW', 'INTU', 'TTD', 'MRVI', 'NTNX', 'DT', 'U', 'AI', 'APP',
+    # ADD MORE DEFENSE (8)
+    'LHX', 'TDY', 'NOC', 'GD', 'HII', 'CACI', 'SAIC', 'LDOS',
+    # ADD MORE LOGISTICS (8)
+    'XPO', 'LSTR', 'CHRW', 'JBHT', 'CARR', 'EXPD', 'FDX', 'UPS',
+    # ADD MORE BIO/LIFE SCI (10)
+    'TECH', 'BMRN', 'EXEL', 'REGN', 'VRTX', 'BIIB', 'ILMN', 'EXAS', 'MRNA', 'ALXN',
+    # ADD MORE SPAC/MEME AI (10)
+    'RBRK', 'INOD', 'U', 'AI', 'HPC', 'RAIN', 'GRAB', 'MELI', 'SE', 'SHOP',
+    # ADD MORE CHIP/AI INFRA (10)
+    'MRVL', 'QCOM', 'INTC', 'AMD', 'AVGO', 'TSM', 'SMCI', 'NVDA', 'MU', 'LRCX',
+    # ADD MORE CLEAN ENERGY (10)
+    'NOVA', 'CLNE', 'ENLV', 'VST', 'CEG', 'SMR', 'BE', 'NEE', 'RUN', 'FSLR',
+    # ADD UNIQUE SMALL/MID CAP (30)
+    'CLOU', 'AIOT', 'RNW', 'SOLV', 'WULF', 'BQ', 'LGM', 'AOSL', 'CEG', 'PSTG', 'VBTX', 'CNX', 'ARQL', 'BLNK', 'FCEL', 'PLUG', 'BLDP', 'HYZN', 'BE', 'NOVA', 'SMR', 'CEG', 'BALL', 'ITT', 'PNR', 'CARR', 'XYL', 'FE', 'AES', 'EIX',
+    # ADD UNIQUE CYBER/AI (20)
+    'ZS', 'CRWD', 'NET', 'OKTA', 'FTNT', 'SPLK', 'PANW', 'HUBS', 'FROG', 'CFLT', 'GLOB', 'SUMO', 'UI', 'GTLB', 'U', 'AI', 'APP', 'BILL', 'INOD', 'DDOG',
+    # ADD UNIQUE CLOUD/DB (20)
+    'MDB', 'PLAN', 'ZS', 'FROG', 'GLOB', 'SMAR', 'ZEN', 'PCTY', 'COIN', 'SQSP', 'WIX', 'DOCU', 'TWLO', 'PATH', 'ASAN', 'NCNO', 'EVBG', 'LYFT', 'PINS', 'UAA',
+    # ADD UNIQUE EV/GRID (20)
+    'ENPH', 'SEDG', 'FSLR', 'RUN', 'NEE', 'BE', 'AMCR', 'JKS', 'NOVA', 'CLNE', 'MAXN', 'ENLV', 'VST', 'CEG', 'SMR', 'BLNK', 'FCEL', 'PLUG', 'BLDP', 'HYZN',
+    # ADD UNIQUE FINTECH (20)
+    'V', 'MA', 'PYPL', 'SQ', 'AFRM', 'SOFI', 'UPST', 'GPN', 'FIS', 'FISV', 'NAVI', 'ALLY', 'WAL', 'HOOD', 'NU', 'RELY', 'GLE', 'GPRO', 'RNR', 'VOYA',
+    # ADD UNIQUE BIO/TECH (20)
+    'TECH', 'BMRN', 'EXEL', 'REGN', 'VRTX', 'BIIB', 'ILMN', 'EXAS', 'MRNA', 'ALXN', 'IDXX', 'IQV', 'STE', 'MTD', 'RMD', 'SYK', 'ZBH', 'EW', 'HOLX', 'ISRG',
+    # ADD UNIQUE DEFENSE/INDUSTRIAL (20)
+    'BA', 'LMT', 'RTX', 'LHX', 'TDY', 'NOC', 'GD', 'HII', 'CACI', 'SAIC', 'LDOS', 'HON', 'ETN', 'AME', 'EMR', 'ROK', 'PH', 'ITW', 'SWK', 'JCI',
+    # ADD UNIQUE MEDIA/INTERNET (20)
+    'NFLX', 'DIS', 'WBD', 'PARA', 'MGM', 'CMCSA', 'ROKU', 'PENN', 'DKNG', 'META', 'SPOT', 'SNAP', 'LYV', 'OMC', 'IPG', 'OMC', 'NWS', 'NWSA', 'FOX', 'FOXA',
+    # ADD UNIQUE SEMI/SUPPLY CHAIN (20)
+    'KLA', 'LRCX', 'AMAT', 'KLAC', 'VEECO', 'ENTG', 'FORM', 'KEYS', 'MXL', 'DIOD', 'SLAB', 'POWI', 'LSCC', 'MCHP', 'NXPI', 'ON', 'MPWR', 'QRVO', 'SWKS', 'TER',
+    # ADD INTERNET/ADVERTISING (15)
+    'IPG', 'OMC', 'NWS', 'NWSA', 'FOX', 'FOXA', 'GCI', 'MSGW', 'INMA', 'INOC', 'INVE', 'CTVA', 'PARA', 'NWSA', 'GPRO',
+    # ADD DATACENTER/INFRA (15)
+    'VNET', 'ZTO', 'JD', 'BIDU', 'BILI', 'TCEHY', 'TME', 'IQ', 'YY', 'MOMO', 'TAL', 'EDU', 'BZUN', 'BEKE', 'ACN',
+    # ADD ROBOTICS/AUTOMATION (15)
+    'IRBT', 'KOD', 'PRLB', 'AIM', 'PLOW', 'MEC', 'SNA', 'HI', 'MHK', 'WHR', 'LEG', 'LII', 'POW', 'AMED', 'RCMT',
+    # ADD ELECTRONICS/COMPONENTS (15)
+    'AVY', 'EL', 'GWW', 'PCAR', 'WSO', 'WST', 'MTD', 'RHI', 'TT', 'CPRT', 'EFX', 'INFO', 'FICO', 'FFIV', 'JKHY',
+    # ADD MATERIALS/HANDLING (15)
+    'RSG', 'WM', 'RSG', 'LUV', 'ALK', 'CHRW', 'JBHT', 'EXPD', 'FDX', 'UPS', 'DAL', 'UAL', 'AAL', 'LTM', 'PAHC',
+    # ADD HEALTHCARE/BIOTECH (15)
+    'IDXX', 'IQV', 'STE', 'MTD', 'RMD', 'SYK', 'ZBH', 'EW', 'HOLX', 'ISRG', 'DXCM', 'ALGN', 'TECH', 'BMRN', 'EXEL',
+    # ADD BROKERAGE/FINANCIAL (15)
+    'GS', 'MS', 'BAC', 'WFC', 'C', 'JPM', 'BLK', 'SCHW', 'TROW', 'AMG', 'BK', 'STT', 'TGT', 'KEY', 'HBAN',
+    # ADD TELECOM (15)
+    'TMUS', 'DISH', 'CHTR', 'LUMN', 'VZ', 'T', 'CMCSA', 'ATVI', 'EA', 'TTWO', 'NTDOY', 'GAME', 'IMPP', 'HUYA', 'DOYU',
+    # ADD SPACE/AERO/SAT (15)
+    'SPCE', 'LVS', 'WYNN', 'DKNG', 'MGM', 'PENN', 'MGM', 'WYNN', 'LVS', 'CZR', 'MCHX', 'LYV', 'GPRO', 'BILI', 'SE',
 ]
 
 # Permanently excluded tickers (failed / high risk -- do not scan)
