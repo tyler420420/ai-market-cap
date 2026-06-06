@@ -493,6 +493,14 @@ def wins():
     resp.headers['Content-Type'] = 'text/html; charset=utf-8'
     return resp
 
+@app.route("/calendar")
+def calendar_page():
+    with open(Path(__file__).parent / "calendar.html", 'r', encoding='utf-8') as f:
+        content = f.read()
+    resp = make_response(content)
+    resp.headers['Content-Type'] = 'text/html; charset=utf-8'
+    return resp
+
 # Dynamic wins ticker pages: /wins/<ticker> auto-serves wins_<ticker>.html
 @app.route("/wins/<ticker>")
 def wins_ticker_page(ticker):
