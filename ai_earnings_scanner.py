@@ -575,7 +575,7 @@ def generate_html_report(stocks: list, output_path: str):
     html += ".msg-user{background:#238636;color:#fff;align-self:flex-end;border-bottom-right-radius:3px}"
     html += ".msg-bot{background:#1f2937;color:#c9d1d9;align-self:flex-start;border-bottom-left-radius:3px}"
     html += ".msg-bot.loading{color:#8b949e;font-style:italic}"
-    html += "@media(max-width:768px){body,table,div{width:100%!important;box-sizing:border-box}body{padding:0!important}.header{padding:12px 10px}.hdr-row{flex-direction:column;align-items:start;gap:8px}h1{font-size:1.2em}.desc{font-size:0.78em}.btn{padding:6px 12px;font-size:0.78em}#refreshBtn,#scanBtn{margin-top:4px}.stats-bar{flex-direction:column;gap:8px}.ticker-strip{font-size:0.68em;padding:6px 0}.pick-banner{flex-direction:column;gap:6px;padding:12px 10px;text-align:center;width:100%!important}.pick-banner span{justify-content:center;font-size:0.85em}.stat{padding:6px 8px}.note,.disclaimer{padding:8px 10px;font-size:0.72em}table{width:100%!important;font-size:0.68em}th,td{padding:5px 3px!important;font-size:0.65em}#chat-panel{right:8px;bottom:60px;width:calc(100vw-16px);max-width:360px}}"
+    html += "@media(max-width:768px){body{padding:0!important;background:#0d1117}.header{padding:14px 12px}.hdr-row{flex-direction:column;align-items:start;gap:10px}h1{font-size:1.4em}h1 a{font-size:1.4em}.desc{font-size:0.85em}.btn{padding:10px 16px;font-size:0.95em}#refreshBtn,#scanBtn{margin-top:4px}.stats-bar{flex-direction:column;gap:8px}.ticker-strip{font-size:0.8em;padding:8px 0}.pick-banner{flex-direction:column;gap:8px;padding:16px 12px;min-height:unset}.pick-banner span{font-size:0.95em!important}.stat{padding:8px 12px}.note,.disclaimer{padding:10px 12px;font-size:0.78em}#stockTable{overflow-x:auto;display:block;-webkit-overflow-scrolling:touch}#stockTable thead,#stockTable tbody,#stockTable tr,#stockTable th,#stockTable td{display:block}#stockTable thead tr{position:absolute;top:-9999px;left:-9999px}#stockTable tbody tr{border-bottom:1px solid #30363d;padding:10px 12px;display:flex;flex-wrap:wrap}#stockTable td{position:relative;padding:4px 8px!important;border:none!important;width:auto!important;min-width:50%}#stockTable td:first-child{width:100%!important;font-size:1.1em;font-weight:bold}#stockTable td:nth-child(2){width:100%!important;font-size:0.85em;color:#8b949e;margin-bottom:4px}#stockTable td::before{content:attr(data-label);position:absolute;top:4px;left:8px;font-size:0.7em;color:#6e7681;text-transform:uppercase;font-weight:bold}#stockTable td>strong,#stockTable td>a{font-size:1em!important}#stockTable td>br{display:none}.pick-banner strong{font-size:1.1em!important}#chat-panel{right:4px;bottom:60px;width:calc(100vw-8px);max-width:360px}#chat-btn{padding:12px 20px;font-size:1em}}"
     html += '#chat-input-row{display:flex;border-top:1px solid #30363d;padding:10px 12px;gap:8px}'
     html += '#chat-input{flex:1;background:#0d1117;border:1px solid #30363d;border-radius:8px;color:#c9d1d9;padding:8px 12px;font-size:0.88em;resize:none;outline:none;font-family:Segoe UI,Arial,sans-serif}'
     html += '#chat-input:focus{border-color:#58a6ff}'
@@ -758,25 +758,24 @@ def generate_html_report(stocks: list, output_path: str):
         co_name = r['company_name'][:35] + ('...' if len(r['company_name']) > 35 else '')
         news_cell = news_link(r['news'])
         static_rows += '<tr style="background:' + bg_color + '">'
-        static_rows += '<td><strong><a href="https://finance.yahoo.com/quote/' + r['ticker'] + '" target="_blank" style="color:#66b2ff">' + r['ticker'] + '</a></strong></td>'
-        static_rows += '<td>' + co_name + '</td>'
-        static_rows += '<td><strong style="color:' + c_color + '">' + str(r['score']) + '</strong></td>'
-        static_rows += '<td>' + r['earnings_date'] + '</td>'
+        static_rows += '<td data-label="Ticker"><strong><a href="https://finance.yahoo.com/quote/' + r['ticker'] + '" target="_blank" style="color:#66b2ff">' + r['ticker'] + '</a></strong></td>'
+        static_rows += '<td data-label="Company">' + co_name + '</td>'
+        static_rows += '<td data-label="Score"><strong style="color:' + c_color + '">' + str(r['score']) + '</strong></td>'
+        static_rows += '<td data-label="Earnings">' + r['earnings_date'] + '</td>'
         days_str = 'Today' if r['days_left'] == 0 else str(r['days_left']) + 'd'
-        static_rows += '<td style="color:' + d_color + ';font-weight:bold">' + days_str + '</td>'
-        static_rows += '<td style="font-weight:bold">$' + str(int(r['price'])) + '</td>'
-        static_rows += '<td style="font-weight:bold">$' + str(int(r['pe_target'])) + '<br><span style="color:#00ff88">+' + str(r['pe_upside']) + '%</span></td>'
-        static_rows += '<td>$' + str(int(r['3d'])) + '<br><span style="color:#00ff88">+' + str(r['3d_up']) + '%</span></td>'
-        static_rows += '<td>$' + str(int(r['5d'])) + '<br><span style="color:#00ff88">+' + str(r['5d_up']) + '%</span></td>'
-        static_rows += '<td style="color:#bf8fff">' + str(r['analysts']) + '</td>'
-        static_rows += '<td style="color:#00ff88">' + str(r['sb']) + '</td>'
-        static_rows += '<td style="color:#58a6ff">' + str(r['buy']) + '</td>'
-        static_rows += '<td style="color:#ffcc00">' + str(r['hold']) + '</td>'
-        static_rows += '<td style="color:#ff6b6b">' + str(r['sell']) + '</td>'
-        static_rows += '<td>' + fmt_mktcap(r['mktcap']) + '</td>'
-        static_rows += '<td style="color:#fff">' + str(r['short_int']) + '%</td>'
-        static_rows += '<td style="color:#fff">' + str(r['iv']) + '%</td>'
-        sector = r.get('sector', 'Technology') or 'Technology'  # sector fetched but not displayed
+        static_rows += '<td data-label="Days"><span style="color:' + d_color + ';font-weight:bold">' + days_str + '</span></td>'
+        static_rows += '<td data-label="Price" style="font-weight:bold">$' + str(int(r['price'])) + '</td>'
+        static_rows += '<td data-label="3 Day"><span style="font-weight:bold">$' + str(int(r['pe_target'])) + '</span><br><span style="color:#00ff88">+' + str(r['pe_upside']) + '%</span></td>'
+        static_rows += '<td data-label="7 Day">$' + str(int(r['3d'])) + '<br><span style="color:#00ff88">+' + str(r['3d_up']) + '%</span></td>'
+        static_rows += '<td data-label="14 Day">$' + str(int(r['5d'])) + '<br><span style="color:#00ff88">+' + str(r['5d_up']) + '%</span></td>'
+        static_rows += '<td data-label="Analysts" style="color:#bf8fff">' + str(r['analysts']) + '</td>'
+        static_rows += '<td data-label="Strong Buy" style="color:#00ff88">' + str(r['sb']) + '</td>'
+        static_rows += '<td data-label="Buy" style="color:#58a6ff">' + str(r['buy']) + '</td>'
+        static_rows += '<td data-label="Hold" style="color:#ffcc00">' + str(r['hold']) + '</td>'
+        static_rows += '<td data-label="Sell" style="color:#ff6b6b">' + str(r['sell']) + '</td>'
+        static_rows += '<td data-label="Mkt Cap">' + fmt_mktcap(r['mktcap']) + '</td>'
+        static_rows += '<td data-label="Shorts" style="color:#fff">' + str(r['short_int']) + '%</td>'
+        static_rows += '<td data-label="IV" style="color:#fff">' + str(r['iv']) + '%</td>'
         sent = r.get('sentiment', '')
         if sent == 'Positive':
             sent_badge = '<span style="background:#1a2a1a;border:1px solid #2ea043;border-radius:5px;padding:2px 8px;font-size:0.75em;font-weight:bold;color:#00ff88">' + sent + '</span>'
@@ -785,9 +784,9 @@ def generate_html_report(stocks: list, output_path: str):
         elif sent == 'Mixed':
             sent_badge = '<span style="background:#2a2a1a;border:1px solid #ffd700;border-radius:5px;padding:2px 8px;font-size:0.75em;font-weight:bold;color:#ffd700">' + sent + '</span>'
         else:
-            sent_badge = 'â€”'
-        static_rows += '<td>' + sent_badge + '</td>'
-        static_rows += '<td>' + news_cell + '</td>'
+            sent_badge = 'â€"'
+        static_rows += '<td data-label="Trend">' + sent_badge + '</td>'
+        static_rows += '<td data-label="News">' + news_cell + '</td>'
         static_rows += '</tr>'
 
     html += static_rows + '</tbody></table>'
