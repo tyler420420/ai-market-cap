@@ -693,7 +693,7 @@ def generate_html_report(stocks: list, output_path: str):
         count += 1
         rows_data.append({
             'rank': count, 'ticker': stock.ticker, 'company_name': stock.company_name,
-            'score': round(stock.composite_score), 'earnings_date': (lambda ed: '<br>'.join([ed[5:10].replace('-', chr(45)), ed[:4]]) if ed else '')(stock.earnings_date),
+            'score': round(stock.composite_score), 'earnings_date': fmt_date(stock.earnings_date),
             'days_left': stock.days_to_earnings, 'price': round(stock.current_price, 2),
             'pe_target': round(stock.post_earnings_target, 2), 'pe_upside': round(stock.post_earnings_upside_pct, 1),
             '3d': round(stock.post_earnings_3d_target, 2), '3d_up': round(stock.post_earnings_3d_upside_pct, 1),
@@ -765,8 +765,7 @@ def generate_html_report(stocks: list, output_path: str):
         static_rows += '<td>' + fmt_mktcap(r['mktcap']) + '</td>'
         static_rows += '<td style="color:#fff">' + str(r['short_int']) + '%</td>'
         static_rows += '<td style="color:#fff">' + str(r['iv']) + '%</td>'
-        sector = r.get('sector', 'Technology') or 'Technology'
-        static_rows += '<td><span style="background:#1a2a2a;border:1px solid #30363d;border-radius:4px;padding:2px 7px;font-size:0.75em;color:#8b949e">' + sector + '</span></td>'
+        sector = r.get('sector', 'Technology') or 'Technology'  # sector fetched but not displayed
         sent = r.get('sentiment', '')
         if sent == 'Positive':
             sent_badge = '<span style="background:#1a2a1a;border:1px solid #2ea043;border-radius:5px;padding:2px 8px;font-size:0.75em;font-weight:bold;color:#00ff88">' + sent + '</span>'
