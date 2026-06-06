@@ -654,10 +654,9 @@ def generate_html_report(stocks: list, output_path: str):
         html += '<span style="font-size:0.95em;color:#fff">' + pick.company_name[:28] + ('...' if len(pick.company_name) > 28 else '') + '</span>'
         html += '<span style="font-size:0.95em;color:#fff">Score: <strong style="color:' + pick_color + '">' + str(round(pick.composite_score)) + '</strong></span>'
         html += '<span style="font-size:0.95em;color:#fff">Buy Price: <strong style="color:#00ff88">$' + str(round(pick.current_price, 2)) + '</strong></span>'
-        html += '<span style="font-size:0.95em;color:#fff">Sell Target: <strong style="color:#00ff88">' + pick_sell + '</strong></span>'
         pick_earn_label = 'Today' if pick.days_to_earnings == 0 else (str(pick.days_to_earnings) + ' days')
-        html += '<span style="font-size:0.95em;color:#fff">Earnings in: <strong style="color:#00ff88">' + pick_earn_label + '</strong></span>'
-        html += '<span style="font-size:0.95em;color:#fff">Expected Profit: <strong style="color:#00ff88;font-weight:bold">' + pick_profit + '</strong></span>'
+        html += '<span style="font-size:1em;color:#00ff88;font-weight:bold">Enter now — ' + pick_earn_label + ' to earnings</span>'
+        html += '<a href="https://invite.kraken.com/JDNW/dq0q352v" target="_blank" style="display:inline-block;background:#5741d9;color:#fff;padding:8px 18px;border-radius:6px;font-weight:bold;text-decoration:none;font-size:0.9em;margin-left:auto">Trade ' + pick.ticker + ' on Kraken</a>'
         html += '</div>'
 
     if pick2:
@@ -667,18 +666,19 @@ def generate_html_report(stocks: list, output_path: str):
         html += '<span style="font-size:0.95em;color:#fff">' + pick2.company_name[:28] + ('...' if len(pick2.company_name) > 28 else '') + '</span>'
         html += '<span style="font-size:0.95em;color:#fff">Score: <strong style="color:' + pick2_color + '">' + str(round(pick2.composite_score)) + '</strong></span>'
         html += '<span style="font-size:0.95em;color:#fff">Buy Price: <strong style="color:#58a6ff">$' + str(round(pick2.current_price, 2)) + '</strong></span>'
-        html += '<span style="font-size:0.95em;color:#fff">Sell Target: <strong style="color:#58a6ff">' + pick2_sell + '</strong></span>'
         pick2_earn_label = 'Today' if pick2.days_to_earnings == 0 else (str(pick2.days_to_earnings) + ' days')
-        html += '<span style="font-size:0.95em;color:#fff">Earnings in: <strong style="color:#58a6ff">' + pick2_earn_label + '</strong></span>'
-        html += '<span style="font-size:0.95em;color:#fff">Expected Profit: <strong style="color:#58a6ff;font-weight:bold">' + pick2_profit + '</strong></span>'
+        html += '<span style="font-size:1em;color:#58a6ff;font-weight:bold">Enter now — ' + pick2_earn_label + ' to earnings</span>'
+        html += '<a href="https://invite.kraken.com/JDNW/dq0q352v" target="_blank" style="display:inline-block;background:#5741d9;color:#fff;padding:8px 18px;border-radius:6px;font-weight:bold;text-decoration:none;font-size:0.9em;margin-left:auto">Trade ' + pick2.ticker + ' on Kraken</a>'
         html += '</div>'
 
     headers = [
         ('Ticker<br>Symbol','ticker'), ('Company<br>Name','company_name'), ('Overall<br>Score','score'),
         ('Earnings<br>Date','earnings_date'), ('Days<br>Left','days_left'), ('Current<br>Price','price'),
         ('Post Earnings<br>Target','pe_target'), ('3 Day<br>Target','3d'), ('5 Day<br>Target','5d'),
-        ('Total<br>Analyst','analysts'),         ('Strong<br>Buy','sb'), ('Buy<br>Ratings','buy'),
-        ('Hold<br>Ratings','hold'), ('Sell<br>Ratings','sell'), ('Market<br>Cap','mktcap'), ('Total<br>Shorts','short_int'), ('Implied<br>Volatility','iv'), ('Earnings<br>Trend','sentiment'),         ('Recent News','news')
+        ('Total<br>Analyst','analysts'), ('Strong<br>Buy','sb'), ('Buy<br>Ratings','buy'),
+        ('Hold<br>Ratings','hold'), ('Sell<br>Ratings','sell'), ('Market<br>Cap','mktcap'),
+        ('Total<br>Shorts','short_int'), ('Implied<br>Volatility','iv'), ('Sector','sector'),
+        ('Earnings<br>Trend','sentiment'), ('Recent News','news')
     ]
     ths = ''
     for h, col in headers:
@@ -703,6 +703,7 @@ def generate_html_report(stocks: list, output_path: str):
             'mktcap': stock.market_cap,
             'short_int': round(stock.short_interest, 1) if stock.short_interest else 0,
             'iv': round(stock.implied_volatility, 1) if stock.implied_volatility else 0,
+            'sector': stock.sector or 'Technology',
             'sentiment': stock.earnings_sentiment,
             'news': stock.top_news[0] if stock.top_news else None
         })
@@ -764,6 +765,8 @@ def generate_html_report(stocks: list, output_path: str):
         static_rows += '<td>' + fmt_mktcap(r['mktcap']) + '</td>'
         static_rows += '<td style="color:#fff">' + str(r['short_int']) + '%</td>'
         static_rows += '<td style="color:#fff">' + str(r['iv']) + '%</td>'
+        sector = r.get('sector', 'Technology') or 'Technology'
+        static_rows += '<td><span style="background:#1a2a2a;border:1px solid #30363d;border-radius:4px;padding:2px 7px;font-size:0.75em;color:#8b949e">' + sector + '</span></td>'
         sent = r.get('sentiment', '')
         if sent == 'Positive':
             sent_badge = '<span style="background:#1a2a1a;border:1px solid #2ea043;border-radius:5px;padding:2px 8px;font-size:0.75em;font-weight:bold;color:#00ff88">' + sent + '</span>'
