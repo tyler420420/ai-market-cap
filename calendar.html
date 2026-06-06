@@ -152,7 +152,7 @@ function renderCalendar() {
             var price = r.price ? '$' + r.price.toFixed(2) : '';
             html += '<a class="earn-item ' + sc + '" href="https://finance.yahoo.com/quote/' + r.ticker + '" target="_blank">';
             html += '<span class=earn-ticker>' + r.ticker + ' <span style="color:#aaa;font-size:0.85em">' + price + '</span></span>';
-            html += ' <span class=earn-dots><b>' + r.score + 'pt</b> · ' + r.days_left + 'd</span>';
+            html += ' <span class=earn-dots><b>' + r.score + 'pt</b> · <b>' + r.days_left + 'd</b></span>';
             html += '</a>';
         });
 
