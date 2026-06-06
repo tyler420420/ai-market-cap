@@ -16,6 +16,18 @@ except ImportError:
     YF_AVAILABLE = False
 
 
+months_map = {"01":"January","02":"February","03":"March","04":"April","05":"May","06":"June",
+          "07":"July","08":"August","09":"September","10":"October","11":"November","12":"December"}
+
+def fmt_date(ed):
+    if not ed:
+        return ""
+    parts = ed.split("-")
+    if len(parts) == 3:
+        yyyy, mm, dd = parts
+        return months_map.get(mm, mm) + " " + str(int(dd)) + ", " + yyyy
+    return ed
+
 def get_earnings_with_retry(ticker: str, retries: int = 3, delay: float = 0.3):
     """Fetch yfinance calendar with retry on failure."""
     for attempt in range(retries):
