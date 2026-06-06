@@ -72,21 +72,21 @@ Strong Buy (75+) stocks are highlighted green — these are the pre-earnings mom
 
 <script>
 var rowsData = [
-{"ticker":"MU","company_name":"Micron Technology, Inc.","score":95,"earnings_date":"June 24, 2026","days_left":18,"analysts":44},
-{"ticker":"ORCL","company_name":"Oracle Corporation","score":88,"earnings_date":"June 10, 2026","days_left":4,"analysts":43},
-{"ticker":"SAIL","company_name":"SailPoint, Inc.","score":88,"earnings_date":"June 9, 2026","days_left":3,"analysts":24},
-{"ticker":"ISRG","company_name":"Intuitive Surgical, Inc.","score":84,"earnings_date":"July 21, 2026","days_left":45,"analysts":33},
-{"ticker":"EFX","company_name":"Equifax Inc.","score":82,"earnings_date":"July 21, 2026","days_left":45,"analysts":24},
-{"ticker":"NFLX","company_name":"Netflix, Inc.","score":82,"earnings_date":"July 16, 2026","days_left":40,"analysts":50},
-{"ticker":"TSM","company_name":"Taiwan Semiconductor Manufacturing Company Limited","score":81,"earnings_date":"July 16, 2026","days_left":40,"analysts":19},
-{"ticker":"ASML","company_name":"ASML Holding N.V.","score":81,"earnings_date":"July 15, 2026","days_left":39,"analysts":44},
-{"ticker":"RTX","company_name":"RTX Corporation","score":80,"earnings_date":"July 21, 2026","days_left":45,"analysts":23},
-{"ticker":"NOC","company_name":"Northrop Grumman Corporation","score":76,"earnings_date":"July 21, 2026","days_left":45,"analysts":23},
-{"ticker":"IQV","company_name":"IQVIA Holdings Inc.","score":76,"earnings_date":"July 21, 2026","days_left":45,"analysts":23},
-{"ticker":"ALLY","company_name":"Ally Financial Inc.","score":75,"earnings_date":"July 16, 2026","days_left":40,"analysts":18},
-{"ticker":"SNX","company_name":"TD SYNNEX Corporation","score":72,"earnings_date":"June 25, 2026","days_left":19,"analysts":11},
-{"ticker":"ACN","company_name":"Accenture plc","score":70,"earnings_date":"June 18, 2026","days_left":12,"analysts":28},
-{"ticker":"SHW","company_name":"The Sherwin-Williams Company","score":66,"earnings_date":"July 21, 2026","days_left":45,"analysts":24}
+{"ticker":"MU","price":864.01,"company_name":"Micron Technology, Inc.","score":95,"earnings_date":"June 24, 2026","days_left":18,"analysts":44},
+{"ticker":"ORCL","price":213.68,"company_name":"Oracle Corporation","score":88,"earnings_date":"June 10, 2026","days_left":4,"analysts":43},
+{"ticker":"SAIL","price":18.24,"company_name":"SailPoint, Inc.","score":88,"earnings_date":"June 9, 2026","days_left":3,"analysts":24},
+{"ticker":"ISRG","price":422.06,"company_name":"Intuitive Surgical, Inc.","score":84,"earnings_date":"July 21, 2026","days_left":45,"analysts":33},
+{"ticker":"EFX","price":172.13,"company_name":"Equifax Inc.","score":82,"earnings_date":"July 21, 2026","days_left":45,"analysts":24},
+{"ticker":"NFLX","price":82.18,"company_name":"Netflix, Inc.","score":82,"earnings_date":"July 16, 2026","days_left":40,"analysts":50},
+{"ticker":"TSM","price":415.17,"company_name":"Taiwan Semiconductor Manufacturing Company Limited","score":81,"earnings_date":"July 16, 2026","days_left":40,"analysts":19},
+{"ticker":"ASML","price":1641.74,"company_name":"ASML Holding N.V.","score":81,"earnings_date":"July 15, 2026","days_left":39,"analysts":44},
+{"ticker":"RTX","price":180.99,"company_name":"RTX Corporation","score":80,"earnings_date":"July 21, 2026","days_left":45,"analysts":23},
+{"ticker":"NOC","price":544.4,"company_name":"Northrop Grumman Corporation","score":76,"earnings_date":"July 21, 2026","days_left":45,"analysts":23},
+{"ticker":"IQV","price":183.45,"company_name":"IQVIA Holdings Inc.","score":76,"earnings_date":"July 21, 2026","days_left":45,"analysts":23},
+{"ticker":"ALLY","price":42.77,"company_name":"Ally Financial Inc.","score":75,"earnings_date":"July 16, 2026","days_left":40,"analysts":18},
+{"ticker":"SNX","price":268.8,"company_name":"TD SYNNEX Corporation","score":72,"earnings_date":"June 25, 2026","days_left":19,"analysts":11},
+{"ticker":"ACN","price":178.25,"company_name":"Accenture plc","score":70,"earnings_date":"June 18, 2026","days_left":12,"analysts":28},
+{"ticker":"SHW","price":305.3,"company_name":"The Sherwin-Williams Company","score":66,"earnings_date":"July 21, 2026","days_left":45,"analysts":24}
 ];
 
 var MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
@@ -149,8 +149,9 @@ function renderCalendar() {
 
         earnings.forEach(function(r){
             var sc = scoreClass(r.score);
+            var price = r.price ? '$' + r.price.toFixed(2) : '';
             html += '<a class="earn-item ' + sc + '" href="https://finance.yahoo.com/quote/' + r.ticker + '" target="_blank">';
-            html += '<span class=earn-ticker>' + r.ticker + '</span>';
+            html += '<span class=earn-ticker>' + r.ticker + ' <span style="color:#aaa;font-size:0.85em">' + price + '</span></span>';
             html += ' <span class=earn-dots>' + r.score + 'pt · ' + r.days_left + 'd</span>';
             html += '</a>';
         });
