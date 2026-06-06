@@ -690,7 +690,7 @@ def generate_html_report(stocks: list, output_path: str):
         ('3 Day<br>Target','pe_target'), ('7 Day<br>Target','3d'), ('14 Day<br>Target','5d'),
         ('Total<br>Analyst','analysts'), ('Strong<br>Buy','sb'), ('Buy<br>Ratings','buy'),
         ('Hold<br>Ratings','hold'), ('Sell<br>Ratings','sell'), ('Market<br>Cap','mktcap'),
-        ('Total<br>Shorts','short_int'), ('Implied<br>Volatility','iv'), ('Sector','sector'),
+        ('Total<br>Shorts','short_int'), ('Implied<br>Volatility','iv'),
         ('Earnings<br>Trend','sentiment'), ('Recent News','news')
     ]
     ths = ''
