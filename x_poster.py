@@ -140,8 +140,8 @@ def format_top5_tweet(stocks):
         pe_target = s.get('pe_target', 0)
         pe_upside = s.get('pe_upside', 0)
         price_val = round(s.get('price', 0))
-        target_val = round(s.get('pe_target', 0))
-        upside_val = round(s.get('pe_upside', 0))
+        target_val = round(s.get('5d', 0))
+        upside_val = round(s.get('5d_up', 0))
         lines.append(f"{i}. {ticker} {score} | ${price_val} -> ${target_val} (+{upside_val}%)")
 
     lines.append("")
