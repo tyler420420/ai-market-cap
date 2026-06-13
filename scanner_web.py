@@ -427,19 +427,8 @@ def cron_twitter():
 
 @app.route("/cron-price-alerts")
 def cron_price_alerts():
-    """Check PE targets and fire winning trade alerts. Hit by cron-job.org every 2 hours."""
-    def do_alerts():
-        try:
-            sys.path.insert(0, str(Path(__file__).parent))
-            from x_poster import check_price_alerts, load_state, save_state
-            state = load_state()
-            results = check_price_alerts(state)
-            save_state(state)
-            print(f"[Cron-PriceAlerts] Checked. Alerts fired: {results}")
-        except Exception as e:
-            print(f"[Cron-PriceAlerts] Error: {e}")
-    threading.Thread(target=do_alerts, daemon=True).start()
-    return "Price alert check triggered", 200
+    """Disabled - alerts consume too many Twitter API credits."""
+    return "Alerts disabled", 200
 
 # ===== WEB ROUTES =====
 
