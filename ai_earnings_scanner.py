@@ -597,7 +597,6 @@ def generate_html_report(stocks: list, output_path: str):
         ticker_items += f'<span class=ticker-item><span style="font-weight:bold;color:#00ff88">{round(s.composite_score)}</span> <span class=ticker-sym>{s.ticker}</span> <span class=ticker-price>${int(s.current_price)}</span> <span class="ticker-chg {chg_cls}">{chg_str}</span></span>'
     # Add Kraken referral as last strip item
     ticker_items += '<a href="https://invite.kraken.com/JDNW/dq0q352v" target="_blank" style="display:inline-flex;align-items:center;gap:6px;padding:0 18px;border-right:1px solid #30363d;flex-shrink:0;text-decoration:none"><span style="font-size:1em">&#x1F4B8;</span><span style="font-weight:bold;color:#00ff88;font-size:0.9em">$300 Sign Up Bonus</span><span style="font-weight:bold;color:#9333ea;font-size:0.9em">Trade On Kraken</span></a>'
-    html += '<div style="background:#1a2a1a;border-bottom:2px solid #2ea043;padding:10px 20px;text-align:center;font-size:0.9em"><span style="color:#2ea043">&#10003;</span> Free scan runs daily at 6:30 AM PT &nbsp;|&nbsp; <a href="/pricing" style="color:#ffd700;font-weight:bold;text-decoration:none">Subscribe to run additional scans</a> &nbsp;|&nbsp; <a href="/pricing" style="color:#ffd700;text-decoration:none">+ AI Chat Analyst</a></div>'
     html += '<div class=ticker-strip><div class=ticker-strip-inner>' + ticker_items + ticker_items + '</div></div>'
 
     # IPO cards - centered middle column (auto-skips past IPOs based on date)
@@ -634,7 +633,7 @@ def generate_html_report(stocks: list, output_path: str):
         '<a href="/about" style="background:#dc3545;color:#fff;padding:10px 18px;border-radius:6px;font-size:0.9em;text-decoration:none;font-weight:bold;border:1px solid #fff" onmouseover="this.style.background=\'#e84a5f\'" onmouseout="this.style.background=\'#dc3545\'">FAQ</a>'
         '<a href="/wins" style="background:#238636;color:#fff;padding:10px 18px;border-radius:6px;font-size:0.9em;text-decoration:none;font-weight:bold;border:1px solid #fff" onmouseover="this.style.background=\'#2ea043\'" onmouseout="this.style.background=\'#238636\'">Wins</a>'
         '<a href="/calendar" style="background:#1f6feb;color:#fff;padding:10px 18px;border-radius:6px;font-size:0.9em;text-decoration:none;font-weight:bold;border:1px solid #fff" onmouseover="this.style.background=\'#388bfd\'" onmouseout="this.style.background=\'#1f6feb\'">Calendar</a>'
-        '<button class=btn id=scanBtn style="background:#ffd700;color:#000;font-weight:bold;border:1px solid #fff" onmouseover="this.style.background=\'#fff176\'" onmouseout="this.style.background=\'#ffd700\'" onclick=runScan()>PRO SCAN</button>'
+        '<button class=btn id=scanBtn style="background:#ffd700;color:#000;font-weight:bold;border:1px solid #fff;cursor:pointer" onmouseover="this.style.background=\'#fff176\'" onmouseout="this.style.background=\'#ffd700\'" onclick=runScan()>PRO SCAN</button>'
         '</div>'
         '<div style="display:flex;gap:6px;align-items:center">'
         '<a href="https://x.com/AIMoneyMach" target="_blank" style="background:#5741d9;color:#fff;padding:3px 10px;border-radius:5px;border:1px solid #fff;font-size:0.82em;font-weight:bold;text-decoration:none" onmouseover="this.style.background=\'#6e55e0\'" onmouseout="this.style.background=\'#5741d9\'">Follow Us On X</a>'
@@ -660,14 +659,14 @@ def generate_html_report(stocks: list, output_path: str):
             f'<div style="background:#0d1a0d;border:1px solid {lbl_color};border-radius:8px;padding:8px 14px;min-width:140px;box-shadow:0 0 10px {glow}">'
             f'<div style="color:{lbl_color};font-size:0.65em;font-weight:bold;margin-bottom:2px">&#128293; {lbl_text}</div>'
             f'<a href="{link}" target="_blank" style="color:#00ff88;font-size:0.95em;font-weight:bold;text-decoration:none">{company}</a>'
-            f'<div style="color:#8b949e;font-size:0.68em">{date_str} | {deal}</div></div>'
+            f'<div style="color:#fff;font-size:0.68em">{date_str} | {deal}</div></div>'
         )
     # Add DRAM card in purple (in same row, with gap)
     ipo_card_html += (
-        f'<div style="background:#1a0d2e;border:1px solid #9333ea;border-radius:8px;padding:8px 14px;min-width:140px;box-shadow:0 0 10px rgba(147,51,234,0.3);margin-left:24px">'
+        f'<div style="background:#0d1428;border:1px solid #5741d9;border-radius:8px;padding:8px 14px;min-width:140px;box-shadow:0 0 10px rgba(87,65,217,0.3);margin-left:24px">'
         f'<div style="color:#9333ea;font-size:0.65em;font-weight:bold;margin-bottom:2px">&#128293; TRENDING ETF</div>'
         f'<a href="https://finance.yahoo.com/quote/DRAM/" target="_blank" style="color:#00ff88;font-size:0.95em;font-weight:bold;text-decoration:none">DRAM</a>'
-        f'<div style="color:#8b949e;font-size:0.68em">{dram_price_str}</div></div>'
+        f'<div style="color:#fff;font-size:0.68em">{dram_price_str}</div></div>'
     )
     ipo_card_html += '</div>'
     html += '<div class=header><div class=hdr-row>'
@@ -824,7 +823,7 @@ def generate_html_report(stocks: list, output_path: str):
     html += '</script>'
     html += '<div class=note><b>Scoring:</b> Analyst Coverage (25pts linear) + Buy% Conviction (25pts) + Strong Buy Count (2pts each, max 20) + 5D Upside (max 15pts) + Earnings Sentiment (max 15pts) | <b>PE Target:</b> straddle x1 (Conservative Target) | <b>3-Day Momentum:</b> straddle x3 (Mid Target) | <b>5-Day Momentum:</b> straddle x5 (High Target) | <b>Entry:</b> 1-30 days pre-earnings | <b>Exit:</b> 1-5 days after earnings beat</div>'
     html += '<div class=disclaimer>&#9888; <b>Not a financial advisor.</b> This scanner is for informational purposes only. Options data and targets are estimates based on ATM straddles -- actual results may vary. Stocks carry risk; always do your own research before trading. AisMarketCap.com is not liable for any losses incurred from trades based on this data.</div>'
-    html += "<script>var scanBtn=document.getElementById('scanBtn');var warnMsg=document.getElementById('warnMsg');function runScan(){scanBtn.disabled=true;warnMsg.textContent='Starting scan...';var x=new XMLHttpRequest();x.open('POST','/run',true);x.onload=function(){if(x.responseURL&&x.responseURL.endsWith('/pricing')){window.location.href='/pricing';return;}warnMsg.textContent='Scan started! Reloading...';location.reload(true);};x.onerror=function(){scanBtn.disabled=false;warnMsg.textContent='Error - try again.';setTimeout(function(){warnMsg.style.display='none';},4000);};x.send();}function refreshData(){location.reload(true);}</script>"
+    html += "<script>var scanBtn=document.getElementById('scanBtn');var warnMsg=document.getElementById('warnMsg');function runScan(){scanBtn.disabled=true;warnMsg.textContent='Starting scan...';var x=new XMLHttpRequest();x.open('POST','/run',true);x.onload=function(){if(x.responseURL&&x.responseURL.endsWith('/pricing')){scanBtn.disabled=false;window.location.href='/pricing';return;}warnMsg.textContent='Scan started! Reloading...';location.reload(true);};x.onerror=function(){scanBtn.disabled=false;warnMsg.textContent='Error - try again.';setTimeout(function(){warnMsg.style.display='none';},4000);};x.send();}function refreshData(){location.reload(true);}</script>"
 
     # Chat widget - clean plain JS, no HTML entities
     html += '<button id="chat-btn" onclick="toggleChat()">Ask AI</button>'
