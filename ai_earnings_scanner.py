@@ -524,7 +524,7 @@ def generate_html_report(stocks: list, output_path: str):
     html += '<link rel="icon" type="image/x-icon" href="' + favicon_path + '">'
     html += '<meta name="description" content="AI pre-earnings momentum scanner for tech stocks. Track scores, analyst ratings, PE targets, and implied moves before earnings reports.">'
     html += '<meta property="og:title" content="AI Market Cap Scanner">'
-    html += '<meta property="og:description" content="Pre-earnings momentum scanner for AI/tech stocks. Scores, PE targets, 3-day and 5-day implied moves.">'
+    html += '<meta property="og:description" content="Pre-Earnings Tech Stock Scanner for AI stocks. Scores, PE targets, and 14-day implied moves before earnings reports.">'
     html += '<meta property="og:image" content="https://aismarketcap.com/static/logo.png">'
     html += '<meta property="og:url" content="https://aismarketcap.com">'
     html += '<meta property="og:type" content="website">'
@@ -631,13 +631,13 @@ def generate_html_report(stocks: list, output_path: str):
     buttons_row = (
         '<div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end;flex-shrink:0">'
         '<div style="display:flex;gap:6px;align-items:center">'
-        '<a href="/about" style="background:#dc3545;color:#fff;padding:10px 18px;border-radius:6px;font-size:0.9em;text-decoration:none;font-weight:bold;border:1px solid #fff" onmouseover="this.style.background=\'#c82333\'" onmouseout="this.style.background=\'#dc3545\'">FAQ</a>'
+        '<a href="/about" style="background:#dc3545;color:#fff;padding:10px 18px;border-radius:6px;font-size:0.9em;text-decoration:none;font-weight:bold;border:1px solid #fff" onmouseover="this.style.background=\'#e84a5f\'" onmouseout="this.style.background=\'#dc3545\'">FAQ</a>'
         '<a href="/wins" style="background:#238636;color:#fff;padding:10px 18px;border-radius:6px;font-size:0.9em;text-decoration:none;font-weight:bold;border:1px solid #fff" onmouseover="this.style.background=\'#2ea043\'" onmouseout="this.style.background=\'#238636\'">Wins</a>'
         '<a href="/calendar" style="background:#1f6feb;color:#fff;padding:10px 18px;border-radius:6px;font-size:0.9em;text-decoration:none;font-weight:bold;border:1px solid #fff" onmouseover="this.style.background=\'#388bfd\'" onmouseout="this.style.background=\'#1f6feb\'">Calendar</a>'
-        '<button class=btn id=scanBtn style="background:#ffd700;color:#000;font-weight:bold;border:1px solid #fff" onmouseover="this.style.background=\'#ffdf33\'" onmouseout="this.style.background=\'#ffd700\'" onclick=runScan()>PRO SCAN</button>'
+        '<button class=btn id=scanBtn style="background:#ffd700;color:#000;font-weight:bold;border:1px solid #fff" onmouseover="this.style.background=\'#fff176\'" onmouseout="this.style.background=\'#ffd700\'" onclick=runScan()>PRO SCAN</button>'
         '</div>'
         '<div style="display:flex;gap:6px;align-items:center">'
-        '<a href="https://x.com/AIMoneyMach" target="_blank" style="color:#58a6ff;text-decoration:none;display:flex;align-items:center;padding:0 4px"><svg height="18" width="18" viewBox="0 0 24 24" fill="#fff"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>'
+        '<a href="https://x.com/AIMoneyMach" target="_blank" style="background:#5741d9;color:#fff;padding:3px 10px;border-radius:5px;border:1px solid #fff;font-size:0.82em;font-weight:bold;text-decoration:none" onmouseover="this.style.background=\'#6e55e0\'" onmouseout="this.style.background=\'#5741d9\'">Follow Us On X</a>'
         '<span style="background:#161b22;border:1px solid #2ea043;border-radius:5px;padding:3px 10px;font-size:0.82em"><span style="font-weight:bold;color:#2ea043">' + str(strong_count) + '</span> <span style="color:#8b949e">Strong Buy</span></span>'
         '<span style="background:#161b22;border:1px solid #1f6feb;border-radius:5px;padding:3px 10px;font-size:0.82em"><span style="font-weight:bold;color:#58a6ff">' + str(sum(1 for s in stocks if 50 <= round(s.composite_score) < 75)) + '</span> <span style="color:#8b949e">Watch</span></span>'
         '</div>'
@@ -671,7 +671,7 @@ def generate_html_report(stocks: list, output_path: str):
     )
     ipo_card_html += '</div>'
     html += '<div class=header><div class=hdr-row>'
-    html += '<div><a href="https://aismarketcap.com" style="color:#fff;text-decoration:none"><h1>' + SCANNER_TITLE + '</h1></a><div class=desc>Pre-earnings momentum scanner for stocks</div></div>'
+    html += '<div><a href="https://aismarketcap.com" style="color:#fff;text-decoration:none"><h1>' + SCANNER_TITLE + '</h1></a><div style="color:#fff;font-size:0.95em">Pre-Earnings Tech Stock Scanner</div></div>'
     html += ipo_card_html
     html += buttons_row
     html += '</div></div>'
