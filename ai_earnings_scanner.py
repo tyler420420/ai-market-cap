@@ -481,7 +481,7 @@ def generate_html_report(stocks: list, output_path: str):
     # Pre-compute all derived values before building HTML
     strong_count = sum(1 for s in stocks if round(s.composite_score) >= 75)
     strong_buys = [s for s in stocks if round(s.composite_score) >= 75]
-    strong_buys.sort(key=lambda x: -x.composite_score)
+    strong_buys.sort(key=lambda x: -x.post_earnings_5d_upside_pct)
     pick = strong_buys[0] if strong_buys else (stocks[0] if stocks else None)
     pick2 = strong_buys[1] if len(strong_buys) > 1 else None
     pick_profit = pick_sell = pick_color = None
@@ -537,7 +537,7 @@ def generate_html_report(stocks: list, output_path: str):
     html += '.header{background:linear-gradient(135deg,#1a1f2e,#161b22);padding:25px;border-radius:12px;margin-bottom:20px;border:1px solid #30363d}'
     html += '.hdr-row{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:15px}'
     html += 'h1{color:#fff;font-size:1.8em;margin-bottom:5px}.desc{color:#8b949e;font-size:0.95em}'
-    html += '.btn{background:#ffd700;border:2px solid #000;color:#000;padding:10px 22px;border-radius:6px;font-size:0.9em;cursor:pointer;font-weight:bold;flex-shrink:0;box-shadow:0 0 12px rgba(255,215,0,0.5)}.btn:hover{background:#2ea043}.btn:active{background:#238636}.btn:disabled{background:#444;cursor:not-allowed}#refreshBtn{background:#1f6feb;border:2px solid #000;box-shadow:0 0 12px rgba(31,111,235,0.5)}#refreshBtn:hover{background:#388bfd}'
+    html += '.btn{background:#ffd700;border:2px solid #fff;color:#000;padding:10px 22px;border-radius:6px;font-size:0.9em;cursor:pointer;font-weight:bold;flex-shrink:0;box-shadow:0 0 12px rgba(255,215,0,0.5)}.btn:hover{background:#2ea043}.btn:active{background:#238636}.btn:disabled{background:#444;cursor:not-allowed}#refreshBtn{background:#1f6feb;border:2px solid #fff;box-shadow:0 0 12px rgba(31,111,235,0.5)}#refreshBtn:hover{background:#388bfd}'
     
     html += '.ticker-strip{display:flex;overflow:hidden;white-space:nowrap;background:#0a0f18;border-bottom:1px solid #30363d;padding:8px 0;font-size:0.82em}'
     html += '.ticker-strip-inner{display:flex;gap:0;animation:scroll-ticker 40s linear infinite}'
@@ -631,10 +631,10 @@ def generate_html_report(stocks: list, output_path: str):
     buttons_row = (
         '<div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end;flex-shrink:0">'
         '<div style="display:flex;gap:6px;align-items:center">'
-        '<a href="/about" style="background:#dc3545;color:#fff;padding:10px 18px;border-radius:6px;font-size:0.9em;text-decoration:none;font-weight:bold" onmouseover="this.style.background=\'#c82333\'" onmouseout="this.style.background=\'#dc3545\'">FAQ</a>'
-        '<a href="/wins" style="background:#238636;color:#fff;padding:10px 18px;border-radius:6px;font-size:0.9em;text-decoration:none;font-weight:bold" onmouseover="this.style.background=\'#2ea043\'" onmouseout="this.style.background=\'#238636\'">Wins</a>'
-        '<a href="/calendar" style="background:#1f6feb;color:#fff;padding:10px 18px;border-radius:6px;font-size:0.9em;text-decoration:none;font-weight:bold" onmouseover="this.style.background=\'#388bfd\'" onmouseout="this.style.background=\'#1f6feb\'">Calendar</a>'
-        '<button class=btn id=scanBtn style="background:#ffd700;color:#000;font-weight:bold" onmouseover="this.style.background=\'#ffdf33\'" onmouseout="this.style.background=\'#ffd700\'" onclick=runScan()>Scan</button>'
+        '<a href="/about" style="background:#dc3545;color:#fff;padding:10px 18px;border-radius:6px;font-size:0.9em;text-decoration:none;font-weight:bold;border:1px solid #fff" onmouseover="this.style.background=\'#c82333\'" onmouseout="this.style.background=\'#dc3545\'">FAQ</a>'
+        '<a href="/wins" style="background:#238636;color:#fff;padding:10px 18px;border-radius:6px;font-size:0.9em;text-decoration:none;font-weight:bold;border:1px solid #fff" onmouseover="this.style.background=\'#2ea043\'" onmouseout="this.style.background=\'#238636\'">Wins</a>'
+        '<a href="/calendar" style="background:#1f6feb;color:#fff;padding:10px 18px;border-radius:6px;font-size:0.9em;text-decoration:none;font-weight:bold;border:1px solid #fff" onmouseover="this.style.background=\'#388bfd\'" onmouseout="this.style.background=\'#1f6feb\'">Calendar</a>'
+        '<button class=btn id=scanBtn style="background:#ffd700;color:#000;font-weight:bold;border:1px solid #fff" onmouseover="this.style.background=\'#ffdf33\'" onmouseout="this.style.background=\'#ffd700\'" onclick=runScan()>PRO SCAN</button>'
         '</div>'
         '<div style="display:flex;gap:6px;align-items:center">'
         '<a href="https://x.com/AIMoneyMach" target="_blank" style="color:#58a6ff;text-decoration:none;display:flex;align-items:center;padding:0 4px"><svg height="18" width="18" viewBox="0 0 24 24" fill="#fff"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>'
