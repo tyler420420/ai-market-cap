@@ -613,7 +613,20 @@ def generate_html_report(stocks: list, output_path: str):
     today = datetime.now()
     upcoming = [ipo for ipo in all_ipos if ipo['date'] >= today]
     upcoming.sort(key=lambda x: x['date'])
-    ipo_list = upcoming[:5]
+    ipo_list = upcoming[:3]
+
+    # Get DRAM ETF price
+    try:
+        import yfinance as yf
+        dram = yf.Ticker("DRAM")
+        dram_info = dram.fast_info
+        dram_price = dram_info.get('last_price') or dram_info.get('previous_close')
+        if not dram_price:
+            hist = dram.history(period="1d")
+            dram_price = hist['Close'].iloc[-1] if not hist.empty else None
+        dram_price_str = f"${dram_price:.2f}" if dram_price else "$--"
+    except:
+        dram_price_str = "$--"
     # Buttons row
     buttons_row = (
         '<div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end;flex-shrink:0">'
@@ -636,8 +649,6 @@ def generate_html_report(stocks: list, output_path: str):
         ('#2ea043', 'SOONEST TOP IPO', 'rgba(46,160,67,0.3)'),
         ('#1f6feb', 'NEXT TOP IPO', 'rgba(31,111,235,0.3)'),
         ('#ffd700', 'TOP IPO', 'rgba(255,215,0,0.2)'),
-        ('#ffd700', 'TOP IPO', 'rgba(255,215,0,0.2)'),
-        ('#ffd700', 'TOP IPO', 'rgba(255,215,0,0.2)'),
     ]
     for i, ipo in enumerate(ipo_list):
         lbl_color, lbl_text, glow = styles[i] if i < len(styles) else styles[-1]
@@ -651,6 +662,13 @@ def generate_html_report(stocks: list, output_path: str):
             f'<a href="{link}" target="_blank" style="color:#00ff88;font-size:0.95em;font-weight:bold;text-decoration:none">{company}</a>'
             f'<div style="color:#8b949e;font-size:0.68em">{date_str} | {deal}</div></div>'
         )
+    # Add DRAM card in purple (in same row, with gap)
+    ipo_card_html += (
+        f'<div style="background:#1a0d2e;border:1px solid #9333ea;border-radius:8px;padding:8px 14px;min-width:140px;box-shadow:0 0 10px rgba(147,51,234,0.3);margin-left:24px">'
+        f'<div style="color:#9333ea;font-size:0.65em;font-weight:bold;margin-bottom:2px">&#128293; TRENDING ETF</div>'
+        f'<a href="https://finance.yahoo.com/quote/DRAM/" target="_blank" style="color:#00ff88;font-size:0.95em;font-weight:bold;text-decoration:none">DRAM</a>'
+        f'<div style="color:#8b949e;font-size:0.68em">{dram_price_str}</div></div>'
+    )
     ipo_card_html += '</div>'
     html += '<div class=header><div class=hdr-row>'
     html += '<div><a href="https://aismarketcap.com" style="color:#fff;text-decoration:none"><h1>' + SCANNER_TITLE + '</h1></a><div class=desc>Pre-earnings momentum scanner for stocks</div></div>'
