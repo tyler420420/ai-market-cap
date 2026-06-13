@@ -223,7 +223,7 @@ def post_milestones(state):
     top6 = picks[:6]
     lines = ["Daily Top Strong Buy Targets - aismarketcap.com", ""]
     for i, p in enumerate(top6, 1):
-        lines.append(f"{i}. {p['ticker']} {p['score']} | ${p['price']:.0f} -> ${p['5d']:.0f} (+{p['5d_up']:.0f}%)")
+        lines.append(f"{i}. {p['ticker']} | ${p['price']:.0f} -> ${p['5d']:.0f} (+{p['5d_up']:.0f}%)")
     lines.append("")
     lines.append("#AIStocks #StockMarket #Nasdaq #OptionsTrading #Trading #Investing")
     
