@@ -1,4 +1,4 @@
-﻿"""AI Earnings Scanner - Pre-Earnings Momentum Strategy (1-45 day window)"""
+﻿"""AI Earnings Scanner - Pre-Earnings Momentum Strategy (1-40 day window)"""
 import argparse, csv, os, sys, time
 from datetime import datetime, timedelta, timezone
 import time as _time
@@ -298,7 +298,7 @@ def calculate_composite_score(stock: EarningsSignal) -> float:
     return stock.composite_score
 
 
-def get_earnings_window(days_ahead: int = 45, window_min: int = 0, window_max: int = 45) -> List[str]:
+def get_earnings_window(days_ahead: int = 40, window_min: int = 0, window_max: int = 40) -> List[str]:
     """Return AI tickers with earnings in the next N days, sorted by days-to-earnings."""
     results = []
     today = datetime.now().date()
@@ -339,7 +339,7 @@ def get_earnings_window(days_ahead: int = 45, window_min: int = 0, window_max: i
                         if isinstance(earnings_date, datetime):
                             earnings_date = earnings_date.date()
                         days_out = (earnings_date - today).days
-                        if 1 <= days_out <= 45:
+                        if 1 <= days_out <= 40:
                             results.append((ticker, earnings_date, days_out))
                             print(f"  {ticker}: {earnings_date} ({days_out} days)")
             except:
@@ -821,7 +821,7 @@ def generate_html_report(stocks: list, output_path: str):
     html += "var sortCol='score';var sortAsc=false;function getVal(r,col){var m={'ticker':r.ticker,'company_name':r.company_name,'score':r.score,'earnings_date':r.earnings_date,'days_left':r.days_left,'price':r.price,'pe_target':r.pe_target,'3d':r['3d'],'5d':r['5d'],'analysts':r.analysts,'sb':r.sb,'buy':r.buy,'hold':r.hold,'sell':r.sell,'mktcap':r.mktcap,'short_int':r.short_int,'iv':r.iv,'sentiment':r.sentiment};return m[col]||r[col]||0;}function updateArrows(){document.querySelectorAll('th[data-col]').forEach(function(th){th.classList.remove('sorted-asc','sorted-desc');});var th=document.querySelector('th[data-col=\"'+sortCol+'\"]');if(th){th.classList.add(sortAsc?'sorted-asc':'sorted-desc');}}function sortBy(col){if(sortCol===col){sortAsc=!sortAsc;}else{sortCol=col;sortAsc=col==='score'||col==='analysts'||col==='sb'||col==='buy'||col==='hold'||col==='sell'||col==='price'||col==='pe_target'||col==='3d'||col==='5d'||col==='mktcap'||col==='short_int'||col==='iv';}var dirs={'ticker':1,'company_name':1};var asc=dirs[col]?sortAsc:!sortAsc;rowsData.sort(function(a,b){var va=getVal(a,col),vb=getVal(b,col);if(typeof va==='number')return asc?va-vb:vb-va;return asc?String(va).localeCompare(String(vb)):String(vb).localeCompare(String(va));});renderTable();updateArrows();}function fmtMktcap(v){if(v>=1000)return Math.round(v/1000)+' T';if(v>=1)return Math.round(v)+' B';return Math.round(v*1000)+' M';}function scoreColor(s){return s>=80?'#00ff88':'#58a6ff';}function newsHtml(n){if(!n)return'';var u=n.url||'';var t=n.title||'';if(t.length>45){var sp=t.lastIndexOf(' ',45);var rm=sp>0?t.substring(sp+1,sp+16):'';t=sp>20?t.substring(0,sp)+' '+rm:t.substring(0,45);t+='...';}return u?'<a href=\"'+u+'\" target=\"_blank\" style=\"color:#fff;text-decoration:none\">'+t+'</a>':'<span style=\"color:#fff\">'+t+'</span>';}function renderTable(){var tbody=document.getElementById('stockTableBody');if(!tbody)return;var html='';rowsData.forEach(function(r){if(r.score<50)return;var c=scoreColor(r.score);var bg=r.score>=80?'rgba(0,255,136,0.12)':'rgba(31,111,235,0.12)';html+='<tr style=\"background:'+bg+'\"><td><strong><a href=\"https://finance.yahoo.com/quote/'+r.ticker+'\" target=\"_blank\" style=\"color:#66b2ff\">'+r.ticker+'</a></strong></td>';html+='<td>'+r.company_name.substring(0,35)+(r.company_name.length>35?'...':'')+'</td>';html+='<td><strong style=\"color:'+c+';font-size:1.3em\">'+r.score+'</strong></td>';html+='<td class=earn-cell>'+r.earnings_date.replace(chr(10),'<br>')+'</td>';html+='<td style=\"color:'+(r.days_left==0?'#ff4444':(r.days_left<=7?'#00ff88':'#ffcc00'))+';font-weight:bold\">'+(r.days_left==0?'Today':r.days_left+'d')+'</td>';html+='<td>$'+Math.floor(r.price)+'</td>';html+='<td>$'+Math.floor(r.pe_target)+' | +'+r.pe_upside+'%</td>';html+='<td>$'+Math.floor(r['3d'])+' | +'+r['3d_up']+'%</td>';html+='<td>$'+Math.floor(r['5d'])+' | +'+r['5d_up']+'%</td>';html+='<td>'+r.analysts+'</td>';html+='<td style=\"color:#00ff88\">'+r.sb+'</td>';html+='<td style=\"color:#58a6ff\">'+r.buy+'</td>';html+='<td style=\"color:#ffcc00\">'+r.hold+'</td>';html+='<td style=\"color:#ff6b6b\">'+r.sell+'</td>';html+='<td>'+fmtMktcap(r.mktcap)+'</td>';html+='<td style=\'color:#fff\'>'+r.short_int+'%</td>';html+='<td style=\'color:#fff\'>'+r.iv+'%</td>';html+='<td>'+(r.squeeze?'<span style=\'background:#1a2a1a;border:1px solid #2ea043;border-radius:5px;padding:2px 8px;font-size:0.75em;font-weight:bold;color:#00ff88\'>Yes</span>':'â€”')+'</td>';html+='<td>'+newsHtml(r.news)+'</td></tr>';});tbody.innerHTML=html;};sortBy('days_left');"
 
     html += '</script>'
-    html += '<div class=note><b>Scoring:</b> Analyst Coverage (25pts linear) + Buy% Conviction (25pts) + Strong Buy Count (2pts each, max 20) + 5D Upside (max 15pts) + Earnings Sentiment (max 15pts) | <b>PE Target:</b> straddle x1 (Conservative Target) | <b>3-Day Momentum:</b> straddle x3 (Mid Target) | <b>5-Day Momentum:</b> straddle x5 (High Target) | <b>Entry:</b> 1-30 days pre-earnings | <b>Exit:</b> 1-5 days after earnings beat</div>'
+    html += '<div class=note><b>Scoring:</b> Analyst Coverage (25pts linear) + Buy% Conviction (25pts) + Strong Buy Count (2pts each, max 20) + 5D Upside (max 15pts) + Earnings Sentiment (max 15pts) | <b>PE Target:</b> straddle x1 (Conservative Target) | <b>3-Day Momentum:</b> straddle x3 (Mid Target) | <b>5-Day Momentum:</b> straddle x5 (High Target) | <b>Entry:</b> 1-40 days pre-earnings | <b>Exit:</b> 1-5 days after earnings beat</div>'
     html += '<div class=disclaimer>&#9888; <b>Not a financial advisor.</b> This scanner is for informational purposes only. Options data and targets are estimates based on ATM straddles -- actual results may vary. Stocks carry risk; always do your own research before trading. AisMarketCap.com is not liable for any losses incurred from trades based on this data.</div>'
     html += "<script>var scanBtn=document.getElementById('scanBtn');var warnMsg=document.getElementById('warnMsg');function runScan(){scanBtn.disabled=true;warnMsg.textContent='Starting scan...';var x=new XMLHttpRequest();x.open('POST','/run',true);x.onload=function(){if(x.responseURL&&x.responseURL.endsWith('/pricing')){scanBtn.disabled=false;window.location.href='/pricing';return;}warnMsg.textContent='Scan started! Reloading...';location.reload(true);};x.onerror=function(){scanBtn.disabled=false;warnMsg.textContent='Error - try again.';setTimeout(function(){warnMsg.style.display='none';},4000);};x.send();}function refreshData(){location.reload(true);}</script>"
 
@@ -897,12 +897,12 @@ EARNINGS_OVERRIDES = {
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--days', type=int, default=45, help='Days ahead to scan (1-45)')
+    parser.add_argument('--days', type=int, default=40, help='Days ahead to scan (1-40)')
     parser.add_argument('--top', type=int, default=20)
     parser.add_argument('--local', action='store_true', help='Use local desktop paths (favicon, etc.)')
     args = parser.parse_args()
     LOCAL_MODE = args.local
-    print("AI Earnings Scanner - Pre-Earnings Momentum (1-30 Day Window)"); print("="*55)
+    print("AI Earnings Scanner - Pre-Earnings Momentum (1-40 Day Window)"); print("="*55)
     if not YF_AVAILABLE: print("ERROR: yfinance not installed. Run: python -m pip install yfinance"); sys.exit(1)
 
     # Generate favicon from logo (crop icon + resize)
