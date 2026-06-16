@@ -518,18 +518,18 @@ def generate_html_report(stocks: list, output_path: str):
         #tbody = ''.join(rows_html)
 
     # Build full HTML
-    SCANNER_TITLE = "AI Market Cap Scanner"
+    SCANNER_TITLE = "AI Market Cap"
     html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>' + SCANNER_TITLE + '</title>'
     favicon_path = "file:///C:/Users/Tyler_AI/ai-market-cap/favicon.ico" if LOCAL_MODE else "/favicon.ico"
     html += '<link rel="icon" type="image/x-icon" href="' + favicon_path + '">'
     html += '<meta name="description" content="AI pre-earnings momentum scanner for tech stocks. Track scores, analyst ratings, PE targets, and implied moves before earnings reports.">'
-    html += '<meta property="og:title" content="AI Market Cap Scanner">'
+    html += '<meta property="og:title" content="AI Market Cap">'
     html += '<meta property="og:description" content="Pre-Earnings Tech Stock Scanner for AI stocks. Scores, PE targets, and 14-day implied moves before earnings reports.">'
     html += '<meta property="og:image" content="https://aismarketcap.com/static/logo.png">'
     html += '<meta property="og:url" content="https://aismarketcap.com">'
     html += '<meta property="og:type" content="website">'
     html += '<meta name="twitter:card" content="summary_large_image">'
-    html += '<meta name="twitter:title" content="AI Market Cap Scanner">'
+    html += '<meta name="twitter:title" content="AI Market Cap">'
     html += '<meta name="twitter:description" content="Pre-earnings momentum scanner for AI/tech stocks. Track scores, analyst ratings, PE targets, and implied moves before earnings.">'
     html += '<meta name="twitter:image" content="https://aismarketcap.com/static/logo.png">'
     html += '<style>'
@@ -670,7 +670,7 @@ def generate_html_report(stocks: list, output_path: str):
     )
     ipo_card_html += '</div>'
     html += '<div class=header><div class=hdr-row>'
-    html += '<div><a href="https://aismarketcap.com" style="color:#fff;text-decoration:none"><h1>AI Market Cap Scanner</h1></a><div style="color:#fff;font-size:0.95em">Pre-Earnings Tech Stock Scanner</div></div>'
+    html += '<div><a href="https://aismarketcap.com" style="color:#fff;text-decoration:none"><h1>AI Market Cap</h1></a><div style="color:#fff;font-size:0.95em">Pre-Earnings Tech Stock Scanner</div></div>'
     html += ipo_card_html
     html += buttons_row
     html += '</div></div>'
