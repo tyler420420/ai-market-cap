@@ -25,6 +25,50 @@ SESSION_TTL = 86400
 
 app = Flask(__name__, static_folder='static', static_url_path='/static')
 
+# ===== HOME / SCANNER =====
+@app.route("/")
+def index():
+    """Home page = scanner (no login required)"""
+    workspace = Path(__file__).parent
+    # Try fresh scan file first, then fall back to latest dated scan
+    fresh = workspace / "ai_earnings_today.html"
+    if fresh.exists():
+        with open(fresh, 'r', encoding='utf-8') as f:
+            content = f.read()
+        resp = make_response(content)
+        resp.headers['Content-Type'] = 'text/html; charset=utf-8'
+        resp.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0'
+        return resp
+    # Fall back to latest dated scan
+    html_files = sorted(workspace.glob("ai_earnings_57day_*.html"), key=lambda f: f.stat().st_mtime, reverse=True)
+    if html_files:
+        with open(html_files[0], 'r', encoding='utf-8') as f:
+            content = f.read()
+        resp = make_response(content)
+        resp.headers['Content-Type'] = 'text/html; charset=utf-8'
+        resp.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0'
+        return resp
+    # No scan yet - serve placeholder
+    resp = make_response("""
+    <!DOCTYPE html><html><head><meta charset="UTF-8"><title>AI Market Cap</title>
+    <style>
+        body { font-family: Segoe UI, sans-serif; background: #0d1117; color: #fff; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; text-align: center; }
+        h1 { color: #58a6ff; font-size: 2em; }
+        p { color: #8b949e; }
+        .btn { background: #238636; color: #fff; padding: 12px 24px; border: none; border-radius: 8px; font-size: 1em; cursor: pointer; text-decoration: none; display: inline-block; margin-top: 20px; }
+    </style></head><body>
+    <h1>AI Market Cap Scanner</h1>
+    <p>No scan data yet. Run the scanner locally to generate reports.</p>
+    <a href="/run" class="btn">Run Scanner</a>
+    </body></html>""")
+    resp.headers['Content-Type'] = 'text/html; charset=utf-8'
+    return resp
+
+# ===== FAVICON =====
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory(os.path.dirname(__file__), 'favicon.ico', mimetype='image/x-icon')
+
 # ===== SCAN STATE =====
 class ScanState:
     scan_state = 'idle'
@@ -202,7 +246,7 @@ def cron():
         return "Already ran today", 200
     cron.last_run = today
 
-    def do_scan():
+    def do_scan(label=""):
         today_path = Path(__file__).parent / "ai_earnings_today.html"
         golden_path = Path(__file__).parent / "ai_earnings_golden.html"
 
@@ -215,7 +259,7 @@ def cron():
                 encoding='utf-8', errors='replace', timeout=180,
                 cwd=str(Path(__file__).parent)
             )
-            # STEP 2: Validate - must have rowsData >= 10000 bytes AND contain real stocks
+            # STEP 2: Validate - must have rowsData >= 5000 bytes AND at least 5 stocks
             if today_path.exists():
                 content = today_path.read_text(encoding='utf-8')
                 idx = content.find('var rowsData=')
@@ -230,36 +274,161 @@ def cron():
                                 json_end = i
                                 break
                     json_len = json_end - (idx + 12) + 1
-                    # Count stocks in JSON by counting ticker entries
                     stock_count = content.count('"ticker":')
-                    print(f"[Cron] rowsData={json_len} bytes, stocks={stock_count}")
-                    # MUST have: rowsData >= 10000 bytes AND at least 5 stocks
-                    if json_len >= 10000 and stock_count >= 5:
-                        # SUCCESS - update golden backup
+                    print(f"[Cron{label}] rowsData={json_len} bytes, stocks={stock_count}")
+                    if json_len >= 5000 and stock_count >= 5:
                         import shutil
                         shutil.copy2(today_path, golden_path)
-                        print(f"[Cron] VALID - Golden backup updated ({stock_count} stocks)")
+                        print(f"[Cron{label}] VALID - Golden backup updated ({stock_count} stocks)")
                         scan_succeeded = True
                     else:
-                        print(f"[Cron] INVALID - rowsData={json_len} or stocks={stock_count} too low, restoring golden")
+                        print(f"[Cron{label}] INVALID - rowsData={json_len} or stocks={stock_count} too low, restoring golden")
                         if golden_path.exists():
                             shutil.copy2(golden_path, today_path)
-                            print("[Cron] Restored from golden backup - site stays up")
                         else:
                             print("[Cron] No golden backup found, leaving current file")
                 else:
-                    print("[Cron] rowsData not found, restoring golden")
+                    print(f"[Cron{label}] rowsData not found, restoring golden")
                     if golden_path.exists():
                         shutil.copy2(golden_path, today_path)
-            print("[Cron] Scan output:", result.stdout[-500:] if result.stdout else "no output")
+            print(f"[Cron{label}] Scan output:", result.stdout[-500:] if result.stdout else "no output")
         except Exception as e:
-            print(f"[Cron] Scan error: {e}")
+            print(f"[Cron{label}] Scan error: {e}")
             if golden_path.exists():
                 import shutil
                 shutil.copy2(golden_path, today_path)
-                print("[Cron] Restored from golden after error - site stays up")
+
+        # STEP 3: Self-heal — if fewer than 12 stocks, re-run once automatically
+        if scan_succeeded:
+            heal_count = today_path.read_text(encoding='utf-8').count('"ticker":')
+            if heal_count < 12:
+                print(f"[Heal{label}] Only {heal_count} stocks, re-running scanner...")
+                try:
+                    result = subprocess.run(
+                        [sys.executable, str(Path(__file__).parent / "ai_earnings_scanner.py")],
+                        capture_output=True, text=True,
+                        encoding='utf-8', errors='replace', timeout=180,
+                        cwd=str(Path(__file__).parent)
+                    )
+                    new_content = today_path.read_text(encoding='utf-8')
+                    new_count = new_content.count('"ticker":')
+                    if new_count > heal_count:
+                        import shutil
+                        shutil.copy2(today_path, golden_path)
+                        print(f"[Heal{label}] Re-scan improved to {new_count} stocks, golden updated")
+                except Exception as e:
+                    print(f"[Heal{label}] Re-scan error: {e}")
+
+        # STEP 4: Done — Twitter post handled by /cron-twitter after morning scan only
+        return scan_succeeded
+
+    def do_afternoon():
+        # Separate state tracking for afternoon scan
+        now = datetime.now(PT)
+        today = now.date()
+        force = request.args.get('force') == '1'
+        if not force and getattr(do_afternoon, 'last_run', None) == today:
+            print("[Cron-Afternoon] Already ran today")
+            return
+        do_afternoon.last_run = today
+        do_scan(label="[Afternoon]")
+
     threading.Thread(target=do_scan, daemon=True).start()
     return "Scan triggered", 200
+
+
+@app.route("/cron-afternoon")
+def cron_afternoon():
+    """Triggered by cron-job.org at 1:00 PM PT daily"""
+    def do_afternoon():
+        now = datetime.now(PT)
+        today = now.date()
+        force = request.args.get('force') == '1'
+        if not force and getattr(do_afternoon, 'last_run', None) == today:
+            print("[Cron-Afternoon] Already ran today")
+            return
+        do_afternoon.last_run = today
+        today_path = Path(__file__).parent / "ai_earnings_today.html"
+        golden_path = Path(__file__).parent / "ai_earnings_golden.html"
+        scan_succeeded = False
+        try:
+            result = subprocess.run(
+                [sys.executable, str(Path(__file__).parent / "ai_earnings_scanner.py")],
+                capture_output=True, text=True,
+                encoding='utf-8', errors='replace', timeout=180,
+                cwd=str(Path(__file__).parent)
+            )
+            if today_path.exists():
+                content = today_path.read_text(encoding='utf-8')
+                idx = content.find('var rowsData=')
+                if idx >= 0:
+                    arr_depth, json_end = 0, idx
+                    for i in range(idx + 12, len(content)):
+                        ch = content[i]
+                        if ch == '[': arr_depth += 1
+                        elif ch == ']':
+                            arr_depth -= 1
+                            if arr_depth == 0:
+                                json_end = i
+                                break
+                    json_len = json_end - (idx + 12) + 1
+                    stock_count = content.count('"ticker":')
+                    print(f"[Cron-Afternoon] rowsData={json_len} bytes, stocks={stock_count}")
+                    if json_len >= 5000 and stock_count >= 5:
+                        import shutil
+                        shutil.copy2(today_path, golden_path)
+                        print(f"[Cron-Afternoon] VALID - Golden backup updated ({stock_count} stocks)")
+                        scan_succeeded = True
+                    else:
+                        print(f"[Cron-Afternoon] INVALID, restoring golden")
+                        if golden_path.exists():
+                            shutil.copy2(golden_path, today_path)
+                else:
+                    if golden_path.exists():
+                        shutil.copy2(golden_path, today_path)
+            print("[Cron-Afternoon] Scan output:", result.stdout[-500:] if result.stdout else "no output")
+        except Exception as e:
+            print(f"[Cron-Afternoon] Scan error: {e}")
+            if golden_path.exists():
+                import shutil
+                shutil.copy2(golden_path, today_path)
+        if scan_succeeded:
+            heal_count = today_path.read_text(encoding='utf-8').count('"ticker":')
+            if heal_count < 12:
+                print(f"[Heal-Afternoon] Only {heal_count} stocks, re-running...")
+                try:
+                    subprocess.run(
+                        [sys.executable, str(Path(__file__).parent / "ai_earnings_scanner.py")],
+                        capture_output=True, text=True,
+                        encoding='utf-8', errors='replace', timeout=180,
+                        cwd=str(Path(__file__).parent)
+                    )
+                    import shutil
+                    shutil.copy2(today_path, golden_path)
+                except Exception as e:
+                    print(f"[Heal-Afternoon] Re-scan error: {e}")
+    threading.Thread(target=do_afternoon, daemon=True).start()
+    return "Afternoon scan triggered", 200
+
+
+@app.route("/cron-twitter")
+def cron_twitter():
+    """Post top 6 picks to Twitter. Hit by cron-job.org after morning scan."""
+    def do_twitter():
+        try:
+            sys.path.insert(0, str(Path(__file__).parent))
+            from x_poster import post_daily_scan_to_twitter
+            post_daily_scan_to_twitter()
+        except Exception as e:
+            print(f"[Cron-Twitter] Error: {e}")
+    threading.Thread(target=do_twitter, daemon=True).start()
+    return "Twitter post triggered", 200
+
+
+@app.route("/cron-price-alerts")
+def cron_price_alerts():
+    """Disabled - alerts consume too many Twitter API credits."""
+    return "Alerts disabled", 200
 
 # ===== WEB ROUTES =====
 
@@ -269,44 +438,93 @@ def robots():
 
 @app.route("/sitemap.xml")
 def sitemap():
-    xml = '<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url><loc>https://aismarketcap.com/</loc><lastmod>2026-05-21</lastmod><priority>1.0</priority></url><url><loc>https://aismarketcap.com/about</loc><lastmod>2026-05-21</lastmod><priority>0.8</priority></url><url><loc>https://aismarketcap.com/pricing</loc><lastmod>2026-05-21</lastmod><priority>0.9</priority></url></urlset>'
-    return xml, 200, {"Content-Type": "application/xml"}
-
-@app.route("/")
-def index():
-    """Home page = scanner (no login required)"""
-    workspace = Path(__file__).parent
-    # Try fresh scan file first, then fall back to latest dated scan
-    fresh = workspace / "ai_earnings_today.html"
-    if fresh.exists():
-        with open(fresh, 'r', encoding='utf-8') as f:
-            content = f.read()
-        resp = make_response(content)
-        resp.headers['Content-Type'] = 'text/html; charset=utf-8'
-        resp.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0'
-        return resp
-    # Fall back to latest dated scan
+    today = datetime.now().strftime("%Y-%m-%d")
+    # Dynamic: collect all wins_*.html files from the app directory
+    app_dir = Path(__file__).parent
+    static_pages = [
+        ("/", 1.0),
+        ("/wins", 0.8),
+        ("/about", 0.8),
+        ("/pricing", 0.9),
+    ]
+    wins_pages = []
+    for f in app_dir.glob("wins_*.html"):
+        ticker = f.stem.replace("wins_", "")
+        wins_pages.append((f"/wins/{ticker}", 0.7))
+    xml_urls = ""
+    for loc, priority in static_pages:
+        xml_urls += f"<url><loc>https://aismarketcap.com{loc}</loc><lastmod>{today}</lastmod><priority>{priority}</priority></url>"
+    for loc, priority in wins_pages:
+        xml_urls += f"<url><loc>https://aismarketcap.com{loc}</loc><lastmod>{today}</lastmod><priority>{priority}</priority></url>"
+    xml = f'<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">{xml_urls}</urlset>'
+    resp = make_response(xml)
+    resp.headers["Content-Type"] = "application/xml"
+    return resp
     html_files = sorted(workspace.glob("ai_earnings_57day_*.html"), key=lambda f: f.stat().st_mtime, reverse=True)
     if html_files:
         with open(html_files[0], 'r', encoding='utf-8') as f:
             content = f.read()
+        content = content.replace('<script>setTimeout(function(){document.getElementById("sub-popup").classList.add("show")},300000)</script>',
+                                  f'{sub_flag}<script>if(!window.isSubscribed){{setTimeout(function(){{document.getElementById("sub-popup").classList.add("show")}},300000)}}else{{document.getElementById("sub-popup")&&(document.getElementById("sub-popup").style.display="none")}}</script>')
         resp = make_response(content)
         resp.headers['Content-Type'] = 'text/html; charset=utf-8'
         resp.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0'
         return resp
-    # No scan yet - serve placeholder
-    resp = make_response("""
-    <!DOCTYPE html><html><head><meta charset="UTF-8"><title>AI Market Cap</title>
-    <style>
-        body { font-family: Segoe UI, sans-serif; background: #0d1117; color: #fff; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; text-align: center; }
-        h1 { color: #58a6ff; font-size: 2em; }
-        p { color: #8b949e; }
-        .btn { background: #238636; color: #fff; padding: 12px 24px; border: none; border-radius: 8px; font-size: 1em; cursor: pointer; text-decoration: none; display: inline-block; margin-top: 20px; }
-    </style></head><body>
-        <h1>AI Market Cap Scanner</h1>
-        <p>Scanner is warming up. Check back in a few minutes.</p>
-        <a href="/pricing" class=btn>Subscribe to Unlock Full Access</a>
-    </body></html>""")
+    resp = make_response("""<!DOCTYPE html><html><head><meta charset="UTF-8"><title>AI Market Cap</title><style>body{font-family:Segoe UI,sans-serif;background:#0d1117;color:#fff;display:flex;justify-content:center;align-items:center;height:100vh;margin:0;text-align:center}h1{color:#58a6ff;font-size:2em}p{color:#8b949e}.btn{background:#238636;color:#fff;padding:12px 24px;border:none;border-radius:8px;font-size:1em;cursor:pointer;text-decoration:none;display:inline-block;margin-top:20px}</style></head><body><h1>AI Market Cap Scanner</h1><p>Scanner is warming up. Check back in a few minutes.</p><a href="/pricing" class=btn>Subscribe to Unlock Full Access</a></body></html>""")
+    resp.headers['Content-Type'] = 'text/html; charset=utf-8'
+    return resp
+
+@app.route("/wins")
+def wins():
+    with open(Path(__file__).parent / "wins.html", 'r', encoding='utf-8') as f:
+        content = f.read()
+    resp = make_response(content)
+    resp.headers['Content-Type'] = 'text/html; charset=utf-8'
+    return resp
+
+@app.route("/calendar")
+def calendar_page():
+    with open(Path(__file__).parent / "calendar.html", 'r', encoding='utf-8') as f:
+        content = f.read()
+    resp = make_response(content)
+    resp.headers['Content-Type'] = 'text/html; charset=utf-8'
+    return resp
+
+# Dynamic wins ticker pages: /wins/<ticker> auto-serves wins_<ticker>.html
+@app.route("/wins/<ticker>")
+def wins_ticker_page(ticker):
+    app_dir = Path(__file__).parent
+    wins_file = app_dir / f"wins_{ticker}.html"
+    if wins_file.exists():
+        with open(wins_file, 'r', encoding='utf-8') as f:
+            content = f.read()
+        resp = make_response(content)
+        resp.headers['Content-Type'] = 'text/html; charset=utf-8'
+        return resp
+    return "Wins page not found", 404
+
+# Legacy hardcoded routes (keep for existing wins pages)
+@app.route("/wins/okta")
+def wins_okta():
+    with open(Path(__file__).parent / "wins_okta.html", 'r', encoding='utf-8') as f:
+        content = f.read()
+    resp = make_response(content)
+    resp.headers['Content-Type'] = 'text/html; charset=utf-8'
+    return resp
+
+@app.route("/wins/snowflake")
+def wins_snowflake():
+    with open(Path(__file__).parent / "wins_snowflake.html", 'r', encoding='utf-8') as f:
+        content = f.read()
+    resp = make_response(content)
+    resp.headers['Content-Type'] = 'text/html; charset=utf-8'
+    return resp
+
+@app.route("/wins/innodata")
+def wins_innodata():
+    with open(Path(__file__).parent / "wins_innodata.html", 'r', encoding='utf-8') as f:
+        content = f.read()
+    resp = make_response(content)
     resp.headers['Content-Type'] = 'text/html; charset=utf-8'
     return resp
 
@@ -318,7 +536,7 @@ def pricing():
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" type="image/png" href="/static/logo.png">
-    <meta name="description" content="Subscribe to run additional scans and use the AI chat assistant on the AI Market Cap Scanner.">
+    <meta name="description" content="Subscribe to run additional scans and use the AI Chat Analyst on the AI Market Cap Scanner.">
     <title>Pricing - AI Market Cap</title>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -352,9 +570,9 @@ h2 { color: #fff; font-size: 2em; margin-bottom: 10px; }
     <h1><a href="/" style="color:#58a6ff;text-decoration:none">AI Market Cap</a></h1>
     <a href="/">View Scanner</a>
 </div>
-<div style="background:#1a2a1a;border:1px solid #2ea043;border-radius:8px;padding:12px 18px;margin:30px auto;max-width:880px;text-align:center;font-size:0.9em;color:#2ea043">Full scan runs once daily for free at 6:30 AM PT — auto-updated every market day</div>
+
 <div class=container>
-    <h2>Subscribe to run additional scans<br>and use the AI chat assistant.</h2>
+    <h2>Subscribe for additional scans<br>and AI Chat Pro Trader.</h2>
     <p class=subtitle>Unlock full access to the scanner</p>
     <div class=plans>
         <div class=plan>
@@ -362,16 +580,12 @@ h2 { color: #fff; font-size: 2em; margin-bottom: 10px; }
             <div class=price>$149<span>/mo</span></div>
             <div class=period>Billed monthly</div>
             <ul>
-                <li>2 additional scans per day</li>
-                <li>AI Chat Assistant</li>
-                <li>Score + PE/3D/5D targets</li>
-                <li>AI Suggested Trade</li>
-                <li>Live price ticker</li>
-                <li>News per stock</li>
+                <li>2 Additional Scans Per Day</li>
+                <li>AI Chat Pro Trader</li>
             </ul>
             <a href="/create-checkout?plan=monthly" class=cta>Subscribe - $149/mo</a>
         </div>
-        <div class="plan featured">
+        <div class=plan style="border-color:#ffd700;box-shadow:0 0 16px rgba(255,215,0,.3)">
             <h3>Annual</h3>
             <div class=price>$999<span>/yr</span></div>
             <div class=period>Save $789 vs monthly</div>
@@ -419,6 +633,7 @@ li { color: #c9d1d9; font-size: 0.95em; line-height: 1.7; margin-bottom: 6px; }
 </style></head><body>
 <div class=header>
     <h1><a href="/">AI Market Cap</a></h1>
+    <a href="/wins" class=nav-link>Wins</a>
     <a href="/pricing" class=nav-link>Subscribe</a>
 </div>
 <div class=container>
@@ -430,14 +645,15 @@ li { color: #c9d1d9; font-size: 0.95em; line-height: 1.7; margin-bottom: 6px; }
     </div>
 
     <h2 id=methodology>Scoring Methodology</h2>
-    <p>Every stock is scored 0–100 based on four factors:</p>
+    <p>Every stock is scored 0–100 based on five factors:</p>
     <div class=highlight>
-        <strong>Analyst Ratings (30 pts max)</strong> — Total analysts covering this stock, 1 point each up to 30. More coverage = higher score.<br><br>
-        <strong>Buy Percentage (30 pts)</strong> — Raw % of analysts with Buy or Strong Buy. We weight this separately to capture conviction level.<br><br>
-        <strong>5-Day Upside (20 pts)</strong> — ATM straddle × 5, expressed as % of current stock price. Higher implied move potential = higher score.<br><br>
-        <strong>Strong Buy Count (2 pts each, max 20)</strong> — Each Strong Buy rating adds 2 points. Stocks with 10+ Strong Buy ratings get the full 20 pts.
+        <strong>Analyst Coverage (25pts max)</strong> — Total analysts covering this stock, 1 point each up to 25. More coverage = higher score.<br><br>
+        <strong>Buy % Conviction (25pts max)</strong> — Raw % of analysts with Buy or Strong Buy out of all ratings. We weight this to capture conviction level.<br><br>
+        <strong>Strong Buy Count (20pts max)</strong> — Each Strong Buy rating adds 2 points. Stocks with 10+ Strong Buy ratings get the full 20 pts.<br><br>
+        <strong>5D Upside (15pts max)</strong> — ATM straddle × 5, expressed as % of current stock price. Higher implied move potential = higher score.<br><br>
+        <strong>Earnings Sentiment (15pts max)</strong> — Recent earnings history. Positive = 15pts, Mixed = 7pts, Negative = 0pts.
     </div>
-    <p>Stocks scoring <strong style="color:#00ff88">80+</strong> are flagged Strong Buy. Stocks scoring <strong style="color:#58a6ff">65–79</strong> are Watch.</p>
+    <p>Stocks scoring <strong style="color:#00ff88">75+</strong> are flagged Strong Buy. Stocks scoring <strong style="color:#58a6ff">50+</strong> are Watch.</p>
 
     <h2 id=targets>PE / 3-Day / 5-Day Target Columns</h2>
     <h3>PE Target</h3>
@@ -450,22 +666,25 @@ li { color: #c9d1d9; font-size: 0.95em; line-height: 1.7; margin-bottom: 6px; }
     <p>An ATM straddle buys both a call and a put at the same strike. Its value changes based on how much the stock moves, regardless of direction. We use the straddle price to back-calculate what stock move is being priced in by the market.</p>
 
     <h2 id=ai>AI Suggested Trade</h2>
-    <p>The banner at the top highlights the single best trade opportunity — the stock closest to earnings with the highest composite score. It factors in score weight, proximity to earnings, and analyst conviction.</p>
+    <p>The banner at the top highlights the best trade opportunity — the strong buy (score 75+) with the most days until earnings. Having more time to enter gives you flexibility and better positioning before the report.</p>
+    <p>A runner-up pick is also shown — the 2nd best strong buy by days left. Both banners update automatically every scan.</p>
     <p>This is not financial advice. It's AI's trading observations on where the math and momentum align.</p>
 
     <h2 id=faq>Frequently Asked Questions</h2>
     <p class=faq-q>Is this a financial advisor service?</p>
     <p>No. AI Market Cap is a data tool for informational purposes only. We are not licensed financial advisors. Always do your own research.</p>
     <p class=faq-q>How often does the scanner update?</p>
-    <p>The free scan runs automatically every market day at 6:30 AM PT. Subscribers can run up to 2 additional scans per day on demand.</p>
+    <p>The free scan runs automatically every market day at 6:30 AM PT. Subscribers can run up to 3 additional scans per day on demand.</p>
     <p class=faq-q>What data sources are used?</p>
     <p>Stock prices and option data come from Yahoo Finance. Analyst ratings are pulled from Yahoo Finance's recommendations endpoint. News is sourced from Yahoo Finance market articles.</p>
     <p class=faq-q>What does "days left" mean?</p>
-    <p>Days until the next earnings report date. We only show stocks within 14 days of reporting.</p>
+    <p>Days until the next earnings report date. We show stocks within 40 days of reporting.</p>
     <p class=faq-q>What does Short % mean?</p>
     <p>Short interest - the percentage of shares that have been sold short and not yet covered. High short interest increases squeeze potential pre-earnings.</p>
     <p class=faq-q>What does IV mean?</p>
     <p>Implied Volatility — how much the options market expects the stock to move. High IV stocks have larger straddle targets and greater score potential.</p>
+    <p class=faq-q>What does Earnings Trend mean?</p>
+    <p>Positive = stock has beaten earnings estimates in recent quarters. Mixed = mixed results. Negative = missed recent estimates. This factor adds up to 15 points to the score.</p>
     <p class=faq-q>Can I trade based on this?</p>
     <p>You can, but AI Market Cap is not responsible for any gains or losses. This tool helps identify opportunities — the trade decision is always yours.</p>
 
