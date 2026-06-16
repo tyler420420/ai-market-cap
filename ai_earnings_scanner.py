@@ -670,7 +670,7 @@ def generate_html_report(stocks: list, output_path: str):
     )
     ipo_card_html += '</div>'
     html += '<div class=header><div class=hdr-row>'
-    html += '<div><a href="https://aismarketcap.com" style="color:#fff;text-decoration:none"><h1>' + SCANNER_TITLE + '</h1></a><div style="color:#fff;font-size:0.95em">Pre-Earnings Tech Stock Scanner</div></div>'
+    html += '<div><a href="https://aismarketcap.com" style="color:#fff;text-decoration:none"><h1>AI Market Cap Scanner</h1></a><div style="color:#fff;font-size:0.95em">Pre-Earnings Tech Stock Scanner</div></div>'
     html += ipo_card_html
     html += buttons_row
     html += '</div></div>'

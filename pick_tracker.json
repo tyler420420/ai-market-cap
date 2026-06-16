@@ -1,0 +1,52 @@
+[
+  {
+    "date": "2026-06-15",
+    "ticker": "LHX",
+    "price": 304.17,
+    "score": 76,
+    "days_left": 39,
+    "company": "L3Harris Technologies, Inc.",
+    "pe_target": 313.22,
+    "5d_target": 349.42
+  },
+  {
+    "date": "2026-06-15",
+    "ticker": "GOOG",
+    "price": 367.11,
+    "score": 95,
+    "days_left": 38,
+    "company": "Alphabet Inc.",
+    "pe_target": 376.44,
+    "5d_target": 413.76
+  },
+  {
+    "date": "2026-06-15",
+    "ticker": "GOOGL",
+    "price": 369.35,
+    "score": 93,
+    "days_left": 38,
+    "company": "Alphabet Inc.",
+    "pe_target": 377.1,
+    "5d_target": 408.1
+  },
+  {
+    "date": "2026-06-15",
+    "ticker": "EW",
+    "price": 86.28,
+    "score": 81,
+    "days_left": 38,
+    "company": "Edwards Lifesciences Corporation",
+    "pe_target": 89.28,
+    "5d_target": 101.28
+  },
+  {
+    "date": "2026-06-15",
+    "ticker": "HON",
+    "price": 227.41,
+    "score": 75,
+    "days_left": 38,
+    "company": "Honeywell International Inc.",
+    "pe_target": 234.39,
+    "5d_target": 262.31
+  }
+]
