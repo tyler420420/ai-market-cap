@@ -1,6 +1,7 @@
-"""AI Earnings Scanner - Pre-Earnings Momentum Strategy (1-14 day window)"""
+﻿"""AI Earnings Scanner - Pre-Earnings Momentum Strategy (1-40 day window)"""
 import argparse, csv, os, sys, time
 from datetime import datetime, timedelta, timezone
+import time as _time
 from dataclasses import dataclass
 from typing import List, Optional
 
@@ -13,6 +14,39 @@ try:
     YF_AVAILABLE = True
 except ImportError:
     YF_AVAILABLE = False
+
+
+months_map = {"01":"January","02":"February","03":"March","04":"April","05":"May","06":"June",
+          "07":"July","08":"August","09":"September","10":"October","11":"November","12":"December"}
+
+def fmt_date(ed):
+    if not ed:
+        return ""
+    parts = ed.split("-")
+    if len(parts) == 3:
+        yyyy, mm, dd = parts
+        return months_map.get(mm, mm) + " " + str(int(dd)) + ", " + yyyy
+    return ed
+
+def get_earnings_with_retry(ticker: str, retries: int = 3, delay: float = 0.3):
+    """Fetch yfinance calendar with retry on failure."""
+    for attempt in range(retries):
+        try:
+            stock = yf.Ticker(ticker)
+            cal = stock.calendar
+            if cal and 'Earnings Date' in cal:
+                return cal
+            # Empty response - retry
+            if attempt < retries - 1:
+                _time.sleep(delay)
+                continue
+        except Exception as e:
+            if attempt < retries - 1:
+                _time.sleep(delay)
+                continue
+            else:
+                print(f"  [WARN] {ticker}: yfinance failed after {retries} attempts ({e})")
+    return None
 
 
 def get_earnings_sentiment(ticker: str) -> str:
@@ -43,12 +77,13 @@ def get_earnings_sentiment(ticker: str) -> str:
 
 
 def fetch_ai_stocks_from_finviz() -> List[str]:
-    """Fetch tech sector stocks dollar10B+ from finviz (cap_large + cap_mega)."""
+    """Fetch tech sector stocks $10B+ market cap from finviz (cap_large + cap_mega = $10B+)."""
     try:
         import requests
         from bs4 import BeautifulSoup
         tickers = set()
-        for f in ['sec_technology,cap_mid', 'sec_technology,cap_large', 'sec_technology,cap_mega']:
+        # cap_large ($10B-$200B) + cap_mega ($200B+) = everything $10B+
+        for f in ['sec_technology,cap_large', 'sec_technology,cap_mega']:
             for page_start in range(1, 1001, 20):
                 url = f"https://finviz.com/screener.ashx?v=152&f={f}&o=ticker&r={page_start}"
                 resp = requests.get(url, headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'}, timeout=15)
@@ -64,7 +99,7 @@ def fetch_ai_stocks_from_finviz() -> List[str]:
                         if t.isalpha() and 1 <= len(t) <= 5: tickers.add(t)
                 if len(rows) < 20: break
         result = sorted(tickers)
-        print(f"[AI Stocks] Fetched {len(result)} tech stocks (dollar10B+) from finviz")
+        print(f"[AI Stocks] Fetched {len(result)} tech stocks ($10B+ mcap) from finviz")
         return result
     except Exception as e:
         print(f"[AI Stocks] Finviz fetch failed: {e}. Using cached list.")
@@ -118,8 +153,12 @@ def fetch_top_news(ticker: str, count: int = 1) -> List[dict]:
                             if matched:
                                 break
                     if matched:
-                        if len(title_clean) > 100:
-                            title_clean = title_clean[:97] + '...'
+                        if len(title_clean) > 45:
+                            cutoff = title_clean[:45]
+                            last_space = cutoff.rfind(' ')
+                            remainder = title_clean[last_space+1:last_space+16]
+                            title_clean = cutoff[:last_space] + ' ' + remainder if last_space > 20 else title_clean[:45]
+                            title_clean += '...'
                         headlines.append({'title': title_clean, 'url': url})
                         if len(headlines) >= count:
                             break
@@ -128,21 +167,62 @@ def fetch_top_news(ticker: str, count: int = 1) -> List[dict]:
     return headlines
 # AI Infrastructure
 AI_TICKERS = [
-    'NVDA', 'AMD', 'AVGO', 'MRVL', 'INTC', 'QCOM', 'MU', 'TXN', 'LRCX', 'ASML', 'KLAC', 'AMAT', 'SNPS', 'CDNS',
-    # AI Cloud/Enterprise
-    'MSFT', 'GOOGL', 'AMZN', 'ORCL', 'NOW', 'SNOW', 'CRM',
-    # AI Cybersecurity
-    'PANW', 'CRWD', 'ZS',
-    # AI Data/Analytics / Niche AI plays
-    'INOD', 'DDOG', 'PLTR', 'AI', 'U', 'HPC', 'RAIN', 'GRAB',
-    # Additional AI-niche
-    'INTU', 'ADBE', 'TEAM', 'ADSK', 'CFLT', 'APP', 'VEEV', 'PATH',
-    # EV/Solar AI plays
-    'ENPH', 'SEDG', 'JKS', 'FSLR',
-    # AI Healthcare/Biotech
-    'MRNA', 'BILL',
-    # AI Media/Other
-    'UAA', 'LYFT', 'DOCU',
+    # SEMICONDUCTORS / AI CHIP (45)
+    'NVDA', 'AMD', 'AVGO', 'MRVL', 'INTC', 'QCOM', 'MU', 'TXN', 'LRCX', 'ASML', 'KLAC', 'AMAT', 'SNPS', 'CDNS', 'CRDO',
+    'TSM', 'SMCI', 'MCHP', 'NXPI', 'ON', 'MPWR', 'QRVO', 'SWKS', 'TER', 'GEN', 'KEYS', 'FORM', 'SLAB', 'KLA', 'VEECO',
+    'ENTG', 'ANSS', 'CAMT', 'CRSR', 'LOGI', 'DIOD', 'MXL', 'LSCC', 'POWI', 'LNW', 'ICR', 'CCMP', 'ADI', 'MSTR', 'COIN', 'RIOT',
+    # AI CLOUD / HYPERSCALER (18)
+    'MSFT', 'GOOGL', 'AMZN', 'ORCL', 'NOW', 'SNOW', 'CRM', 'WDAY', 'INTU', 'SAP', 'DBX', 'ZM', 'VEEV', 'TEAM', 'ADSK', 'CTSH', 'FICO',
+    # CYBERSECURITY (18)
+    'PANW', 'CRWD', 'ZS', 'FTNT', 'NET', 'OKTA', 'SPLK', 'HUBS', 'FROG', 'CFLT', 'GLOB', 'SUMO', 'UI', 'GTLB', 'U', 'APP', 'BILL', 'INOD',
+    # AI DATA / ANALYTICS (16)
+    'DDOG', 'PLTR', 'HPC', 'GRAB', 'MDB', 'EPAM', 'DNLI', 'GTLB', 'U', 'AI', 'PRGS', 'BKI', 'PLAN', 'U', 'MDB', 'EPAM',
+    # DEV TOOLS / IT MANAGEMENT (16)
+    'WIX', 'DOCU', 'TWLO', 'SMAR', 'PCTY', 'COIN', 'SQSP', 'ZEN', 'PATH', 'ASAN', 'NCNO', 'EVBG', 'NTNX', 'DT', 'ZEN', 'SMAR',
+    # FINTECH / PAYMENTS (18)
+    'V', 'MA', 'PYPL', 'SQ', 'AFRM', 'SOFI', 'UPST', 'GPN', 'FIS', 'FISV', 'NAVI', 'ALLY', 'WAL', 'HOOD', 'NU', 'RELY', 'GLE', 'RNR',
+    # EV / CLEAN ENERGY / SOLAR (20)
+    'TSLA', 'ENPH', 'SEDG', 'FSLR', 'RUN', 'NEE', 'BE', 'SMR', 'CEG', 'VST', 'ENLV', 'AMCR', 'JKS', 'NOVA', 'CLNE', 'MAXN', 'SUNW', 'ENPH', 'SEDG', 'FSLR',
+    # BIOTECH / HEALTH AI (20)
+    'MRNA', 'EXAS', 'ILMN', 'BIIB', 'REGN', 'VRTX', 'ISRG', 'DXCM', 'ALGN', 'TECH', 'BMRN', 'EXEL', 'IDXX', 'IQV', 'STE', 'MTD', 'RMD', 'SYK', 'ZBH', 'EW',
+    # MEDIA / STREAMING (14)
+    'NFLX', 'DIS', 'WBD', 'PARA', 'ROKU', 'PENN', 'DKNG', 'META', 'SPOT', 'SNAP', 'LYV', 'PARA', 'WBD', 'NFLX',
+    # HARDWARE / INFRASTRUCTURE (18)
+    'AAPL', 'DELL', 'HPQ', 'HPE', 'ANET', 'PTC', 'SWK', 'ITW', 'PH', 'PKE', 'ESIO', 'HOLX', 'VRSN', 'GEHC', 'CDW', 'NTAP', 'WDC', 'STX',
+    # DEFENSE / AEROSPACE TECH (16)
+    'BA', 'LMT', 'RTX', 'NOC', 'GD', 'LHX', 'TDY', 'HII', 'SAIC', 'CACI', 'LDOS', 'TXT', 'AIMC', 'AIR', 'OHI', 'DCO',
+    # ROBOTICS / INDUSTRIAL AI (16)
+    'IRBT', 'ROK', 'EMR', 'HON', 'ETN', 'AME', 'JCI', 'KOD', 'PRLB', 'PLOW', 'MEC', 'ROK', 'EMR', 'ITW', 'PH', 'CARR',
+    # SEMI MATERIALS / CHEMICALS (12)
+    'APD', 'IFF', 'ECL', 'SHW', 'PPG', 'RPM', 'ALB', 'SCCO', 'LYB', 'CE', 'ALB', 'SCCO',
+    # SOFTWARE / ENTERPRISE (18)
+    'ADBE', 'VMW', 'CSCO', 'ANSS', 'TTD', 'MRVI', 'GOOG', 'FAST', 'U', 'APP', 'BILL', 'INOD', 'DDOG', 'GTLB', 'NOW', 'CRM', 'ORCL', 'SAP',
+    # GAMING (10)
+    'EA', 'TTWO', 'NTDOY', 'GAME', 'IMPP', 'BILI', 'SE', 'RBLX', 'MU', 'TTD',
+    # INTERNET PLATFORMS (14)
+    'META', 'PINS', 'SNAP', 'SPOT', 'ROKU', 'LYFT', 'BIDU', 'BILI', 'CPNG', 'GRAB', 'MELI', 'SHOP', 'SE', 'META',
+    # ELECTRONICS / COMPONENTS (14)
+    'AVY', 'EL', 'GWW', 'PCAR', 'WSO', 'WST', 'RHI', 'TT', 'CPRT', 'EFX', 'INFO', 'FFIV', 'JKHY', 'FICO',
+    # DATACENTER (12)
+    'VNET', 'ZTO', 'JD', 'BIDU', 'TCEHY', 'TME', 'IQ', 'YY', 'MOMO', 'TAL', 'EDU', 'BZUN',
+    # ADVERTISING (12)
+    'IPG', 'OMC', 'NWS', 'NWSA', 'FOX', 'FOXA', 'GCI', 'INMA', 'INOC', 'INVE', 'CTVA', 'MSGW',
+    # CUSTOM SILICON / AI ASIC (8)
+    'GOOG', 'AMZN', 'MSFT', 'META', 'NVDA', 'AMD', 'MRVL', 'INTC',
+    # SMART BUILDING / IoT (8)
+    'HON', 'EMR', 'SCHN', 'JCI', 'ETN', 'ROK', 'ABM', 'ESNT',
+    # SPACE / SATELLITE TECH (10)
+    'ASTS', 'RKLB', 'MAXR', 'SESG', 'IRDM', 'LLAWW', 'VOX', 'SATL', 'Astra', 'SpaceX',
+    # AUTONOMOUS VEHICLES / LIDAR (10)
+    'LAZR', 'CPTN', 'INVZ', 'MBLY', 'GOOG', 'TSLA', 'NVDA', 'INTC', 'QCOM', 'AAPL',
+    # AI AGENTS / AUTOMATION (12)
+    'AI', 'U', 'PATH', 'NOW', 'CRM', 'WDAY', 'ASAN', 'TEAM', 'ADSK', 'VEEV', 'HUBS', 'FROG',
+    # SMART INFRASTRUCTURE / GRID (10)
+    'VRT', 'ETN', 'XYL', 'FE', 'AES', 'EIX', 'NEE', 'DUK', 'SO', 'D',
+    # SPATIAL COMPUTING / AR / VR (8)
+    'SONY', 'SNAP', 'META', 'U', 'APP', 'PLTR', 'U', 'SNAP',
+    # AI PRECISION AGRICULTURE (8)
+    'TRMB', 'AGCO', 'DE', 'F', 'CAT', 'ROK', 'AMAT', 'LRCX',
 ]
 
 # Permanently excluded tickers (failed / high risk -- do not scan)
@@ -170,40 +250,55 @@ class EarningsSignal:
 def calculate_composite_score(stock: EarningsSignal) -> float:
     score = 0.0; signals = []
 
-    # === 1. ANALYST COVERAGE (PRIMARY -- institutional validation = safety) ===
-    if stock.total_analysts == 0:
-        signals.append('WARNING: No analyst coverage (high risk, avoid)')
-        score += 5
-    elif stock.total_analysts < 10:
-        signals.append(f'Thin coverage: {stock.total_analysts} analysts')
-        score += 15
-    elif stock.total_analysts >= 20:
-        score += 30
-        signals.append(f'{stock.total_analysts} analysts (institutional backing)')
-    elif stock.total_analysts >= 10:
-        score += 20
+    # === 1. ANALYST COVERAGE (25pts max) ===
+    # 1pt each, linear to 25
+    analyst_score = min(stock.total_analysts, 25)
+    score += analyst_score
+    if stock.total_analysts >= 10:
         signals.append(f'{stock.total_analysts} analysts')
 
-    # === 2. BUY% (analyst conviction) ===
-    if stock.buy_rating_pct > 0:
-        buy_score = (stock.buy_rating_pct / 100) * 30; score += buy_score
-        if stock.buy_rating_pct >= 80:
-            signals.append(f'{stock.buy_rating_pct:.0f}% bullish ({stock.strong_buy_rating} SB + {stock.buy_rating} B)')
+    # === 2. BUY % CONVICTION (25pts max) ===
+    # % of bullish analysts (SB + B out of all ratings)
+    if stock.total_analysts > 0:
+        bullish = stock.strong_buy_rating + stock.buy_rating
+        total_ratings = bullish + stock.hold_rating + stock.sell_rating
+        if total_ratings > 0:
+            buy_pct = (bullish / total_ratings) * 100
+            buy_score = min(buy_pct * 0.25, 25)  # 100% bullish = 25pts
+            score += buy_score
+            if buy_pct >= 75:
+                signals.append(f'{buy_pct:.0f}% bullish ({stock.strong_buy_rating} SB + {stock.buy_rating} B)')
 
-    # === 3. 5D UPSIDE (options-implied move, bonus -- more sensitive in 5-15% range) ===
+    # === 3. STRONG BUY COUNT (20pts max) ===
+    # 2pts each
+    sb_score = min(stock.strong_buy_rating * 2, 20)
+    score += sb_score
+
+    # === 4. 5D UPSIDE (15pts max) ===
+    # Options implied move — 15% move = 15pts
     if stock.post_earnings_5d_upside_pct > 0:
-        # Scale: 10% = 10pts, 20% = 16pts, 30%+ = 20pts (max)
-        upside_score = min(stock.post_earnings_5d_upside_pct / 1.5, 20); score += upside_score
-        if upside_score >= 10: signals.append(f"+{stock.post_earnings_5d_upside_pct:.0f}% 5-day move")
+        upside_score = min(stock.post_earnings_5d_upside_pct, 15)
+        score += upside_score
+        if upside_score >= 10:
+            signals.append(f"+{stock.post_earnings_5d_upside_pct:.0f}% implied move")
 
-    # === 4. STRONG BUY COUNT (analyst conviction multiplier -- 2pts per SB, max 20pts) ===
-    sb_score = min(stock.strong_buy_rating * 2, 20); score += sb_score
+    # === 5. EARNINGS SENTIMENT (15pts max) ===
+    # Recent beat/miss history
+    if stock.earnings_sentiment == 'Positive':
+        score += 15
+        signals.append('Positive earnings trend')
+    elif stock.earnings_sentiment == 'Mixed':
+        score += 7
+        signals.append('Mixed earnings trend')
+    elif stock.earnings_sentiment == 'Negative':
+        score += 0  # No points for negative
 
+    # Cap at 100
     stock.composite_score = min(score, 100); stock.signals = signals
     return stock.composite_score
 
 
-def get_earnings_window(days_ahead: int = 14, window_min: int = 1, window_max: int = 14) -> List[str]:
+def get_earnings_window(days_ahead: int = 40, window_min: int = 0, window_max: int = 40) -> List[str]:
     """Return AI tickers with earnings in the next N days, sorted by days-to-earnings."""
     results = []
     today = datetime.now().date()
@@ -244,7 +339,7 @@ def get_earnings_window(days_ahead: int = 14, window_min: int = 1, window_max: i
                         if isinstance(earnings_date, datetime):
                             earnings_date = earnings_date.date()
                         days_out = (earnings_date - today).days
-                        if 1 <= days_out <= 30:
+                        if 1 <= days_out <= 40:
                             results.append((ticker, earnings_date, days_out))
                             print(f"  {ticker}: {earnings_date} ({days_out} days)")
             except:
@@ -254,119 +349,126 @@ def get_earnings_window(days_ahead: int = 14, window_min: int = 1, window_max: i
     return [t[0] for t in results]
 
 
-def analyze_ticker(ticker: str, earnings_date) -> Optional[EarningsSignal]:
-    try:
-        stock = yf.Ticker(ticker); info = stock.info
-        current_price = info.get('currentPrice') or info.get('regularMarketPrice') or info.get('targetMeanPrice', 0)
-        prev_close = info.get('previousClose') or info.get('regularMarketPreviousClose')
-        if current_price and prev_close and prev_close > 0:
-            price_change_abs = round(current_price - prev_close, 2)
-            price_change_pct = round((price_change_abs / prev_close) * 100, 2)
-        price_target = info.get('targetMeanPrice', 0) or info.get('targetHighPrice', 0) or 0
-        target_upside_pct = ((price_target - current_price) / current_price * 100) if current_price > 0 and price_target > 0 else 0
-
-        # Get actual analyst rating breakdown from yfinance recommendations method
-        # This gives us Strong Buy / Buy / Hold / Sell / Strong Sell counts
-        strong_buy_rating = 0; buy_rating = 0; buy_rating_pct = 0
-        total_analysts = info.get('numberOfAnalystOpinions', 0)
+def analyze_ticker(ticker: str, earnings_date, retries: int = 2) -> Optional[EarningsSignal]:
+    for attempt in range(retries):
         try:
-            rec_df = stock.recommendations
-            if rec_df is not None and not rec_df.empty:
-                # Prefer '0m' or '-1m' (most recent), fall back to first row
-                current_row = rec_df[rec_df['period'].isin(['0m', '-1m'])]
-                if current_row.empty:
-                    current_row = rec_df.iloc[[0]]
-                row = current_row.iloc[0]
-                sb = int(row.get('strongBuy', 0))
-                b = int(row.get('buy', 0))
-                h = int(row.get('hold', 0))
-                s = int(row.get('sell', 0))
-                ss = int(row.get('strongSell', 0))
-                total = sb + b + h + s + ss
-                strong_buy_rating = sb
-                buy_rating = b
-                hold_rating = h
-                sell_rating = s + ss
-                buy_rating_pct = round((sb + b) / total * 100, 1) if total > 0 else 0
-                total_analysts = total
-        except Exception: pass
+            stock = yf.Ticker(ticker); info = stock.info
+            current_price = info.get('currentPrice') or info.get('regularMarketPrice') or info.get('targetMeanPrice', 0)
+            if not current_price or current_price == 0:
+                if attempt < retries - 1:
+                    continue
+                return None
+            prev_close = info.get('previousClose') or info.get('regularMarketPreviousClose')
+            price_change_abs = price_change_pct = 0
+            if current_price and prev_close and prev_close > 0:
+                price_change_abs = round(current_price - prev_close, 2)
+                price_change_pct = round((price_change_abs / prev_close) * 100, 2)
+            price_target = info.get('targetMeanPrice', 0) or info.get('targetHighPrice', 0) or 0
+            target_upside_pct = ((price_target - current_price) / current_price * 100) if current_price > 0 and price_target > 0 else 0
 
-        # Fallback: if recommendations method didn't work, use info dict
-        if strong_buy_rating == 0 and total_analysts > 0:
-            rec_key = info.get('recommendationKey', '')
-            if 'strong_buy' in rec_key.lower(): strong_buy_rating = max(3, round(total_analysts * 0.6)); buy_rating = max(2, round(total_analysts * 0.3)); buy_rating_pct = 75
-            elif rec_key == 'buy': strong_buy_rating = max(2, round(total_analysts * 0.5)); buy_rating = 0; buy_rating_pct = 60
-            elif rec_key == 'outperform': strong_buy_rating = max(2, round(total_analysts * 0.5)); buy_rating = 0; buy_rating_pct = 70
+            # Get actual analyst rating breakdown from yfinance recommendations method
+            # This gives us Strong Buy / Buy / Hold / Sell / Strong Sell counts
+            strong_buy_rating = 0; buy_rating = 0; hold_rating = 0; sell_rating = 0; buy_rating_pct = 0
+            total_analysts = info.get('numberOfAnalystOpinions', 0)
+            try:
+                rec_df = stock.recommendations
+                if rec_df is not None and not rec_df.empty:
+                    # Prefer '0m' or '-1m' (most recent), fall back to first row
+                    current_row = rec_df[rec_df['period'].isin(['0m', '-1m'])]
+                    if current_row.empty:
+                        current_row = rec_df.iloc[[0]]
+                    row = current_row.iloc[0]
+                    sb = int(row.get('strongBuy', 0))
+                    b = int(row.get('buy', 0))
+                    h = int(row.get('hold', 0))
+                    s = int(row.get('sell', 0))
+                    ss = int(row.get('strongSell', 0))
+                    total = sb + b + h + s + ss
+                    strong_buy_rating = sb
+                    buy_rating = b
+                    hold_rating = h
+                    sell_rating = s + ss
+                    buy_rating_pct = round((sb + b) / total * 100, 1) if total > 0 else 0
+                    total_analysts = total
+            except Exception: pass
 
-        implied_volatility = 0
-        post_earnings_target = 0.0
-        post_earnings_upside_pct = 0.0
-        post_earnings_3d_target = 0.0
-        post_earnings_3d_upside_pct = 0.0
-        post_earnings_5d_target = 0.0
-        post_earnings_5d_upside_pct = 0.0
-        try:
-            opt = stock.option_chain()
-            if opt.calls.shape[0] > 0 and opt.puts.shape[0] > 0 and current_price > 0:
-                calls = opt.calls.copy()
-                puts = opt.puts.copy()
-                calls['abs_ITM'] = abs(calls['strike'] - current_price)
-                puts['abs_ITM'] = abs(puts['strike'] - current_price)
-                atm_call = calls.loc[calls['abs_ITM'].idxmin()]
-                atm_put = puts.loc[puts['abs_ITM'].idxmin()]
-                call_price = atm_call.get('lastPrice', 0) or atm_call.get('bid', 0) or 0
-                put_price = atm_put.get('lastPrice', 0) or atm_put.get('bid', 0) or 0
-                straddle_cost = call_price + put_price
-                iv_from_straddle = (straddle_cost / current_price) * 100
-                if iv_from_straddle > 0:
-                    implied_volatility = round(iv_from_straddle, 1)
-                    # PE target = current + straddle x1 (conservative sell)
-                    post_earnings_target = round(current_price + straddle_cost, 2)
-                    post_earnings_upside_pct = round((straddle_cost / current_price) * 100, 1)
-                    # 3D target = current + straddle x3 (mid exit)
-                    post_earnings_3d_target = round(current_price + straddle_cost * 3, 2)
-                    post_earnings_3d_upside_pct = round((straddle_cost * 3 / current_price) * 100, 1)
-                    # 5D target = current + straddle x5 (max upside rotation trade)
-                    post_earnings_5d_target = round(current_price + straddle_cost * 5, 2)
-                    post_earnings_5d_upside_pct = round((straddle_cost * 5 / current_price) * 100, 1)
-                else:
-                    atm_calls = opt.calls[opt.calls['inTheMoney'] == False]
-                    if len(atm_calls) > 0:
-                        iv = atm_calls.iloc[0].get('impliedVolatility', 0)
-                        implied_volatility = iv * 100 if iv else 0
-        except: pass
+            # Fallback: if recommendations method didn't work, use info dict
+            if strong_buy_rating == 0 and total_analysts > 0:
+                rec_key = info.get('recommendationKey', '')
+                if 'strong_buy' in rec_key.lower(): strong_buy_rating = max(3, round(total_analysts * 0.6)); buy_rating = max(2, round(total_analysts * 0.3)); buy_rating_pct = 75
+                elif rec_key == 'buy': strong_buy_rating = max(2, round(total_analysts * 0.5)); buy_rating = 0; buy_rating_pct = 60
+                elif rec_key == 'outperform': strong_buy_rating = max(2, round(total_analysts * 0.5)); buy_rating = 0; buy_rating_pct = 70
 
-        # Fallback: if options failed, scale 12-month target down to post-earnings estimate
-        if post_earnings_upside_pct == 0 and price_target > 0 and current_price > 0:
-            annual_up = ((price_target - current_price) / current_price * 100)
-            post_earnings_upside_pct = round(annual_up * 0.4, 1)
-            post_earnings_target = round(current_price * (1 + post_earnings_upside_pct / 100), 2)
-        short_interest = (info.get('shortPercentOfFloat', 0) or 0) * 100
-        avg_volume = info.get('averageVolume', 0) or info.get('averageDailyVolume10Day', 0) or 0
-        sector = info.get('sector', 'Technology')
-        market_cap_raw = info.get('marketCap', 0) or 0
-        company_name = info.get('longName', info.get('shortName', ticker))
-        days_to_earnings = (earnings_date - datetime.now().date()).days
-        earnings_date_str = earnings_date.strftime('%Y-%m-%d')
-        signal = EarningsSignal(ticker=ticker, company_name=company_name, earnings_date=earnings_date_str, days_to_earnings=days_to_earnings,
-            current_price=round(current_price,2) if current_price else 0, price_target=round(price_target,2) if price_target else 0,
-            target_upside_pct=round(target_upside_pct,1) if target_upside_pct else 0,
-            post_earnings_target=post_earnings_target, post_earnings_upside_pct=post_earnings_upside_pct,
-            post_earnings_3d_target=post_earnings_3d_target, post_earnings_3d_upside_pct=post_earnings_3d_upside_pct,
-            post_earnings_5d_target=post_earnings_5d_target, post_earnings_5d_upside_pct=post_earnings_5d_upside_pct,
-            strong_buy_rating=strong_buy_rating, buy_rating=buy_rating, hold_rating=hold_rating, sell_rating=sell_rating,
-            total_analysts=total_analysts, buy_rating_pct=buy_rating_pct, implied_volatility=implied_volatility,
-            short_interest=round(short_interest,2) if short_interest else 0, avg_volume=avg_volume, sector=sector,
-            price_change_pct=price_change_pct, price_change_abs=price_change_abs,
-            market_cap=round(market_cap_raw / 1e9, 2) if market_cap_raw else 0,
-            earnings_sentiment='')  # set below after fetching
-        calculate_composite_score(signal)
-        signal.top_news = fetch_top_news(ticker, count=1)
-        # Fetch earnings sentiment from last 4 quarters
-        signal.earnings_sentiment = get_earnings_sentiment(ticker)
-        return signal
-    except Exception as e:
-        import traceback; traceback.print_exc(); return None
+            implied_volatility = 0
+            post_earnings_target = 0.0
+            post_earnings_upside_pct = 0.0
+            post_earnings_3d_target = 0.0
+            post_earnings_3d_upside_pct = 0.0
+            post_earnings_5d_target = 0.0
+            post_earnings_5d_upside_pct = 0.0
+            try:
+                opt = stock.option_chain()
+                if opt.calls.shape[0] > 0 and opt.puts.shape[0] > 0 and current_price > 0:
+                    calls = opt.calls.copy()
+                    puts = opt.puts.copy()
+                    calls['abs_ITM'] = abs(calls['strike'] - current_price)
+                    puts['abs_ITM'] = abs(puts['strike'] - current_price)
+                    atm_call = calls.loc[calls['abs_ITM'].idxmin()]
+                    atm_put = puts.loc[puts['abs_ITM'].idxmin()]
+                    call_price = atm_call.get('lastPrice', 0) or atm_call.get('bid', 0) or 0
+                    put_price = atm_put.get('lastPrice', 0) or atm_put.get('bid', 0) or 0
+                    straddle_cost = call_price + put_price
+                    iv_from_straddle = (straddle_cost / current_price) * 100
+                    if iv_from_straddle > 0:
+                        implied_volatility = round(iv_from_straddle, 1)
+                        # PE target = current + straddle x1 (conservative sell)
+                        post_earnings_target = round(current_price + straddle_cost, 2)
+                        post_earnings_upside_pct = round((straddle_cost / current_price) * 100, 1)
+                        # 3D target = current + straddle x3 (mid exit)
+                        post_earnings_3d_target = round(current_price + straddle_cost * 3, 2)
+                        post_earnings_3d_upside_pct = round((straddle_cost * 3 / current_price) * 100, 1)
+                        # 5D target = current + straddle x5 (max upside rotation trade)
+                        post_earnings_5d_target = round(current_price + straddle_cost * 5, 2)
+                        post_earnings_5d_upside_pct = round((straddle_cost * 5 / current_price) * 100, 1)
+                    else:
+                        atm_calls = opt.calls[opt.calls['inTheMoney'] == False]
+                        if len(atm_calls) > 0:
+                            iv = atm_calls.iloc[0].get('impliedVolatility', 0)
+                            implied_volatility = iv * 100 if iv else 0
+            except: pass
+
+            # Fallback: if options failed, scale 12-month target down to post-earnings estimate
+            if post_earnings_upside_pct == 0 and price_target > 0 and current_price > 0:
+                annual_up = ((price_target - current_price) / current_price * 100)
+                post_earnings_upside_pct = round(annual_up * 0.4, 1)
+                post_earnings_target = round(current_price * (1 + post_earnings_upside_pct / 100), 2)
+            short_interest = (info.get('shortPercentOfFloat', 0) or 0) * 100
+            avg_volume = info.get('averageVolume', 0) or info.get('averageDailyVolume10Day', 0) or 0
+            sector = info.get('sector', 'Technology')
+            market_cap_raw = info.get('marketCap', 0) or 0
+            company_name = info.get('longName', info.get('shortName', ticker))
+            days_to_earnings = (earnings_date - datetime.now().date()).days
+            earnings_date_str = earnings_date.strftime('%Y-%m-%d')
+            # Fetch earnings sentiment from last 4 quarters (MUST be before calculate_composite_score)
+            earnings_sentiment = get_earnings_sentiment(ticker)
+            signal = EarningsSignal(ticker=ticker, company_name=company_name, earnings_date=earnings_date_str, days_to_earnings=days_to_earnings,
+                current_price=round(current_price,2) if current_price else 0, price_target=round(price_target,2) if price_target else 0,
+                target_upside_pct=round(target_upside_pct,1) if target_upside_pct else 0,
+                post_earnings_target=post_earnings_target, post_earnings_upside_pct=post_earnings_upside_pct,
+                post_earnings_3d_target=post_earnings_3d_target, post_earnings_3d_upside_pct=post_earnings_3d_upside_pct,
+                post_earnings_5d_target=post_earnings_5d_target, post_earnings_5d_upside_pct=post_earnings_5d_upside_pct,
+                strong_buy_rating=strong_buy_rating, buy_rating=buy_rating, hold_rating=hold_rating, sell_rating=sell_rating,
+                total_analysts=total_analysts, buy_rating_pct=buy_rating_pct, implied_volatility=implied_volatility,
+                short_interest=round(short_interest,2) if short_interest else 0, avg_volume=avg_volume, sector=sector,
+                price_change_pct=price_change_pct, price_change_abs=price_change_abs,
+                market_cap=round(market_cap_raw / 1e9, 2) if market_cap_raw else 0,
+                earnings_sentiment=earnings_sentiment)
+            calculate_composite_score(signal)
+            signal.top_news = fetch_top_news(ticker, count=1)
+            return signal
+        except Exception as e:
+            import traceback; traceback.print_exc()
+    return None
 
 
 def generate_html_report(stocks: list, output_path: str):
@@ -374,17 +476,24 @@ def generate_html_report(stocks: list, output_path: str):
     timestamp = datetime.now(PT).strftime('%B %d, %Y at %I:%M %p PT')
 
     def score_color(s):
-        return '#00ff88' if round(s) >= 80 else '#58a6ff'
+        return '#00ff88' if round(s) >= 75 else '#58a6ff'
 
     # Pre-compute all derived values before building HTML
-    strong_count = sum(1 for s in stocks if round(s.composite_score) >= 80)
-    strong_buys = [s for s in stocks if round(s.composite_score) >= 80]
-    pick = sorted(strong_buys, key=lambda x: (x.days_to_earnings, -x.post_earnings_upside_pct, -x.composite_score))[0] if strong_buys else (stocks[0] if stocks else None)
+    strong_count = sum(1 for s in stocks if round(s.composite_score) >= 75)
+    strong_buys = [s for s in stocks if round(s.composite_score) >= 75]
+    strong_buys.sort(key=lambda x: -x.post_earnings_5d_upside_pct)
+    pick = strong_buys[0] if strong_buys else (stocks[0] if stocks else None)
+    pick2 = strong_buys[1] if len(strong_buys) > 1 else None
     pick_profit = pick_sell = pick_color = None
+    pick2_profit = pick2_sell = pick2_color = None
     if pick:
         pick_profit = f"+{round(pick.post_earnings_upside_pct, 1)}%" if pick.post_earnings_upside_pct > 0 else 'N/A'
         pick_sell = f"${round(pick.post_earnings_target, 2)}" if pick.post_earnings_target > 0 else 'N/A'
         pick_color = score_color(pick.composite_score)
+    if pick2:
+        pick2_profit = f"+{round(pick2.post_earnings_upside_pct, 1)}%" if pick2.post_earnings_upside_pct > 0 else 'N/A'
+        pick2_sell = f"${round(pick2.post_earnings_target, 2)}" if pick2.post_earnings_target > 0 else 'N/A'
+        pick2_color = '#58a6ff'
 
     # Build rows first
     rows_html = []
@@ -393,28 +502,42 @@ def generate_html_report(stocks: list, output_path: str):
         news_lines = ''
         if stock.top_news:
             item = stock.top_news[0]
+            t = item['title']
+            if len(t) > 45:
+                cutoff = t[:45]
+                last_space = cutoff.rfind(' ')
+                remainder = t[last_space+1:last_space+16]
+                t = cutoff[:last_space] + ' ' + remainder if last_space > 20 else t[:45]
+                t += '...'
             if item.get('url'):
-                news_lines = '<a href="' + item['url'] + '" target="_blank" rel="noopener noreferrer" style="color:#fff;text-decoration:none">&#128240; ' + item['title'] + '</a>'
+                news_lines = '<a href="' + item['url'] + '" target="_blank" rel="noopener noreferrer" style="color:#fff;text-decoration:none">' + t + '</a>'
             else:
-                news_lines = '<span style="color:#fff">&#128240; ' + item['title'] + '</span>'
-        days_color = '#00ff88' if stock.days_to_earnings <= 7 else '#ffcc00'
+                news_lines = '<span style="color:#fff">' + t + '</span>'
+        days_color = '#ff4444' if stock.days_to_earnings == 0 else ('#ffcc00' if stock.days_to_earnings <= 7 else ('#58a6ff' if stock.days_to_earnings <= 15 else '#00ff88'))
         bg = 'rgba(0,255,136,0.12)' if round(stock.composite_score)>=80 else 'rgba(31,111,235,0.12)'
         #tbody = ''.join(rows_html)
 
     # Build full HTML
-    SCANNER_TITLE = "AI Market Cap Scanner"
+    SCANNER_TITLE = "AI Market Cap"
     html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>' + SCANNER_TITLE + '</title>'
-    favicon_path = "file:///C:/Users/Tyler_AI/Desktop/logo.png" if LOCAL_MODE else "/static/logo.png"
-    html += '<link rel="icon" type="image/png" href="' + favicon_path + '">'
+    favicon_path = "file:///C:/Users/Tyler_AI/ai-market-cap/favicon.ico" if LOCAL_MODE else "/favicon.ico"
+    html += '<link rel="icon" type="image/x-icon" href="' + favicon_path + '">'
     html += '<meta name="description" content="AI pre-earnings momentum scanner for tech stocks. Track scores, analyst ratings, PE targets, and implied moves before earnings reports.">'
-    html += '<meta property="og:title" content="AI Market Cap Scanner">'
-    html += '<meta property="og:description" content="Pre-earnings momentum scanner for AI/tech stocks. Scores, PE targets, 3-day and 5-day implied moves.">'
+    html += '<meta property="og:title" content="AI Market Cap">'
+    html += '<meta property="og:description" content="Pre-Earnings Tech Stock Scanner for AI stocks. Scores, PE targets, and 14-day implied moves before earnings reports.">'
+    html += '<meta property="og:image" content="https://aismarketcap.com/static/logo.png">'
+    html += '<meta property="og:url" content="https://aismarketcap.com">'
+    html += '<meta property="og:type" content="website">'
+    html += '<meta name="twitter:card" content="summary_large_image">'
+    html += '<meta name="twitter:title" content="AI Market Cap">'
+    html += '<meta name="twitter:description" content="Pre-earnings momentum scanner for AI/tech stocks. Track scores, analyst ratings, PE targets, and implied moves before earnings.">'
+    html += '<meta name="twitter:image" content="https://aismarketcap.com/static/logo.png">'
     html += '<style>'
     html += '*{margin:0;padding:0;box-sizing:border-box}body{font-family:Segoe UI,Arial,sans-serif;background:#0d1117;color:#c9d1d9;padding:0;margin:0}'
     html += '.header{background:linear-gradient(135deg,#1a1f2e,#161b22);padding:25px;border-radius:12px;margin-bottom:20px;border:1px solid #30363d}'
     html += '.hdr-row{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:15px}'
-    html += 'h1{color:#58a6ff;font-size:1.8em;margin-bottom:5px}.desc{color:#fff;font-size:0.95em}'
-    html += '.btn{background:#ffd700;border:2px solid #000;color:#000;padding:10px 22px;border-radius:6px;font-size:0.9em;cursor:pointer;font-weight:bold;flex-shrink:0;box-shadow:0 0 12px rgba(255,215,0,0.5)}.btn:hover{background:#2ea043}.btn:active{background:#238636}.btn:disabled{background:#444;cursor:not-allowed}'
+    html += 'h1{color:#fff;font-size:1.8em;margin-bottom:5px}.desc{color:#8b949e;font-size:0.95em}'
+    html += '.btn{background:#ffd700;border:2px solid #fff;color:#000;padding:10px 22px;border-radius:6px;font-size:0.9em;cursor:pointer;font-weight:bold;flex-shrink:0;box-shadow:0 0 12px rgba(255,215,0,0.5)}.btn:hover{background:#2ea043}.btn:active{background:#238636}.btn:disabled{background:#444;cursor:not-allowed}#refreshBtn{background:#1f6feb;border:2px solid #fff;box-shadow:0 0 12px rgba(31,111,235,0.5)}#refreshBtn:hover{background:#388bfd}'
     
     html += '.ticker-strip{display:flex;overflow:hidden;white-space:nowrap;background:#0a0f18;border-bottom:1px solid #30363d;padding:8px 0;font-size:0.82em}'
     html += '.ticker-strip-inner{display:flex;gap:0;animation:scroll-ticker 40s linear infinite}'
@@ -452,33 +575,106 @@ def generate_html_report(stocks: list, output_path: str):
     html += ".msg-user{background:#238636;color:#fff;align-self:flex-end;border-bottom-right-radius:3px}"
     html += ".msg-bot{background:#1f2937;color:#c9d1d9;align-self:flex-start;border-bottom-left-radius:3px}"
     html += ".msg-bot.loading{color:#8b949e;font-style:italic}"
-    html += "@media(max-width:768px){body,table,div{width:100%!important;box-sizing:border-box}body{padding:0!important;min-width:0!important}.header{padding:12px 10px}.hdr-row{flex-direction:column;align-items:start;gap:8px}h1{font-size:1.2em}.desc{font-size:0.78em}.btn{margin-top:4px}.stats-bar{flex-direction:column;gap:8px}.ticker-strip{font-size:0.68em;padding:6px 0}.pick-banner{flex-direction:column;gap:6px;padding:12px 10px;text-align:center;width:100%!important}.pick-banner span{justify-content:center;font-size:0.85em}.stat{padding:6px 8px}.note,.disclaimer{padding:8px 10px;font-size:0.72em}table{width:100%!important;font-size:0.68em}th,td{padding:5px 3px!important;font-size:0.65em}#chat-panel{right:8px;bottom:60px;width:calc(100vw-16px);max-width:360px}}"
+    html += "@media(max-width:768px){body{padding:0!important;background:#0d1117;min-width:0!important}.header{padding:14px 12px}.hdr-row{flex-direction:column;align-items:start;gap:10px}h1{font-size:1.4em}h1 a{font-size:1.4em}.desc{font-size:0.85em}.btn{padding:10px 16px;font-size:0.95em}#refreshBtn,#scanBtn{margin-top:4px}.stats-bar{flex-direction:column;gap:8px}.ticker-strip{font-size:0.8em;padding:8px 0}.pick-banner{flex-direction:column;gap:8px;padding:16px 12px;min-height:unset}.pick-banner span{font-size:0.95em!important}.stat{padding:8px 12px}.note,.disclaimer{padding:10px 12px;font-size:0.78em}#stockTable{overflow-x:auto;display:block;-webkit-overflow-scrolling:touch}#stockTable thead,#stockTable tbody,#stockTable tr,#stockTable th,#stockTable td{display:block}#stockTable thead tr{position:absolute;top:-9999px;left:-9999px}#stockTable tbody tr{border-bottom:1px solid #30363d;padding:10px 12px;display:flex;flex-wrap:wrap}#stockTable td{position:relative;padding:4px 8px!important;border:none!important;width:auto!important;min-width:50%}#stockTable td:first-child{width:100%!important;font-size:1.1em;font-weight:bold}#stockTable td:nth-child(2){width:100%!important;font-size:0.85em;color:#8b949e;margin-bottom:4px}#stockTable td::before{content:attr(data-label);position:absolute;top:4px;left:8px;font-size:0.7em;color:#6e7681;text-transform:uppercase;font-weight:bold}#stockTable td>strong,#stockTable td>a{font-size:1em!important}#stockTable td>br{display:none}.pick-banner strong{font-size:1.1em!important}#chat-panel{right:4px;bottom:60px;width:calc(100vw-8px);max-width:360px}#chat-btn{padding:12px 20px;font-size:1em}}"
     html += '#chat-input-row{display:flex;border-top:1px solid #30363d;padding:10px 12px;gap:8px}'
     html += '#chat-input{flex:1;background:#0d1117;border:1px solid #30363d;border-radius:8px;color:#c9d1d9;padding:8px 12px;font-size:0.88em;resize:none;outline:none;font-family:Segoe UI,Arial,sans-serif}'
     html += '#chat-input:focus{border-color:#58a6ff}'
-    html += '#chat-send{background:#238636;border:none;color:#fff;border-radius:8px;padding:8px 16px;font-size:0.88em;cursor:pointer;font-weight:bold}#chat-send:hover{background:#2ea043}#chat-send:disabled{background:#444;cursor:not-allowed}'
+    html += '#chat-send{background:#238636;border:none;color:#fff;border-radius:8px;padding:8px 16px;font-size:0.88em;cursor:pointer;font-weight:bold}#chat-send:hover{background:#2ea043}#chat-send:disabled{background:#444;cursor:not-allowed}#stockTableBody tr td:last-child{background:transparent;transition:background .15s}#stockTableBody tr td:last-child:hover{background:rgba(88,166,255,.18)}'
+    html += '#sub-popup{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.75);display:none;align-items:center;justify-content:center;z-index:99999}#sub-popup.show{display:flex}#sub-popup-box{background:#161b22;border:2px solid #ffd700;border-radius:14px;padding:36px 32px;max-width:420px;width:90%;text-align:center;box-shadow:0 0 40px rgba(255,215,0,.3);animation:pop-in .4s ease}@keyframes pop-in{from{transform:scale(.7);opacity:0}to{transform:scale(1);opacity:1}}#sub-popup-box h2{color:#ffd700;font-size:1.4em;margin:0 0 8px}#sub-popup-box p{color:#c9d1d9;font-size:.95em;margin:0 0 20px;line-height:1.5}#sub-popup-features{display:flex;flex-direction:column;gap:8px;margin-bottom:22px;text-align:left}#sub-popup-features div{color:#fff;font-size:.88em;display:flex;align-items:center;gap:8px}#sub-popup-features div span{color:#00ff88;font-weight:bold}#sub-popup-btn{background:#ffd700;border:2px solid #000;color:#000;padding:12px 28px;border-radius:8px;font-size:1em;font-weight:bold;cursor:pointer;text-decoration:none;display:inline-block;margin-right:10px}#sub-popup-btn:hover{background:#e6c200}#sub-popup-close{background:#30363d;border:1px solid #30363d;color:#8b949e;padding:10px 20px;border-radius:8px;font-size:.88em;cursor:pointer}#sub-popup-close:hover{color:#fff}'
+    html += '@media(max-width:600px){body{padding:0;font-size:13px}#stockTable{font-size:12px;width:100%!important;max-width:100%!important;margin:0!important;display:block;overflow-x:visible!important;-webkit-overflow-scrolling:touch}#stockTable thead,#stockTable tbody,#stockTable tr,#stockTable td,#stockTable th{display:block}#stockTable thead{position:absolute;top:-9999px;left:-9999px}#stockTable tr{border:1px solid #30363d;border-radius:0;margin:0;padding:8px;background:#161b22;border-top:none}#stockTable td{position:relative;padding:3px 8px;border:none;font-size:12px;line-height:1.4}#stockTable td:before{content:attr(data-label);font-weight:700;color:#58a6ff;margin-right:6px}#stockTable td.earn-cell{font-size:11px}#stockTable td a{font-size:13px!important}.header{width:100%!important;min-width:0!important;max-width:100%!important;margin:0;padding:12px 8px;background:#161b22;border-left:none;border-right:none;border-radius:0;overflow-x:hidden}.hdr-row{flex-direction:column!important;gap:8px;padding:0!important;width:100%!important}.hdr-row>div{width:100%!important;max-width:100%!important;flex:unset!important}.ticker-strip{border-radius:0;margin:0;background:#161b22;border:1px solid #30363d;border-left:none;border-right:none;overflow:hidden}.note,.disclaimer{border:1px solid #30363d;border-radius:0;margin:0;border-left:none;border-right:none;padding:10px 8px!important;background:#161b22}}'
     html += '</style></head><body>'
+    html += '<div id=sub-popup><div id=sub-popup-box><h2>Unlock Full Scanner Power</h2><p>Subscribe for 3 daily scans, real-time alerts, and the AI Chat Analyst.</p><div id=sub-popup-features><div><span>&#10003;</span> 3 daily scans</div><div><span>&#10003;</span> Real-time earnings alerts</div><div><span>&#10003;</span> AI Chat Analyst</div><div><span>&#10003;</span> Priority pre-earnings picks</div></div><a href="/pricing" id=sub-popup-btn>Subscribe Now</a><button id=sub-popup-close onclick="document.getElementById(\'sub-popup\').classList.remove(\'show\')">Maybe Later</button></div></div>'
+    html += '<script>setTimeout(function(){document.getElementById("sub-popup").classList.add("show")},300000)</script>'
 
     # Ticker strip
     ticker_items = ''
     for s in stocks:
+        if round(s.composite_score) < 50:
+            continue
         chg = s.price_change_pct
         chg_cls = 'ticker-up' if chg >= 0 else 'ticker-dn'
         chg_str = f'+{chg:.2f}%' if chg >= 0 else f'{chg:.2f}%'
-        ticker_items += f'<span class=ticker-item><span style="font-weight:bold;color:#00ff88">{round(s.composite_score)}</span> <span class=ticker-sym>{s.ticker}</span> <span class=ticker-price>${round(s.current_price, 2)}</span> <span class="ticker-chg {chg_cls}">{chg_str}</span></span>'
-    html += '<div style="background:#1a2a1a;border-bottom:2px solid #2ea043;padding:10px 20px;text-align:center;font-size:0.9em"><span style="color:#2ea043">&#10003;</span> Free scan runs daily at 6:30 AM PT &nbsp;|&nbsp; <a href="/pricing" style="color:#ffd700;font-weight:bold;text-decoration:none">Subscribe to run additional scans</a> &nbsp;|&nbsp; <a href="/pricing" style="color:#ffd700;text-decoration:none">+ AI Trading Chat Assistant</a></div>'
+        ticker_items += f'<span class=ticker-item><span style="font-weight:bold;color:#00ff88">{round(s.composite_score)}</span> <span class=ticker-sym>{s.ticker}</span> <span class=ticker-price>${int(s.current_price)}</span> <span class="ticker-chg {chg_cls}">{chg_str}</span></span>'
+    # Add Kraken referral as last strip item
+    ticker_items += '<a href="https://invite.kraken.com/JDNW/dq0q352v" target="_blank" style="display:inline-flex;align-items:center;gap:6px;padding:0 18px;border-right:1px solid #30363d;flex-shrink:0;text-decoration:none"><span style="font-size:1em">&#x1F4B8;</span><span style="font-weight:bold;color:#00ff88;font-size:0.9em">$300 Sign Up Bonus</span><span style="font-weight:bold;color:#9333ea;font-size:0.9em">Trade On Kraken</span></a>'
     html += '<div class=ticker-strip><div class=ticker-strip-inner>' + ticker_items + ticker_items + '</div></div>'
 
-    html += '<div class=header><div class=hdr-row><div><a href="https://aismarketcap.com" style="color:#58a6ff;text-decoration:none"><h1>' + SCANNER_TITLE + '</h1></a><div class=desc>Pre-earnings momentum scanner for Tech sector</div></div>'
-    html += '<div style="display:flex;align-items:center;justify-content:center;text-align:center;padding:0 15px;gap:12px"><div style="background:#0d1a0d;border:1px solid #2ea043;border-radius:8px;padding:8px 14px;min-width:150px;box-shadow:0 0 10px rgba(46,160,67,0.3)"><div style="color:#2ea043;font-size:0.65em;font-weight:bold;margin-bottom:2px">&#128293; SOONEST IPO</div><a href="https://www.spacex.com/ipo" target="_blank" style="color:#00ff88;font-size:0.95em;font-weight:bold;text-decoration:none">SpaceX</a><div style="color:#8b949e;font-size:0.68em">Aerospace | $1.5T | Jun 12</div></div><div style="background:#0d1520;border:1px solid #ffd700;border-radius:8px;padding:8px 14px;min-width:150px"><div style="color:#ffd700;font-size:0.7em;font-weight:bold;margin-bottom:2px">&#128293; TOP IPO</div><a href="https://discord.com/ipo" target="_blank" style="color:#58a6ff;font-size:0.95em;font-weight:bold;text-decoration:none">Discord</a><div style="color:#8b949e;font-size:0.68em">Social | $15B | Q3 2026</div></div><div style="background:#0d1520;border:1px solid #ffd700;border-radius:8px;padding:8px 14px;min-width:150px"><div style="color:#ffd700;font-size:0.7em;font-weight:bold;margin-bottom:2px">&#128293; TOP IPO</div><a href="https://www.databricks.com/company/corporate-overview/ipo" target="_blank" style="color:#58a6ff;font-size:0.95em;font-weight:bold;text-decoration:none">Databricks</a><div style="color:#8b949e;font-size:0.68em">AI Data | $134B | Q3 2026</div></div><div style="background:#0d1520;border:1px solid #ffd700;border-radius:8px;padding:8px 14px;min-width:150px"><div style="color:#ffd700;font-size:0.7em;font-weight:bold;margin-bottom:2px">&#128293; TOP IPO</div><a href="https://openai.com/enterprise" target="_blank" style="color:#58a6ff;font-size:0.95em;font-weight:bold;text-decoration:none">OpenAI</a><div style="color:#8b949e;font-size:0.68em">AI | $1T | Late 2026</div></div></div>'
-    html += '<div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end;margin-left:auto">'
-    html += '<div style="display:flex;gap:6px;align-items:center">'
-    html += '<a href="/about" class=btn style="background:#1a2a2a;border:1px solid #30363d;color:#fff;padding:10px 18px;border-radius:6px;font-size:0.9em;text-decoration:none;font-weight:normal;box-shadow:none" onmouseover="this.style.background='#238636';this.style.borderColor='#238636'" onmouseout="this.style.background='#1a2a2a';this.style.borderColor='#30363d'">How It Works</a>'
-    html += '<button class=btn id=scanBtn onclick=runScan()>Run Scan</button>'
-    html += '</div><div style="display:flex;gap:6px;align-items:center;margin-top:6px"><span style="background:#161b22;border:1px solid #2ea043;border-radius:5px;padding:3px 10px;font-size:0.82em"><span style="font-weight:bold;color:#2ea043">' + str(strong_count) + '</span> <span style="color:#8b949e">Strong Buy</span></span><span style="background:#161b22;border:1px solid #1f6feb;border-radius:5px;padding:3px 10px;font-size:0.82em"><span style="font-weight:bold;color:#58a6ff">' + str(sum(1 for s in stocks if round(s.composite_score) < 80)) + '</span> <span style="color:#8b949e">Watch</span></span><a href="https://x.com/AIMoneyMach" target="_blank" style="color:#58a6ff;text-decoration:none;display:flex;align-items:center;margin-left:4px"><svg height="16" width="16" viewBox="0 0 24 24" fill="#fff"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a></div></div></div>'
+    # IPO cards - centered middle column (auto-skips past IPOs based on date)
+    all_ipos = [
+        {'company': 'Applied Aerospace', 'date': datetime(2026, 6, 3), 'deal': '$634M', 'link': 'https://www.prnewswire.com/news-releases/applied-aerospace--defense-inc-announces-launch-of-initial-public-offering-302781752.html'},
+        {'company': 'SpaceX', 'date': datetime(2026, 6, 12), 'deal': '$1.5T', 'link': 'https://www.spacex.com/ipo'},
+        {'company': 'Discord', 'date': datetime(2026, 9, 1), 'deal': '$15B', 'link': 'https://discord.com/ipo'},
+        {'company': 'Databricks', 'date': datetime(2026, 9, 15), 'deal': '$134B', 'link': 'https://www.databricks.com/company/corporate-overview/ipo'},
+        {'company': 'OpenAI', 'date': datetime(2026, 12, 1), 'deal': '$1T', 'link': 'https://openai.com/enterprise'},
+        {'company': 'Anthropic', 'date': datetime(2026, 10, 15), 'deal': '$380B', 'link': 'https://www.anthropic.com'},
+    ]
+    # Filter out past IPOs and sort by date
+    today = datetime.now()
+    upcoming = [ipo for ipo in all_ipos if ipo['date'] >= today]
+    upcoming.sort(key=lambda x: x['date'])
+    ipo_list = upcoming[:3]
+
+    # Get DRAM ETF price
+    try:
+        import yfinance as yf
+        dram = yf.Ticker("DRAM")
+        dram_info = dram.fast_info
+        dram_price = dram_info.get('last_price') or dram_info.get('previous_close')
+        if not dram_price:
+            hist = dram.history(period="1d")
+            dram_price = hist['Close'].iloc[-1] if not hist.empty else None
+        dram_price_str = f"${dram_price:.2f}" if dram_price else "$--"
+    except:
+        dram_price_str = "$--"
+    # Buttons row
+    buttons_row = (
+        '<div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end;flex-shrink:0">'
+        '<div style="display:flex;gap:6px;align-items:center">'
+        '<a href="/about" style="background:#dc3545;color:#fff;padding:10px 18px;border-radius:6px;font-size:0.9em;text-decoration:none;font-weight:bold;border:1px solid #fff" onmouseover="this.style.background=\'#e84a5f\'" onmouseout="this.style.background=\'#dc3545\'">FAQ</a>'
+        '<a href="/wins" style="background:#238636;color:#fff;padding:10px 18px;border-radius:6px;font-size:0.9em;text-decoration:none;font-weight:bold;border:1px solid #fff" onmouseover="this.style.background=\'#2ea043\'" onmouseout="this.style.background=\'#238636\'">Wins</a>'
+        '<a href="/calendar" style="background:#1f6feb;color:#fff;padding:10px 18px;border-radius:6px;font-size:0.9em;text-decoration:none;font-weight:bold;border:1px solid #fff" onmouseover="this.style.background=\'#388bfd\'" onmouseout="this.style.background=\'#1f6feb\'">Calendar</a>'
+        '<button class=btn id=scanBtn style="background:#ffd700;color:#000;font-weight:bold;border:1px solid #fff;cursor:pointer" onmouseover="this.style.background=\'#fff176\'" onmouseout="this.style.background=\'#ffd700\'" onclick=runScan()>PRO SCAN</button>'
+        '</div>'
+        '<div style="display:flex;gap:6px;align-items:center">'
+        '<a href="https://x.com/AIMoneyMach" target="_blank" style="background:#5741d9;color:#fff;padding:3px 10px;border-radius:5px;border:1px solid #fff;font-size:0.82em;font-weight:bold;text-decoration:none" onmouseover="this.style.background=\'#6e55e0\'" onmouseout="this.style.background=\'#5741d9\'">Follow Us On X</a>'
+        '<span style="background:#161b22;border:1px solid #2ea043;border-radius:5px;padding:3px 10px;font-size:0.82em"><span style="font-weight:bold;color:#2ea043">' + str(strong_count) + '</span> <span style="color:#8b949e">Strong Buy</span></span>'
+        '<span style="background:#161b22;border:1px solid #1f6feb;border-radius:5px;padding:3px 10px;font-size:0.82em"><span style="font-weight:bold;color:#58a6ff">' + str(sum(1 for s in stocks if 50 <= round(s.composite_score) < 75)) + '</span> <span style="color:#8b949e">Watch</span></span>'
+        '</div>'
+        '</div>'
+    )
+    # Build IPO cards dynamically - filters past IPOs, always shows 5 upcoming
+    ipo_card_html = '<div style="display:flex;gap:6px;align-items:center;justify-content:center;flex-wrap:wrap;max-width:800px;margin:0 auto">'
+    styles = [
+        ('#2ea043', 'SOONEST TOP IPO', 'rgba(46,160,67,0.3)'),
+        ('#1f6feb', 'NEXT TOP IPO', 'rgba(31,111,235,0.3)'),
+        ('#ffd700', 'TOP IPO', 'rgba(255,215,0,0.2)'),
+    ]
+    for i, ipo in enumerate(ipo_list):
+        lbl_color, lbl_text, glow = styles[i] if i < len(styles) else styles[-1]
+        date_str = ipo['date'].strftime('%b %d')
+        company = ipo['company']
+        deal = ipo.get('deal', '')
+        link = ipo['link']
+        ipo_card_html += (
+            f'<div style="background:#0d1a0d;border:1px solid {lbl_color};border-radius:8px;padding:8px 14px;min-width:140px;box-shadow:0 0 10px {glow}">'
+            f'<div style="color:{lbl_color};font-size:0.65em;font-weight:bold;margin-bottom:2px">&#128293; {lbl_text}</div>'
+            f'<a href="{link}" target="_blank" style="color:#00ff88;font-size:0.95em;font-weight:bold;text-decoration:none">{company}</a>'
+            f'<div style="color:#fff;font-size:0.68em">{date_str} | {deal}</div></div>'
+        )
+    # Add DRAM card in purple (in same row, with gap)
+    ipo_card_html += (
+        f'<div style="background:#0d1428;border:1px solid #5741d9;border-radius:8px;padding:8px 14px;min-width:140px;box-shadow:0 0 10px rgba(87,65,217,0.3);margin-left:24px">'
+        f'<div style="color:#9333ea;font-size:0.65em;font-weight:bold;margin-bottom:2px">&#128293; TRENDING ETF</div>'
+        f'<a href="https://finance.yahoo.com/quote/DRAM/" target="_blank" style="color:#00ff88;font-size:0.95em;font-weight:bold;text-decoration:none">DRAM</a>'
+        f'<div style="color:#fff;font-size:0.68em">{dram_price_str}</div></div>'
+    )
+    ipo_card_html += '</div>'
+    html += '<div class=header><div class=hdr-row>'
+    html += '<div><a href="https://aismarketcap.com" style="color:#fff;text-decoration:none"><h1>AI Market Cap</h1></a><div style="color:#fff;font-size:0.95em">Pre-Earnings Tech Stock Scanner</div></div>'
+    html += ipo_card_html
+    html += buttons_row
+    html += '</div></div>'
     html += '<div class=warn id=warnMsg></div>'
-    html += '<div class=updated>Last Updated: ' + timestamp + '</div>'
-    html += '<div class=stats-bar><div class=legend><span><span class=dot style=background:#00ff88></span> Score 80+: Strong Buy</span><span><span class=dot style=background:#58a6ff></span> Score &lt;80: Watch</span></div></div>'
 
     if pick:
         html += '<div class=pick-banner style="background:#161b22;border:2px solid #2ea043;border-radius:10px;padding:40px 18px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:15px 0;min-height:120px;box-shadow:0 0 20px rgba(46,160,67,0.4)">'
@@ -486,22 +682,45 @@ def generate_html_report(stocks: list, output_path: str):
         html += '<span style="font-size:1.2em;font-weight:bold;color:#fff">' + pick.ticker + '</span>'
         html += '<span style="font-size:0.95em;color:#fff">' + pick.company_name[:28] + ('...' if len(pick.company_name) > 28 else '') + '</span>'
         html += '<span style="font-size:0.95em;color:#fff">Score: <strong style="color:' + pick_color + '">' + str(round(pick.composite_score)) + '</strong></span>'
-        html += '<span style="font-size:0.95em;color:#fff">Price: <strong style="color:#00ff88">$' + str(round(pick.current_price, 2)) + '</strong></span>'
-        html += '<span style="font-size:0.95em;color:#fff">Sell: <strong style="color:#00ff88">' + pick_sell + '</strong></span>'
-        html += '<span style="font-size:0.95em;color:#fff">Earnings in: <strong style="color:#00ff88">' + str(pick.days_to_earnings) + ' days</strong></span>'
-        html += '<span style="font-size:0.95em;color:#fff">PE Profit: <strong style="color:#00ff88;font-weight:bold">' + pick_profit + '</strong></span>'
+        html += '<span style="font-size:0.95em;color:#fff">Buy Price: <strong style="color:#00ff88">$' + str(int(pick.current_price)) + '</strong></span>'
+        pick_earn_label = 'Today' if pick.days_to_earnings == 0 else str(pick.days_to_earnings)
+        html += '<span style="font-size:1em;color:#00ff88;font-weight:bold">Enter now - ' + pick_earn_label + ' days to earnings</span>'
+        html += '<a href="https://invite.kraken.com/JDNW/dq0q352v" target="_blank" style="display:inline-block;background:#5741d9;color:#fff;padding:8px 18px;border-radius:6px;font-weight:bold;text-decoration:none;font-size:0.9em;margin-left:auto">Trade ' + pick.ticker + ' on Kraken</a>'
+        html += '</div>'
+
+    if pick2:
+        html += '<div class=pick-banner style="background:#161b22;border:2px solid #1f6feb;border-radius:10px;padding:40px 18px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:0 0 15px;min-height:120px;box-shadow:0 0 20px rgba(31,111,235,0.4)">'
+        html += '<span style="font-size:1.3em;color:#58a6ff;font-weight:bold">&#9733; Runner-Up Pick</span>'
+        html += '<span style="font-size:1.2em;font-weight:bold;color:#fff">' + pick2.ticker + '</span>'
+        html += '<span style="font-size:0.95em;color:#fff">' + pick2.company_name[:28] + ('...' if len(pick2.company_name) > 28 else '') + '</span>'
+        html += '<span style="font-size:0.95em;color:#fff">Score: <strong style="color:' + pick2_color + '">' + str(round(pick2.composite_score)) + '</strong></span>'
+        html += '<span style="font-size:0.95em;color:#fff">Buy Price: <strong style="color:#58a6ff">$' + str(int(pick2.current_price)) + '</strong></span>'
+        pick2_earn_label = 'Today' if pick2.days_to_earnings == 0 else str(pick2.days_to_earnings)
+        html += '<span style="font-size:1em;color:#58a6ff;font-weight:bold">Enter now - ' + pick2_earn_label + ' days to earnings</span>'
+        html += '<a href="https://invite.kraken.com/JDNW/dq0q352v" target="_blank" style="display:inline-block;background:#5741d9;color:#fff;padding:8px 18px;border-radius:6px;font-weight:bold;text-decoration:none;font-size:0.9em;margin-left:auto">Trade ' + pick2.ticker + ' on Kraken</a>'
         html += '</div>'
 
     headers = [
-        ('Ticker','ticker'), ('Company','company_name'), ('Score','score'),
-        ('Next<br>Earnings','earnings_date'), ('Days<br>Left','days_left'), ('Current<br>Price','price'),
-        ('PE Target','pe_target'), ('3 Day','3 Day'), ('5 Day','5 Day'),
-        ('Analyst<br>Reports','analysts'), ('S-BUY','sb'), ('Buy','buy'),
-        ('Hold','hold'), ('Sell','sell'), ('Market Cap','mktcap'), ('Short %','short_int'), ('IV','iv'), ('Earnings<br>Trend','sentiment'), ('News','news')
+        ('Ticker<br>Symbol','ticker'), ('Company<br>Name','company_name'), ('Overall<br>Score','score'),
+        ('Earnings<br>Date','earnings_date'), ('Days<br>Left','days_left'), ('Current<br>Price','price'),
+        ('3 Day<br>Target','pe_target'), ('7 Day<br>Target','3d'), ('14 Day<br>Target','5d'),
+        ('Total<br>Analyst','analysts'), ('Strong<br>Buy','sb'), ('Buy<br>Ratings','buy'),
+        ('Hold<br>Ratings','hold'), ('Sell<br>Ratings','sell'), ('Market<br>Cap','mktcap'),
+        ('Total<br>Shorts','short_int'), ('Implied<br>Volatility','iv'),
+        ('Earnings<br>Trend','sentiment'), ('Recent News','news')
     ]
     ths = ''
+    col_labels = {
+        'ticker': 'Ticker', 'company_name': 'Company', 'score': 'Score',
+        'earnings_date': 'Earnings', 'days_left': 'Days', 'price': 'Price',
+        'pe_target': '3 Day', '3d': '7 Day', '5d': '14 Day',
+        'analysts': 'Analysts', 'sb': 'Strong Buy', 'buy': 'Buy',
+        'hold': 'Hold', 'sell': 'Sell', 'mktcap': 'Mkt Cap',
+        'short_int': 'Shorts', 'iv': 'IV', 'sentiment': 'Trend', 'news': 'News'
+    }
     for h, col in headers:
-        ths += '<th onclick="sortBy(\'' + col + '\')" data-col="' + col + '">' + h + '</th>'
+        label = col_labels.get(col, col)
+        ths += '<th onclick="sortBy(\'' + col + '\')" data-col="' + col + '" data-label="' + label + '">' + h + '</th>'
     html += '<table id="stockTable"><thead><tr>' + ths + '</tr></thead><tbody id="stockTableBody">'
 
     rows_data = []
@@ -512,7 +731,7 @@ def generate_html_report(stocks: list, output_path: str):
         count += 1
         rows_data.append({
             'rank': count, 'ticker': stock.ticker, 'company_name': stock.company_name,
-            'score': round(stock.composite_score), 'earnings_date': (lambda ed: '<br>'.join([ed[5:10].replace('-', chr(45)), ed[:4]]) if ed else '')(stock.earnings_date),
+            'score': round(stock.composite_score), 'earnings_date': fmt_date(stock.earnings_date),
             'days_left': stock.days_to_earnings, 'price': round(stock.current_price, 2),
             'pe_target': round(stock.post_earnings_target, 2), 'pe_upside': round(stock.post_earnings_upside_pct, 1),
             '3d': round(stock.post_earnings_3d_target, 2), '3d_up': round(stock.post_earnings_3d_upside_pct, 1),
@@ -522,6 +741,7 @@ def generate_html_report(stocks: list, output_path: str):
             'mktcap': stock.market_cap,
             'short_int': round(stock.short_interest, 1) if stock.short_interest else 0,
             'iv': round(stock.implied_volatility, 1) if stock.implied_volatility else 0,
+            'sector': stock.sector or 'Technology',
             'sentiment': stock.earnings_sentiment,
             'news': stock.top_news[0] if stock.top_news else None
         })
@@ -529,26 +749,33 @@ def generate_html_report(stocks: list, output_path: str):
     import json
     # Build static table rows in Python - no JS needed for display
     def score_color_css(score):
-        return '#00ff88' if score >= 80 else '#58a6ff'
+        return '#00ff88' if score >= 75 else '#58a6ff'
     def row_bg(score):
-        return 'rgba(0,255,136,0.12)' if score >= 80 else 'rgba(31,111,235,0.12)'
+        return 'rgba(0,255,136,0.12)' if score >= 75 else 'rgba(31,111,235,0.12)'
     def days_color(days):
-        return '#00ff88' if days <= 7 else '#ffcc00'
+        return '#ff4444' if days == 0 else ('#ffcc00' if days <= 7 else ('#58a6ff' if days <= 15 else '#00ff88'))
     def news_link(news):
         if not news:
-            return '&#128240; --'
+            return '--'
         url = news.get('url', '')
         title = news.get('title', '')
+        # Cut at 45 chars but include the next complete word so sentences make sense, add ...
+        if len(title) > 45:
+            cutoff = title[:45]
+            last_space = cutoff.rfind(' ')
+            remainder = title[last_space+1:last_space+16]
+            title = cutoff[:last_space] + ' ' + remainder if last_space > 20 else title[:45]
+            title += '...'
         if url:
-            return '<a href="' + url + '" target="_blank" style="color:#fff;text-decoration:none">&#128240; ' + title[:60] + '</a>'
-        return '<span style="color:#fff">&#128240; ' + title[:60] + '</span>'
+            return '<a href="' + url + '" target="_blank" style="color:#fff;text-decoration:none">' + title + '</a>'
+        return '<span style="color:#fff">' + title + '</span>'
     def fmt_mktcap(val):
         if val >= 1000:
-            return '$' + str(round(val / 1000, 2)) + 'T'
+            return str(int(round(val / 1000))) + ' T'
         elif val >= 1:
-            return '$' + str(round(val, 2)) + 'B'
+            return str(int(round(val))) + ' B'
         else:
-            return '$' + str(round(val * 1000, 0)) + 'M'
+            return str(int(round(val * 1000))) + ' M'
 
     static_rows = ''
     for r in rows_data:
@@ -558,23 +785,24 @@ def generate_html_report(stocks: list, output_path: str):
         co_name = r['company_name'][:35] + ('...' if len(r['company_name']) > 35 else '')
         news_cell = news_link(r['news'])
         static_rows += '<tr style="background:' + bg_color + '">'
-        static_rows += '<td><strong><a href="https://finance.yahoo.com/quote/' + r['ticker'] + '" target="_blank" style="color:#66b2ff">' + r['ticker'] + '</a></strong></td>'
-        static_rows += '<td>' + co_name + '</td>'
-        static_rows += '<td><strong style="color:' + c_color + '">' + str(r['score']) + '</strong></td>'
-        static_rows += '<td>' + r['earnings_date'] + '</td>'
-        static_rows += '<td style="color:' + d_color + ';font-weight:bold">' + str(r['days_left']) + 'd</td>'
-        static_rows += '<td style="font-weight:bold">$' + str(r['price']) + '</td>'
-        static_rows += '<td style="font-weight:bold">$' + str(r['pe_target']) + '<br><span style="color:#00ff88">+' + str(r['pe_upside']) + '%</span></td>'
-        static_rows += '<td>$' + str(r['3d']) + '<br><span style="color:#00ff88">+' + str(r['3d_up']) + '%</span></td>'
-        static_rows += '<td>$' + str(r['5d']) + '<br><span style="color:#00ff88">+' + str(r['5d_up']) + '%</span></td>'
-        static_rows += '<td style="color:#bf8fff">' + str(r['analysts']) + '</td>'
-        static_rows += '<td style="color:#00ff88">' + str(r['sb']) + '</td>'
-        static_rows += '<td style="color:#58a6ff">' + str(r['buy']) + '</td>'
-        static_rows += '<td style="color:#ffcc00">' + str(r['hold']) + '</td>'
-        static_rows += '<td style="color:#ff6b6b">' + str(r['sell']) + '</td>'
-        static_rows += '<td>' + fmt_mktcap(r['mktcap']) + '</td>'
-        static_rows += '<td style="color:#fff">' + str(r['short_int']) + '%</td>'
-        static_rows += '<td style="color:#fff">' + str(r['iv']) + '%</td>'
+        static_rows += '<td data-label="Ticker"><strong><a href="https://finance.yahoo.com/quote/' + r['ticker'] + '" target="_blank" style="color:#66b2ff">' + r['ticker'] + '</a></strong></td>'
+        static_rows += '<td data-label="Company">' + co_name + '</td>'
+        static_rows += '<td data-label="Score"><strong style="color:' + c_color + '">' + str(r['score']) + '</strong></td>'
+        static_rows += '<td data-label="Earnings">' + r['earnings_date'] + '</td>'
+        days_str = 'Today' if r['days_left'] == 0 else str(r['days_left']) + 'd'
+        static_rows += '<td data-label="Days"><span style="color:' + d_color + ';font-weight:bold">' + days_str + '</span></td>'
+        static_rows += '<td data-label="Price" style="font-weight:bold">$' + str(int(r['price'])) + '</td>'
+        static_rows += '<td data-label="3 Day"><span style="font-weight:bold">$' + str(int(r['pe_target'])) + '</span><br><span style="color:#00ff88">+' + str(r['pe_upside']) + '%</span></td>'
+        static_rows += '<td data-label="7 Day">$' + str(int(r['3d'])) + '<br><span style="color:#00ff88">+' + str(r['3d_up']) + '%</span></td>'
+        static_rows += '<td data-label="14 Day">$' + str(int(r['5d'])) + '<br><span style="color:#00ff88">+' + str(r['5d_up']) + '%</span></td>'
+        static_rows += '<td data-label="Analysts" style="color:#bf8fff">' + str(r['analysts']) + '</td>'
+        static_rows += '<td data-label="Strong Buy" style="color:#00ff88">' + str(r['sb']) + '</td>'
+        static_rows += '<td data-label="Buy" style="color:#58a6ff">' + str(r['buy']) + '</td>'
+        static_rows += '<td data-label="Hold" style="color:#ffcc00">' + str(r['hold']) + '</td>'
+        static_rows += '<td data-label="Sell" style="color:#ff6b6b">' + str(r['sell']) + '</td>'
+        static_rows += '<td data-label="Mkt Cap">' + fmt_mktcap(r['mktcap']) + '</td>'
+        static_rows += '<td data-label="Shorts" style="color:#fff">' + str(r['short_int']) + '%</td>'
+        static_rows += '<td data-label="IV" style="color:#fff">' + str(r['iv']) + '%</td>'
         sent = r.get('sentiment', '')
         if sent == 'Positive':
             sent_badge = '<span style="background:#1a2a1a;border:1px solid #2ea043;border-radius:5px;padding:2px 8px;font-size:0.75em;font-weight:bold;color:#00ff88">' + sent + '</span>'
@@ -583,22 +811,22 @@ def generate_html_report(stocks: list, output_path: str):
         elif sent == 'Mixed':
             sent_badge = '<span style="background:#2a2a1a;border:1px solid #ffd700;border-radius:5px;padding:2px 8px;font-size:0.75em;font-weight:bold;color:#ffd700">' + sent + '</span>'
         else:
-            sent_badge = 'â€”'
-        static_rows += '<td>' + sent_badge + '</td>'
-        static_rows += '<td>' + news_cell + '</td>'
+            sent_badge = 'â€"'
+        static_rows += '<td data-label="Trend">' + sent_badge + '</td>'
+        static_rows += '<td data-label="News">' + news_cell + '</td>'
         static_rows += '</tr>'
 
     html += static_rows + '</tbody></table>'
     html += '<script>var rowsData=' + json.dumps(rows_data) + ';\n'
-    html += "var sortCol='score';var sortAsc=false;function getVal(r,col){var m={'ticker':r.ticker,'company_name':r.company_name,'score':r.score,'earnings_date':r.earnings_date,'days_left':r.days_left,'price':r.price,'pe_target':r.pe_target,'3d':r['3d'],'5d':r['5d'],'analysts':r.analysts,'sb':r.sb,'buy':r.buy,'hold':r.hold,'sell':r.sell,'mktcap':r.mktcap,'short_int':r.short_int,'iv':r.iv,'sentiment':r.sentiment};return m[col]||r[col]||0;}function updateArrows(){document.querySelectorAll('th[data-col]').forEach(function(th){th.classList.remove('sorted-asc','sorted-desc');});var th=document.querySelector('th[data-col=\"'+sortCol+'\"]');if(th){th.classList.add(sortAsc?'sorted-asc':'sorted-desc');}}function sortBy(col){if(sortCol===col){sortAsc=!sortAsc;}else{sortCol=col;sortAsc=col==='score'||col==='analysts'||col==='sb'||col==='buy'||col==='hold'||col==='sell'||col==='price'||col==='pe_target'||col==='mktcap'||col==='short_int'||col==='iv';}var dirs={'ticker':1,'company_name':1};var asc=dirs[col]?sortAsc:!sortAsc;rowsData.sort(function(a,b){var va=getVal(a,col),vb=getVal(b,col);if(typeof va==='number')return asc?va-vb:vb-va;return asc?String(va).localeCompare(String(vb)):String(vb).localeCompare(String(va));});renderTable();updateArrows();}function fmtMktcap(v){if(v>=1000)return'$'+Math.round(v/1000*100)/100+'T';if(v>=1)return'$'+Math.round(v*100)/100+'B';return'$'+Math.round(v*1000)+'M';}function scoreColor(s){return s>=80?'#00ff88':'#58a6ff';}function newsHtml(n){if(!n)return'';var u=n.url||'';var t=n.title||'';return u?'<a href=\"'+u+'\" target=\"_blank\" style=\"color:#fff;text-decoration:none\">&#128240; '+t+'</a>':'<span style=\"color:#fff\">&#128240; '+t+'</span>';}function renderTable(){var tbody=document.getElementById('stockTableBody');if(!tbody)return;var html='';rowsData.forEach(function(r){if(r.score<50)return;var c=scoreColor(r.score);var bg=r.score>=80?'rgba(0,255,136,0.12)':'rgba(31,111,235,0.12)';html+='<tr style=\"background:'+bg+'\"><td><strong><a href=\"https://finance.yahoo.com/quote/'+r.ticker+'\" target=\"_blank\" style=\"color:#66b2ff\">'+r.ticker+'</a></strong></td>';html+='<td>'+r.company_name.substring(0,35)+(r.company_name.length>35?'...':'')+'</td>';html+='<td><strong style=\"color:'+c+';font-size:1.3em\">'+r.score+'</strong></td>';html+='<td class=earn-cell>'+r.earnings_date.replace(chr(10),'<br>')+'</td>';html+='<td style=\"color:'+(r.days_left<=7?'#00ff88':'#ffcc00')+';font-weight:bold\">'+r.days_left+'d</td>';html+='<td>$'+r.price+'</td>';html+='<td>$'+r.pe_target+' | +'+r.pe_upside+'%</td>';html+='<td>$'+r['3d']+' | +'+r['3d_up']+'%</td>';html+='<td>$'+r['5d']+' | +'+r['5d_up']+'%</td>';html+='<td>'+r.analysts+'</td>';html+='<td style=\"color:#00ff88\">'+r.sb+'</td>';html+='<td style=\"color:#58a6ff\">'+r.buy+'</td>';html+='<td style=\"color:#ffcc00\">'+r.hold+'</td>';html+='<td style=\"color:#ff6b6b\">'+r.sell+'</td>';html+='<td>'+fmtMktcap(r.mktcap)+'</td>';html+='<td style=\'color:#fff\'>'+r.short_int+'%</td>';html+='<td style=\'color:#fff\'>'+r.iv+'%</td>';html+='<td>'+(r.squeeze?'<span style=\'background:#1a2a1a;border:1px solid #2ea043;border-radius:5px;padding:2px 8px;font-size:0.75em;font-weight:bold;color:#00ff88\'>Yes</span>':'â€”')+'</td>';html+='<td>'+newsHtml(r.news)+'</td></tr>';});tbody.innerHTML=html;};sortBy('days_left');"
+    html += "var sortCol='score';var sortAsc=false;function getVal(r,col){var m={'ticker':r.ticker,'company_name':r.company_name,'score':r.score,'earnings_date':r.earnings_date,'days_left':r.days_left,'price':r.price,'pe_target':r.pe_target,'3d':r['3d'],'5d':r['5d'],'analysts':r.analysts,'sb':r.sb,'buy':r.buy,'hold':r.hold,'sell':r.sell,'mktcap':r.mktcap,'short_int':r.short_int,'iv':r.iv,'sentiment':r.sentiment};return m[col]||r[col]||0;}function updateArrows(){document.querySelectorAll('th[data-col]').forEach(function(th){th.classList.remove('sorted-asc','sorted-desc');});var th=document.querySelector('th[data-col=\"'+sortCol+'\"]');if(th){th.classList.add(sortAsc?'sorted-asc':'sorted-desc');}}function sortBy(col){if(sortCol===col){sortAsc=!sortAsc;}else{sortCol=col;sortAsc=col==='score'||col==='analysts'||col==='sb'||col==='buy'||col==='hold'||col==='sell'||col==='price'||col==='pe_target'||col==='3d'||col==='5d'||col==='mktcap'||col==='short_int'||col==='iv';}var dirs={'ticker':1,'company_name':1};var asc=dirs[col]?sortAsc:!sortAsc;rowsData.sort(function(a,b){var va=getVal(a,col),vb=getVal(b,col);if(typeof va==='number')return asc?va-vb:vb-va;return asc?String(va).localeCompare(String(vb)):String(vb).localeCompare(String(va));});renderTable();updateArrows();}function fmtMktcap(v){if(v>=1000)return Math.round(v/1000)+' T';if(v>=1)return Math.round(v)+' B';return Math.round(v*1000)+' M';}function scoreColor(s){return s>=80?'#00ff88':'#58a6ff';}function newsHtml(n){if(!n)return'';var u=n.url||'';var t=n.title||'';if(t.length>45){var sp=t.lastIndexOf(' ',45);var rm=sp>0?t.substring(sp+1,sp+16):'';t=sp>20?t.substring(0,sp)+' '+rm:t.substring(0,45);t+='...';}return u?'<a href=\"'+u+'\" target=\"_blank\" style=\"color:#fff;text-decoration:none\">'+t+'</a>':'<span style=\"color:#fff\">'+t+'</span>';}function renderTable(){var tbody=document.getElementById('stockTableBody');if(!tbody)return;var html='';rowsData.forEach(function(r){if(r.score<50)return;var c=scoreColor(r.score);var bg=r.score>=80?'rgba(0,255,136,0.12)':'rgba(31,111,235,0.12)';html+='<tr style=\"background:'+bg+'\"><td><strong><a href=\"https://finance.yahoo.com/quote/'+r.ticker+'\" target=\"_blank\" style=\"color:#66b2ff\">'+r.ticker+'</a></strong></td>';html+='<td>'+r.company_name.substring(0,35)+(r.company_name.length>35?'...':'')+'</td>';html+='<td><strong style=\"color:'+c+';font-size:1.3em\">'+r.score+'</strong></td>';html+='<td class=earn-cell>'+r.earnings_date.replace(chr(10),'<br>')+'</td>';html+='<td style=\"color:'+(r.days_left==0?'#ff4444':(r.days_left<=7?'#00ff88':'#ffcc00'))+';font-weight:bold\">'+(r.days_left==0?'Today':r.days_left+'d')+'</td>';html+='<td>$'+Math.floor(r.price)+'</td>';html+='<td>$'+Math.floor(r.pe_target)+' | +'+r.pe_upside+'%</td>';html+='<td>$'+Math.floor(r['3d'])+' | +'+r['3d_up']+'%</td>';html+='<td>$'+Math.floor(r['5d'])+' | +'+r['5d_up']+'%</td>';html+='<td>'+r.analysts+'</td>';html+='<td style=\"color:#00ff88\">'+r.sb+'</td>';html+='<td style=\"color:#58a6ff\">'+r.buy+'</td>';html+='<td style=\"color:#ffcc00\">'+r.hold+'</td>';html+='<td style=\"color:#ff6b6b\">'+r.sell+'</td>';html+='<td>'+fmtMktcap(r.mktcap)+'</td>';html+='<td style=\'color:#fff\'>'+r.short_int+'%</td>';html+='<td style=\'color:#fff\'>'+r.iv+'%</td>';html+='<td>'+(r.squeeze?'<span style=\'background:#1a2a1a;border:1px solid #2ea043;border-radius:5px;padding:2px 8px;font-size:0.75em;font-weight:bold;color:#00ff88\'>Yes</span>':'â€”')+'</td>';html+='<td>'+newsHtml(r.news)+'</td></tr>';});tbody.innerHTML=html;};sortBy('days_left');"
 
     html += '</script>'
-    html += '<div class=note><b>Scoring:</b> Analyst (30pts) + Buy% (30pts) + 5D Upside (20pts) + SB Count (2pts each, max 20) | <b>PE Target:</b> straddle x1 (conservative) | <b>3-Day Momentum:</b> straddle x3 (mid) | <b>5-Day Momentum:</b> straddle x5 (max upside) | <b>Entry:</b> 1-14 days pre-earnings | <b>Exit:</b> 1-5 days after beat</div>'
+    html += '<div class=note><b>Scoring:</b> Analyst Coverage (25pts linear) + Buy% Conviction (25pts) + Strong Buy Count (2pts each, max 20) + 5D Upside (max 15pts) + Earnings Sentiment (max 15pts) | <b>PE Target:</b> straddle x1 (Conservative Target) | <b>3-Day Momentum:</b> straddle x3 (Mid Target) | <b>5-Day Momentum:</b> straddle x5 (High Target) | <b>Entry:</b> 1-40 days pre-earnings | <b>Exit:</b> 1-5 days after earnings beat</div>'
     html += '<div class=disclaimer>&#9888; <b>Not a financial advisor.</b> This scanner is for informational purposes only. Options data and targets are estimates based on ATM straddles -- actual results may vary. Stocks carry risk; always do your own research before trading. AisMarketCap.com is not liable for any losses incurred from trades based on this data.</div>'
-    html += "<script>var scanBtn=document.getElementById('scanBtn');var warnMsg=document.getElementById('warnMsg');function runScan(){scanBtn.disabled=true;warnMsg.textContent='Starting scan...';var x=new XMLHttpRequest();x.open('POST','/run',true);x.onload=function(){if(x.responseURL&&x.responseURL.endsWith('/pricing')){window.location.href='/pricing';return;}warnMsg.textContent='Scan started! Reloading...';location.reload(true);};x.onerror=function(){scanBtn.disabled=false;warnMsg.textContent='Error - try again.';setTimeout(function(){warnMsg.style.display='none';},4000);};x.send();}function refreshData(){location.reload(true);}</script>"
+    html += "<script>var scanBtn=document.getElementById('scanBtn');var warnMsg=document.getElementById('warnMsg');function runScan(){scanBtn.disabled=true;warnMsg.textContent='Starting scan...';var x=new XMLHttpRequest();x.open('POST','/run',true);x.onload=function(){if(x.responseURL&&x.responseURL.endsWith('/pricing')){scanBtn.disabled=false;window.location.href='/pricing';return;}warnMsg.textContent='Scan started! Reloading...';location.reload(true);};x.onerror=function(){scanBtn.disabled=false;warnMsg.textContent='Error - try again.';setTimeout(function(){warnMsg.style.display='none';},4000);};x.send();}function refreshData(){location.reload(true);}</script>"
 
     # Chat widget - clean plain JS, no HTML entities
-    html += '<button id="chat-btn" onclick="toggleChat()">Chat</button>'
+    html += '<button id="chat-btn" onclick="toggleChat()">Ask AI</button>'
     html += '<div id="chat-panel">'
     html += '<div id="chat-header"><span>AI Scanner Assistant</span><button id="chat-close" onclick="toggleChat()">X</button></div>'
     html += '<div id="chat-msgs"><div class="msg msg-bot">Hi! I can answer questions about how the scanner works, what the scores mean, or how to read the trade signals.</div></div>'
@@ -663,49 +891,75 @@ def generate_csv_report(stocks: list, output_path: str):
 
 # Manual earnings date overrides (when yfinance has wrong date)
 EARNINGS_OVERRIDES = {
-    
+    'CRDO': datetime(2026, 6, 1).date(),  # Finviz: Jun 01 AMC
 }
 
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--days', type=int, default=14, help='Days ahead to scan (1-14)')
+    parser.add_argument('--days', type=int, default=40, help='Days ahead to scan (1-40)')
     parser.add_argument('--top', type=int, default=20)
     parser.add_argument('--local', action='store_true', help='Use local desktop paths (favicon, etc.)')
     args = parser.parse_args()
     LOCAL_MODE = args.local
-    print("AI Earnings Scanner - Pre-Earnings Momentum (1-14 Day Window)"); print("="*55)
+    print("AI Earnings Scanner - Pre-Earnings Momentum (1-40 Day Window)"); print("="*55)
     if not YF_AVAILABLE: print("ERROR: yfinance not installed. Run: python -m pip install yfinance"); sys.exit(1)
 
-    # Fetch dynamic AI stock list from finviz (Technology sector = broad AI coverage)
+    # Generate favicon from logo (crop icon + resize)
+    logo_src = os.path.join(os.path.expanduser("~"), "Desktop", "logo.png")
+    favicon_dst = os.path.join(os.path.dirname(os.path.abspath(__file__)), "favicon.ico")
+    if os.path.exists(logo_src):
+        try:
+            from PIL import Image
+            img = Image.open(logo_src)
+            cropped = img.crop((0, 0, img.width, int(img.height * 0.72)))
+            favicon_ico = cropped.resize((32, 32), Image.LANCZOS)
+            favicon_ico.save(favicon_dst, format='ICO', sizes=[(16,16),(32,32),(48,48)])
+            print("Favicon generated")
+        except Exception as e:
+            print(f"Favicon generation skipped: {e}")
+
+    # Fetch dynamic AI stock list from finviz + hardcoded AI-niche tickers (merged)
     print("Fetching AI stocks from finviz screener...")
-    all_tickers = fetch_ai_stocks_from_finviz()
-    print(f"Total stocks to scan: {len(all_tickers)}")
+    finviz_tickers = fetch_ai_stocks_from_finviz()
+    # Always include hardcoded AI_TICKERS (ensures CRDO and other niche AI plays are scanned)
+    all_tickers = list(dict.fromkeys(finviz_tickers + AI_TICKERS))  # deduped, finviz first
+    print(f"Total stocks to scan: {len(all_tickers)} (finviz:{len(finviz_tickers)} + hardcoded:{len(AI_TICKERS)})")
 
     # First scan to get all earnings in window with real dates
     all_results = []
     today = datetime.now().date()
-    for ticker in all_tickers:
+    failed_tickers = []
+    for i, ticker in enumerate(all_tickers):
         if ticker in EXCLUDED_TICKERS: continue
+        # Rate-limit: small pause every 20 tickers to avoid overwhelming yfinance
+        if i > 0 and i % 20 == 0:
+            _time.sleep(0.5)
         try:
             if ticker in EARNINGS_OVERRIDES:
                 edate = EARNINGS_OVERRIDES[ticker]
                 days_out = (edate - today).days
-                if 1 <= days_out <= args.days:
+                if 0 <= days_out <= args.days:
                     all_results.append((ticker, edate, days_out))
             else:
-                stock = yf.Ticker(ticker)
-                cal = stock.calendar
+                cal = get_earnings_with_retry(ticker)
                 if cal and 'Earnings Date' in cal:
                     ed = cal['Earnings Date']
                     if isinstance(ed, list) and ed:
                         edate = ed[0]
                         if hasattr(edate, 'date'): edate = edate.date()
                         days_out = (edate - today).days
-                        if 1 <= days_out <= args.days:
+                if 0 <= days_out <= args.days:
                             all_results.append((ticker, edate, days_out))
+                else:
+                    failed_tickers.append(ticker)
         except Exception as e:
-            pass  # Skip tickers that 404 or have errors
+            failed_tickers.append(ticker)
+
+    if failed_tickers:
+        print(f"  [INFO] yfinance failed for {len(failed_tickers)} tickers: {', '.join(failed_tickers[:20])}")
+    all_results.sort(key=lambda x: x[2])
+    print(f"Found {len(all_results)} AI stocks with earnings in next {args.days} days:")
 
     all_results.sort(key=lambda x: x[2])
     print(f"Found {len(all_results)} AI stocks with earnings in next {args.days} days:")
@@ -727,6 +981,30 @@ def main():
     stocks.sort(key=lambda x: x.composite_score, reverse=True)
     print(f"Top picks:")
     for i, stock in enumerate(stocks[:5], 1): print(f"   {i}. {stock.ticker}: {stock.composite_score:.0f} | {stock.signals[0] if stock.signals else 'No strong signal'}")
+
+    # === SAVE PICK TRACKER ===
+    # Track AI pick and runner-up with entry prices for win tracking
+    strong_buys = [s for s in stocks if round(s.composite_score) >= 75]
+    strong_buys.sort(key=lambda x: -x.days_to_earnings)
+    pick_data = []
+    today_str = datetime.now().strftime('%Y-%m-%d')
+    for s in strong_buys[:5]:
+        pick_data.append({
+            'date': today_str,
+            'ticker': s.ticker,
+            'price': round(s.current_price, 2),
+            'score': round(s.composite_score),
+            'days_left': s.days_to_earnings,
+            'company': s.company_name,
+            'pe_target': round(s.post_earnings_target, 2) if s.post_earnings_target else 0,
+            '5d_target': round(s.post_earnings_5d_target, 2) if s.post_earnings_5d_target else 0
+        })
+    tracker_path = os.path.join(os.path.dirname(__file__) or '.', 'pick_tracker.json')
+    import json as _json
+    with open(tracker_path, 'w') as f:
+        _json.dump(pick_data, f, indent=2)
+    print(f"[Pick Tracker] saved {len(pick_data)} picks to pick_tracker.json")
+
     timestamp = datetime.now().strftime('%Y%m%d_%H%M'); out_dir = os.path.dirname(__file__) or '.'
     html_path = os.path.join(out_dir, f'ai_earnings_57day_{timestamp}.html')
     csv_path = os.path.join(out_dir, f'ai_earnings_57day_{timestamp}.csv')
