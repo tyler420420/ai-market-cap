@@ -1009,10 +1009,45 @@ def main():
     html_path = os.path.join(out_dir, f'ai_earnings_57day_{timestamp}.html')
     csv_path = os.path.join(out_dir, f'ai_earnings_57day_{timestamp}.csv')
     today_path = os.path.join(out_dir, 'ai_earnings_today.html')
+    json_path = os.path.join(out_dir, 'scanner_data.json')
     print(f"Generating HTML report...")
     generate_html_report(stocks[:args.top], html_path)
     # Also save as ai_earnings_today.html so the web server can serve it directly
     generate_html_report(stocks[:args.top], today_path)
+    print(f"Generating JSON data file...")
+    # Output scanner_data.json (clean stock data for dynamic HTML shell)
+    json_data = []
+    for s in stocks[:args.top]:
+        json_data.append({
+            'rank': len(json_data) + 1,
+            'ticker': s.ticker,
+            'company_name': s.company_name,
+            'score': round(s.composite_score),
+            'earnings_date': s.earnings_date,
+            'days_left': s.days_to_earnings,
+            'price': round(s.current_price, 2),
+            'pe_target': round(s.post_earnings_target, 2) if s.post_earnings_target else 0,
+            'pe_upside': round(s.post_earnings_upside_pct, 1) if s.post_earnings_upside_pct else 0,
+            '3d': round(s.post_earnings_3d_target, 2) if s.post_earnings_3d_target else 0,
+            '3d_up': round(s.post_earnings_3d_upside_pct, 1) if s.post_earnings_3d_upside_pct else 0,
+            '5d': round(s.post_earnings_5d_target, 2) if s.post_earnings_5d_target else 0,
+            '5d_up': round(s.post_earnings_5d_upside_pct, 1) if s.post_earnings_5d_upside_pct else 0,
+            'analysts': s.total_analysts,
+            'sb': s.strong_buy_rating,
+            'buy': s.buy_rating,
+            'hold': s.hold_rating,
+            'sell': s.sell_rating,
+            'mktcap': round(s.market_cap / 1e9, 2) if s.market_cap else 0,
+            'short_int': round(s.short_interest, 1) if s.short_interest else 0,
+            'iv': round(s.implied_volatility, 1) if s.implied_volatility else 0,
+            'sector': getattr(s, 'sector', 'Technology'),
+            'sentiment': s.earnings_sentiment or '',
+            'news': s.top_news[0] if s.top_news else {},
+            'price_change_pct': round(s.price_change_pct, 2) if s.price_change_pct else 0
+        })
+    with open(json_path, 'w', encoding='utf-8') as f:
+        _json.dump(json_data, f, indent=2)
+    print(f"[JSON] Saved scanner_data.json ({len(json_data)} stocks)")
     print(f"Generating CSV report...")
     generate_csv_report(stocks, csv_path)
 
