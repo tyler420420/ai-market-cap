@@ -290,22 +290,22 @@ def cron():
                 cwd=str(Path(__file__).parent)
             )
             # STEP 2: Validate JSON - must have at least 5 stocks
-        json_path = Path(__file__).parent / "scanner_data.json"
-        json_valid = False
-        if json_path.exists():
-            try:
-                import json as _json
-                with open(json_path, 'r', encoding='utf-8') as f:
-                    json_data = _json.load(f)
-                if isinstance(json_data, list) and len(json_data) >= 5:
-                    json_valid = True
-                    print(f"[Cron{label}] scanner_data.json OK ({len(json_data)} stocks)")
-                else:
-                    print(f"[Cron{label}] scanner_data.json invalid: {len(json_data) if isinstance(json_data, list) else 'not a list'}")
-            except Exception as e:
-                print(f"[Cron{label}] scanner_data.json error: {e}")
+            json_path = Path(__file__).parent / "scanner_data.json"
+            json_valid = False
+            if json_path.exists():
+                try:
+                    import json as _json
+                    with open(json_path, 'r', encoding='utf-8') as f:
+                        json_data = _json.load(f)
+                    if isinstance(json_data, list) and len(json_data) >= 5:
+                        json_valid = True
+                        print(f"[Cron{label}] scanner_data.json OK ({len(json_data)} stocks)")
+                    else:
+                        print(f"[Cron{label}] scanner_data.json invalid")
+                except Exception as e:
+                    print(f"[Cron{label}] scanner_data.json error: {e}")
 
-        # STEP 3: Validate HTML - must have rowsData >= 5000 bytes AND at least 5 stocks
+            # STEP 3: Validate HTML - must have rowsData >= 5000 bytes AND at least 5 stocks
             if today_path.exists():
                 content = today_path.read_text(encoding='utf-8')
                 idx = content.find('var rowsData=')
