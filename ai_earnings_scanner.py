@@ -1023,7 +1023,7 @@ def main():
             'ticker': s.ticker,
             'company_name': s.company_name,
             'score': round(s.composite_score),
-            'earnings_date': s.earnings_date,
+            'earnings_date': fmt_date(s.earnings_date),
             'days_left': s.days_to_earnings,
             'price': round(s.current_price, 2),
             'pe_target': round(s.post_earnings_target, 2) if s.post_earnings_target else 0,
