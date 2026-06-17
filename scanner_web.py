@@ -28,9 +28,18 @@ app = Flask(__name__, static_folder='static', static_url_path='/static')
 # ===== HOME / SCANNER =====
 @app.route("/")
 def index():
-    """Home page = scanner (no login required)"""
+    """Home page = scanner (static shell + dynamic JSON data)"""
     workspace = Path(__file__).parent
-    # Try fresh scan file first, then fall back to latest dated scan
+    # Serve the static shell - it loads data from /data endpoint
+    shell = workspace / "scanner.html"
+    if shell.exists():
+        with open(shell, 'r', encoding='utf-8') as f:
+            content = f.read()
+        resp = make_response(content)
+        resp.headers['Content-Type'] = 'text/html; charset=utf-8'
+        resp.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0'
+        return resp
+    # Fallback to old ai_earnings_today.html
     fresh = workspace / "ai_earnings_today.html"
     if fresh.exists():
         with open(fresh, 'r', encoding='utf-8') as f:
@@ -39,16 +48,6 @@ def index():
         resp.headers['Content-Type'] = 'text/html; charset=utf-8'
         resp.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0'
         return resp
-    # Fall back to latest dated scan
-    html_files = sorted(workspace.glob("ai_earnings_57day_*.html"), key=lambda f: f.stat().st_mtime, reverse=True)
-    if html_files:
-        with open(html_files[0], 'r', encoding='utf-8') as f:
-            content = f.read()
-        resp = make_response(content)
-        resp.headers['Content-Type'] = 'text/html; charset=utf-8'
-        resp.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0'
-        return resp
-    # No scan yet - serve placeholder
     resp = make_response("""
     <!DOCTYPE html><html><head><meta charset="UTF-8"><title>AI Market Cap</title>
     <style>
@@ -63,6 +62,37 @@ def index():
     </body></html>""")
     resp.headers['Content-Type'] = 'text/html; charset=utf-8'
     return resp
+
+
+# ===== SCANNER DATA (JSON) =====
+@app.route("/data")
+def data():
+    """Serve scanner_data.json - fresh stock data for the static shell"""
+    workspace = Path(__file__).parent
+    json_file = workspace / "scanner_data.json"
+    if json_file.exists():
+        with open(json_file, 'r', encoding='utf-8') as f:
+            content = f.read()
+        resp = make_response(content)
+        resp.headers['Content-Type'] = 'application/json; charset=utf-8'
+        resp.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0'
+        return resp
+    # Fallback: extract from ai_earnings_today.html
+    today = workspace / "ai_earnings_today.html"
+    if today.exists():
+        with open(today, 'r', encoding='utf-8') as f:
+            html = f.read()
+        import re, json as _json
+        m = re.search(r'var rowsData=(.*?);\s*var sortCol', html, re.DOTALL)
+        if m:
+            try:
+                data = _json.loads(m.group(1))
+                resp = make_response(_json.dumps(data))
+                resp.headers['Content-Type'] = 'application/json; charset=utf-8'
+                return resp
+            except:
+                pass
+    return '{"error": "No data available"}', 404
 
 # ===== FAVICON =====
 @app.route('/favicon.ico')
@@ -259,7 +289,23 @@ def cron():
                 encoding='utf-8', errors='replace', timeout=180,
                 cwd=str(Path(__file__).parent)
             )
-            # STEP 2: Validate - must have rowsData >= 5000 bytes AND at least 5 stocks
+            # STEP 2: Validate JSON - must have at least 5 stocks
+        json_path = Path(__file__).parent / "scanner_data.json"
+        json_valid = False
+        if json_path.exists():
+            try:
+                import json as _json
+                with open(json_path, 'r', encoding='utf-8') as f:
+                    json_data = _json.load(f)
+                if isinstance(json_data, list) and len(json_data) >= 5:
+                    json_valid = True
+                    print(f"[Cron{label}] scanner_data.json OK ({len(json_data)} stocks)")
+                else:
+                    print(f"[Cron{label}] scanner_data.json invalid: {len(json_data) if isinstance(json_data, list) else 'not a list'}")
+            except Exception as e:
+                print(f"[Cron{label}] scanner_data.json error: {e}")
+
+        # STEP 3: Validate HTML - must have rowsData >= 5000 bytes AND at least 5 stocks
             if today_path.exists():
                 content = today_path.read_text(encoding='utf-8')
                 idx = content.find('var rowsData=')
