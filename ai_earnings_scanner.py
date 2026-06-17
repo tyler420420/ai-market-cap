@@ -1,4 +1,4 @@
-﻿"""AI Earnings Scanner - Pre-Earnings Momentum Strategy (1-40 day window)"""
+"""AI Earnings Scanner - Pre-Earnings Momentum Strategy (1-40 day window)"""
 import argparse, csv, os, sys, time
 from datetime import datetime, timedelta, timezone
 import time as _time
