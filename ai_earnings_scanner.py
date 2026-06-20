@@ -540,7 +540,7 @@ def generate_html_report(stocks: list, output_path: str):
     html += '.btn{background:#ffd700;border:2px solid #fff;color:#000;padding:10px 22px;border-radius:6px;font-size:0.9em;cursor:pointer;font-weight:bold;flex-shrink:0;box-shadow:0 0 12px rgba(255,215,0,0.5)}.btn:hover{background:#2ea043}.btn:active{background:#238636}.btn:disabled{background:#444;cursor:not-allowed}#refreshBtn{background:#1f6feb;border:2px solid #fff;box-shadow:0 0 12px rgba(31,111,235,0.5)}#refreshBtn:hover{background:#388bfd}'
     
     html += '.ticker-strip{display:flex;overflow:hidden;white-space:nowrap;background:#0a0f18;border-bottom:1px solid #30363d;padding:8px 0;font-size:0.82em}'
-    html += '.ticker-strip-inner{display:flex;gap:0;animation:scroll-ticker 40s linear infinite}'
+    html += '.ticker-strip-inner{display:flex;gap:0;animation:scroll-ticker 80s linear infinite}'
     html += '.ticker-item{display:inline-flex;align-items:center;gap:6px;padding:0 18px;border-right:1px solid #30363d;flex-shrink:0}'
     html += '.ticker-sym{font-weight:bold;color:#58a6ff}.ticker-price{color:#fff}'
     html += '.ticker-up{color:#00ff88}.ticker-dn{color:#ff6b6b}'
@@ -725,7 +725,7 @@ def generate_html_report(stocks: list, output_path: str):
 
     rows_data = []
     count = 0
-    for stock in stocks[:60]:
+    for stock in stocks[:100]:
         if stock.composite_score < 50:
             continue
         count += 1
@@ -898,7 +898,7 @@ EARNINGS_OVERRIDES = {
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--days', type=int, default=39, help='Days ahead to scan (1-39)')
-    parser.add_argument('--top', type=int, default=50)
+    parser.add_argument('--top', type=int, default=100)
     parser.add_argument('--local', action='store_true', help='Use local desktop paths (favicon, etc.)')
     args = parser.parse_args()
     LOCAL_MODE = args.local
