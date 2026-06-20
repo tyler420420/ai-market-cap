@@ -196,8 +196,8 @@ def run_full_scan():
         result = subprocess.run(
             [sys.executable, str(SCANNER_PATH)],
             capture_output=True, text=True,
-            encoding='utf-8', errors='replace', timeout=180,
-            cwd=str(Path(__file__).parent)
+                encoding='utf-8', errors='replace', timeout=600,
+                cwd=str(Path(__file__).parent)
         )
         print('[Scanner] Full scan complete. Exit code:', result.returncode)
         # Validate output before going live - golden backup always wins if bad
