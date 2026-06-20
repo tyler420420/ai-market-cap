@@ -811,7 +811,7 @@ def generate_html_report(stocks: list, output_path: str):
         elif sent == 'Mixed':
             sent_badge = '<span style="background:#2a2a1a;border:1px solid #ffd700;border-radius:5px;padding:2px 8px;font-size:0.75em;font-weight:bold;color:#ffd700">' + sent + '</span>'
         else:
-            sent_badge = 'â€"'
+            sent_badge = '<span style="background:#2a2a1a;border:1px solid #ffd700;border-radius:5px;padding:2px 8px;font-size:0.75em;font-weight:bold;color:#ffd700">Mixed</span>'
         static_rows += '<td data-label="Trend">' + sent_badge + '</td>'
         static_rows += '<td data-label="News">' + news_cell + '</td>'
         static_rows += '</tr>'
