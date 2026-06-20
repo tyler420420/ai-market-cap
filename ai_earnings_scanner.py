@@ -685,7 +685,7 @@ def generate_html_report(stocks: list, output_path: str):
         html += '<span style="font-size:0.95em;color:#fff">Buy Price: <strong style="color:#00ff88">$' + str(int(pick.current_price)) + '</strong></span>'
         pick_earn_label = 'Today' if pick.days_to_earnings == 0 else str(pick.days_to_earnings)
         html += '<span style="font-size:1em;color:#00ff88;font-weight:bold">Enter now - ' + pick_earn_label + ' days to earnings</span>'
-        html += '<a href="https://invite.kraken.com/JDNW/dq0q352v" target="_blank" style="display:inline-block;background:#5741d9;color:#fff;padding:8px 18px;border-radius:6px;font-weight:bold;text-decoration:none;font-size:0.9em;margin-left:auto">Trade ' + pick.ticker + ' on Kraken</a>'
+        html += '<a href="https://invite.kraken.com/JDNW/dq0q352v" target="_blank" style="display:inline-block;background:#5741d9;color:#fff;padding:8px 18px;border-radius:6px;font-weight:bold;text-decoration:none;font-size:0.9em;margin-left:auto" onmouseover="this.style.background=\'#6e55e0\'" onmouseout="this.style.background=\'#5741d9\'">Trade ' + pick.ticker + ' on Kraken</a>'
         html += '</div>'
 
     if pick2:
@@ -697,7 +697,7 @@ def generate_html_report(stocks: list, output_path: str):
         html += '<span style="font-size:0.95em;color:#fff">Buy Price: <strong style="color:#58a6ff">$' + str(int(pick2.current_price)) + '</strong></span>'
         pick2_earn_label = 'Today' if pick2.days_to_earnings == 0 else str(pick2.days_to_earnings)
         html += '<span style="font-size:1em;color:#58a6ff;font-weight:bold">Enter now - ' + pick2_earn_label + ' days to earnings</span>'
-        html += '<a href="https://invite.kraken.com/JDNW/dq0q352v" target="_blank" style="display:inline-block;background:#5741d9;color:#fff;padding:8px 18px;border-radius:6px;font-weight:bold;text-decoration:none;font-size:0.9em;margin-left:auto">Trade ' + pick2.ticker + ' on Kraken</a>'
+        html += '<a href="https://invite.kraken.com/JDNW/dq0q352v" target="_blank" style="display:inline-block;background:#5741d9;color:#fff;padding:8px 18px;border-radius:6px;font-weight:bold;text-decoration:none;font-size:0.9em;margin-left:auto" onmouseover="this.style.background=\'#6e55e0\'" onmouseout="this.style.background=\'#5741d9\'">Trade ' + pick2.ticker + ' on Kraken</a>'
         html += '</div>'
 
     headers = [
