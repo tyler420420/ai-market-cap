@@ -730,7 +730,7 @@ def generate_html_report(stocks: list, output_path: str):
     }
     for h, col in headers:
         label = col_labels.get(col, col)
-        ths += '<th onclick="sortBy(\'' + col + '\')" data-col="' + col + '" data-label="' + label + '">' + h + '</th>'
+        ths += '<th onclick="location.href=\'https://aismarketcap.com/pricing\'" data-col="' + col + '" data-label="' + label + '">' + h + '</th>'
     html += '<table id="stockTable"><thead><tr>' + ths + '</tr></thead><tbody id="stockTableBody">'
 
     rows_data = []
