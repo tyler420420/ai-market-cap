@@ -1,8 +1,0 @@
-html = open('ai_earnings_today.html').read()
-emdash = chr(0xe2) + chr(0x80) + chr(0x94)
-print('Broken em-dash (â€"):', emdash in html)
-print('Kraken hover:', 'onmouseover' in html and '6e55e0' in html)
-print('Bold 3 Day gone:', '<span style="font-weight:bold">$' not in html)
-print('Days sort works:', 'sortBy(' in html and 'days_left' in html)
-print('400s ticker:', 'scroll-ticker 400s' in html)
-print('No data = Mixed:', '>Mixed</span>' in html and html.count('>Mixed</span>') > 0)

@@ -1,3 +1,9 @@
+# Temp / debug scripts
+_*.py
+_*.txt
+_*.json
+test_scanner.html
+
 # Generated scan files - don't commit old scans
 ai_earnings_57day_*.html
 ai_earnings_57day_*.csv
