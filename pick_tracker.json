@@ -1,52 +1,52 @@
 [
   {
     "date": "2026-06-19",
-    "ticker": "GRAB",
-    "price": 3.57,
-    "score": 94,
-    "days_left": 40,
-    "company": "Grab Holdings Limited",
-    "pe_target": 3.8,
-    "5d_target": 4.72
+    "ticker": "SPOT",
+    "price": 468.08,
+    "score": 88,
+    "days_left": 39,
+    "company": "Spotify Technology S.A.",
+    "pe_target": 494.76,
+    "5d_target": 601.48
   },
   {
     "date": "2026-06-19",
-    "ticker": "MSFT",
-    "price": 379.4,
-    "score": 93,
-    "days_left": 40,
-    "company": "Microsoft Corporation",
-    "pe_target": 386.18,
-    "5d_target": 413.3
+    "ticker": "STX",
+    "price": 1070.23,
+    "score": 83,
+    "days_left": 39,
+    "company": "Seagate Technology Holdings plc",
+    "pe_target": 1183.63,
+    "5d_target": 1637.23
   },
   {
     "date": "2026-06-19",
-    "ticker": "ARM",
-    "price": 439.46,
-    "score": 87,
-    "days_left": 40,
-    "company": "Arm Holdings plc",
-    "pe_target": 495.98,
-    "5d_target": 722.06
+    "ticker": "BA",
+    "price": 222.72,
+    "score": 82,
+    "days_left": 39,
+    "company": "The Boeing Company",
+    "pe_target": 231.22,
+    "5d_target": 265.22
   },
   {
     "date": "2026-06-19",
-    "ticker": "VRT",
-    "price": 333.05,
-    "score": 84,
-    "days_left": 40,
-    "company": "Vertiv Holdings Co",
-    "pe_target": 358.21,
-    "5d_target": 458.85
+    "ticker": "V",
+    "price": 327.24,
+    "score": 82,
+    "days_left": 39,
+    "company": "Visa Inc.",
+    "pe_target": 335.81,
+    "5d_target": 370.09
   },
   {
     "date": "2026-06-19",
-    "ticker": "WDC",
-    "price": 746.23,
-    "score": 84,
-    "days_left": 40,
-    "company": "Western Digital Corporation",
-    "pe_target": 833.65,
-    "5d_target": 1183.33
+    "ticker": "NXPI",
+    "price": 313.27,
+    "score": 78,
+    "days_left": 39,
+    "company": "NXP Semiconductors N.V.",
+    "pe_target": 350.54,
+    "5d_target": 499.62
   }
 ]
