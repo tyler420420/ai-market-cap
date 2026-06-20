@@ -792,7 +792,7 @@ def generate_html_report(stocks: list, output_path: str):
         days_str = 'Today' if r['days_left'] == 0 else str(r['days_left']) + 'd'
         static_rows += '<td data-label="Days"><span style="color:' + d_color + ';font-weight:bold">' + days_str + '</span></td>'
         static_rows += '<td data-label="Price" style="font-weight:bold">$' + str(int(r['price'])) + '</td>'
-        static_rows += '<td data-label="3 Day"><span style="font-weight:bold">$' + str(int(r['pe_target'])) + '</span><br><span style="color:#00ff88">+' + str(r['pe_upside']) + '%</span></td>'
+        static_rows += '<td data-label="3 Day">$' + str(int(r['pe_target'])) + '<br><span style="color:#00ff88">+' + str(r['pe_upside']) + '%</span></td>'
         static_rows += '<td data-label="7 Day">$' + str(int(r['3d'])) + '<br><span style="color:#00ff88">+' + str(r['3d_up']) + '%</span></td>'
         static_rows += '<td data-label="14 Day">$' + str(int(r['5d'])) + '<br><span style="color:#00ff88">+' + str(r['5d_up']) + '%</span></td>'
         static_rows += '<td data-label="Analysts" style="color:#bf8fff">' + str(r['analysts']) + '</td>'
