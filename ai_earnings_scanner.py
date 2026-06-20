@@ -677,7 +677,7 @@ def generate_html_report(stocks: list, output_path: str):
 
     if pick:
         html += '<div class=pick-banner style="background:#161b22;border:2px solid #2ea043;border-radius:10px;padding:40px 18px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:15px 0;min-height:120px;box-shadow:0 0 20px rgba(46,160,67,0.4)">'
-        html += '<span style="font-size:1.3em;color:#2ea043;font-weight:bold">&#9733; AI\'s Suggested Trade</span>'
+        html += '<span style="font-size:1.3em;color:#2ea043;font-weight:bold">&#9733; AI\'s Next Trade</span>'
         html += '<span style="font-size:1.2em;font-weight:bold;color:#fff">' + pick.ticker + '</span>'
         html += '<span style="font-size:0.95em;color:#fff">' + pick.company_name[:12] + '</span>'
         html += '<span style="font-size:0.95em;color:#fff">Score: <strong style="color:' + pick_color + '">' + str(round(pick.composite_score)) + '</strong></span>'
@@ -689,7 +689,7 @@ def generate_html_report(stocks: list, output_path: str):
 
     if pick2:
         html += '<div class=pick-banner style="background:#161b22;border:2px solid #1f6feb;border-radius:10px;padding:40px 18px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:0 0 15px;min-height:120px;box-shadow:0 0 20px rgba(31,111,235,0.4)">'
-        html += '<span style="font-size:1.3em;color:#58a6ff;font-weight:bold">&#9733; Runner-Up Pick</span>'
+        html += '<span style="font-size:1.3em;color:#58a6ff;font-weight:bold">&#9733; AI\'s Runner-Up Pick</span>'
         html += '<span style="font-size:1.2em;font-weight:bold;color:#fff">' + pick2.ticker + '</span>'
         html += '<span style="font-size:0.95em;color:#fff">' + pick2.company_name[:12] + '</span>'
         html += '<span style="font-size:0.95em;color:#fff">Score: <strong style="color:' + pick2_color + '">' + str(round(pick2.composite_score)) + '</strong></span>'
