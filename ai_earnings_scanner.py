@@ -662,7 +662,7 @@ def generate_html_report(stocks: list, output_path: str):
         )
     # Add DRAM card in purple (in same row, with gap)
     ipo_card_html += (
-        f'<div style="background:#0d1428;border:1px solid #5741d9;border-radius:8px;padding:8px 14px;min-width:140px;box-shadow:0 0 10px rgba(87,65,217,0.3);margin-left:24px">'
+        f'<div style="background:#0d1428;border:1px solid #5741d9;border-radius:8px;padding:8px 14px;min-width:140px;box-shadow:0 0 10px rgba(87,65,217,0.3);margin-left:48px">'
         f'<div style="color:#9333ea;font-size:0.65em;font-weight:bold;margin-bottom:2px">&#128293; TRENDING ETF</div>'
         f'<a href="https://finance.yahoo.com/quote/DRAM/" target="_blank" style="color:#00ff88;font-size:0.95em;font-weight:bold;text-decoration:none">DRAM</a>'
         f'<div style="color:#fff;font-size:0.68em">{dram_price_str}</div></div>'
