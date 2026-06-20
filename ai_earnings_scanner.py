@@ -678,7 +678,7 @@ def generate_html_report(stocks: list, output_path: str):
     if pick and pick2:
         html += '<div style="display:flex;gap:15px;margin-bottom:15px;flex-wrap:nowrap;align-items:center">'
         html += '<div class=pick-banner style="min-height:120px;background:#161b22;border:2px solid #2ea043;border-radius:10px;padding:40px 18px;display:flex;align-items:center;gap:14px;flex-wrap:nowrap;margin:0;min-height:120px;box-shadow:0 0 20px rgba(46,160,67,0.4);flex:1;min-width:0">'
-        html += '<span style="font-size:1.3em;color:#2ea043;font-weight:bold">&#9733; AI\'s Next Trade</span>'
+        html += '<span style="font-size:1.3em;color:#2ea043;font-weight:bold">&#9733; Ais Next Trade</span>'
         html += '<span style="font-size:1.2em;font-weight:bold;color:#fff">' + pick.ticker + '</span>'
         html += '<span style="font-size:0.95em;color:#fff">' + pick.company_name[:12] + '</span>'
         html += '<span style="font-size:0.95em;color:#fff">Score: <strong style="color:' + pick_color + '">' + str(round(pick.composite_score)) + '</strong></span>'
@@ -700,7 +700,7 @@ def generate_html_report(stocks: list, output_path: str):
         html += '</div>'
     elif pick:
         html += '<div class=pick-banner style="background:#161b22;border:2px solid #2ea043;border-radius:10px;padding:40px 18px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:15px 0;min-height:120px;box-shadow:0 0 20px rgba(46,160,67,0.4)">'
-        html += '<span style="font-size:1.3em;color:#2ea043;font-weight:bold">&#9733; AI\'s Next Trade</span>'
+        html += '<span style="font-size:1.3em;color:#2ea043;font-weight:bold">&#9733; Ais Next Trade</span>'
         html += '<span style="font-size:1.2em;font-weight:bold;color:#fff">' + pick.ticker + '</span>'
         html += '<span style="font-size:0.95em;color:#fff">' + pick.company_name[:12] + '</span>'
         html += '<span style="font-size:0.95em;color:#fff">Score: <strong style="color:' + pick_color + '">' + str(round(pick.composite_score)) + '</strong></span>'
