@@ -325,9 +325,8 @@ def cron():
                     if json_len >= 5000 and stock_count >= 5:
                         import shutil
                         shutil.copy2(today_path, golden_path)
-                        scanner_path = Path(__file__).parent / "scanner.html"
-                        shutil.copy2(today_path, scanner_path)
-                        print(f"[Cron{label}] VALID - Golden backup + scanner.html updated ({stock_count} stocks)")
+                        # scanner.html is the static UI shell - NEVER overwrite it with scan output
+                        print(f"[Cron{label}] VALID - Golden backup updated ({stock_count} stocks)")
                         scan_succeeded = True
                     else:
                         print(f"[Cron{label}] INVALID - rowsData={json_len} or stocks={stock_count} too low, restoring golden")
@@ -363,9 +362,7 @@ def cron():
                     if new_count > heal_count:
                         import shutil
                         shutil.copy2(today_path, golden_path)
-                        scanner_path = Path(__file__).parent / "scanner.html"
-                        shutil.copy2(today_path, scanner_path)
-                        print(f"[Heal{label}] Re-scan improved to {new_count} stocks, golden + scanner.html updated")
+                        print(f"[Heal{label}] Re-scan improved to {new_count} stocks, golden updated")
                 except Exception as e:
                     print(f"[Heal{label}] Re-scan error: {e}")
 
