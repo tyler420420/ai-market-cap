@@ -1,52 +1,52 @@
 [
   {
-    "date": "2026-06-15",
-    "ticker": "LHX",
-    "price": 304.17,
-    "score": 76,
-    "days_left": 39,
-    "company": "L3Harris Technologies, Inc.",
-    "pe_target": 313.22,
-    "5d_target": 349.42
+    "date": "2026-06-19",
+    "ticker": "GRAB",
+    "price": 3.57,
+    "score": 94,
+    "days_left": 40,
+    "company": "Grab Holdings Limited",
+    "pe_target": 3.8,
+    "5d_target": 4.72
   },
   {
-    "date": "2026-06-15",
-    "ticker": "GOOG",
-    "price": 367.11,
-    "score": 95,
-    "days_left": 38,
-    "company": "Alphabet Inc.",
-    "pe_target": 376.44,
-    "5d_target": 413.76
-  },
-  {
-    "date": "2026-06-15",
-    "ticker": "GOOGL",
-    "price": 369.35,
+    "date": "2026-06-19",
+    "ticker": "MSFT",
+    "price": 379.4,
     "score": 93,
-    "days_left": 38,
-    "company": "Alphabet Inc.",
-    "pe_target": 377.1,
-    "5d_target": 408.1
+    "days_left": 40,
+    "company": "Microsoft Corporation",
+    "pe_target": 386.18,
+    "5d_target": 413.3
   },
   {
-    "date": "2026-06-15",
-    "ticker": "EW",
-    "price": 86.28,
-    "score": 81,
-    "days_left": 38,
-    "company": "Edwards Lifesciences Corporation",
-    "pe_target": 89.28,
-    "5d_target": 101.28
+    "date": "2026-06-19",
+    "ticker": "ARM",
+    "price": 439.46,
+    "score": 87,
+    "days_left": 40,
+    "company": "Arm Holdings plc",
+    "pe_target": 495.98,
+    "5d_target": 722.06
   },
   {
-    "date": "2026-06-15",
-    "ticker": "HON",
-    "price": 227.41,
-    "score": 75,
-    "days_left": 38,
-    "company": "Honeywell International Inc.",
-    "pe_target": 234.39,
-    "5d_target": 262.31
+    "date": "2026-06-19",
+    "ticker": "VRT",
+    "price": 333.05,
+    "score": 84,
+    "days_left": 40,
+    "company": "Vertiv Holdings Co",
+    "pe_target": 358.21,
+    "5d_target": 458.85
+  },
+  {
+    "date": "2026-06-19",
+    "ticker": "WDC",
+    "price": 746.23,
+    "score": 84,
+    "days_left": 40,
+    "company": "Western Digital Corporation",
+    "pe_target": 833.65,
+    "5d_target": 1183.33
   }
 ]
