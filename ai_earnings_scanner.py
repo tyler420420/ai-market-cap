@@ -301,7 +301,7 @@ def calculate_composite_score(stock: EarningsSignal) -> float:
 def get_earnings_window(days_ahead: int = 40, window_min: int = 0, window_max: int = 40) -> List[str]:
     """Return AI tickers with earnings in the next N days, sorted by days-to-earnings."""
     results = []
-    today = datetime.now().date()
+    today = datetime.now(PT).date()
     window_end_date = today + timedelta(days=window_max)
 
     print(f"Scanning for earnings in next {days_ahead} days...")
@@ -447,7 +447,7 @@ def analyze_ticker(ticker: str, earnings_date, retries: int = 2) -> Optional[Ear
             sector = info.get('sector', 'Technology')
             market_cap_raw = info.get('marketCap', 0) or 0
             company_name = info.get('longName', info.get('shortName', ticker))
-            days_to_earnings = (earnings_date - datetime.now().date()).days
+            days_to_earnings = (earnings_date - datetime.now(PT).date()).days
             earnings_date_str = earnings_date.strftime('%Y-%m-%d')
             # Fetch earnings sentiment from last 4 quarters (MUST be before calculate_composite_score)
             earnings_sentiment = get_earnings_sentiment(ticker)
@@ -928,7 +928,7 @@ def main():
 
     # First scan to get all earnings in window with real dates
     all_results = []
-    today = datetime.now().date()
+    today = datetime.now(PT).date()
     failed_tickers = []
     for i, ticker in enumerate(all_tickers):
         if ticker in EXCLUDED_TICKERS: continue
@@ -987,7 +987,7 @@ def main():
     strong_buys = [s for s in stocks if round(s.composite_score) >= 75]
     strong_buys.sort(key=lambda x: -x.days_to_earnings)
     pick_data = []
-    today_str = datetime.now().strftime('%Y-%m-%d')
+    today_str = datetime.now(PT).strftime('%Y-%m-%d')
     for s in strong_buys[:5]:
         pick_data.append({
             'date': today_str,
@@ -1005,7 +1005,7 @@ def main():
         _json.dump(pick_data, f, indent=2)
     print(f"[Pick Tracker] saved {len(pick_data)} picks to pick_tracker.json")
 
-    timestamp = datetime.now().strftime('%Y%m%d_%H%M'); out_dir = os.path.dirname(__file__) or '.'
+    timestamp = datetime.now(PT).strftime('%Y%m%d_%H%M'); out_dir = os.path.dirname(__file__) or '.'
     html_path = os.path.join(out_dir, f'ai_earnings_57day_{timestamp}.html')
     csv_path = os.path.join(out_dir, f'ai_earnings_57day_{timestamp}.csv')
     today_path = os.path.join(out_dir, 'ai_earnings_today.html')
