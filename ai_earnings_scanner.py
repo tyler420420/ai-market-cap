@@ -339,7 +339,7 @@ def get_earnings_window(days_ahead: int = 40, window_min: int = 0, window_max: i
                         if isinstance(earnings_date, datetime):
                             earnings_date = earnings_date.date()
                         days_out = (earnings_date - today).days
-                        if 1 <= days_out <= 40:
+                        if 1 <= days_out <= 39:
                             results.append((ticker, earnings_date, days_out))
                             print(f"  {ticker}: {earnings_date} ({days_out} days)")
             except:
@@ -898,7 +898,7 @@ EARNINGS_OVERRIDES = {
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--days', type=int, default=40, help='Days ahead to scan (1-40)')
-    parser.add_argument('--top', type=int, default=20)
+    parser.add_argument('--top', type=int, default=50)
     parser.add_argument('--local', action='store_true', help='Use local desktop paths (favicon, etc.)')
     args = parser.parse_args()
     LOCAL_MODE = args.local
