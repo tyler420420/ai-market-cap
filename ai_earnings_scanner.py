@@ -725,7 +725,7 @@ def generate_html_report(stocks: list, output_path: str):
 
     rows_data = []
     count = 0
-    for stock in stocks[:30]:
+    for stock in stocks[:60]:
         if stock.composite_score < 50:
             continue
         count += 1
