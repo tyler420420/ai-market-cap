@@ -121,66 +121,6 @@
   },
   {
     "rank": 5,
-    "ticker": "SPOT",
-    "company_name": "Spotify Technology S.A.",
-    "score": 88,
-    "earnings_date": "July 28, 2026",
-    "days_left": 39,
-    "price": 468.08,
-    "pe_target": 494.76,
-    "pe_upside": 5.7,
-    "3d": 548.12,
-    "3d_up": 17.1,
-    "5d": 601.48,
-    "5d_up": 28.5,
-    "analysts": 40,
-    "sb": 10,
-    "buy": 24,
-    "hold": 6,
-    "sell": 0,
-    "mktcap": 0.0,
-    "short_int": 4.5,
-    "iv": 5.7,
-    "sector": "Communication Services",
-    "sentiment": "Mixed",
-    "news": {
-      "title": "Spotify Recovers After Streaming Outage",
-      "url": "https://tech.yahoo.com/streaming/articles/spotify-recovers-streaming-outage-175932861.html"
-    },
-    "price_change_pct": 2.74
-  },
-  {
-    "rank": 6,
-    "ticker": "CDNS",
-    "company_name": "Cadence Design Systems, Inc.",
-    "score": 86,
-    "earnings_date": "July 27, 2026",
-    "days_left": 38,
-    "price": 387.39,
-    "pe_target": 421.52,
-    "pe_upside": 8.8,
-    "3d": 489.78,
-    "3d_up": 26.4,
-    "5d": 558.04,
-    "5d_up": 44.1,
-    "analysts": 24,
-    "sb": 5,
-    "buy": 16,
-    "hold": 2,
-    "sell": 1,
-    "mktcap": 0.0,
-    "short_int": 1.8,
-    "iv": 8.8,
-    "sector": "Technology",
-    "sentiment": "Positive",
-    "news": {
-      "title": "Jim Cramer on Cadence: \u201cIf It Comes Down, It\u2019s a Buy\u201d...",
-      "url": "https://finance.yahoo.com/markets/stocks/articles/jim-cramer-cadence-comes-down-165357391.html"
-    },
-    "price_change_pct": -0.57
-  },
-  {
-    "rank": 7,
     "ticker": "ISRG",
     "company_name": "Intuitive Surgical, Inc.",
     "score": 84,
@@ -210,127 +150,7 @@
     "price_change_pct": 1.14
   },
   {
-    "rank": 8,
-    "ticker": "STX",
-    "company_name": "Seagate Technology Holdings plc",
-    "score": 83,
-    "earnings_date": "July 28, 2026",
-    "days_left": 39,
-    "price": 1070.23,
-    "pe_target": 1183.63,
-    "pe_upside": 10.6,
-    "3d": 1410.43,
-    "3d_up": 31.8,
-    "5d": 1637.23,
-    "5d_up": 53.0,
-    "analysts": 24,
-    "sb": 4,
-    "buy": 16,
-    "hold": 3,
-    "sell": 1,
-    "mktcap": 0.0,
-    "short_int": 4.6,
-    "iv": 10.6,
-    "sector": "Technology",
-    "sentiment": "Positive",
-    "news": {
-      "title": "Seagate & Another AI Memory Momentum Stock With Big Upside...",
-      "url": "https://finance.yahoo.com/markets/stocks/articles/seagate-another-ai-memory-momentum-190000489.html"
-    },
-    "price_change_pct": 0.39
-  },
-  {
-    "rank": 9,
-    "ticker": "CLS",
-    "company_name": "Celestica Inc.",
-    "score": 83,
-    "earnings_date": "July 27, 2026",
-    "days_left": 38,
-    "price": 372.55,
-    "pe_target": 404.51,
-    "pe_upside": 8.6,
-    "3d": 468.43,
-    "3d_up": 25.7,
-    "5d": 532.35,
-    "5d_up": 42.9,
-    "analysts": 21,
-    "sb": 4,
-    "buy": 16,
-    "hold": 1,
-    "sell": 0,
-    "mktcap": 0.0,
-    "short_int": 3.1,
-    "iv": 8.6,
-    "sector": "Technology",
-    "sentiment": "Positive",
-    "news": {
-      "title": "Celestica, Inc. (CLS) is Attracting Investor Attention: Here...",
-      "url": "https://finance.yahoo.com/markets/stocks/articles/celestica-inc-cls-attracting-investor-130003194.html"
-    },
-    "price_change_pct": -2.06
-  },
-  {
-    "rank": 10,
-    "ticker": "BA",
-    "company_name": "The Boeing Company",
-    "score": 82,
-    "earnings_date": "July 28, 2026",
-    "days_left": 39,
-    "price": 222.72,
-    "pe_target": 231.22,
-    "pe_upside": 3.8,
-    "3d": 248.22,
-    "3d_up": 11.4,
-    "5d": 265.22,
-    "5d_up": 19.1,
-    "analysts": 27,
-    "sb": 4,
-    "buy": 17,
-    "hold": 5,
-    "sell": 1,
-    "mktcap": 0.0,
-    "short_int": 0.1,
-    "iv": 3.8,
-    "sector": "Industrials",
-    "sentiment": "Positive",
-    "news": {
-      "title": "Boeing's Quantum Space Bet Moves Forward",
-      "url": "https://finance.yahoo.com/technology/ai/articles/boeings-quantum-space-bet-moves-170204471.html"
-    },
-    "price_change_pct": -1.29
-  },
-  {
-    "rank": 11,
-    "ticker": "V",
-    "company_name": "Visa Inc.",
-    "score": 82,
-    "earnings_date": "July 28, 2026",
-    "days_left": 39,
-    "price": 327.24,
-    "pe_target": 335.81,
-    "pe_upside": 2.6,
-    "3d": 352.95,
-    "3d_up": 7.9,
-    "5d": 370.09,
-    "5d_up": 13.1,
-    "analysts": 39,
-    "sb": 7,
-    "buy": 29,
-    "hold": 3,
-    "sell": 0,
-    "mktcap": 0.0,
-    "short_int": 1.3,
-    "iv": 2.6,
-    "sector": "Financial Services",
-    "sentiment": "Mixed",
-    "news": {
-      "title": "Visa NA President Kim Lawrence on How Gen Z is Changing Pay...",
-      "url": "https://finance.yahoo.com/video/visa-na-president-kim-lawrence-182830563.html"
-    },
-    "price_change_pct": -0.95
-  },
-  {
-    "rank": 12,
+    "rank": 6,
     "ticker": "EFX",
     "company_name": "Equifax Inc.",
     "score": 82,
@@ -360,7 +180,7 @@
     "price_change_pct": -0.59
   },
   {
-    "rank": 13,
+    "rank": 7,
     "ticker": "NFLX",
     "company_name": "Netflix, Inc.",
     "score": 82,
@@ -390,7 +210,7 @@
     "price_change_pct": 0.55
   },
   {
-    "rank": 14,
+    "rank": 8,
     "ticker": "TSM",
     "company_name": "Taiwan Semiconductor Manufacturing Company Limited",
     "score": 81,
@@ -420,7 +240,7 @@
     "price_change_pct": 6.94
   },
   {
-    "rank": 15,
+    "rank": 9,
     "ticker": "EW",
     "company_name": "Edwards Lifesciences Corporation",
     "score": 81,
@@ -450,7 +270,7 @@
     "price_change_pct": 0.78
   },
   {
-    "rank": 16,
+    "rank": 10,
     "ticker": "ASML",
     "company_name": "ASML Holding N.V.",
     "score": 81,
@@ -480,67 +300,7 @@
     "price_change_pct": 3.31
   },
   {
-    "rank": 17,
-    "ticker": "NXPI",
-    "company_name": "NXP Semiconductors N.V.",
-    "score": 78,
-    "earnings_date": "July 28, 2026",
-    "days_left": 39,
-    "price": 313.27,
-    "pe_target": 350.54,
-    "pe_upside": 11.9,
-    "3d": 425.08,
-    "3d_up": 35.7,
-    "5d": 499.62,
-    "5d_up": 59.5,
-    "analysts": 30,
-    "sb": 6,
-    "buy": 17,
-    "hold": 6,
-    "sell": 1,
-    "mktcap": 0.0,
-    "short_int": 3.7,
-    "iv": 11.9,
-    "sector": "Technology",
-    "sentiment": "Mixed",
-    "news": {
-      "title": "Strength Seen in NXP (NXPI): Can Its 5.1% Jump Turn into ...",
-      "url": "https://finance.yahoo.com/markets/stocks/articles/strength-seen-nxp-nxpi-5-120300853.html"
-    },
-    "price_change_pct": 5.05
-  },
-  {
-    "rank": 18,
-    "ticker": "ECL",
-    "company_name": "Ecolab Inc.",
-    "score": 78,
-    "earnings_date": "July 28, 2026",
-    "days_left": 39,
-    "price": 269.12,
-    "pe_target": 283.92,
-    "pe_upside": 5.5,
-    "3d": 313.52,
-    "3d_up": 16.5,
-    "5d": 343.12,
-    "5d_up": 27.5,
-    "analysts": 27,
-    "sb": 6,
-    "buy": 14,
-    "hold": 7,
-    "sell": 0,
-    "mktcap": 0.0,
-    "short_int": 1.4,
-    "iv": 5.5,
-    "sector": "Basic Materials",
-    "sentiment": "Mixed",
-    "news": {
-      "title": "Ecolab Inc (ECL) Raises $5 Billion to Push Into AI Data Ce...",
-      "url": "https://finance.yahoo.com/technology/ai/articles/ecolab-inc-ecl-raises-5-181936449.html"
-    },
-    "price_change_pct": 0.02
-  },
-  {
-    "rank": 19,
+    "rank": 11,
     "ticker": "RTX",
     "company_name": "RTX Corporation",
     "score": 77,
@@ -570,7 +330,7 @@
     "price_change_pct": -3.62
   },
   {
-    "rank": 20,
+    "rank": 12,
     "ticker": "NOC",
     "company_name": "Northrop Grumman Corporation",
     "score": 76,
@@ -597,7 +357,7 @@
     "price_change_pct": -5.21
   },
   {
-    "rank": 21,
+    "rank": 13,
     "ticker": "ALLY",
     "company_name": "Ally Financial Inc.",
     "score": 75,
@@ -627,7 +387,7 @@
     "price_change_pct": -0.02
   },
   {
-    "rank": 22,
+    "rank": 14,
     "ticker": "HON",
     "company_name": "Honeywell International Inc.",
     "score": 75,
@@ -657,7 +417,7 @@
     "price_change_pct": 0.17
   },
   {
-    "rank": 23,
+    "rank": 15,
     "ticker": "WST",
     "company_name": "West Pharmaceutical Services, Inc.",
     "score": 74,
@@ -684,7 +444,7 @@
     "price_change_pct": 1.35
   },
   {
-    "rank": 24,
+    "rank": 16,
     "ticker": "TXT",
     "company_name": "Textron Inc.",
     "score": 74,
@@ -714,7 +474,7 @@
     "price_change_pct": -3.47
   },
   {
-    "rank": 25,
+    "rank": 17,
     "ticker": "LHX",
     "company_name": "L3Harris Technologies, Inc.",
     "score": 73,
@@ -744,37 +504,7 @@
     "price_change_pct": -5.86
   },
   {
-    "rank": 26,
-    "ticker": "CARR",
-    "company_name": "Carrier Global Corporation",
-    "score": 72,
-    "earnings_date": "July 28, 2026",
-    "days_left": 39,
-    "price": 71.81,
-    "pe_target": 74.36,
-    "pe_upside": 3.6,
-    "3d": 79.46,
-    "3d_up": 10.7,
-    "5d": 84.56,
-    "5d_up": 17.8,
-    "analysts": 26,
-    "sb": 2,
-    "buy": 12,
-    "hold": 12,
-    "sell": 0,
-    "mktcap": 0.0,
-    "short_int": 2.5,
-    "iv": 3.6,
-    "sector": "Industrials",
-    "sentiment": "Positive",
-    "news": {
-      "title": "Carrier Global (CARR) Stock After 30% YTD Gain Is The Pri...",
-      "url": "https://finance.yahoo.com/markets/stocks/articles/carrier-global-carr-stock-30-001605512.html"
-    },
-    "price_change_pct": 3.34
-  },
-  {
-    "rank": 27,
+    "rank": 18,
     "ticker": "SAP",
     "company_name": "SAP SE",
     "score": 72,
@@ -804,7 +534,7 @@
     "price_change_pct": -2.25
   },
   {
-    "rank": 28,
+    "rank": 19,
     "ticker": "NEE",
     "company_name": "NextEra Energy, Inc.",
     "score": 72,
@@ -834,7 +564,7 @@
     "price_change_pct": 1.19
   },
   {
-    "rank": 29,
+    "rank": 20,
     "ticker": "GD",
     "company_name": "General Dynamics Corporation",
     "score": 72,
@@ -864,7 +594,7 @@
     "price_change_pct": -3.53
   },
   {
-    "rank": 30,
+    "rank": 21,
     "ticker": "SNX",
     "company_name": "TD SYNNEX Corporation",
     "score": 72,
@@ -894,7 +624,7 @@
     "price_change_pct": 0.26
   },
   {
-    "rank": 31,
+    "rank": 22,
     "ticker": "IQV",
     "company_name": "IQVIA Holdings Inc.",
     "score": 72,
@@ -924,7 +654,7 @@
     "price_change_pct": -1.7
   },
   {
-    "rank": 32,
+    "rank": 23,
     "ticker": "TXN",
     "company_name": "Texas Instruments Incorporated",
     "score": 71,
@@ -954,7 +684,7 @@
     "price_change_pct": 6.95
   },
   {
-    "rank": 33,
+    "rank": 24,
     "ticker": "IBM",
     "company_name": "International Business Machines Corporation",
     "score": 71,
@@ -984,37 +714,7 @@
     "price_change_pct": -5.05
   },
   {
-    "rank": 34,
-    "ticker": "ENPH",
-    "company_name": "Enphase Energy, Inc.",
-    "score": 70,
-    "earnings_date": "July 28, 2026",
-    "days_left": 39,
-    "price": 52.28,
-    "pe_target": 57.38,
-    "pe_upside": 9.8,
-    "3d": 67.58,
-    "3d_up": 29.3,
-    "5d": 77.78,
-    "5d_up": 48.8,
-    "analysts": 31,
-    "sb": 3,
-    "buy": 8,
-    "hold": 17,
-    "sell": 3,
-    "mktcap": 0.0,
-    "short_int": 24.4,
-    "iv": 9.8,
-    "sector": "Technology",
-    "sentiment": "Positive",
-    "news": {
-      "title": "Enphase Energy, Inc. (ENPH) Is a Trending Stock: Facts to...",
-      "url": "https://finance.yahoo.com/markets/stocks/articles/enphase-energy-inc-enph-trending-130005646.html"
-    },
-    "price_change_pct": 9.42
-  },
-  {
-    "rank": 35,
+    "rank": 25,
     "ticker": "FLEX",
     "company_name": "Flex Ltd.",
     "score": 70,
@@ -1044,7 +744,7 @@
     "price_change_pct": 3.13
   },
   {
-    "rank": 36,
+    "rank": 26,
     "ticker": "PENN",
     "company_name": "PENN Entertainment, Inc.",
     "score": 68,
@@ -1074,67 +774,7 @@
     "price_change_pct": 0.33
   },
   {
-    "rank": 37,
-    "ticker": "SOFI",
-    "company_name": "SoFi Technologies, Inc.",
-    "score": 68,
-    "earnings_date": "July 28, 2026",
-    "days_left": 39,
-    "price": 17.91,
-    "pe_target": 19.04,
-    "pe_upside": 6.3,
-    "3d": 21.3,
-    "3d_up": 18.9,
-    "5d": 23.56,
-    "5d_up": 31.5,
-    "analysts": 24,
-    "sb": 3,
-    "buy": 5,
-    "hold": 12,
-    "sell": 4,
-    "mktcap": 0.0,
-    "short_int": 14.7,
-    "iv": 6.3,
-    "sector": "Financial Services",
-    "sentiment": "Positive",
-    "news": {
-      "title": "SoFi CEO Won't Stop Buying His Own Stock",
-      "url": "https://finance.yahoo.com/markets/stocks/articles/sofi-ceo-wont-stop-buying-123107502.html"
-    },
-    "price_change_pct": 2.81
-  },
-  {
-    "rank": 38,
-    "ticker": "GLW",
-    "company_name": "Corning Incorporated",
-    "score": 68,
-    "earnings_date": "July 28, 2026",
-    "days_left": 39,
-    "price": 194.92,
-    "pe_target": 212.29,
-    "pe_upside": 8.9,
-    "3d": 247.03,
-    "3d_up": 26.7,
-    "5d": 281.77,
-    "5d_up": 44.6,
-    "analysts": 16,
-    "sb": 8,
-    "buy": 0,
-    "hold": 5,
-    "sell": 1,
-    "mktcap": 0.0,
-    "short_int": 2.8,
-    "iv": 8.9,
-    "sector": "Technology",
-    "sentiment": "Mixed",
-    "news": {
-      "title": "Corning Incorporated (GLW) CEO\u2019s Take on AI Boom...",
-      "url": "https://finance.yahoo.com/technology/ai/articles/corning-incorporated-glw-ceo-ai-071154474.html"
-    },
-    "price_change_pct": 11.13
-  },
-  {
-    "rank": 39,
+    "rank": 27,
     "ticker": "TEL",
     "company_name": "TE Connectivity plc",
     "score": 68,
@@ -1164,37 +804,7 @@
     "price_change_pct": 2.56
   },
   {
-    "rank": 40,
-    "ticker": "JCI",
-    "company_name": "Johnson Controls International plc",
-    "score": 68,
-    "earnings_date": "July 28, 2026",
-    "days_left": 39,
-    "price": 144.82,
-    "pe_target": 155.22,
-    "pe_upside": 7.2,
-    "3d": 176.02,
-    "3d_up": 21.5,
-    "5d": 196.82,
-    "5d_up": 35.9,
-    "analysts": 23,
-    "sb": 1,
-    "buy": 11,
-    "hold": 9,
-    "sell": 2,
-    "mktcap": 0.0,
-    "short_int": 2.0,
-    "iv": 7.2,
-    "sector": "Industrials",
-    "sentiment": "Positive",
-    "news": {
-      "title": "Former Johnson Controls executive to lead Wauwatosa batte...",
-      "url": "https://finance.yahoo.com/technology/articles/former-johnson-controls-executive-lead-120112754.html"
-    },
-    "price_change_pct": 0.84
-  },
-  {
-    "rank": 41,
+    "rank": 28,
     "ticker": "NOK",
     "company_name": "Nokia Oyj",
     "score": 67,
@@ -1224,7 +834,7 @@
     "price_change_pct": -2.46
   },
   {
-    "rank": 42,
+    "rank": 29,
     "ticker": "INTC",
     "company_name": "Intel Corporation",
     "score": 66,
@@ -1254,7 +864,7 @@
     "price_change_pct": 10.64
   },
   {
-    "rank": 43,
+    "rank": 30,
     "ticker": "TSLA",
     "company_name": "Tesla, Inc.",
     "score": 66,
@@ -1281,37 +891,7 @@
     "price_change_pct": 1.04
   },
   {
-    "rank": 44,
-    "ticker": "PYPL",
-    "company_name": "PayPal Holdings, Inc.",
-    "score": 66,
-    "earnings_date": "July 28, 2026",
-    "days_left": 39,
-    "price": 42.51,
-    "pe_target": 43.99,
-    "pe_upside": 3.5,
-    "3d": 46.95,
-    "3d_up": 10.4,
-    "5d": 49.91,
-    "5d_up": 17.4,
-    "analysts": 43,
-    "sb": 3,
-    "buy": 5,
-    "hold": 31,
-    "sell": 4,
-    "mktcap": 0.0,
-    "short_int": 6.3,
-    "iv": 3.5,
-    "sector": "Financial Services",
-    "sentiment": "Positive",
-    "news": {
-      "title": "PayPal Stock Trades at 7.7x Earnings. Michael Burry T...",
-      "url": "https://finance.yahoo.com/markets/stocks/articles/paypal-stock-trades-7-7x-180002329.html"
-    },
-    "price_change_pct": 1.02
-  },
-  {
-    "rank": 45,
+    "rank": 31,
     "ticker": "SHW",
     "company_name": "The Sherwin-Williams Company",
     "score": 66,
@@ -1341,7 +921,7 @@
     "price_change_pct": 2.23
   },
   {
-    "rank": 46,
+    "rank": 32,
     "ticker": "WAL",
     "company_name": "Western Alliance Bancorporation",
     "score": 63,
@@ -1371,37 +951,7 @@
     "price_change_pct": 1.89
   },
   {
-    "rank": 47,
-    "ticker": "LDOS",
-    "company_name": "Leidos Holdings, Inc.",
-    "score": 63,
-    "earnings_date": "July 28, 2026",
-    "days_left": 39,
-    "price": 107.12,
-    "pe_target": 115.62,
-    "pe_upside": 7.9,
-    "3d": 132.62,
-    "3d_up": 23.8,
-    "5d": 149.62,
-    "5d_up": 39.7,
-    "analysts": 17,
-    "sb": 3,
-    "buy": 4,
-    "hold": 10,
-    "sell": 0,
-    "mktcap": 0.0,
-    "short_int": 4.3,
-    "iv": 7.9,
-    "sector": "Technology",
-    "sentiment": "Positive",
-    "news": {
-      "title": "Why Leidos Stock Plummeted This Week",
-      "url": "https://finance.yahoo.com/markets/stocks/articles/why-leidos-stock-plummeted-week-211708344.html"
-    },
-    "price_change_pct": -1.43
-  },
-  {
-    "rank": 48,
+    "rank": 33,
     "ticker": "VICR",
     "company_name": "Vicor Corporation",
     "score": 63,
@@ -1431,7 +981,7 @@
     "price_change_pct": 1.91
   },
   {
-    "rank": 49,
+    "rank": 34,
     "ticker": "TDY",
     "company_name": "Teledyne Technologies Incorporated",
     "score": 60,
@@ -1461,37 +1011,7 @@
     "price_change_pct": 0.69
   },
   {
-    "rank": 50,
-    "ticker": "PPG",
-    "company_name": "PPG Industries, Inc.",
-    "score": 60,
-    "earnings_date": "July 28, 2026",
-    "days_left": 39,
-    "price": 118.25,
-    "pe_target": 126.45,
-    "pe_upside": 6.9,
-    "3d": 142.85,
-    "3d_up": 20.8,
-    "5d": 159.25,
-    "5d_up": 34.7,
-    "analysts": 23,
-    "sb": 2,
-    "buy": 8,
-    "hold": 13,
-    "sell": 0,
-    "mktcap": 0.0,
-    "short_int": 4.1,
-    "iv": 6.9,
-    "sector": "Basic Materials",
-    "sentiment": "Mixed",
-    "news": {
-      "title": "Assessing PPG Industries (PPG) Valuation After Recent Sh...",
-      "url": "https://finance.yahoo.com/markets/stocks/articles/assessing-ppg-industries-ppg-valuation-002409382.html"
-    },
-    "price_change_pct": 0.95
-  },
-  {
-    "rank": 51,
+    "rank": 35,
     "ticker": "FISV",
     "company_name": "Fiserv, Inc.",
     "score": 60,
@@ -1521,37 +1041,7 @@
     "price_change_pct": -1.87
   },
   {
-    "rank": 52,
-    "ticker": "RMBS",
-    "company_name": "Rambus Inc.",
-    "score": 59,
-    "earnings_date": "July 27, 2026",
-    "days_left": 38,
-    "price": 141.17,
-    "pe_target": 170.97,
-    "pe_upside": 21.1,
-    "3d": 230.57,
-    "3d_up": 63.3,
-    "5d": 290.17,
-    "5d_up": 105.5,
-    "analysts": 8,
-    "sb": 5,
-    "buy": 2,
-    "hold": 2,
-    "sell": 0,
-    "mktcap": 0.0,
-    "short_int": 9.1,
-    "iv": 21.1,
-    "sector": "Technology",
-    "sentiment": "Mixed",
-    "news": {
-      "title": "Big Earnings, Guidance See Rambus More Than Double...",
-      "url": "https://finance.yahoo.com/markets/stocks/articles/big-earnings-guidance-see-rambus-123229536.html"
-    },
-    "price_change_pct": 8.51
-  },
-  {
-    "rank": 53,
+    "rank": 36,
     "ticker": "MXL",
     "company_name": "MaxLinear, Inc.",
     "score": 59,
@@ -1581,37 +1071,7 @@
     "price_change_pct": 7.11
   },
   {
-    "rank": 54,
-    "ticker": "SWK",
-    "company_name": "Stanley Black & Decker, Inc.",
-    "score": 58,
-    "earnings_date": "July 28, 2026",
-    "days_left": 39,
-    "price": 86.75,
-    "pe_target": 93.38,
-    "pe_upside": 7.6,
-    "3d": 106.64,
-    "3d_up": 22.9,
-    "5d": 119.9,
-    "5d_up": 38.2,
-    "analysts": 17,
-    "sb": 1,
-    "buy": 5,
-    "hold": 11,
-    "sell": 0,
-    "mktcap": 0.0,
-    "short_int": 5.8,
-    "iv": 7.6,
-    "sector": "Industrials",
-    "sentiment": "Positive",
-    "news": {
-      "title": "Stanley Black & Decker Stock: Is SWK Outperforming t...",
-      "url": "https://finance.yahoo.com/markets/stocks/articles/stanley-black-decker-stock-swk-125623600.html"
-    },
-    "price_change_pct": 5.19
-  },
-  {
-    "rank": 55,
+    "rank": 37,
     "ticker": "AVY",
     "company_name": "Avery Dennison Corporation",
     "score": 57,
@@ -1641,7 +1101,7 @@
     "price_change_pct": -0.55
   },
   {
-    "rank": 56,
+    "rank": 38,
     "ticker": "ROP",
     "company_name": "Roper Technologies, Inc.",
     "score": 57,
@@ -1671,7 +1131,7 @@
     "price_change_pct": 0.08
   },
   {
-    "rank": 57,
+    "rank": 39,
     "ticker": "PRGS",
     "company_name": "Progress Software Corporation",
     "score": 57,
@@ -1701,37 +1161,7 @@
     "price_change_pct": -1.33
   },
   {
-    "rank": 58,
-    "ticker": "AMKR",
-    "company_name": "Amkor Technology, Inc.",
-    "score": 56,
-    "earnings_date": "July 27, 2026",
-    "days_left": 38,
-    "price": 90.46,
-    "pe_target": 109.85,
-    "pe_upside": 21.4,
-    "3d": 148.63,
-    "3d_up": 64.3,
-    "5d": 187.41,
-    "5d_up": 107.2,
-    "analysts": 10,
-    "sb": 2,
-    "buy": 3,
-    "hold": 5,
-    "sell": 0,
-    "mktcap": 0.0,
-    "short_int": 13.7,
-    "iv": 21.4,
-    "sector": "Technology",
-    "sentiment": "Positive",
-    "news": {
-      "title": "Amkor Technology (AMKR) Stock Could Be 26% Below Fair Valu...",
-      "url": "https://finance.yahoo.com/markets/stocks/articles/amkor-technology-amkr-stock-could-111208716.html"
-    },
-    "price_change_pct": 4.66
-  },
-  {
-    "rank": 59,
+    "rank": 40,
     "ticker": "SSNC",
     "company_name": "SS&C Technologies Holdings, Inc.",
     "score": 56,
@@ -1761,7 +1191,7 @@
     "price_change_pct": -1.42
   },
   {
-    "rank": 60,
+    "rank": 41,
     "ticker": "OMC",
     "company_name": "Omnicom Group Inc.",
     "score": 56,
@@ -1791,7 +1221,7 @@
     "price_change_pct": -6.5
   },
   {
-    "rank": 61,
+    "rank": 42,
     "ticker": "CBRS",
     "company_name": "Cerebras Systems Inc.",
     "score": 56,
@@ -1821,37 +1251,7 @@
     "price_change_pct": 9.85
   },
   {
-    "rank": 62,
-    "ticker": "QRVO",
-    "company_name": "Qorvo, Inc.",
-    "score": 56,
-    "earnings_date": "July 28, 2026",
-    "days_left": 39,
-    "price": 98.42,
-    "pe_target": 107.9,
-    "pe_upside": 9.6,
-    "3d": 126.86,
-    "3d_up": 28.9,
-    "5d": 145.82,
-    "5d_up": 48.2,
-    "analysts": 20,
-    "sb": 1,
-    "buy": 2,
-    "hold": 16,
-    "sell": 1,
-    "mktcap": 0.0,
-    "short_int": 11.1,
-    "iv": 9.6,
-    "sector": "Technology",
-    "sentiment": "Positive",
-    "news": {
-      "title": "Are Investors Undervaluing Qorvo (QRVO) Right Now?...",
-      "url": "https://finance.yahoo.com/markets/stocks/articles/investors-undervaluing-qorvo-qrvo-now-134004098.html"
-    },
-    "price_change_pct": 3.98
-  },
-  {
-    "rank": 63,
+    "rank": 43,
     "ticker": "STM",
     "company_name": "STMicroelectronics N.V.",
     "score": 56,
@@ -1881,7 +1281,7 @@
     "price_change_pct": 6.86
   },
   {
-    "rank": 64,
+    "rank": 44,
     "ticker": "PCAR",
     "company_name": "PACCAR Inc",
     "score": 51,
@@ -1911,7 +1311,7 @@
     "price_change_pct": 1.37
   },
   {
-    "rank": 65,
+    "rank": 45,
     "ticker": "INFY",
     "company_name": "Infosys Limited",
     "score": 50,
@@ -1941,67 +1341,7 @@
     "price_change_pct": -9.66
   },
   {
-    "rank": 66,
-    "ticker": "SCCO",
-    "company_name": "Southern Copper Corporation",
-    "score": 50,
-    "earnings_date": "July 27, 2026",
-    "days_left": 38,
-    "price": 192.93,
-    "pe_target": 208.33,
-    "pe_upside": 8.0,
-    "3d": 239.13,
-    "3d_up": 23.9,
-    "5d": 269.93,
-    "5d_up": 39.9,
-    "analysts": 17,
-    "sb": 0,
-    "buy": 2,
-    "hold": 5,
-    "sell": 10,
-    "mktcap": 0.0,
-    "short_int": 12.1,
-    "iv": 8.0,
-    "sector": "Basic Materials",
-    "sentiment": "Positive",
-    "news": {
-      "title": "Why Southern Copper (SCCO) Still Offers Scale and Prici...",
-      "url": "https://finance.yahoo.com/markets/stocks/articles/why-southern-copper-scco-still-095713317.html"
-    },
-    "price_change_pct": 0.65
-  },
-  {
-    "rank": 67,
-    "ticker": "SANM",
-    "company_name": "Sanmina Corporation",
-    "score": 48,
-    "earnings_date": "July 27, 2026",
-    "days_left": 38,
-    "price": 241.49,
-    "pe_target": 284.48,
-    "pe_upside": 17.8,
-    "3d": 370.46,
-    "3d_up": 53.4,
-    "5d": 456.44,
-    "5d_up": 89.0,
-    "analysts": 4,
-    "sb": 2,
-    "buy": 0,
-    "hold": 3,
-    "sell": 0,
-    "mktcap": 0.0,
-    "short_int": 7.3,
-    "iv": 17.8,
-    "sector": "Technology",
-    "sentiment": "Positive",
-    "news": {
-      "title": "Sanmina (SANM) Is Up 1.24% in One Week: What You Should Know...",
-      "url": "https://finance.yahoo.com/markets/stocks/articles/sanmina-sanm-1-24-one-160002999.html"
-    },
-    "price_change_pct": -0.53
-  },
-  {
-    "rank": 68,
+    "rank": 46,
     "ticker": "LMT",
     "company_name": "Lockheed Martin Corporation",
     "score": 47,
@@ -2031,7 +1371,7 @@
     "price_change_pct": -4.01
   },
   {
-    "rank": 69,
+    "rank": 47,
     "ticker": "FAST",
     "company_name": "Fastenal Company",
     "score": 46,
@@ -2061,7 +1401,7 @@
     "price_change_pct": 2.25
   },
   {
-    "rank": 70,
+    "rank": 48,
     "ticker": "PKE",
     "company_name": "Park Aerospace Corp.",
     "score": 43,
@@ -2091,7 +1431,7 @@
     "price_change_pct": 2.04
   },
   {
-    "rank": 71,
+    "rank": 49,
     "ticker": "PAYX",
     "company_name": "Paychex, Inc.",
     "score": 43,
@@ -2121,7 +1461,7 @@
     "price_change_pct": 0.68
   },
   {
-    "rank": 72,
+    "rank": 50,
     "ticker": "VRSN",
     "company_name": "VeriSign, Inc.",
     "score": 42,
@@ -2151,37 +1491,7 @@
     "price_change_pct": -0.11
   },
   {
-    "rank": 73,
-    "ticker": "EA",
-    "company_name": "Electronic Arts Inc.",
-    "score": 42,
-    "earnings_date": "July 28, 2026",
-    "days_left": 39,
-    "price": 202.15,
-    "pe_target": 204.75,
-    "pe_upside": 1.3,
-    "3d": 209.95,
-    "3d_up": 3.9,
-    "5d": 215.15,
-    "5d_up": 6.4,
-    "analysts": 19,
-    "sb": 0,
-    "buy": 1,
-    "hold": 18,
-    "sell": 0,
-    "mktcap": 0.0,
-    "short_int": 4.4,
-    "iv": 1.3,
-    "sector": "Communication Services",
-    "sentiment": "Positive",
-    "news": {
-      "title": "Saudis seek EU approval for $55 billion EA deal, decision ...",
-      "url": "https://finance.yahoo.com/media-advertising/articles/saudis-seek-eu-approval-55-161441743.html"
-    },
-    "price_change_pct": -0.43
-  },
-  {
-    "rank": 74,
+    "rank": 51,
     "ticker": "RHI",
     "company_name": "Robert Half Inc.",
     "score": 40,
@@ -2211,7 +1521,7 @@
     "price_change_pct": -2.08
   },
   {
-    "rank": 75,
+    "rank": 52,
     "ticker": "ERIC",
     "company_name": "Telefonaktiebolaget LM Ericsson (publ)",
     "score": 37,
@@ -2241,7 +1551,7 @@
     "price_change_pct": -0.09
   },
   {
-    "rank": 76,
+    "rank": 53,
     "ticker": "WSE",
     "company_name": "Wise Group plc",
     "score": 32,
@@ -2271,7 +1581,7 @@
     "price_change_pct": -2.95
   },
   {
-    "rank": 77,
+    "rank": 54,
     "ticker": "WIT",
     "company_name": "Wipro Limited",
     "score": 29,
@@ -2301,7 +1611,7 @@
     "price_change_pct": -3.63
   },
   {
-    "rank": 78,
+    "rank": 55,
     "ticker": "MAXN",
     "company_name": "Maxeon Solar Technologies Ltd",
     "score": 0,
@@ -2331,7 +1641,7 @@
     "price_change_pct": 0
   },
   {
-    "rank": 79,
+    "rank": 56,
     "ticker": "INFO",
     "company_name": "Harbor PanAgora Dynamic Large Cap Core ETF",
     "score": 0,
