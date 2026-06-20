@@ -636,7 +636,7 @@ def generate_html_report(stocks: list, output_path: str):
         '</div>'
         '<div style="display:flex;gap:6px;align-items:center">'
         '<a href="https://x.com/AIMoneyMach" target="_blank" style="background:#5741d9;color:#fff;padding:3px 10px;border-radius:5px;border:1px solid #fff;font-size:0.82em;font-weight:bold;text-decoration:none" onmouseover="this.style.background=\'#6e55e0\'" onmouseout="this.style.background=\'#5741d9\'">Follow Us On X</a>'
-        '<span style="background:#161b22;border:1px solid #2ea043;border-radius:5px;padding:3px 10px;font-size:0.82em"><span style="font-weight:bold;color:#2ea043">' + str(strong_count) + '</span> <span style="color:#8b949e">Strong Buy</span></span>'
+        '<span style="background:#161b22;border:1px solid #2ea043;border-radius:5px;padding:3px 10px;font-size:0.82em"><span style="font-weight:bold;color:#2ea043">' + str(strong_count) + '</span> <span style="color:#8b949e">S-Buy</span></span>'
         '<span style="background:#161b22;border:1px solid #1f6feb;border-radius:5px;padding:3px 10px;font-size:0.82em"><span style="font-weight:bold;color:#58a6ff">' + str(sum(1 for s in stocks if 50 <= round(s.composite_score) < 75)) + '</span> <span style="color:#8b949e">Watch</span></span>'
         '</div>'
         '</div>'
@@ -679,7 +679,7 @@ def generate_html_report(stocks: list, output_path: str):
         html += '<div class=pick-banner style="background:#161b22;border:2px solid #2ea043;border-radius:10px;padding:40px 18px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:15px 0;min-height:120px;box-shadow:0 0 20px rgba(46,160,67,0.4)">'
         html += '<span style="font-size:1.3em;color:#2ea043;font-weight:bold">&#9733; AI\'s Suggested Trade</span>'
         html += '<span style="font-size:1.2em;font-weight:bold;color:#fff">' + pick.ticker + '</span>'
-        html += '<span style="font-size:0.95em;color:#fff">' + pick.company_name[:28] + ('...' if len(pick.company_name) > 28 else '') + '</span>'
+        html += '<span style="font-size:0.95em;color:#fff">' + pick.company_name[:12] + '</span>'
         html += '<span style="font-size:0.95em;color:#fff">Score: <strong style="color:' + pick_color + '">' + str(round(pick.composite_score)) + '</strong></span>'
         html += '<span style="font-size:0.95em;color:#fff">Buy Price: <strong style="color:#00ff88">$' + str(int(pick.current_price)) + '</strong></span>'
         pick_earn_label = 'Today' if pick.days_to_earnings == 0 else str(pick.days_to_earnings)
@@ -691,7 +691,7 @@ def generate_html_report(stocks: list, output_path: str):
         html += '<div class=pick-banner style="background:#161b22;border:2px solid #1f6feb;border-radius:10px;padding:40px 18px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:0 0 15px;min-height:120px;box-shadow:0 0 20px rgba(31,111,235,0.4)">'
         html += '<span style="font-size:1.3em;color:#58a6ff;font-weight:bold">&#9733; Runner-Up Pick</span>'
         html += '<span style="font-size:1.2em;font-weight:bold;color:#fff">' + pick2.ticker + '</span>'
-        html += '<span style="font-size:0.95em;color:#fff">' + pick2.company_name[:28] + ('...' if len(pick2.company_name) > 28 else '') + '</span>'
+        html += '<span style="font-size:0.95em;color:#fff">' + pick2.company_name[:12] + '</span>'
         html += '<span style="font-size:0.95em;color:#fff">Score: <strong style="color:' + pick2_color + '">' + str(round(pick2.composite_score)) + '</strong></span>'
         html += '<span style="font-size:0.95em;color:#fff">Buy Price: <strong style="color:#58a6ff">$' + str(int(pick2.current_price)) + '</strong></span>'
         pick2_earn_label = 'Today' if pick2.days_to_earnings == 0 else str(pick2.days_to_earnings)
@@ -703,8 +703,8 @@ def generate_html_report(stocks: list, output_path: str):
         ('Ticker<br>Symbol','ticker'), ('Company<br>Name','company_name'), ('Overall<br>Score','score'),
         ('Earnings<br>Date','earnings_date'), ('Days<br>Left','days_left'), ('Current<br>Price','price'),
         ('3 Day<br>Target','pe_target'), ('7 Day<br>Target','3d'), ('14 Day<br>Target','5d'),
-        ('Total<br>Analyst','analysts'), ('Strong<br>Buy','sb'), ('Buy<br>Ratings','buy'),
-        ('Hold<br>Ratings','hold'), ('Sell<br>Ratings','sell'), ('Market<br>Cap','mktcap'),
+        ('Total<br>Analyst','analysts'), ('S-Buy','sb'), ('Buy','buy'),
+        ('Hold','hold'), ('Sell','sell'), ('Market<br>Cap','mktcap'),
         ('Total<br>Shorts','short_int'), ('Implied<br>Volatility','iv'),
         ('Earnings<br>Trend','sentiment'), ('Recent News','news')
     ]
@@ -713,7 +713,7 @@ def generate_html_report(stocks: list, output_path: str):
         'ticker': 'Ticker', 'company_name': 'Company', 'score': 'Score',
         'earnings_date': 'Earnings', 'days_left': 'Days', 'price': 'Price',
         'pe_target': '3 Day', '3d': '7 Day', '5d': '14 Day',
-        'analysts': 'Analysts', 'sb': 'Strong Buy', 'buy': 'Buy',
+        'analysts': 'Analysts', 'sb': 'S-Buy', 'buy': 'Buy',
         'hold': 'Hold', 'sell': 'Sell', 'mktcap': 'Mkt Cap',
         'short_int': 'Shorts', 'iv': 'IV', 'sentiment': 'Trend', 'news': 'News'
     }
@@ -729,7 +729,7 @@ def generate_html_report(stocks: list, output_path: str):
             continue
         count += 1
         rows_data.append({
-            'rank': count, 'ticker': stock.ticker, 'company_name': stock.company_name,
+            'rank': count, 'ticker': stock.ticker, 'company_name': stock.company_name[:12],
             'score': round(stock.composite_score), 'earnings_date': fmt_date(stock.earnings_date),
             'days_left': stock.days_to_earnings, 'price': round(stock.current_price, 2),
             'pe_target': round(stock.post_earnings_target, 2), 'pe_upside': round(stock.post_earnings_upside_pct, 1),
@@ -781,7 +781,7 @@ def generate_html_report(stocks: list, output_path: str):
         c_color = score_color_css(r['score'])
         bg_color = row_bg(r['score'])
         d_color = days_color(r['days_left'])
-        co_name = r['company_name'][:35] + ('...' if len(r['company_name']) > 35 else '')
+        co_name = r['company_name'][:12]
         news_cell = news_link(r['news'])
         static_rows += '<tr style="background:' + bg_color + '">'
         static_rows += '<td data-label="Ticker"><strong><a href="https://finance.yahoo.com/quote/' + r['ticker'] + '" target="_blank" style="color:#66b2ff">' + r['ticker'] + '</a></strong></td>'
@@ -1020,7 +1020,7 @@ def main():
         json_data.append({
             'rank': len(json_data) + 1,
             'ticker': s.ticker,
-            'company_name': s.company_name,
+            'company_name': s.company_name[:12],
             'score': round(s.composite_score),
             'earnings_date': fmt_date(s.earnings_date),
             'days_left': s.days_to_earnings,
