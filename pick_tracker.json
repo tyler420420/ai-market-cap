@@ -1,52 +1,52 @@
 [
   {
     "date": "2026-06-19",
-    "ticker": "SPOT",
-    "price": 468.08,
-    "score": 88,
-    "days_left": 39,
-    "company": "Spotify Technology S.A.",
-    "pe_target": 494.76,
-    "5d_target": 601.48
+    "ticker": "GOOG",
+    "price": 367.46,
+    "score": 97,
+    "days_left": 34,
+    "company": "Alphabet Inc.",
+    "pe_target": 379.7,
+    "5d_target": 428.66
   },
   {
     "date": "2026-06-19",
-    "ticker": "STX",
-    "price": 1070.23,
-    "score": 83,
-    "days_left": 39,
-    "company": "Seagate Technology Holdings plc",
-    "pe_target": 1183.63,
-    "5d_target": 1637.23
+    "ticker": "GOOGL",
+    "price": 368.03,
+    "score": 91,
+    "days_left": 34,
+    "company": "Alphabet Inc.",
+    "pe_target": 374.6,
+    "5d_target": 400.88
   },
   {
     "date": "2026-06-19",
-    "ticker": "BA",
-    "price": 222.72,
-    "score": 82,
-    "days_left": 39,
-    "company": "The Boeing Company",
-    "pe_target": 231.22,
-    "5d_target": 265.22
+    "ticker": "EW",
+    "price": 87.36,
+    "score": 81,
+    "days_left": 34,
+    "company": "Edwards Lifesciences Corporation",
+    "pe_target": 93.0,
+    "5d_target": 115.56
   },
   {
     "date": "2026-06-19",
-    "ticker": "V",
-    "price": 327.24,
-    "score": 82,
-    "days_left": 39,
-    "company": "Visa Inc.",
-    "pe_target": 335.81,
-    "5d_target": 370.09
+    "ticker": "HON",
+    "price": 229.01,
+    "score": 75,
+    "days_left": 34,
+    "company": "Honeywell International Inc.",
+    "pe_target": 236.81,
+    "5d_target": 268.01
   },
   {
     "date": "2026-06-19",
-    "ticker": "NXPI",
-    "price": 313.27,
-    "score": 78,
-    "days_left": 39,
-    "company": "NXP Semiconductors N.V.",
-    "pe_target": 350.54,
-    "5d_target": 499.62
+    "ticker": "NOW",
+    "price": 95.04,
+    "score": 95,
+    "days_left": 33,
+    "company": "ServiceNow, Inc.",
+    "pe_target": 100.98,
+    "5d_target": 124.74
   }
 ]

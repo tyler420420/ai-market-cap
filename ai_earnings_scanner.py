@@ -339,7 +339,7 @@ def get_earnings_window(days_ahead: int = 39, window_min: int = 0, window_max: i
                         if isinstance(earnings_date, datetime):
                             earnings_date = earnings_date.date()
                         days_out = (earnings_date - today).days
-                        if 1 <= days_out <= 39:
+                        if 1 <= days_out <= 35:
                             results.append((ticker, earnings_date, days_out))
                             print(f"  {ticker}: {earnings_date} ({days_out} days)")
             except:
@@ -630,10 +630,9 @@ def generate_html_report(stocks: list, output_path: str):
     buttons_row = (
         '<div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end;flex-shrink:0">'
         '<div style="display:flex;gap:6px;align-items:center">'
-        '<a href="/about" style="background:#dc3545;color:#fff;padding:10px 18px;border-radius:6px;font-size:0.9em;text-decoration:none;font-weight:bold;border:1px solid #fff" onmouseover="this.style.background=\'#e84a5f\'" onmouseout="this.style.background=\'#dc3545\'">FAQ</a>'
-        '<a href="/wins" style="background:#238636;color:#fff;padding:10px 18px;border-radius:6px;font-size:0.9em;text-decoration:none;font-weight:bold;border:1px solid #fff" onmouseover="this.style.background=\'#2ea043\'" onmouseout="this.style.background=\'#238636\'">Wins</a>'
-        '<a href="/calendar" style="background:#1f6feb;color:#fff;padding:10px 18px;border-radius:6px;font-size:0.9em;text-decoration:none;font-weight:bold;border:1px solid #fff" onmouseover="this.style.background=\'#388bfd\'" onmouseout="this.style.background=\'#1f6feb\'">Calendar</a>'
-        '<button class=btn id=scanBtn style="background:#ffd700;color:#000;font-weight:bold;border:1px solid #fff;cursor:pointer" onmouseover="this.style.background=\'#fff176\'" onmouseout="this.style.background=\'#ffd700\'" onclick=runScan()>PRO SCAN</button>'
+        '<a href="/about" style="background:#ffd700;color:#000;padding:10px 18px;border-radius:6px;font-size:0.9em;text-decoration:none;font-weight:bold;border:1px solid #fff" onmouseover="this.style.background=\'#fff176\'" onmouseout="this.style.background=\'#ffd700\'">FAQ</a>'
+        '<a href="/wins" style="background:#58a6ff;color:#000;padding:10px 18px;border-radius:6px;font-size:0.9em;text-decoration:none;font-weight:bold;border:1px solid #fff" onmouseover="this.style.background=\'#79b8ff\'" onmouseout="this.style.background=\'#58a6ff\'">Wins</a>'
+        '<button class=btn id=scanBtn style="background:#00ff88;color:#000;font-weight:bold;border:1px solid #fff;cursor:pointer" onmouseover="this.style.background=\'#79ffc6\'" onmouseout="this.style.background=\'#00ff88\'" onclick=runScan()>PRO SCAN</button>'
         '</div>'
         '<div style="display:flex;gap:6px;align-items:center">'
         '<a href="https://x.com/AIMoneyMach" target="_blank" style="background:#5741d9;color:#fff;padding:3px 10px;border-radius:5px;border:1px solid #fff;font-size:0.82em;font-weight:bold;text-decoration:none" onmouseover="this.style.background=\'#6e55e0\'" onmouseout="this.style.background=\'#5741d9\'">Follow Us On X</a>'
@@ -753,7 +752,7 @@ def generate_html_report(stocks: list, output_path: str):
     def row_bg(score):
         return 'rgba(0,255,136,0.12)' if score >= 75 else 'rgba(31,111,235,0.12)'
     def days_color(days):
-        return '#ff4444' if days == 0 else ('#ffcc00' if days <= 7 else ('#58a6ff' if days <= 15 else '#00ff88'))
+        return '#ff4444' if days == 0 else ('#ffcc00' if days <= 7 else ('#58a6ff' if days <= 21 else '#00ff88'))
     def news_link(news):
         if not news:
             return '--'
@@ -897,12 +896,12 @@ EARNINGS_OVERRIDES = {
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--days', type=int, default=39, help='Days ahead to scan (1-39)')
+    parser.add_argument('--days', type=int, default=35, help='Days ahead to scan (1-35)')
     parser.add_argument('--top', type=int, default=100)
     parser.add_argument('--local', action='store_true', help='Use local desktop paths (favicon, etc.)')
     args = parser.parse_args()
     LOCAL_MODE = args.local
-    print("AI Earnings Scanner - Pre-Earnings Momentum (1-40 Day Window)"); print("="*55)
+    print("AI Earnings Scanner - Pre-Earnings Momentum (1-35 Day Window)"); print("="*55)
     if not YF_AVAILABLE: print("ERROR: yfinance not installed. Run: python -m pip install yfinance"); sys.exit(1)
 
     # Generate favicon from logo (crop icon + resize)
