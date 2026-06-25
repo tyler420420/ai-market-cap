@@ -264,6 +264,27 @@ def auto_scan_loop():
         except Exception as e:
             print('[Auto-Scan] Error during scheduled scan:', e)
 
+# ===== CRON STATE PERSISTENCE (survives Railway container restarts) =====
+_CRON_STATE_FILE = Path(__file__).parent / ".cron_state.json"
+
+def _load_cron_state():
+    """Load cron run state from disk so it survives container restarts."""
+    try:
+        if _CRON_STATE_FILE.exists():
+            with open(_CRON_STATE_FILE, 'r') as f:
+                return json.load(f)
+    except Exception:
+        pass
+    return {"morning": None, "afternoon": None, "price_alerts": None}
+
+def _save_cron_state(state):
+    """Persist cron state to disk."""
+    try:
+        with open(_CRON_STATE_FILE, 'w') as f:
+            json.dump(state, f)
+    except Exception as e:
+        print(f"[CronState] Failed to save: {e}")
+
 # ===== AUTO SCAN CRON =====
 
 @app.route("/cron")
@@ -272,9 +293,11 @@ def cron():
     now = datetime.now(PT)
     today = now.date()
     force = request.args.get('force') == '1'
-    if not force and getattr(cron, 'last_run', None) == today:
+    state = _load_cron_state()
+    if not force and state.get("morning") == str(today):
         return "Already ran today", 200
-    cron.last_run = today
+    state["morning"] = str(today)
+    _save_cron_state(state)
 
     def do_scan(label=""):
         today_path = Path(__file__).parent / "ai_earnings_today.html"
@@ -374,10 +397,12 @@ def cron():
         now = datetime.now(PT)
         today = now.date()
         force = request.args.get('force') == '1'
-        if not force and getattr(do_afternoon, 'last_run', None) == today:
+        state = _load_cron_state()
+        if not force and state.get("afternoon") == str(today):
             print("[Cron-Afternoon] Already ran today")
             return
-        do_afternoon.last_run = today
+        state["afternoon"] = str(today)
+        _save_cron_state(state)
         do_scan(label="[Afternoon]")
 
     threading.Thread(target=do_scan, daemon=True).start()
@@ -391,10 +416,12 @@ def cron_afternoon():
         now = datetime.now(PT)
         today = now.date()
         force = request.args.get('force') == '1'
-        if not force and getattr(do_afternoon, 'last_run', None) == today:
+        state = _load_cron_state()
+        if not force and state.get("afternoon") == str(today):
             print("[Cron-Afternoon] Already ran today")
             return
-        do_afternoon.last_run = today
+        state["afternoon"] = str(today)
+        _save_cron_state(state)
         today_path = Path(__file__).parent / "ai_earnings_today.html"
         golden_path = Path(__file__).parent / "ai_earnings_golden.html"
         scan_succeeded = False
