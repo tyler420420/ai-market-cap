@@ -949,6 +949,51 @@ def logout():
     resp.delete_cookie("stripe_customer")
     return resp
 
+# ===== MANUAL SCAN TRIGGER (for force-updating the site) =====
+@app.route("/trigger-scan")
+def trigger_scan():
+    """Manually run the scanner and update the site. Use ?key=SECRET to authenticate."""
+    import os
+    key = os.environ.get("SCAN_TRIGGER_KEY", "")
+    provided = request.args.get("key", "")
+    if key and provided != key:
+        abort(403)
+    now = datetime.now(PT)
+    today_path = Path(__file__).parent / "ai_earnings_today.html"
+    golden_path = Path(__file__).parent / "ai_earnings_golden.html"
+    try:
+        result = subprocess.run(
+            [sys.executable, str(Path(__file__).parent / "ai_earnings_scanner.py")],
+            capture_output=True, text=True,
+            encoding='utf-8', errors='replace', timeout=180,
+            cwd=str(Path(__file__).parent)
+        )
+        if today_path.exists():
+            content = today_path.read_text(encoding='utf-8')
+            stock_count = content.count('"ticker":')
+            json_idx = content.find('var rowsData=')
+            json_len = 0
+            if json_idx >= 0:
+                arr_depth, json_end = 0, json_idx
+                for i in range(json_idx + 12, len(content)):
+                    ch = content[i]
+                    if ch == '[': arr_depth += 1
+                    elif ch == ']':
+                        arr_depth -= 1
+                        if arr_depth == 0:
+                            json_end = i
+                            json_len = json_end - (json_idx + 12) + 1
+                            break
+            if json_len >= 5000 and stock_count >= 5:
+                import shutil
+                shutil.copy2(today_path, golden_path)
+                return f"Scan OK: {stock_count} stocks, rowsData={json_len} bytes", 200
+            else:
+                return f"Scan invalid: {stock_count} stocks, rowsData={json_len} bytes (need 5000+ bytes, 5+ stocks)", 500
+        return f"Scan failed: no output file", 500
+    except Exception as e:
+        return f"Scan error: {e}", 500
+
 # ===== MAIN =====
 if __name__ == "__main__":
     threading.Thread(target=auto_scan_loop, daemon=True).start()
