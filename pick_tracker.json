@@ -1,52 +1,52 @@
 [
   {
-    "date": "2026-06-28",
-    "ticker": "CDNS",
-    "price": 377.27,
-    "score": 86,
+    "date": "2026-06-29",
+    "ticker": "STX",
+    "price": 968.53,
+    "score": 84,
     "days_left": 29,
-    "company": "Cadence Design Systems, Inc.",
-    "pe_target": 401.42,
-    "5d_target": 498.02
+    "company": "Seagate Technology Holdings plc",
+    "pe_target": 1045.08,
+    "5d_target": 1351.28
   },
   {
-    "date": "2026-06-28",
-    "ticker": "CLS",
-    "price": 337.53,
-    "score": 83,
-    "days_left": 29,
-    "company": "Celestica Inc.",
-    "pe_target": 363.21,
-    "5d_target": 465.93
-  },
-  {
-    "date": "2026-06-28",
-    "ticker": "GOOG",
-    "price": 334.69,
-    "score": 97,
-    "days_left": 25,
-    "company": "Alphabet Inc.",
-    "pe_target": 346.35,
-    "5d_target": 392.99
-  },
-  {
-    "date": "2026-06-28",
-    "ticker": "GOOGL",
-    "price": 337.39,
-    "score": 91,
-    "days_left": 25,
-    "company": "Alphabet Inc.",
-    "pe_target": 343.51,
-    "5d_target": 367.99
-  },
-  {
-    "date": "2026-06-28",
-    "ticker": "EW",
-    "price": 90.78,
+    "date": "2026-06-29",
+    "ticker": "BA",
+    "price": 214.69,
     "score": 81,
-    "days_left": 25,
-    "company": "Edwards Lifesciences Corporation",
-    "pe_target": 96.28,
-    "5d_target": 118.28
+    "days_left": 29,
+    "company": "The Boeing Company",
+    "pe_target": 220.65,
+    "5d_target": 244.49
+  },
+  {
+    "date": "2026-06-29",
+    "ticker": "NXPI",
+    "price": 278.37,
+    "score": 78,
+    "days_left": 29,
+    "company": "NXP Semiconductors N.V.",
+    "pe_target": 306.53,
+    "5d_target": 419.17
+  },
+  {
+    "date": "2026-06-29",
+    "ticker": "V",
+    "price": 341.65,
+    "score": 78,
+    "days_left": 29,
+    "company": "Visa Inc.",
+    "pe_target": 347.55,
+    "5d_target": 371.15
+  },
+  {
+    "date": "2026-06-29",
+    "ticker": "ECL",
+    "price": 278.6,
+    "score": 75,
+    "days_left": 29,
+    "company": "Ecolab Inc.",
+    "pe_target": 290.15,
+    "5d_target": 336.35
   }
 ]
