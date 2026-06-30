@@ -287,17 +287,24 @@ def _save_cron_state(state):
 
 # ===== AUTO SCAN CRON =====
 
-@app.route("/cron")
-def cron():
-    """Triggered by Railway cron job at 6:30 AM PT daily"""
-    now = datetime.now(PT)
-    today = now.date()
-    force = request.args.get('force') == '1'
-    state = _load_cron_state()
-    if not force and state.get("morning") == str(today):
-        return "Already ran today", 200
-    state["morning"] = str(today)
-    _save_cron_state(state)
+  @app.route("/cron")
+  def cron():
+      """Triggered by Railway cron job at 6:30 AM PT daily"""
+      now = datetime.now(PT)
+      today = now.date()
+      force = request.args.get('force') == '1'
+      # Skip if HTML already has today's date — don't let stale container clobber fresh data
+      if not force:
+          today_path = Path(__file__).parent / "ai_earnings_today.html"
+          if today_path.exists():
+              mtime = datetime.fromtimestamp(today_path.stat().st_mtime, tz=PT).date()
+              if mtime == today:
+                  return f"Skip — HTML fresh ({today})", 200
+      state = _load_cron_state()
+      if not force and state.get("morning") == str(today):
+          return "Already ran today", 200
+      state["morning"] = str(today)
+      _save_cron_state(state)
 
     def do_scan(label=""):
         today_path = Path(__file__).parent / "ai_earnings_today.html"
@@ -994,7 +1001,38 @@ def trigger_scan():
     except Exception as e:
         return f"Scan error: {e}", 500
 
+# ===== STARTUP HEAL — regenerate fresh HTML if stale =====
+def _heal_stale_html():
+    """Run scanner if ai_earnings_today.html is not from today (PT)."""
+    try:
+        today_path = Path(__file__).parent / "ai_earnings_today.html"
+        if today_path.exists():
+            mtime = datetime.fromtimestamp(today_path.stat().st_mtime, tz=PT).date()
+            today = datetime.now(PT).date()
+            if mtime == today:
+                print(f"[Startup-Heal] HTML fresh ({mtime}), skipping scan")
+                return
+            print(f"[Startup-Heal] HTML stale ({mtime} vs {today}), regenerating...")
+        else:
+            print("[Startup-Heal] No HTML found, generating...")
+        result = subprocess.run(
+            [sys.executable, str(Path(__file__).parent / "ai_earnings_scanner.py")],
+            capture_output=True, text=True,
+            encoding='utf-8', errors='replace', timeout=180,
+            cwd=str(Path(__file__).parent)
+        )
+        if today_path.exists():
+            content = today_path.read_text(encoding='utf-8')
+            stock_count = content.count('"ticker":')
+            print(f"[Startup-Heal] Done — {stock_count} stocks")
+        else:
+            print("[Startup-Heal] Warning: no HTML after scan")
+    except Exception as e:
+        print(f"[Startup-Heal] Error: {e}")
+
 # ===== MAIN =====
 if __name__ == "__main__":
     threading.Thread(target=auto_scan_loop, daemon=True).start()
+    # Heal on startup — ensures fresh HTML after Railway deploys new container
+    threading.Thread(target=_heal_stale_html, daemon=True).start()
     app.run(host="0.0.0.0", port=PORT, debug=False)

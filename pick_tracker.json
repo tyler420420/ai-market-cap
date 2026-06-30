@@ -1,52 +1,52 @@
 [
   {
-    "date": "2026-06-29",
-    "ticker": "STX",
-    "price": 968.53,
+    "date": "2026-06-30",
+    "ticker": "GRAB",
+    "price": 3.81,
+    "score": 94,
+    "days_left": 29,
+    "company": "Grab Holdings Limited",
+    "pe_target": 4.02,
+    "5d_target": 4.86
+  },
+  {
+    "date": "2026-06-30",
+    "ticker": "MSFT",
+    "price": 371.26,
+    "score": 93,
+    "days_left": 29,
+    "company": "Microsoft Corporation",
+    "pe_target": 378.16,
+    "5d_target": 405.76
+  },
+  {
+    "date": "2026-06-30",
+    "ticker": "ARM",
+    "price": 357.5,
+    "score": 86,
+    "days_left": 29,
+    "company": "Arm Holdings plc",
+    "pe_target": 382.22,
+    "5d_target": 481.1
+  },
+  {
+    "date": "2026-06-30",
+    "ticker": "WDC",
+    "price": 642.11,
     "score": 84,
     "days_left": 29,
-    "company": "Seagate Technology Holdings plc",
-    "pe_target": 1045.08,
-    "5d_target": 1351.28
+    "company": "Western Digital Corporation",
+    "pe_target": 680.45,
+    "5d_target": 833.81
   },
   {
-    "date": "2026-06-29",
-    "ticker": "BA",
-    "price": 214.69,
-    "score": 81,
+    "date": "2026-06-30",
+    "ticker": "LRCX",
+    "price": 431.65,
+    "score": 84,
     "days_left": 29,
-    "company": "The Boeing Company",
-    "pe_target": 220.65,
-    "5d_target": 244.49
-  },
-  {
-    "date": "2026-06-29",
-    "ticker": "NXPI",
-    "price": 278.37,
-    "score": 78,
-    "days_left": 29,
-    "company": "NXP Semiconductors N.V.",
-    "pe_target": 306.53,
-    "5d_target": 419.17
-  },
-  {
-    "date": "2026-06-29",
-    "ticker": "V",
-    "price": 341.65,
-    "score": 78,
-    "days_left": 29,
-    "company": "Visa Inc.",
-    "pe_target": 347.55,
-    "5d_target": 371.15
-  },
-  {
-    "date": "2026-06-29",
-    "ticker": "ECL",
-    "price": 278.6,
-    "score": 75,
-    "days_left": 29,
-    "company": "Ecolab Inc.",
-    "pe_target": 290.15,
-    "5d_target": 336.35
+    "company": "Lam Research Corporation",
+    "pe_target": 455.6,
+    "5d_target": 551.4
   }
 ]
