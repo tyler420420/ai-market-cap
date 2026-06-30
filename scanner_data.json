@@ -24,8 +24,8 @@
     "sector": "Communication Services",
     "sentiment": "Positive",
     "news": {
-      "title": "Dow Jones Futures: Stock Market Rallies On U.S.-Iran News;...",
-      "url": "https://www.investors.com/market-trend/stock-market-today/dow-jones-sp500-nasdaq-us-iran-spacex-spcx-tesla-tsla/?src=A00220&yptr=yahoo"
+      "title": "Tech stocks today: Tech stocks gain, Google rises after joi...",
+      "url": "https://finance.yahoo.com/technology/live/tech-stocks-today-tech-stocks-gain-google-rises-after-joining-the-dow-151053436.html"
     },
     "price_change_pct": 4.96
   },
@@ -61,6 +61,36 @@
   },
   {
     "rank": 3,
+    "ticker": "GOOGL",
+    "company_name": "Alphabet Inc",
+    "score": 93,
+    "earnings_date": "July 23, 2026",
+    "days_left": 24,
+    "price": 353.65,
+    "pe_target": 361.59,
+    "pe_upside": 2.2,
+    "3d": 377.47,
+    "3d_up": 6.7,
+    "5d": 393.35,
+    "5d_up": 11.2,
+    "analysts": 64,
+    "sb": 14,
+    "buy": 43,
+    "hold": 7,
+    "sell": 0,
+    "mktcap": 0.0,
+    "short_int": 1.5,
+    "iv": 2.2,
+    "sector": "Communication Services",
+    "sentiment": "Positive",
+    "news": {
+      "title": "Tech stocks today: Tech stocks gain, Google rises after joi...",
+      "url": "https://finance.yahoo.com/technology/live/tech-stocks-today-tech-stocks-gain-google-rises-after-joining-the-dow-151053436.html"
+    },
+    "price_change_pct": 4.82
+  },
+  {
+    "rank": 4,
     "ticker": "CDNS",
     "company_name": "Cadence Desi",
     "score": 86,
@@ -90,7 +120,7 @@
     "price_change_pct": -1.21
   },
   {
-    "rank": 4,
+    "rank": 5,
     "ticker": "STX",
     "company_name": "Seagate Tech",
     "score": 84,
@@ -114,40 +144,10 @@
     "sector": "Technology",
     "sentiment": "Positive",
     "news": {
-      "title": "Seagate (STX): Buy, Sell, or Hold Post Q1 Earnings?...",
-      "url": "https://finance.yahoo.com/markets/stocks/articles/seagate-stx-buy-sell-hold-163415194.html"
+      "title": "Analysts See 55% Upside in Seagate and Western Digital...",
+      "url": "https://finance.yahoo.com/markets/stocks/articles/analysts-see-55-upside-seagate-230945837.html"
     },
     "price_change_pct": 7.63
-  },
-  {
-    "rank": 5,
-    "ticker": "GOOGL",
-    "company_name": "Alphabet Inc",
-    "score": 84,
-    "earnings_date": "July 23, 2026",
-    "days_left": 24,
-    "price": 353.65,
-    "pe_target": 354.79,
-    "pe_upside": 0.3,
-    "3d": 357.07,
-    "3d_up": 1.0,
-    "5d": 359.35,
-    "5d_up": 1.6,
-    "analysts": 64,
-    "sb": 14,
-    "buy": 43,
-    "hold": 7,
-    "sell": 0,
-    "mktcap": 0.0,
-    "short_int": 1.5,
-    "iv": 0.3,
-    "sector": "Communication Services",
-    "sentiment": "Positive",
-    "news": {
-      "title": "Dow Jones Futures: Stock Market Rallies On U.S.-Iran News;...",
-      "url": "https://www.investors.com/market-trend/stock-market-today/dow-jones-sp500-nasdaq-us-iran-spacex-spcx-tesla-tsla/?src=A00220&yptr=yahoo"
-    },
-    "price_change_pct": 4.82
   },
   {
     "rank": 6,
@@ -174,8 +174,8 @@
     "sector": "Technology",
     "sentiment": "Positive",
     "news": {
-      "title": "Celestica (CLS) is an Incredible Growth Stock: 3 Reason...",
-      "url": "https://finance.yahoo.com/markets/stocks/articles/celestica-cls-incredible-growth-stock-164502341.html"
+      "title": "Celestica (CLS) Laps the Stock Market: Here's Why...",
+      "url": "https://finance.yahoo.com/markets/stocks/articles/celestica-cls-laps-stock-market-214506017.html"
     },
     "price_change_pct": 1.69
   },
@@ -294,8 +294,8 @@
     "sector": "Industrials",
     "sentiment": "Positive",
     "news": {
-      "title": "China Southern strikes landmark deal for Boeing cargo je...",
-      "url": "https://finance.yahoo.com/markets/stocks/articles/china-southern-strikes-landmark-deal-175607047.html"
+      "title": "Chamber of Commerce Fights Proposed Stock Buyback Ban on ...",
+      "url": "https://finance.yahoo.com/markets/stocks/articles/chamber-commerce-fights-proposed-stock-234636048.html"
     },
     "price_change_pct": -1.18
   },
@@ -324,8 +324,8 @@
     "sector": "Healthcare",
     "sentiment": "Positive",
     "news": {
-      "title": "Edwards Lifesciences Can Sustain Strong Revenue Growth ...",
-      "url": "https://finance.yahoo.com/healthcare/articles/edwards-lifesciences-sustain-strong-revenue-162939806.html"
+      "title": "Edwards Lifesciences (EW) Is Up 6.2% After New TAVR Data a...",
+      "url": "https://finance.yahoo.com/healthcare/articles/edwards-lifesciences-ew-6-2-001531407.html"
     },
     "price_change_pct": 0.44
   },
@@ -354,8 +354,8 @@
     "sector": "Communication Services",
     "sentiment": "Mixed",
     "news": {
-      "title": "NFLX Continues to Expand Its Advertising Platform: What'...",
-      "url": "https://finance.yahoo.com/media-advertising/articles/nflx-continues-expand-advertising-platform-135100781.html"
+      "title": "Netflix (NFLX) Lands Spectrum App Store Deal To Widen Stream...",
+      "url": "https://finance.yahoo.com/media-advertising/articles/netflix-nflx-lands-spectrum-app-220849566.html"
     },
     "price_change_pct": -0.04
   },
@@ -594,8 +594,8 @@
     "sector": "Technology",
     "sentiment": "Positive",
     "news": {
-      "title": "ServiceNow (NOW) Launches AI Cybersecurity Push With Accen...",
-      "url": "https://finance.yahoo.com/technology/ai/articles/servicenow-now-launches-ai-cybersecurity-190622645.html"
+      "title": "IBM (IBM) Exceeds Market Returns: Some Facts to Consider...",
+      "url": "https://finance.yahoo.com/markets/stocks/articles/ibm-ibm-exceeds-market-returns-214507369.html"
     },
     "price_change_pct": 2.35
   },
@@ -684,8 +684,8 @@
     "sector": "Industrials",
     "sentiment": "Positive",
     "news": {
-      "title": "Honeywell Aerospace CEO Says AI Works for Blueprints but ...",
-      "url": "https://www.wsj.com/business/honeywell-aerospace-ceo-says-ai-works-for-blueprints-but-isnt-ready-for-the-cockpit-bab9eb0e?siteid=yhoof2&yptr=yahoo"
+      "title": "Honeywell Aerospace makes strong debut after spinoff...",
+      "url": "https://finance.yahoo.com/markets/stocks/articles/honeywell-aerospace-makes-strong-debut-043519012.html"
     },
     "price_change_pct": -6.41
   },
@@ -951,13 +951,43 @@
     "sector": "Technology",
     "sentiment": "Mixed",
     "news": {
-      "title": "Corning Stock: Get A Fast 59% Return From The Glass Maker...",
-      "url": "https://www.investors.com/research/options/corning-stock-glw-manufacturer-ai-data-centers-options-income-investing-markets/?src=A00220&yptr=yahoo"
+      "title": "Corning (GLW) Sets Date for New Dividend; Shares Up 15.6%...",
+      "url": "https://finance.yahoo.com/markets/stocks/articles/corning-glw-sets-date-dividend-023059346.html"
     },
     "price_change_pct": 15.67
   },
   {
     "rank": 33,
+    "ticker": "TSLA",
+    "company_name": "Tesla, Inc.",
+    "score": 69,
+    "earnings_date": "July 22, 2026",
+    "days_left": 23,
+    "price": 411.84,
+    "pe_target": 424.68,
+    "pe_upside": 3.1,
+    "3d": 450.36,
+    "3d_up": 9.4,
+    "5d": 476.04,
+    "5d_up": 15.6,
+    "analysts": 47,
+    "sb": 5,
+    "buy": 18,
+    "hold": 18,
+    "sell": 6,
+    "mktcap": 0.0,
+    "short_int": 2.3,
+    "iv": 3.1,
+    "sector": "Consumer Cyclical",
+    "sentiment": "Mixed",
+    "news": {
+      "title": "TSLA Q2 Deliveries May Miss Estimates, But Cantor Says AI,...",
+      "url": "https://finance.yahoo.com/markets/stocks/articles/tsla-q2-deliveries-may-miss-050046840.html"
+    },
+    "price_change_pct": 8.46
+  },
+  {
+    "rank": 34,
     "ticker": "SOFI",
     "company_name": "SoFi Technol",
     "score": 68,
@@ -981,13 +1011,13 @@
     "sector": "Financial Services",
     "sentiment": "Positive",
     "news": {
-      "title": "SoFi Has Quietly Met the Bar for S&P 500 Inclusion. Here...",
-      "url": "https://finance.yahoo.com/markets/stocks/articles/sofi-quietly-met-bar-p-192500189.html"
+      "title": "SoFi Technologies, Inc. (SOFI) Outpaces Stock Market Ga...",
+      "url": "https://finance.yahoo.com/markets/stocks/articles/sofi-technologies-inc-sofi-outpaces-214502186.html"
     },
     "price_change_pct": 1.9
   },
   {
-    "rank": 34,
+    "rank": 35,
     "ticker": "NOK",
     "company_name": "Nokia Oyj",
     "score": 67,
@@ -1017,7 +1047,7 @@
     "price_change_pct": 0.15
   },
   {
-    "rank": 35,
+    "rank": 36,
     "ticker": "TEL",
     "company_name": "TE Connectiv",
     "score": 67,
@@ -1047,7 +1077,7 @@
     "price_change_pct": 0.28
   },
   {
-    "rank": 36,
+    "rank": 37,
     "ticker": "JCI",
     "company_name": "Johnson Cont",
     "score": 66,
@@ -1077,7 +1107,7 @@
     "price_change_pct": 1.5
   },
   {
-    "rank": 37,
+    "rank": 38,
     "ticker": "INTC",
     "company_name": "Intel Corpor",
     "score": 66,
@@ -1101,13 +1131,13 @@
     "sector": "Technology",
     "sentiment": "Positive",
     "news": {
-      "title": "The Margin Squeeze Threatening Intel Stock",
-      "url": "https://finance.yahoo.com/markets/stocks/articles/margin-squeeze-threatening-intel-stock-203706780.html"
+      "title": "2 Hidden Industrial Stocks That Will Benefit From the AI Inf...",
+      "url": "https://finance.yahoo.com/technology/ai/articles/2-hidden-industrial-stocks-benefit-012500044.html"
     },
     "price_change_pct": 2.65
   },
   {
-    "rank": 38,
+    "rank": 39,
     "ticker": "SHW",
     "company_name": "The Sherwin-",
     "score": 66,
@@ -1137,7 +1167,7 @@
     "price_change_pct": 0.07
   },
   {
-    "rank": 39,
+    "rank": 40,
     "ticker": "PYPL",
     "company_name": "PayPal Holdi",
     "score": 63,
@@ -1161,13 +1191,13 @@
     "sector": "Financial Services",
     "sentiment": "Positive",
     "news": {
-      "title": "PayPal's PYUSD Push: Can Stablecoins Improve Merchant Paymen...",
-      "url": "https://finance.yahoo.com/markets/crypto/articles/paypals-pyusd-push-stablecoins-improve-164100918.html"
+      "title": "PYPL Stock Is Trading Near The Cheapest Valuation In Ye...",
+      "url": "https://finance.yahoo.com/markets/stocks/articles/pypl-stock-trading-near-cheapest-042114423.html"
     },
     "price_change_pct": 0.2
   },
   {
-    "rank": 40,
+    "rank": 41,
     "ticker": "WAL",
     "company_name": "Western Alli",
     "score": 63,
@@ -1197,7 +1227,7 @@
     "price_change_pct": 1.01
   },
   {
-    "rank": 41,
+    "rank": 42,
     "ticker": "LDOS",
     "company_name": "Leidos Holdi",
     "score": 63,
@@ -1227,7 +1257,7 @@
     "price_change_pct": -1.3
   },
   {
-    "rank": 42,
+    "rank": 43,
     "ticker": "VICR",
     "company_name": "Vicor Corpor",
     "score": 63,
@@ -1257,7 +1287,7 @@
     "price_change_pct": 12.19
   },
   {
-    "rank": 43,
+    "rank": 44,
     "ticker": "AIR",
     "company_name": "AAR Corp.",
     "score": 60,
@@ -1287,7 +1317,7 @@
     "price_change_pct": -0.9
   },
   {
-    "rank": 44,
+    "rank": 45,
     "ticker": "TDY",
     "company_name": "Teledyne Tec",
     "score": 60,
@@ -1317,7 +1347,7 @@
     "price_change_pct": 2.71
   },
   {
-    "rank": 45,
+    "rank": 46,
     "ticker": "PPG",
     "company_name": "PPG Industri",
     "score": 60,
@@ -1347,7 +1377,7 @@
     "price_change_pct": -1.89
   },
   {
-    "rank": 46,
+    "rank": 47,
     "ticker": "FISV",
     "company_name": "Fiserv, Inc.",
     "score": 60,
@@ -1377,7 +1407,7 @@
     "price_change_pct": -1.25
   },
   {
-    "rank": 47,
+    "rank": 48,
     "ticker": "RMBS",
     "company_name": "Rambus Inc.",
     "score": 59,
@@ -1407,7 +1437,7 @@
     "price_change_pct": 7.99
   },
   {
-    "rank": 48,
+    "rank": 49,
     "ticker": "MXL",
     "company_name": "MaxLinear, I",
     "score": 59,
@@ -1437,7 +1467,7 @@
     "price_change_pct": 12.29
   },
   {
-    "rank": 49,
+    "rank": 50,
     "ticker": "AVY",
     "company_name": "Avery Dennis",
     "score": 57,
@@ -1467,7 +1497,7 @@
     "price_change_pct": -1.47
   },
   {
-    "rank": 50,
+    "rank": 51,
     "ticker": "ROP",
     "company_name": "Roper Techno",
     "score": 57,
@@ -1497,7 +1527,7 @@
     "price_change_pct": -1.04
   },
   {
-    "rank": 51,
+    "rank": 52,
     "ticker": "PRGS",
     "company_name": "Progress Sof",
     "score": 57,
@@ -1527,7 +1557,7 @@
     "price_change_pct": 2.08
   },
   {
-    "rank": 52,
+    "rank": 53,
     "ticker": "AMKR",
     "company_name": "Amkor Techno",
     "score": 56,
@@ -1557,7 +1587,7 @@
     "price_change_pct": 4.6
   },
   {
-    "rank": 53,
+    "rank": 54,
     "ticker": "SSNC",
     "company_name": "SS&C Technol",
     "score": 56,
@@ -1587,7 +1617,7 @@
     "price_change_pct": -1.13
   },
   {
-    "rank": 54,
+    "rank": 55,
     "ticker": "OMC",
     "company_name": "Omnicom Grou",
     "score": 56,
@@ -1617,7 +1647,7 @@
     "price_change_pct": 1.15
   },
   {
-    "rank": 55,
+    "rank": 56,
     "ticker": "QRVO",
     "company_name": "Qorvo, Inc.",
     "score": 56,
@@ -1647,42 +1677,12 @@
     "price_change_pct": -0.36
   },
   {
-    "rank": 56,
-    "ticker": "TSLA",
-    "company_name": "Tesla, Inc.",
-    "score": 55,
-    "earnings_date": "July 22, 2026",
-    "days_left": 23,
-    "price": 411.84,
-    "pe_target": 412.79,
-    "pe_upside": 0.2,
-    "3d": 414.69,
-    "3d_up": 0.7,
-    "5d": 416.59,
-    "5d_up": 1.2,
-    "analysts": 47,
-    "sb": 5,
-    "buy": 18,
-    "hold": 18,
-    "sell": 6,
-    "mktcap": 0.0,
-    "short_int": 2.3,
-    "iv": 0.2,
-    "sector": "Consumer Cyclical",
-    "sentiment": "Mixed",
-    "news": {
-      "title": "Tesla (TSLA) Teams With Sunrun And Renew Home On A 16 Gi...",
-      "url": "https://finance.yahoo.com/energy/articles/tesla-tsla-teams-sunrun-renew-210711020.html"
-    },
-    "price_change_pct": 8.46
-  },
-  {
     "rank": 57,
     "ticker": "PCAR",
     "company_name": "PACCAR Inc",
     "score": 51,
-    "earnings_date": "July 21, 2026",
-    "days_left": 22,
+    "earnings_date": "July 28, 2026",
+    "days_left": 29,
     "price": 119.6,
     "pe_target": 125.55,
     "pe_upside": 5.0,
