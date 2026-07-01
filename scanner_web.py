@@ -303,6 +303,18 @@ def cron():
         today_path = Path(__file__).parent / "ai_earnings_today.html"
         golden_path = Path(__file__).parent / "ai_earnings_golden.html"
 
+        # Skip if HTML already fresh today — don't let stale cron clobber good data
+        if today_path.exists():
+            try:
+                mtime = datetime.fromtimestamp(today_path.stat().st_mtime, tz=PT).date()
+                content = today_path.read_text(encoding='utf-8')
+                stock_count = content.count('"ticker":')
+                if mtime == datetime.now(PT).date() and stock_count >= 50:
+                    print(f"[Cron{label}] Skip — HTML fresh ({stock_count} stocks, {mtime})")
+                    return
+            except Exception:
+                pass
+
         # STEP 1: Run scan, capture result
         scan_succeeded = False
         try:
