@@ -1,52 +1,52 @@
 [
   {
-    "date": "2026-06-30",
-    "ticker": "GRAB",
-    "price": 3.81,
-    "score": 94,
-    "days_left": 29,
-    "company": "Grab Holdings Limited",
-    "pe_target": 4.02,
-    "5d_target": 4.86
-  },
-  {
-    "date": "2026-06-30",
-    "ticker": "MSFT",
-    "price": 371.26,
+    "date": "2026-07-03",
+    "ticker": "MA",
+    "price": 539.39,
     "score": 93,
-    "days_left": 29,
-    "company": "Microsoft Corporation",
-    "pe_target": 378.16,
-    "5d_target": 405.76
+    "days_left": 27,
+    "company": "Mastercard Incorporated",
+    "pe_target": 551.71,
+    "5d_target": 600.99
   },
   {
-    "date": "2026-06-30",
-    "ticker": "ARM",
-    "price": 357.5,
+    "date": "2026-07-03",
+    "ticker": "AMZN",
+    "price": 242.67,
+    "score": 93,
+    "days_left": 27,
+    "company": "Amazon.com, Inc.",
+    "pe_target": 247.12,
+    "5d_target": 264.92
+  },
+  {
+    "date": "2026-07-03",
+    "ticker": "FSLR",
+    "price": 224.57,
+    "score": 88,
+    "days_left": 27,
+    "company": "First Solar, Inc.",
+    "pe_target": 240.3,
+    "5d_target": 303.22
+  },
+  {
+    "date": "2026-07-03",
+    "ticker": "RIOT",
+    "price": 22.11,
     "score": 86,
-    "days_left": 29,
-    "company": "Arm Holdings plc",
-    "pe_target": 382.22,
-    "5d_target": 481.1
+    "days_left": 27,
+    "company": "Riot Platforms, Inc.",
+    "pe_target": 24.48,
+    "5d_target": 33.96
   },
   {
-    "date": "2026-06-30",
-    "ticker": "WDC",
-    "price": 642.11,
+    "date": "2026-07-03",
+    "ticker": "NET",
+    "price": 242.41,
     "score": 84,
-    "days_left": 29,
-    "company": "Western Digital Corporation",
-    "pe_target": 680.45,
-    "5d_target": 833.81
-  },
-  {
-    "date": "2026-06-30",
-    "ticker": "LRCX",
-    "price": 431.65,
-    "score": 84,
-    "days_left": 29,
-    "company": "Lam Research Corporation",
-    "pe_target": 455.6,
-    "5d_target": 551.4
+    "days_left": 27,
+    "company": "Cloudflare, Inc.",
+    "pe_target": 257.52,
+    "5d_target": 317.96
   }
 ]
