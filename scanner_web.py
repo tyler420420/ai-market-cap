@@ -1,7 +1,7 @@
 """AI Earnings Scanner -- Web + Background Scanner Server (Railway Deploy)"""
 import os, hashlib, secrets, time, subprocess, threading, sys, json, re
 from pathlib import Path
-from datetime import datetime, time as dtime
+from datetime import datetime, time as dtime, timedelta
 from zoneinfo import ZoneInfo
 from flask import Flask, request, redirect, send_from_directory, abort, make_response, jsonify
 
@@ -304,16 +304,35 @@ def cron():
         golden_path = Path(__file__).parent / "ai_earnings_golden.html"
 
         # Skip if HTML already fresh today — don't let stale cron clobber good data
+        # Check DATA DATE inside HTML, not file mtime (Railway can touch mtime with stale data)
         if today_path.exists():
             try:
-                mtime = datetime.fromtimestamp(today_path.stat().st_mtime, tz=PT).date()
                 content = today_path.read_text(encoding='utf-8')
                 stock_count = content.count('"ticker":')
+                # Extract data date from any stock: earnings_date - days_left = "scan date"
+                import re as _re
+                data_date_match = _re.search(r'"ticker":\s*"([A-Z]+)".*?"earnings_date":\s*"([^"]+)".*?"days_left":\s*(\d+)', content, _re.DOTALL)
+                if data_date_match:
+                    earn_str = data_date_match.group(2)  # e.g. "July 22, 2026"
+                    days_left = int(data_date_match.group(3))
+                    try:
+                        earn_dt = datetime.strptime(earn_str, '%B %d, %Y')
+                        data_date = (earn_dt - timedelta(days=days_left)).date()
+                        today_pt = datetime.now(PT).date()
+                        if data_date == today_pt and stock_count >= 50:
+                            print(f"[Cron{label}] Skip — data date {data_date} == today {today_pt} ({stock_count} stocks)")
+                            return
+                        else:
+                            print(f"[Cron{label}] Data date {data_date} != today {today_pt}, will scan")
+                    except Exception:
+                        pass
+                # Fallback: also check mtime
+                mtime = datetime.fromtimestamp(today_path.stat().st_mtime, tz=PT).date()
                 if mtime == datetime.now(PT).date() and stock_count >= 50:
-                    print(f"[Cron{label}] Skip — HTML fresh ({stock_count} stocks, {mtime})")
+                    print(f"[Cron{label}] Skip — mtime fresh ({stock_count} stocks, {mtime})")
                     return
-            except Exception:
-                pass
+            except Exception as e:
+                print(f"[Cron{label}] Skip check error: {e}")
 
         # STEP 1: Run scan, capture result
         scan_succeeded = False
