@@ -1027,5 +1027,19 @@ def trigger_scan():
 
 # ===== MAIN =====
 if __name__ == "__main__":
+    @app.route("/push", methods=["POST"])
+    def push_html():
+        """Direct push of ai_earnings_today.html content from local scan"""
+        import secrets
+        token = os.environ.get("PUSH_TOKEN", "tyler_secret_token")
+        if request.args.get("token") != token:
+            return "Unauthorized", 401
+        data = request.get_data(as_text=True)
+        if not data or len(data) < 1000:
+            return "Content too short", 400
+        out_path = Path(__file__).parent / "ai_earnings_today.html"
+        out_path.write_text(data, encoding="utf-8")
+        return f"Written {len(data)} bytes", 200
+
     threading.Thread(target=auto_scan_loop, daemon=True).start()
     app.run(host="0.0.0.0", port=PORT, debug=False)
