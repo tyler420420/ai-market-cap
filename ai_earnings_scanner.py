@@ -96,7 +96,8 @@ def fetch_ai_stocks_from_finviz() -> List[str]:
                     cells = row.find_all('td')
                     if len(cells) >= 2:
                         t = cells[1].get_text(strip=True)
-                        if t.isalpha() and 1 <= len(t) <= 5: tickers.add(t)
+                        if t.isalpha() and 2 <= len(t) <= 4: tickers.add(t)
+                        elif len(t) == 5 and t[0] == t[1]: pass  # skip doubled tickers like AAAPL, AASML
                 if len(rows) < 20: break
         result = sorted(tickers)
         print(f"[AI Stocks] Fetched {len(result)} tech stocks ($10B+ mcap) from finviz")
