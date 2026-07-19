@@ -911,6 +911,7 @@ def main():
     parser.add_argument('--days', type=int, default=29, help='Days ahead to scan (1-29)')
     parser.add_argument('--top', type=int, default=100)
     parser.add_argument('--local', action='store_true', help='Use local desktop paths (favicon, etc.)')
+    parser.add_argument('--no-finviz', action='store_true', help='Skip finviz scrape, use only AI_TICKERS list')
     args = parser.parse_args()
     LOCAL_MODE = args.local
     print("AI Earnings Scanner - Pre-Earnings Momentum (1-35 Day Window)"); print("="*55)
@@ -931,8 +932,12 @@ def main():
             print(f"Favicon generation skipped: {e}")
 
     # Fetch dynamic AI stock list from finviz + hardcoded AI-niche tickers (merged)
-    print("Fetching AI stocks from finviz screener...")
-    finviz_tickers = fetch_ai_stocks_from_finviz()
+    if getattr(args, 'no_finviz', False):
+        finviz_tickers = []
+        print("Skipping finviz scrape (--no-finviz)")
+    else:
+        print("Fetching AI stocks from finviz screener...")
+        finviz_tickers = fetch_ai_stocks_from_finviz()
     # Always include hardcoded AI_TICKERS (ensures CRDO and other niche AI plays are scanned)
     all_tickers = list(dict.fromkeys(finviz_tickers + AI_TICKERS))  # deduped, finviz first
     print(f"Total stocks to scan: {len(all_tickers)} (finviz:{len(finviz_tickers)} + hardcoded:{len(AI_TICKERS)})")

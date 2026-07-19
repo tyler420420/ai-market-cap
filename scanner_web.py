@@ -1045,14 +1045,21 @@ if __name__ == "__main__":
         data = request.get_data(as_text=True)
         if not data or len(data) < 100:
             return "Content too short", 400
-        # Write scanner_data.json
+        # Detect HTML vs JSON
+        if data.strip().startswith("<"):
+            # HTML content - write to scanner.html and ai_earnings_today.html
+            html_path = base / "ai_earnings_today.html"
+            scanner_path = base / "scanner.html"
+            html_path.write_text(data, encoding="utf-8")
+            scanner_path.write_text(data, encoding="utf-8")
+            return f"Written HTML: {len(data)} bytes to both files", 200
+        # JSON content
         json_path = base / "scanner_data.json"
         json_path.write_text(data, encoding="utf-8")
         # Regenerate HTML from JSON
         try:
             import json as _json
             jdata = _json.loads(data)
-            # Handle both list format and dict format
             if isinstance(jdata, list):
                 rows = jdata
             elif isinstance(jdata, dict):
@@ -1063,8 +1070,10 @@ if __name__ == "__main__":
                 sys.path.insert(0, str(base))
                 from ai_earnings_scanner import generate_html_report
                 html_path = base / "ai_earnings_today.html"
+                scanner_path = base / "scanner.html"
                 generate_html_report(rows, str(html_path))
-                return f"Written JSON ({len(data)} bytes) + regenerated HTML ({html_path.stat().st_size} bytes)", 200
+                generate_html_report(rows, str(scanner_path))
+                return f"Written JSON ({len(data)} bytes) + HTML regenerated", 200
         except Exception as e:
             return f"Written JSON ({len(data)} bytes), HTML regen failed: {e}", 200
         return f"Written JSON: {len(data)} bytes", 200
