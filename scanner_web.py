@@ -1027,17 +1027,24 @@ def trigger_scan():
 
 # ===== MAIN =====
 if __name__ == "__main__":
-    @app.route("/push", methods=["POST"])
+    @app.route("/push", methods=["GET", "POST"])
     def push_html():
         """Direct push of ai_earnings_today.html content from local scan"""
-        import secrets
         token = os.environ.get("PUSH_TOKEN", "tyler_secret_token")
         if request.args.get("token") != token:
             return "Unauthorized", 401
+        out_path = Path(__file__).parent / "ai_earnings_today.html"
+        if request.method == "GET":
+            # Return first 500 chars of current file for debugging
+            if out_path.exists():
+                content = out_path.read_text(encoding="utf-8")
+                idx = content.find("NXPI")
+                snippet = content[idx:idx+200] if idx >= 0 else "NXPI not found"
+                return f"CURRENT: {len(content)} bytes\nNXPI: {snippet}", 200
+            return "File not found", 404
         data = request.get_data(as_text=True)
         if not data or len(data) < 1000:
             return "Content too short", 400
-        out_path = Path(__file__).parent / "ai_earnings_today.html"
         out_path.write_text(data, encoding="utf-8")
         return f"Written {len(data)} bytes", 200
 
