@@ -1029,24 +1029,39 @@ def trigger_scan():
 if __name__ == "__main__":
     @app.route("/push", methods=["GET", "POST"])
     def push_html():
-        """Direct push of ai_earnings_today.html content from local scan"""
+        """Push scanner_data.json and regenerate ai_earnings_today.html"""
         token = os.environ.get("PUSH_TOKEN", "tyler_secret_token")
         if request.args.get("token") != token:
             return "Unauthorized", 401
-        out_path = Path(__file__).parent / "ai_earnings_today.html"
+        base = Path(__file__).parent
         if request.method == "GET":
-            # Return first 500 chars of current file for debugging
-            if out_path.exists():
-                content = out_path.read_text(encoding="utf-8")
-                idx = content.find("NXPI")
-                snippet = content[idx:idx+200] if idx >= 0 else "NXPI not found"
-                return f"CURRENT: {len(content)} bytes\nNXPI: {snippet}", 200
+            json_path = base / "scanner_data.json"
+            if json_path.exists():
+                content = json_path.read_text(encoding="utf-8")
+                idx = content.find('"NXPI"')
+                n = content[idx:idx+150] if idx >= 0 else "NXPI not found"
+                return f"NXPI: {n}", 200
             return "File not found", 404
         data = request.get_data(as_text=True)
-        if not data or len(data) < 1000:
+        if not data or len(data) < 100:
             return "Content too short", 400
-        out_path.write_text(data, encoding="utf-8")
-        return f"Written {len(data)} bytes", 200
+        # Write scanner_data.json
+        json_path = base / "scanner_data.json"
+        json_path.write_text(data, encoding="utf-8")
+        # Regenerate HTML from JSON
+        try:
+            import json as _json
+            jdata = _json.loads(data)
+            rows = jdata.get("stocks", jdata.get("data", []))
+            if rows:
+                sys.path.insert(0, str(base))
+                from generate_html import generate_html
+                html_path = base / "ai_earnings_today.html"
+                generate_html(rows, str(html_path))
+                return f"Written JSON ({len(data)} bytes) + regenerated HTML ({html_path.stat().st_size} bytes)", 200
+        except Exception as e:
+            return f"Written JSON ({len(data)} bytes), HTML regen failed: {e}", 200
+        return f"Written JSON: {len(data)} bytes", 200
 
     threading.Thread(target=auto_scan_loop, daemon=True).start()
     app.run(host="0.0.0.0", port=PORT, debug=False)
