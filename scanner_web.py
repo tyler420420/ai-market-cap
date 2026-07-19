@@ -1052,12 +1052,18 @@ if __name__ == "__main__":
         try:
             import json as _json
             jdata = _json.loads(data)
-            rows = jdata.get("stocks", jdata.get("data", []))
+            # Handle both list format and dict format
+            if isinstance(jdata, list):
+                rows = jdata
+            elif isinstance(jdata, dict):
+                rows = jdata.get("stocks", jdata.get("data", []))
+            else:
+                rows = []
             if rows:
                 sys.path.insert(0, str(base))
-                from generate_html import generate_html
+                from ai_earnings_scanner import generate_html_report
                 html_path = base / "ai_earnings_today.html"
-                generate_html(rows, str(html_path))
+                generate_html_report(rows, str(html_path))
                 return f"Written JSON ({len(data)} bytes) + regenerated HTML ({html_path.stat().st_size} bytes)", 200
         except Exception as e:
             return f"Written JSON ({len(data)} bytes), HTML regen failed: {e}", 200
