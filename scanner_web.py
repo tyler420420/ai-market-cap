@@ -300,220 +300,82 @@ def cron():
     _save_cron_state(state)
 
     def do_scan(label=""):
+        """Railway cron: NEVER run the scanner (Railway can't do Finviz reliably).
+        Only check freshness and serve existing data. Scanning happens locally."""
         today_path = Path(__file__).parent / "ai_earnings_today.html"
-        golden_path = Path(__file__).parent / "ai_earnings_golden.html"
-
-        # Skip if HTML already fresh today — don't let stale cron clobber good data
-        # Check DATA DATE inside HTML, not file mtime (Railway can touch mtime with stale data)
-        if today_path.exists():
-            try:
-                content = today_path.read_text(encoding='utf-8')
-                stock_count = content.count('"ticker":')
-                # Extract data date from any stock: earnings_date - days_left = "scan date"
-                import re as _re
-                data_date_match = _re.search(r'"ticker":\s*"([A-Z]+)".*?"earnings_date":\s*"([^"]+)".*?"days_left":\s*(\d+)', content, _re.DOTALL)
-                if data_date_match:
-                    earn_str = data_date_match.group(2)  # e.g. "July 22, 2026"
-                    days_left = int(data_date_match.group(3))
-                    try:
-                        earn_dt = datetime.strptime(earn_str, '%B %d, %Y')
-                        data_date = (earn_dt - timedelta(days=days_left)).date()
-                        today_pt = datetime.now(PT).date()
-                        if data_date == today_pt and stock_count >= 50:
-                            print(f"[Cron{label}] Skip — data date {data_date} == today {today_pt} ({stock_count} stocks)")
-                            return
-                        else:
-                            print(f"[Cron{label}] Data date {data_date} != today {today_pt}, will scan")
-                    except Exception:
-                        pass
-                # Fallback: also check mtime
-                mtime = datetime.fromtimestamp(today_path.stat().st_mtime, tz=PT).date()
-                if mtime == datetime.now(PT).date() and stock_count >= 50:
-                    print(f"[Cron{label}] Skip — mtime fresh ({stock_count} stocks, {mtime})")
-                    return
-            except Exception as e:
-                print(f"[Cron{label}] Skip check error: {e}")
-
-        # STEP 1: Run scan, capture result
-        scan_succeeded = False
+        if not today_path.exists():
+            print(f"[Cron{label}] No data file — needs manual scan push")
+            return False
         try:
-            result = subprocess.run(
-                [sys.executable, str(Path(__file__).parent / "ai_earnings_scanner.py")],
-                capture_output=True, text=True,
-                encoding='utf-8', errors='replace', timeout=180,
-                cwd=str(Path(__file__).parent)
-            )
-            # STEP 2: Validate JSON - must have at least 5 stocks
-            json_path = Path(__file__).parent / "scanner_data.json"
-            json_valid = False
-            if json_path.exists():
+            content = today_path.read_text(encoding='utf-8')
+            stock_count = content.count('"ticker":')
+            import re as _re
+            data_date_match = _re.search(r'"ticker":\s*"([A-Z]+)".*?"earnings_date":\s*"([^"]+)".*?"days_left":\s*(\d+)', content, _re.DOTALL)
+            if data_date_match:
+                earn_str = data_date_match.group(2)
+                days_left = int(data_date_match.group(3))
                 try:
-                    import json as _json
-                    with open(json_path, 'r', encoding='utf-8') as f:
-                        json_data = _json.load(f)
-                    if isinstance(json_data, list) and len(json_data) >= 5:
-                        json_valid = True
-                        print(f"[Cron{label}] scanner_data.json OK ({len(json_data)} stocks)")
+                    earn_dt = datetime.strptime(earn_str, '%B %d, %Y')
+                    data_date = (earn_dt - timedelta(days=days_left)).date()
+                    today_pt = datetime.now(PT).date()
+                    if data_date == today_pt and stock_count >= 50:
+                        print(f"[Cron{label}] Data FRESH — {data_date} == today {today_pt} ({stock_count} stocks)")
+                        return True
                     else:
-                        print(f"[Cron{label}] scanner_data.json invalid")
-                except Exception as e:
-                    print(f"[Cron{label}] scanner_data.json error: {e}")
-
-            # STEP 3: Validate HTML - must have rowsData >= 5000 bytes AND at least 5 stocks
-            if today_path.exists():
-                content = today_path.read_text(encoding='utf-8')
-                idx = content.find('var rowsData=')
-                if idx >= 0:
-                    arr_depth, json_end = 0, idx
-                    for i in range(idx + 12, len(content)):
-                        ch = content[i]
-                        if ch == '[': arr_depth += 1
-                        elif ch == ']':
-                            arr_depth -= 1
-                            if arr_depth == 0:
-                                json_end = i
-                                break
-                    json_len = json_end - (idx + 12) + 1
-                    stock_count = content.count('"ticker":')
-                    print(f"[Cron{label}] rowsData={json_len} bytes, stocks={stock_count}")
-                    if json_len >= 5000 and stock_count >= 5:
-                        import shutil
-                        shutil.copy2(today_path, golden_path)
-                        # scanner.html is the static UI shell - NEVER overwrite it with scan output
-                        print(f"[Cron{label}] VALID - Golden backup updated ({stock_count} stocks)")
-                        scan_succeeded = True
-                    else:
-                        print(f"[Cron{label}] INVALID - rowsData={json_len} or stocks={stock_count} too low, restoring golden")
-                        if golden_path.exists():
-                            shutil.copy2(golden_path, today_path)
-                        else:
-                            print("[Cron] No golden backup found, leaving current file")
-                else:
-                    print(f"[Cron{label}] rowsData not found, restoring golden")
-                    if golden_path.exists():
-                        shutil.copy2(golden_path, today_path)
-            print(f"[Cron{label}] Scan output:", result.stdout[-500:] if result.stdout else "no output")
+                        print(f"[Cron{label}] Data STALE — data date {data_date}, today {today_pt} ({stock_count} stocks). Needs manual scan.")
+                        return False
+                except Exception:
+                    pass
+            mtime = datetime.fromtimestamp(today_path.stat().st_mtime, tz=PT).date()
+            if mtime == datetime.now(PT).date() and stock_count >= 50:
+                print(f"[Cron{label}] Data FRESH (mtime {mtime}, {stock_count} stocks)")
+                return True
+            else:
+                print(f"[Cron{label}] Data STALE — mtime {mtime}, {stock_count} stocks. Needs manual scan.")
+                return False
         except Exception as e:
-            print(f"[Cron{label}] Scan error: {e}")
-            if golden_path.exists():
-                import shutil
-                shutil.copy2(golden_path, today_path)
+            print(f"[Cron{label}] Freshness check error: {e}")
+            return False
 
-        # STEP 3: Self-heal — if fewer than 12 stocks, re-run once automatically
-        if scan_succeeded:
-            heal_count = today_path.read_text(encoding='utf-8').count('"ticker":')
-            if heal_count < 12:
-                print(f"[Heal{label}] Only {heal_count} stocks, re-running scanner...")
-                try:
-                    result = subprocess.run(
-                        [sys.executable, str(Path(__file__).parent / "ai_earnings_scanner.py")],
-                        capture_output=True, text=True,
-                        encoding='utf-8', errors='replace', timeout=180,
-                        cwd=str(Path(__file__).parent)
-                    )
-                    new_content = today_path.read_text(encoding='utf-8')
-                    new_count = new_content.count('"ticker":')
-                    if new_count > heal_count:
-                        import shutil
-                        shutil.copy2(today_path, golden_path)
-                        print(f"[Heal{label}] Re-scan improved to {new_count} stocks, golden updated")
-                except Exception as e:
-                    print(f"[Heal{label}] Re-scan error: {e}")
-
-        # STEP 4: Done — Twitter post handled by /cron-twitter after morning scan only
-        return scan_succeeded
-
-    def do_afternoon():
-        # Separate state tracking for afternoon scan
-        now = datetime.now(PT)
-        today = now.date()
-        force = request.args.get('force') == '1'
-        state = _load_cron_state()
-        if not force and state.get("afternoon") == str(today):
-            print("[Cron-Afternoon] Already ran today")
-            return
-        state["afternoon"] = str(today)
-        _save_cron_state(state)
-        do_scan(label="[Afternoon]")
-
-    threading.Thread(target=do_scan, daemon=True).start()
-    return "Scan triggered", 200
+    # Railway cron: never run scanner, just check freshness
+    fresh = do_scan(label="[Morning]")
+    if fresh:
+        return f"Data fresh — {datetime.now(PT).date()} (auto-disabled scanner run)", 200
+    else:
+        return f"Data stale — run scanner locally and push. Cron scanner disabled.", 200
 
 
 @app.route("/cron-afternoon")
 def cron_afternoon():
-    """Triggered by cron-job.org at 1:00 PM PT daily"""
-    def do_afternoon():
-        now = datetime.now(PT)
-        today = now.date()
-        force = request.args.get('force') == '1'
-        state = _load_cron_state()
-        if not force and state.get("afternoon") == str(today):
-            print("[Cron-Afternoon] Already ran today")
-            return
-        state["afternoon"] = str(today)
-        _save_cron_state(state)
-        today_path = Path(__file__).parent / "ai_earnings_today.html"
-        golden_path = Path(__file__).parent / "ai_earnings_golden.html"
-        scan_succeeded = False
-        try:
-            result = subprocess.run(
-                [sys.executable, str(Path(__file__).parent / "ai_earnings_scanner.py")],
-                capture_output=True, text=True,
-                encoding='utf-8', errors='replace', timeout=180,
-                cwd=str(Path(__file__).parent)
-            )
-            if today_path.exists():
-                content = today_path.read_text(encoding='utf-8')
-                idx = content.find('var rowsData=')
-                if idx >= 0:
-                    arr_depth, json_end = 0, idx
-                    for i in range(idx + 12, len(content)):
-                        ch = content[i]
-                        if ch == '[': arr_depth += 1
-                        elif ch == ']':
-                            arr_depth -= 1
-                            if arr_depth == 0:
-                                json_end = i
-                                break
-                    json_len = json_end - (idx + 12) + 1
-                    stock_count = content.count('"ticker":')
-                    print(f"[Cron-Afternoon] rowsData={json_len} bytes, stocks={stock_count}")
-                    if json_len >= 5000 and stock_count >= 5:
-                        import shutil
-                        shutil.copy2(today_path, golden_path)
-                        print(f"[Cron-Afternoon] VALID - Golden backup updated ({stock_count} stocks)")
-                        scan_succeeded = True
-                    else:
-                        print(f"[Cron-Afternoon] INVALID, restoring golden")
-                        if golden_path.exists():
-                            shutil.copy2(golden_path, today_path)
-                else:
-                    if golden_path.exists():
-                        shutil.copy2(golden_path, today_path)
-            print("[Cron-Afternoon] Scan output:", result.stdout[-500:] if result.stdout else "no output")
-        except Exception as e:
-            print(f"[Cron-Afternoon] Scan error: {e}")
-            if golden_path.exists():
-                import shutil
-                shutil.copy2(golden_path, today_path)
-        if scan_succeeded:
-            heal_count = today_path.read_text(encoding='utf-8').count('"ticker":')
-            if heal_count < 12:
-                print(f"[Heal-Afternoon] Only {heal_count} stocks, re-running...")
-                try:
-                    subprocess.run(
-                        [sys.executable, str(Path(__file__).parent / "ai_earnings_scanner.py")],
-                        capture_output=True, text=True,
-                        encoding='utf-8', errors='replace', timeout=180,
-                        cwd=str(Path(__file__).parent)
-                    )
-                    import shutil
-                    shutil.copy2(today_path, golden_path)
-                except Exception as e:
-                    print(f"[Heal-Afternoon] Re-scan error: {e}")
-    threading.Thread(target=do_afternoon, daemon=True).start()
-    return "Afternoon scan triggered", 200
+    """Railway afternoon cron: only check freshness. Scanner runs locally."""
+    now = datetime.now(PT)
+    today = now.date()
+    force = request.args.get('force') == '1'
+    state = _load_cron_state()
+    if not force and state.get("afternoon") == str(today):
+        return "Already ran today", 200
+    state["afternoon"] = str(today)
+    _save_cron_state(state)
+
+    today_path = Path(__file__).parent / "ai_earnings_today.html"
+    if not today_path.exists():
+        return "No data file — needs manual scan push", 200
+    try:
+        content = today_path.read_text(encoding='utf-8')
+        stock_count = content.count('"ticker":')
+        import re as _re
+        m = _re.search(r'"ticker":\s*"([A-Z]+)".*?"earnings_date":\s*"([^"]+)".*?"days_left":\s*(\d+)', content, _re.DOTALL)
+        if m:
+            earn_dt = datetime.strptime(m.group(2), '%B %d, %Y')
+            data_date = (earn_dt - timedelta(days=int(m.group(3)))).date()
+            if data_date == today and stock_count >= 50:
+                return f"Data fresh — afternoon check OK ({stock_count} stocks)", 200
+        mtime = datetime.fromtimestamp(today_path.stat().st_mtime, tz=PT).date()
+        if mtime == today and stock_count >= 50:
+            return f"Data fresh — afternoon check OK ({stock_count} stocks)", 200
+        return f"Data stale — run scanner locally and push", 200
+    except Exception as e:
+        return f"Check error: {e}", 200
 
 
 @app.route("/cron-twitter")

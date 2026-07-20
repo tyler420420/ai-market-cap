@@ -1,52 +1,52 @@
 [
   {
-    "date": "2026-07-03",
-    "ticker": "MA",
-    "price": 539.39,
-    "score": 93,
-    "days_left": 27,
-    "company": "Mastercard Incorporated",
-    "pe_target": 551.71,
-    "5d_target": 600.99
+    "date": "2026-07-20",
+    "ticker": "PANW",
+    "price": 348.66,
+    "score": 95,
+    "days_left": 29,
+    "company": "Palo Alto Networks, Inc.",
+    "pe_target": 369.83,
+    "5d_target": 454.51
   },
   {
-    "date": "2026-07-03",
-    "ticker": "AMZN",
-    "price": 242.67,
-    "score": 93,
-    "days_left": 27,
-    "company": "Amazon.com, Inc.",
-    "pe_target": 247.12,
-    "5d_target": 264.92
-  },
-  {
-    "date": "2026-07-03",
-    "ticker": "FSLR",
-    "price": 224.57,
-    "score": 88,
-    "days_left": 27,
-    "company": "First Solar, Inc.",
-    "pe_target": 240.3,
-    "5d_target": 303.22
-  },
-  {
-    "date": "2026-07-03",
-    "ticker": "RIOT",
-    "price": 22.11,
-    "score": 86,
-    "days_left": 27,
-    "company": "Riot Platforms, Inc.",
-    "pe_target": 24.48,
-    "5d_target": 33.96
-  },
-  {
-    "date": "2026-07-03",
-    "ticker": "NET",
-    "price": 242.41,
+    "date": "2026-07-20",
+    "ticker": "AMAT",
+    "price": 525.7,
     "score": 84,
-    "days_left": 27,
-    "company": "Cloudflare, Inc.",
-    "pe_target": 257.52,
-    "5d_target": 317.96
+    "days_left": 24,
+    "company": "Applied Materials, Inc.",
+    "pe_target": 575.3,
+    "5d_target": 773.7
+  },
+  {
+    "date": "2026-07-20",
+    "ticker": "JD",
+    "price": 30.6,
+    "score": 92,
+    "days_left": 22,
+    "company": "JD.com, Inc.",
+    "pe_target": 31.62,
+    "5d_target": 35.7
+  },
+  {
+    "date": "2026-07-20",
+    "ticker": "SE",
+    "price": 105.69,
+    "score": 75,
+    "days_left": 22,
+    "company": "Sea Limited",
+    "pe_target": 112.19,
+    "5d_target": 138.19
+  },
+  {
+    "date": "2026-07-20",
+    "ticker": "TTWO",
+    "price": 238.98,
+    "score": 83,
+    "days_left": 18,
+    "company": "Take-Two Interactive Software, Inc.",
+    "pe_target": 248.28,
+    "5d_target": 285.48
   }
 ]
