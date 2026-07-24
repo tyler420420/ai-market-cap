@@ -1,52 +1,52 @@
 [
   {
-    "date": "2026-07-20",
-    "ticker": "PANW",
-    "price": 348.66,
-    "score": 95,
-    "days_left": 29,
-    "company": "Palo Alto Networks, Inc.",
-    "pe_target": 369.83,
-    "5d_target": 454.51
+    "date": "2026-07-24",
+    "ticker": "BILI",
+    "price": 17.49,
+    "score": 88,
+    "days_left": 27,
+    "company": "Bilibili Inc.",
+    "pe_target": 17.99,
+    "5d_target": 19.99
   },
   {
-    "date": "2026-07-20",
-    "ticker": "AMAT",
-    "price": 525.7,
+    "date": "2026-07-24",
+    "ticker": "INTU",
+    "price": 281.53,
     "score": 84,
-    "days_left": 24,
-    "company": "Applied Materials, Inc.",
-    "pe_target": 575.3,
-    "5d_target": 773.7
+    "days_left": 27,
+    "company": "Intuit Inc.",
+    "pe_target": 290.36,
+    "5d_target": 325.68
   },
   {
-    "date": "2026-07-20",
-    "ticker": "JD",
-    "price": 30.6,
-    "score": 92,
-    "days_left": 22,
-    "company": "JD.com, Inc.",
-    "pe_target": 31.62,
-    "5d_target": 35.7
+    "date": "2026-07-24",
+    "ticker": "WDAY",
+    "price": 127.87,
+    "score": 79,
+    "days_left": 27,
+    "company": "Workday, Inc.",
+    "pe_target": 144.6,
+    "5d_target": 211.52
   },
   {
-    "date": "2026-07-20",
-    "ticker": "SE",
-    "price": 105.69,
-    "score": 75,
-    "days_left": 22,
-    "company": "Sea Limited",
-    "pe_target": 112.19,
-    "5d_target": 138.19
+    "date": "2026-07-24",
+    "ticker": "DE",
+    "price": 610.02,
+    "score": 78,
+    "days_left": 27,
+    "company": "Deere & Company",
+    "pe_target": 638.22,
+    "5d_target": 751.02
   },
   {
-    "date": "2026-07-20",
-    "ticker": "TTWO",
-    "price": 238.98,
-    "score": 83,
-    "days_left": 18,
-    "company": "Take-Two Interactive Software, Inc.",
-    "pe_target": 248.28,
-    "5d_target": 285.48
+    "date": "2026-07-24",
+    "ticker": "BIDU",
+    "price": 107.39,
+    "score": 82,
+    "days_left": 26,
+    "company": "Baidu, Inc.",
+    "pe_target": 109.82,
+    "5d_target": 119.54
   }
 ]
