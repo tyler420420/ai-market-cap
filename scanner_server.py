@@ -5,8 +5,8 @@ from datetime import datetime, time as dtime
 from zoneinfo import ZoneInfo
 
 PORT = 18765
-SCANNER_PATH = r"C:\Users\Tyler_AI\.mavis\sessions\mvs_41a119d03ae849d59a2cdecd57e77d10\workspace\ai_earnings_scanner.py"
-WORKSPACE = r"C:\Users\Tyler_AI\.mavis\sessions\mvs_41a119d03ae849d59a2cdecd57e77d10\workspace"
+SCANNER_PATH = r"C:\Users\Tyler_AI\ai-market-cap\ai_earnings_scanner.py"
+WORKSPACE = r"C:\Users\Tyler_AI\ai-market-cap"
 PT = ZoneInfo("America/Los_Angeles")
 
 # Auto-scan time: 6:30 AM Pacific
@@ -73,7 +73,7 @@ def _trigger_scan():
 def _run_full_scan():
     try:
         result = subprocess.run(
-            [sys.executable, SCANNER_PATH],
+            [sys.executable, SCANNER_PATH, "--no-finviz"],
             capture_output=True, text=True,
             encoding='utf-8', errors='replace', timeout=180,
             cwd=WORKSPACE
