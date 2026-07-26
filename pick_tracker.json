@@ -1,52 +1,52 @@
 [
   {
-    "date": "2026-07-24",
+    "date": "2026-07-26",
     "ticker": "BILI",
-    "price": 17.49,
-    "score": 88,
-    "days_left": 27,
+    "price": 17.16,
+    "score": 89,
+    "days_left": 25,
     "company": "Bilibili Inc.",
-    "pe_target": 17.99,
-    "5d_target": 19.99
+    "pe_target": 18.33,
+    "5d_target": 23.01
   },
   {
-    "date": "2026-07-24",
+    "date": "2026-07-26",
     "ticker": "INTU",
-    "price": 281.53,
+    "price": 296.33,
     "score": 84,
-    "days_left": 27,
+    "days_left": 25,
     "company": "Intuit Inc.",
-    "pe_target": 290.36,
-    "5d_target": 325.68
+    "pe_target": 325.58,
+    "5d_target": 442.58
   },
   {
-    "date": "2026-07-24",
+    "date": "2026-07-26",
     "ticker": "WDAY",
-    "price": 127.87,
+    "price": 135.34,
     "score": 79,
-    "days_left": 27,
+    "days_left": 25,
     "company": "Workday, Inc.",
-    "pe_target": 144.6,
-    "5d_target": 211.52
+    "pe_target": 144.79,
+    "5d_target": 182.59
   },
   {
-    "date": "2026-07-24",
+    "date": "2026-07-26",
     "ticker": "DE",
-    "price": 610.02,
+    "price": 628.16,
     "score": 78,
-    "days_left": 27,
+    "days_left": 25,
     "company": "Deere & Company",
-    "pe_target": 638.22,
-    "5d_target": 751.02
+    "pe_target": 652.11,
+    "5d_target": 747.91
   },
   {
-    "date": "2026-07-24",
-    "ticker": "BIDU",
-    "price": 107.39,
-    "score": 82,
-    "days_left": 26,
-    "company": "Baidu, Inc.",
-    "pe_target": 109.82,
-    "5d_target": 119.54
+    "date": "2026-07-26",
+    "ticker": "ZM",
+    "price": 87.99,
+    "score": 76,
+    "days_left": 25,
+    "company": "Zoom Communications, Inc.",
+    "pe_target": 92.08,
+    "5d_target": 108.44
   }
 ]
