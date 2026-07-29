@@ -1,52 +1,52 @@
 [
   {
-    "date": "2026-07-26",
-    "ticker": "BILI",
-    "price": 17.16,
-    "score": 89,
-    "days_left": 25,
-    "company": "Bilibili Inc.",
-    "pe_target": 18.33,
-    "5d_target": 23.01
+    "date": "2026-07-29",
+    "ticker": "ADSK",
+    "price": 239.56,
+    "score": 91,
+    "days_left": 29,
+    "company": "Autodesk, Inc.",
+    "pe_target": 249.26,
+    "5d_target": 288.06
   },
   {
-    "date": "2026-07-26",
-    "ticker": "INTU",
-    "price": 296.33,
-    "score": 84,
-    "days_left": 25,
-    "company": "Intuit Inc.",
-    "pe_target": 325.58,
-    "5d_target": 442.58
+    "date": "2026-07-29",
+    "ticker": "MRVL",
+    "price": 175.1,
+    "score": 85,
+    "days_left": 29,
+    "company": "Marvell Technology, Inc.",
+    "pe_target": 190.26,
+    "5d_target": 250.9
   },
   {
-    "date": "2026-07-26",
-    "ticker": "WDAY",
-    "price": 135.34,
-    "score": 79,
-    "days_left": 25,
-    "company": "Workday, Inc.",
-    "pe_target": 144.79,
-    "5d_target": 182.59
+    "date": "2026-07-29",
+    "ticker": "SNOW",
+    "price": 285.07,
+    "score": 95,
+    "days_left": 28,
+    "company": "Snowflake Inc.",
+    "pe_target": 310.2,
+    "5d_target": 410.72
   },
   {
-    "date": "2026-07-26",
-    "ticker": "DE",
-    "price": 628.16,
-    "score": 78,
-    "days_left": 25,
-    "company": "Deere & Company",
-    "pe_target": 652.11,
-    "5d_target": 747.91
+    "date": "2026-07-29",
+    "ticker": "MDB",
+    "price": 321.14,
+    "score": 90,
+    "days_left": 28,
+    "company": "MongoDB, Inc.",
+    "pe_target": 352.9,
+    "5d_target": 479.9
   },
   {
-    "date": "2026-07-26",
-    "ticker": "ZM",
-    "price": 87.99,
-    "score": 76,
-    "days_left": 25,
-    "company": "Zoom Communications, Inc.",
-    "pe_target": 92.08,
-    "5d_target": 108.44
+    "date": "2026-07-29",
+    "ticker": "NVDA",
+    "price": 196.25,
+    "score": 87,
+    "days_left": 28,
+    "company": "NVIDIA Corporation",
+    "pe_target": 200.55,
+    "5d_target": 217.75
   }
 ]
