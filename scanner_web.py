@@ -28,21 +28,22 @@ app = Flask(__name__, static_folder='static', static_url_path='/static')
 # ===== HOME / SCANNER =====
 @app.route("/")
 def index():
-    """Home page = scanner (static shell + dynamic JSON data)"""
+    """Home page = scanner. ai_earnings_today.html is the primary file (always fresh from local scan).
+    scanner.html is a legacy fallback only."""
     workspace = Path(__file__).parent
-    # Serve the static shell - it loads data from /data endpoint
-    shell = workspace / "scanner.html"
-    if shell.exists():
-        with open(shell, 'r', encoding='utf-8') as f:
+    # PRIMARY: ai_earnings_today.html — always fresh from local scan push
+    primary = workspace / "ai_earnings_today.html"
+    if primary.exists():
+        with open(primary, 'r', encoding='utf-8') as f:
             content = f.read()
         resp = make_response(content)
         resp.headers['Content-Type'] = 'text/html; charset=utf-8'
         resp.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0'
         return resp
-    # Fallback to old ai_earnings_today.html
-    fresh = workspace / "ai_earnings_today.html"
-    if fresh.exists():
-        with open(fresh, 'r', encoding='utf-8') as f:
+    # LEGACY FALLBACK: scanner.html (only if ai_earnings_today.html is missing)
+    shell = workspace / "scanner.html"
+    if shell.exists():
+        with open(shell, 'r', encoding='utf-8') as f:
             content = f.read()
         resp = make_response(content)
         resp.headers['Content-Type'] = 'text/html; charset=utf-8'
