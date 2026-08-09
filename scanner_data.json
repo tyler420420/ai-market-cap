@@ -413,7 +413,10 @@
     "iv": 1.8,
     "sector": "Technology",
     "sentiment": "Mixed",
-    "news": {},
+    "news": {
+      "title": "SK Hynix\u2019s $38 billion buildout has a name attached: Nvidi...",
+      "url": "https://finance.yahoo.com/technology/ai/articles/sk-hynix-38-billion-buildout-133300135.html"
+    },
     "price_change_pct": 2.27
   },
   {
