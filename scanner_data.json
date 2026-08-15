@@ -413,7 +413,10 @@
     "iv": 1.5,
     "sector": "Technology",
     "sentiment": "Mixed",
-    "news": {},
+    "news": {
+      "title": "Not Nvidia. Not AMD. This Chip Stock Will Be the Biggest Win...",
+      "url": "https://finance.yahoo.com/technology/ai/articles/not-nvidia-not-amd-chip-134300878.html"
+    },
     "price_change_pct": -0.06
   },
   {
