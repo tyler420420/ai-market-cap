@@ -413,10 +413,7 @@
     "iv": 1.5,
     "sector": "Technology",
     "sentiment": "Mixed",
-    "news": {
-      "title": "Dow Jones Futures: Nvidia Leads 5 Stocks In Buy Areas, Walm...",
-      "url": "https://www.investors.com/market-trend/stock-market-today/dow-jones-futures-market-run-sandisk-soars-nvidia-buy-walmart-target/?src=A00220&yptr=yahoo"
-    },
+    "news": {},
     "price_change_pct": -0.06
   },
   {
