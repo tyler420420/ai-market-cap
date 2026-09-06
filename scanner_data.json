@@ -5,7 +5,7 @@
     "company_name": "Micron Techn",
     "score": 96,
     "earnings_date": "September 30, 2026",
-    "days_left": 25,
+    "days_left": 24,
     "price": 1016.59,
     "pe_target": 1061.09,
     "pe_upside": 4.4,
@@ -24,7 +24,7 @@
     "sector": "Technology",
     "sentiment": "Positive",
     "news": {
-      "title": "Dow Jones Futures: Nvidia, Micron, Sandisk Flash Buy Signa...",
+      "title": "Dow Jones Futures Loom After U.S.-Iran Attacks; Nvidia...",
       "url": "https://www.investors.com/market-trend/stock-market-today/dow-jones-futures-nvidia-micron-sandisk-buy-signals-apple-inflation-reports/?src=A00220&yptr=yahoo"
     },
     "price_change_pct": 6.1
@@ -35,7 +35,7 @@
     "company_name": "Oracle Corpo",
     "score": 91,
     "earnings_date": "September 10, 2026",
-    "days_left": 5,
+    "days_left": 4,
     "price": 158.78,
     "pe_target": 177.54,
     "pe_upside": 11.8,
@@ -54,8 +54,8 @@
     "sector": "Technology",
     "sentiment": "Positive",
     "news": {
-      "title": "Jim Cramer Shares a Cautious Take on Oracle (ORCL) and Its ...",
-      "url": "https://finance.yahoo.com/technology/ai/articles/jim-cramer-shares-cautious-oracle-223118242.html"
+      "title": "Inflation data, Oracle earnings, and an energy supply c...",
+      "url": "https://finance.yahoo.com/economy/article/inflation-data-oracle-earnings-and-an-energy-supply-crunch-what-to-watch-this-week-120429533.html"
     },
     "price_change_pct": 3.08
   },
@@ -65,7 +65,7 @@
     "company_name": "Adobe Inc.",
     "score": 62,
     "earnings_date": "September 10, 2026",
-    "days_left": 5,
+    "days_left": 4,
     "price": 266.51,
     "pe_target": 288.02,
     "pe_upside": 8.1,
@@ -84,8 +84,8 @@
     "sector": "Technology",
     "sentiment": "Mixed",
     "news": {
-      "title": "Jim Cramer Flagged Another Risk For Adobe Inc. (NASDAQ:AD...",
-      "url": "https://finance.yahoo.com/markets/stocks/articles/jim-cramer-flagged-another-risk-225229766.html"
+      "title": "Adobe\u2019s New CEO Takes Over in December. Is the Open CFO Se...",
+      "url": "https://finance.yahoo.com/markets/stocks/articles/adobe-ceo-takes-over-december-001735572.html"
     },
     "price_change_pct": -6.73
   },
@@ -95,7 +95,7 @@
     "company_name": "Copart, Inc.",
     "score": 58,
     "earnings_date": "September 10, 2026",
-    "days_left": 5,
+    "days_left": 4,
     "price": 33.72,
     "pe_target": 36.18,
     "pe_upside": 7.3,
