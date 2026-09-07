@@ -5,7 +5,7 @@
     "company_name": "Micron Techn",
     "score": 96,
     "earnings_date": "September 30, 2026",
-    "days_left": 24,
+    "days_left": 23,
     "price": 1016.59,
     "pe_target": 1061.09,
     "pe_upside": 4.4,
@@ -24,8 +24,8 @@
     "sector": "Technology",
     "sentiment": "Positive",
     "news": {
-      "title": "Prediction: Micron Stock Will Skyrocket After Sept. 30...",
-      "url": "https://finance.yahoo.com/markets/stocks/articles/prediction-micron-stock-skyrocket-sept-133200601.html"
+      "title": "Micron Technology, Inc. (MU) Is a Trending Stock: Facts to...",
+      "url": "https://finance.yahoo.com/markets/stocks/articles/micron-technology-inc-mu-trending-130005841.html"
     },
     "price_change_pct": 6.1
   },
@@ -35,7 +35,7 @@
     "company_name": "Oracle Corpo",
     "score": 91,
     "earnings_date": "September 10, 2026",
-    "days_left": 4,
+    "days_left": 3,
     "price": 158.78,
     "pe_target": 177.54,
     "pe_upside": 11.8,
@@ -61,11 +61,41 @@
   },
   {
     "rank": 3,
+    "ticker": "RPM",
+    "company_name": "RPM Internat",
+    "score": 71,
+    "earnings_date": "October 6, 2026",
+    "days_left": 29,
+    "price": 105.52,
+    "pe_target": 109.37,
+    "pe_upside": 3.6,
+    "3d": 117.07,
+    "3d_up": 10.9,
+    "5d": 124.77,
+    "5d_up": 18.2,
+    "analysts": 14,
+    "sb": 2,
+    "buy": 11,
+    "hold": 1,
+    "sell": 0,
+    "mktcap": 0.0,
+    "short_int": 3.7,
+    "iv": 3.6,
+    "sector": "Basic Materials",
+    "sentiment": "Positive",
+    "news": {
+      "title": "RPM International (RPM) Up 5.3% Since Last Earnings Report...",
+      "url": "https://finance.yahoo.com/markets/stocks/articles/rpm-international-rpm-5-3-153011046.html"
+    },
+    "price_change_pct": 2.02
+  },
+  {
+    "rank": 4,
     "ticker": "ADBE",
     "company_name": "Adobe Inc.",
     "score": 62,
     "earnings_date": "September 10, 2026",
-    "days_left": 4,
+    "days_left": 3,
     "price": 266.51,
     "pe_target": 288.02,
     "pe_upside": 8.1,
@@ -84,18 +114,18 @@
     "sector": "Technology",
     "sentiment": "Mixed",
     "news": {
-      "title": "Adobe\u2019s New CEO Takes Over in December. Is the Open CFO Se...",
-      "url": "https://finance.yahoo.com/markets/stocks/articles/adobe-ceo-takes-over-december-001735572.html"
+      "title": "BofA Sees Clear Winner Between Adobe and Oracle...",
+      "url": "https://finance.yahoo.com/markets/stocks/articles/bofa-sees-clear-winner-between-122011345.html"
     },
     "price_change_pct": -6.73
   },
   {
-    "rank": 4,
+    "rank": 5,
     "ticker": "CPRT",
     "company_name": "Copart, Inc.",
     "score": 58,
     "earnings_date": "September 10, 2026",
-    "days_left": 4,
+    "days_left": 3,
     "price": 33.72,
     "pe_target": 36.18,
     "pe_upside": 7.3,
