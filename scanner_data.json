@@ -6,13 +6,13 @@
     "score": 96,
     "earnings_date": "September 30, 2026",
     "days_left": 22,
-    "price": 1028.35,
-    "pe_target": 1074.05,
-    "pe_upside": 4.4,
-    "3d": 1165.45,
-    "3d_up": 13.3,
-    "5d": 1256.85,
-    "5d_up": 22.2,
+    "price": 1020.26,
+    "pe_target": 1058.96,
+    "pe_upside": 3.8,
+    "3d": 1136.36,
+    "3d_up": 11.4,
+    "5d": 1213.76,
+    "5d_up": 19.0,
     "analysts": 48,
     "sb": 9,
     "buy": 35,
@@ -20,14 +20,14 @@
     "sell": 0,
     "mktcap": 0.0,
     "short_int": 2.7,
-    "iv": 4.4,
+    "iv": 3.8,
     "sector": "Technology",
     "sentiment": "Positive",
     "news": {
-      "title": "Why Micron Technology Stock Surged 16.5% Last Month...",
-      "url": "https://finance.yahoo.com/markets/stocks/articles/why-micron-technology-stock-surged-123304442.html"
+      "title": "Oracle, Adobe, Micron, Alphabet and Nvidia are part of Zac...",
+      "url": "https://finance.yahoo.com/markets/stocks/articles/oracle-adobe-micron-alphabet-nvidia-132800804.html"
     },
-    "price_change_pct": 1.16
+    "price_change_pct": 0.36
   },
   {
     "rank": 2,
@@ -36,13 +36,13 @@
     "score": 91,
     "earnings_date": "September 10, 2026",
     "days_left": 2,
-    "price": 168.47,
-    "pe_target": 189.28,
-    "pe_upside": 12.3,
-    "3d": 230.88,
-    "3d_up": 37.0,
-    "5d": 272.48,
-    "5d_up": 61.7,
+    "price": 164.5,
+    "pe_target": 183.54,
+    "pe_upside": 11.6,
+    "3d": 221.62,
+    "3d_up": 34.7,
+    "5d": 259.7,
+    "5d_up": 57.9,
     "analysts": 44,
     "sb": 8,
     "buy": 28,
@@ -50,14 +50,14 @@
     "sell": 1,
     "mktcap": 0.0,
     "short_int": 2.8,
-    "iv": 12.3,
+    "iv": 11.6,
     "sector": "Technology",
     "sentiment": "Positive",
     "news": {
       "title": "Anthropic IPO update, Oracle earnings, August CPI: Wha...",
       "url": "https://finance.yahoo.com/video/anthropic-ipo-oracle-earnings-august-120000560.html"
     },
-    "price_change_pct": 6.07
+    "price_change_pct": 3.6
   },
   {
     "rank": 3,
@@ -66,13 +66,13 @@
     "score": 71,
     "earnings_date": "October 6, 2026",
     "days_left": 28,
-    "price": 105.52,
-    "pe_target": 109.37,
-    "pe_upside": 3.6,
-    "3d": 117.07,
-    "3d_up": 10.9,
-    "5d": 124.77,
-    "5d_up": 18.2,
+    "price": 104.23,
+    "pe_target": 108.08,
+    "pe_upside": 3.7,
+    "3d": 115.78,
+    "3d_up": 11.1,
+    "5d": 123.48,
+    "5d_up": 18.5,
     "analysts": 14,
     "sb": 2,
     "buy": 11,
@@ -80,14 +80,14 @@
     "sell": 0,
     "mktcap": 0.0,
     "short_int": 3.7,
-    "iv": 3.6,
+    "iv": 3.7,
     "sector": "Basic Materials",
     "sentiment": "Positive",
     "news": {
       "title": "RPM International (RPM) Up 5.3% Since Last Earnings Report...",
       "url": "https://finance.yahoo.com/markets/stocks/articles/rpm-international-rpm-5-3-153011046.html"
     },
-    "price_change_pct": 2.02
+    "price_change_pct": -1.22
   },
   {
     "rank": 4,
@@ -96,13 +96,13 @@
     "score": 62,
     "earnings_date": "September 10, 2026",
     "days_left": 2,
-    "price": 260.01,
-    "pe_target": 281.86,
-    "pe_upside": 8.4,
-    "3d": 325.56,
-    "3d_up": 25.2,
-    "5d": 369.26,
-    "5d_up": 42.0,
+    "price": 256.77,
+    "pe_target": 277.12,
+    "pe_upside": 7.9,
+    "3d": 317.82,
+    "3d_up": 23.8,
+    "5d": 358.52,
+    "5d_up": 39.6,
     "analysts": 40,
     "sb": 4,
     "buy": 8,
@@ -110,14 +110,14 @@
     "sell": 5,
     "mktcap": 0.0,
     "short_int": 5.1,
-    "iv": 8.4,
+    "iv": 7.9,
     "sector": "Technology",
     "sentiment": "Mixed",
     "news": {
-      "title": "Adobe Has Handed Over the CEO Job Once in 19 Years. Here's W...",
-      "url": "https://finance.yahoo.com/markets/stocks/articles/adobe-handed-over-ceo-job-085101172.html"
+      "title": "Oracle, Adobe, Micron, Alphabet and Nvidia are part of Zac...",
+      "url": "https://finance.yahoo.com/markets/stocks/articles/oracle-adobe-micron-alphabet-nvidia-132800804.html"
     },
-    "price_change_pct": -2.44
+    "price_change_pct": -3.65
   },
   {
     "rank": 5,
@@ -126,13 +126,13 @@
     "score": 58,
     "earnings_date": "September 10, 2026",
     "days_left": 2,
-    "price": 33.13,
-    "pe_target": 35.59,
-    "pe_upside": 7.4,
-    "3d": 40.51,
-    "3d_up": 22.3,
-    "5d": 45.43,
-    "5d_up": 37.1,
+    "price": 32.93,
+    "pe_target": 35.32,
+    "pe_upside": 7.3,
+    "3d": 40.1,
+    "3d_up": 21.8,
+    "5d": 44.88,
+    "5d_up": 36.3,
     "analysts": 13,
     "sb": 4,
     "buy": 4,
@@ -140,13 +140,13 @@
     "sell": 1,
     "mktcap": 0.0,
     "short_int": 6.1,
-    "iv": 7.4,
+    "iv": 7.3,
     "sector": "Industrials",
     "sentiment": "Mixed",
     "news": {
       "title": "Why Copart (CPRT) Stock Is Trading Up Today",
       "url": "https://finance.yahoo.com/markets/stocks/articles/why-copart-cprt-stock-trading-202318555.html"
     },
-    "price_change_pct": -1.75
+    "price_change_pct": -2.34
   }
 ]
