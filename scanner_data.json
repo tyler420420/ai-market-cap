@@ -5,14 +5,14 @@
     "company_name": "Micron Techn",
     "score": 96,
     "earnings_date": "September 30, 2026",
-    "days_left": 23,
-    "price": 1016.59,
-    "pe_target": 1061.09,
+    "days_left": 22,
+    "price": 1028.35,
+    "pe_target": 1074.05,
     "pe_upside": 4.4,
-    "3d": 1150.09,
-    "3d_up": 13.1,
-    "5d": 1239.09,
-    "5d_up": 21.9,
+    "3d": 1165.45,
+    "3d_up": 13.3,
+    "5d": 1256.85,
+    "5d_up": 22.2,
     "analysts": 48,
     "sb": 9,
     "buy": 35,
@@ -24,10 +24,10 @@
     "sector": "Technology",
     "sentiment": "Positive",
     "news": {
-      "title": "Do You Think Micron Technology\u2019s (MU) Return Drivers May Fal...",
-      "url": "https://finance.yahoo.com/markets/stocks/articles/think-micron-technology-mu-return-133459987.html"
+      "title": "Why Micron Technology Stock Surged 16.5% Last Month...",
+      "url": "https://finance.yahoo.com/markets/stocks/articles/why-micron-technology-stock-surged-123304442.html"
     },
-    "price_change_pct": 6.1
+    "price_change_pct": 1.16
   },
   {
     "rank": 2,
@@ -35,14 +35,14 @@
     "company_name": "Oracle Corpo",
     "score": 91,
     "earnings_date": "September 10, 2026",
-    "days_left": 3,
-    "price": 158.78,
-    "pe_target": 177.54,
-    "pe_upside": 11.8,
-    "3d": 215.06,
-    "3d_up": 35.4,
-    "5d": 252.58,
-    "5d_up": 59.1,
+    "days_left": 2,
+    "price": 168.47,
+    "pe_target": 189.28,
+    "pe_upside": 12.3,
+    "3d": 230.88,
+    "3d_up": 37.0,
+    "5d": 272.48,
+    "5d_up": 61.7,
     "analysts": 44,
     "sb": 8,
     "buy": 28,
@@ -50,14 +50,14 @@
     "sell": 1,
     "mktcap": 0.0,
     "short_int": 2.8,
-    "iv": 11.8,
+    "iv": 12.3,
     "sector": "Technology",
     "sentiment": "Positive",
     "news": {
-      "title": "Inflation data, Oracle earnings, and an energy supply c...",
-      "url": "https://finance.yahoo.com/economy/article/inflation-data-oracle-earnings-and-an-energy-supply-crunch-what-to-watch-this-week-120429533.html"
+      "title": "Anthropic IPO update, Oracle earnings, August CPI: Wha...",
+      "url": "https://finance.yahoo.com/video/anthropic-ipo-oracle-earnings-august-120000560.html"
     },
-    "price_change_pct": 3.08
+    "price_change_pct": 6.07
   },
   {
     "rank": 3,
@@ -65,7 +65,7 @@
     "company_name": "RPM Internat",
     "score": 71,
     "earnings_date": "October 6, 2026",
-    "days_left": 29,
+    "days_left": 28,
     "price": 105.52,
     "pe_target": 109.37,
     "pe_upside": 3.6,
@@ -95,14 +95,14 @@
     "company_name": "Adobe Inc.",
     "score": 62,
     "earnings_date": "September 10, 2026",
-    "days_left": 3,
-    "price": 266.51,
-    "pe_target": 288.02,
-    "pe_upside": 8.1,
-    "3d": 331.04,
-    "3d_up": 24.2,
-    "5d": 374.06,
-    "5d_up": 40.4,
+    "days_left": 2,
+    "price": 260.01,
+    "pe_target": 281.86,
+    "pe_upside": 8.4,
+    "3d": 325.56,
+    "3d_up": 25.2,
+    "5d": 369.26,
+    "5d_up": 42.0,
     "analysts": 40,
     "sb": 4,
     "buy": 8,
@@ -110,14 +110,14 @@
     "sell": 5,
     "mktcap": 0.0,
     "short_int": 5.1,
-    "iv": 8.1,
+    "iv": 8.4,
     "sector": "Technology",
     "sentiment": "Mixed",
     "news": {
-      "title": "BofA Sees Clear Winner Between Adobe and Oracle...",
-      "url": "https://finance.yahoo.com/markets/stocks/articles/bofa-sees-clear-winner-between-122011345.html"
+      "title": "Adobe Has Handed Over the CEO Job Once in 19 Years. Here's W...",
+      "url": "https://finance.yahoo.com/markets/stocks/articles/adobe-handed-over-ceo-job-085101172.html"
     },
-    "price_change_pct": -6.73
+    "price_change_pct": -2.44
   },
   {
     "rank": 5,
@@ -125,14 +125,14 @@
     "company_name": "Copart, Inc.",
     "score": 58,
     "earnings_date": "September 10, 2026",
-    "days_left": 3,
-    "price": 33.72,
-    "pe_target": 36.18,
-    "pe_upside": 7.3,
-    "3d": 41.1,
-    "3d_up": 21.9,
-    "5d": 46.02,
-    "5d_up": 36.5,
+    "days_left": 2,
+    "price": 33.13,
+    "pe_target": 35.59,
+    "pe_upside": 7.4,
+    "3d": 40.51,
+    "3d_up": 22.3,
+    "5d": 45.43,
+    "5d_up": 37.1,
     "analysts": 13,
     "sb": 4,
     "buy": 4,
@@ -140,13 +140,13 @@
     "sell": 1,
     "mktcap": 0.0,
     "short_int": 6.1,
-    "iv": 7.3,
+    "iv": 7.4,
     "sector": "Industrials",
     "sentiment": "Mixed",
     "news": {
       "title": "Why Copart (CPRT) Stock Is Trading Up Today",
       "url": "https://finance.yahoo.com/markets/stocks/articles/why-copart-cprt-stock-trading-202318555.html"
     },
-    "price_change_pct": 0.42
+    "price_change_pct": -1.75
   }
 ]
