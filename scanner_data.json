@@ -6,13 +6,13 @@
     "score": 96,
     "earnings_date": "September 30, 2026",
     "days_left": 20,
-    "price": 990.53,
-    "pe_target": 1039.63,
-    "pe_upside": 5.0,
-    "3d": 1137.83,
-    "3d_up": 14.9,
-    "5d": 1236.03,
-    "5d_up": 24.8,
+    "price": 987.9,
+    "pe_target": 1020.44,
+    "pe_upside": 3.3,
+    "3d": 1085.49,
+    "3d_up": 9.9,
+    "5d": 1150.56,
+    "5d_up": 16.5,
     "analysts": 49,
     "sb": 9,
     "buy": 36,
@@ -20,14 +20,14 @@
     "sell": 0,
     "mktcap": 0.0,
     "short_int": 2.7,
-    "iv": 5.0,
+    "iv": 3.3,
     "sector": "Technology",
     "sentiment": "Positive",
     "news": {
-      "title": "Billionaire Stanley Druckenmiller Has Sold Micron, Broadco...",
-      "url": "https://finance.yahoo.com/technology/ai/articles/billionaire-stanley-druckenmiller-sold-micron-124600689.html"
+      "title": "Memory Stocks Slide as Rates and Oil Swamp JPMorgan\u2019s Over...",
+      "url": "https://finance.yahoo.com/markets/stocks/articles/memory-stocks-slide-rates-oil-132216451.html"
     },
-    "price_change_pct": -3.62
+    "price_change_pct": -3.88
   },
   {
     "rank": 2,
@@ -36,13 +36,13 @@
     "score": 91,
     "earnings_date": "September 10, 2026",
     "days_left": 0,
-    "price": 158.18,
-    "pe_target": 176.87,
+    "price": 156.32,
+    "pe_target": 174.76,
     "pe_upside": 11.8,
-    "3d": 214.25,
+    "3d": 211.64,
     "3d_up": 35.4,
-    "5d": 251.63,
-    "5d_up": 59.1,
+    "5d": 248.52,
+    "5d_up": 59.0,
     "analysts": 44,
     "sb": 8,
     "buy": 28,
@@ -57,7 +57,7 @@
       "title": "Oracle, Adobe, and Macy's set to release earnings report...",
       "url": "https://finance.yahoo.com/video/oracle-adobe-macys-set-release-120000373.html"
     },
-    "price_change_pct": -2.19
+    "price_change_pct": -3.29
   },
   {
     "rank": 3,
@@ -66,13 +66,13 @@
     "score": 71,
     "earnings_date": "October 6, 2026",
     "days_left": 26,
-    "price": 98.23,
-    "pe_target": 102.85,
+    "price": 98.64,
+    "pe_target": 103.26,
     "pe_upside": 4.7,
-    "3d": 112.09,
+    "3d": 112.5,
     "3d_up": 14.1,
-    "5d": 121.33,
-    "5d_up": 23.5,
+    "5d": 121.74,
+    "5d_up": 23.4,
     "analysts": 14,
     "sb": 2,
     "buy": 11,
@@ -87,7 +87,7 @@
       "title": "RPM International (RPM) Up 5.3% Since Last Earnings Report...",
       "url": "https://finance.yahoo.com/markets/stocks/articles/rpm-international-rpm-5-3-153011046.html"
     },
-    "price_change_pct": -1.48
+    "price_change_pct": -1.07
   },
   {
     "rank": 4,
@@ -96,13 +96,13 @@
     "score": 62,
     "earnings_date": "September 10, 2026",
     "days_left": 0,
-    "price": 252.94,
-    "pe_target": 273.54,
-    "pe_upside": 8.1,
-    "3d": 314.74,
-    "3d_up": 24.4,
-    "5d": 355.94,
-    "5d_up": 40.7,
+    "price": 252.23,
+    "pe_target": 273.43,
+    "pe_upside": 8.4,
+    "3d": 315.83,
+    "3d_up": 25.2,
+    "5d": 358.23,
+    "5d_up": 42.0,
     "analysts": 40,
     "sb": 4,
     "buy": 8,
@@ -110,14 +110,14 @@
     "sell": 5,
     "mktcap": 0.0,
     "short_int": 5.1,
-    "iv": 8.1,
+    "iv": 8.4,
     "sector": "Technology",
     "sentiment": "Mixed",
     "news": {
       "title": "Oracle, Adobe, and Macy's set to release earnings report...",
       "url": "https://finance.yahoo.com/video/oracle-adobe-macys-set-release-120000373.html"
     },
-    "price_change_pct": -0.75
+    "price_change_pct": -1.03
   },
   {
     "rank": 5,
@@ -126,13 +126,13 @@
     "score": 58,
     "earnings_date": "September 10, 2026",
     "days_left": 0,
-    "price": 31.84,
-    "pe_target": 34.13,
-    "pe_upside": 7.2,
-    "3d": 38.71,
-    "3d_up": 21.6,
-    "5d": 43.29,
-    "5d_up": 36.0,
+    "price": 32.21,
+    "pe_target": 34.61,
+    "pe_upside": 7.5,
+    "3d": 39.41,
+    "3d_up": 22.4,
+    "5d": 44.21,
+    "5d_up": 37.3,
     "analysts": 13,
     "sb": 4,
     "buy": 4,
@@ -140,13 +140,13 @@
     "sell": 1,
     "mktcap": 0.0,
     "short_int": 6.1,
-    "iv": 7.2,
+    "iv": 7.5,
     "sector": "Industrials",
     "sentiment": "Mixed",
     "news": {
       "title": "Copart (CPRT) Reports Earnings Tomorrow: What To Expect...",
       "url": "https://finance.yahoo.com/markets/stocks/articles/copart-cprt-reports-earnings-tomorrow-040718214.html"
     },
-    "price_change_pct": -0.59
+    "price_change_pct": 0.56
   }
 ]
