@@ -3,16 +3,16 @@
     "rank": 1,
     "ticker": "MU",
     "company_name": "Micron Techn",
-    "score": 96,
+    "score": 90,
     "earnings_date": "September 30, 2026",
     "days_left": 19,
-    "price": 989.42,
-    "pe_target": 1019.08,
-    "pe_upside": 3.0,
-    "3d": 1078.38,
-    "3d_up": 9.0,
-    "5d": 1137.68,
-    "5d_up": 15.0,
+    "price": 977.14,
+    "pe_target": 995.05,
+    "pe_upside": 1.8,
+    "3d": 1030.87,
+    "3d_up": 5.5,
+    "5d": 1066.69,
+    "5d_up": 9.2,
     "analysts": 49,
     "sb": 9,
     "buy": 36,
@@ -20,14 +20,14 @@
     "sell": 0,
     "mktcap": 0.0,
     "short_int": 2.6,
-    "iv": 3.0,
+    "iv": 1.8,
     "sector": "Technology",
     "sentiment": "Positive",
     "news": {
       "title": "Micron Bets on Long-Term SCA Deals: Can It Lower Earnings ...",
       "url": "https://finance.yahoo.com/markets/stocks/articles/micron-bets-long-term-sca-123400284.html"
     },
-    "price_change_pct": 1.23
+    "price_change_pct": -0.03
   },
   {
     "rank": 2,
@@ -36,13 +36,13 @@
     "score": 72,
     "earnings_date": "October 6, 2026",
     "days_left": 25,
-    "price": 99.31,
-    "pe_target": 103.93,
-    "pe_upside": 4.7,
-    "3d": 113.17,
-    "3d_up": 14.0,
-    "5d": 122.41,
-    "5d_up": 23.3,
+    "price": 99.87,
+    "pe_target": 104.49,
+    "pe_upside": 4.6,
+    "3d": 113.73,
+    "3d_up": 13.9,
+    "5d": 122.97,
+    "5d_up": 23.1,
     "analysts": 15,
     "sb": 2,
     "buy": 12,
@@ -50,13 +50,13 @@
     "sell": 0,
     "mktcap": 0.0,
     "short_int": 4.1,
-    "iv": 4.7,
+    "iv": 4.6,
     "sector": "Basic Materials",
     "sentiment": "Positive",
     "news": {
       "title": "RPM International (RPM) Up 5.3% Since Last Earnings Report...",
       "url": "https://finance.yahoo.com/markets/stocks/articles/rpm-international-rpm-5-3-153011046.html"
     },
-    "price_change_pct": -0.4
+    "price_change_pct": 0.52
   }
 ]
