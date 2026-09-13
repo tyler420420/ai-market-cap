@@ -5,7 +5,7 @@
     "company_name": "Micron Techn",
     "score": 93,
     "earnings_date": "September 30, 2026",
-    "days_left": 18,
+    "days_left": 17,
     "price": 975.26,
     "pe_target": 999.32,
     "pe_upside": 2.5,
@@ -24,8 +24,8 @@
     "sector": "Technology",
     "sentiment": "Positive",
     "news": {
-      "title": "Where Will Micron Be in 10 Years?",
-      "url": "https://finance.yahoo.com/markets/stocks/articles/where-micron-10-years-113500590.html"
+      "title": "Prediction: This Artificial Intelligence (AI) Chip Stock...",
+      "url": "https://finance.yahoo.com/technology/ai/articles/prediction-artificial-intelligence-ai-chip-125500915.html"
     },
     "price_change_pct": -0.22
   },
@@ -35,7 +35,7 @@
     "company_name": "RPM Internat",
     "score": 72,
     "earnings_date": "October 6, 2026",
-    "days_left": 24,
+    "days_left": 23,
     "price": 100.21,
     "pe_target": 104.83,
     "pe_upside": 4.6,
