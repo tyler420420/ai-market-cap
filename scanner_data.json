@@ -3,16 +3,16 @@
     "rank": 1,
     "ticker": "MU",
     "company_name": "Micron Techn",
-    "score": 93,
+    "score": 96,
     "earnings_date": "September 30, 2026",
-    "days_left": 17,
-    "price": 975.26,
-    "pe_target": 999.32,
-    "pe_upside": 2.5,
-    "3d": 1047.44,
-    "3d_up": 7.4,
-    "5d": 1095.56,
-    "5d_up": 12.3,
+    "days_left": 16,
+    "price": 906.64,
+    "pe_target": 977.86,
+    "pe_upside": 7.9,
+    "3d": 1120.3,
+    "3d_up": 23.6,
+    "5d": 1262.74,
+    "5d_up": 39.3,
     "analysts": 49,
     "sb": 9,
     "buy": 36,
@@ -20,14 +20,14 @@
     "sell": 0,
     "mktcap": 0.0,
     "short_int": 2.6,
-    "iv": 2.5,
+    "iv": 7.9,
     "sector": "Technology",
     "sentiment": "Positive",
     "news": {
-      "title": "Prediction: This Artificial Intelligence (AI) Chip Stock...",
-      "url": "https://finance.yahoo.com/technology/ai/articles/prediction-artificial-intelligence-ai-chip-125500915.html"
+      "title": "Memory Stocks Lead AI Selloff as Anthropic and OpenAI Chie...",
+      "url": "https://finance.yahoo.com/markets/stocks/articles/memory-stocks-lead-ai-selloff-131813092.html"
     },
-    "price_change_pct": -0.22
+    "price_change_pct": -7.04
   },
   {
     "rank": 2,
@@ -35,14 +35,14 @@
     "company_name": "RPM Internat",
     "score": 72,
     "earnings_date": "October 6, 2026",
-    "days_left": 23,
-    "price": 100.21,
-    "pe_target": 104.83,
+    "days_left": 22,
+    "price": 99.5,
+    "pe_target": 104.12,
     "pe_upside": 4.6,
-    "3d": 114.07,
-    "3d_up": 13.8,
-    "5d": 123.31,
-    "5d_up": 23.1,
+    "3d": 113.36,
+    "3d_up": 13.9,
+    "5d": 122.6,
+    "5d_up": 23.2,
     "analysts": 15,
     "sb": 2,
     "buy": 12,
@@ -57,6 +57,6 @@
       "title": "RPM International (RPM) Up 5.3% Since Last Earnings Report...",
       "url": "https://finance.yahoo.com/markets/stocks/articles/rpm-international-rpm-5-3-153011046.html"
     },
-    "price_change_pct": 0.91
+    "price_change_pct": -0.7
   }
 ]
