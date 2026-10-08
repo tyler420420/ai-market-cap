@@ -545,23 +545,23 @@ h2 { color: #fff; font-size: 2em; margin-bottom: 10px; }
     <div class=plans>
         <div class=plan>
             <h3>Monthly</h3>
-            <div class=price>$149<span>/mo</span></div>
+            <div class=price>$5<span>/mo</span></div>
             <div class=period>Billed monthly</div>
             <ul>
-                <li>2 Additional Scans Per Day</li>
+                <li>Unlimited Access</li>
                 <li>AI Chat Pro Trader</li>
             </ul>
-            <a href="/create-checkout?plan=monthly" class=cta>Subscribe - $149/mo</a>
+            <a href="/create-checkout?plan=monthly" class=cta>Subscribe - $5/mo</a>
         </div>
         <div class=plan style="border-color:#ffd700;box-shadow:0 0 16px rgba(255,215,0,.3)">
             <h3>Annual</h3>
-            <div class=price>$999<span>/yr</span></div>
-            <div class=period>Save $789 vs monthly</div>
+            <div class=price>$50<span>/yr</span></div>
+            <div class=period>Save $10 vs monthly</div>
             <ul>
                 <li>Everything in Monthly</li>
-                <li>Save $789/year</li>
+                <li>Save $10/year</li>
             </ul>
-            <a href="/create-checkout?plan=annual" class=cta>Subscribe - $999/yr</a>
+            <a href="/create-checkout?plan=annual" class=cta>Subscribe - $50/yr</a>
         </div>
     </div>
     <a href="/about" class=back-link>← Learn more about AI Market Cap</a>
@@ -841,6 +841,116 @@ def logout():
     resp = make_response(redirect("/"))
     resp.delete_cookie(COOKIE_NAME)
     resp.delete_cookie("stripe_customer")
+    return resp
+
+# ===== BLOG / ARTICLES =====
+BLOG_DIR = Path(__file__).parent / "blog"
+
+def load_blog_index():
+    """Load the blog index manifest."""
+    idx_path = BLOG_DIR / "index.json"
+    if idx_path.exists():
+        return json.loads(idx_path.read_text(encoding="utf-8"))
+    return []
+
+@app.route("/blog")
+def blog_index():
+    """Blog index — latest articles listing."""
+    app_dir = Path(__file__).parent
+    template_path = app_dir / "blog_index.html"
+    
+    # Try to use a custom blog index template if it exists
+    if template_path.exists():
+        with open(template_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+    else:
+        # Build from manifest
+        articles = load_blog_index()
+        cards_html = ""
+        for a in articles[:6]:  # Latest 6
+            cards_html += f"""<a href="/blog/{a['slug']}" class="win-card">
+                <div class="h-badge" style="background:#1a3a5c;color:#58a6ff">📝 Article</div>
+                <div class="t" style="color:#fff;font-size:1.1em;font-weight:bold;margin:8px 0 4px">{a['title']}</div>
+                <div class="d" style="color:#888;font-size:0.82em;margin-bottom:8px">{a['date']} · {a.get('keyword', '')}</div>
+                <div class="l" style="color:#c9d1d9;font-size:0.85em;line-height:1.6">{a.get('excerpt', '')}</div>
+                <span class="link">Read article →</span>
+            </a>"""
+        
+        if not cards_html:
+            cards_html = "<p style='color:#888;text-align:center;padding:40px'>No articles yet. Check back soon.</p>"
+        
+        content = f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" href="/static/logo.png">
+<title>AI Market Cap — Articles</title>
+<style>
+a{{text-decoration:none;color:#58a6ff}}
+a:hover{{color:#79b8ff}}
+.w{{background:linear-gradient(135deg,#1a1f2e,#161b22);padding:20px 30px;border-bottom:1px solid #30363d;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}}
+.w h1 a{{color:#58a6ff;font-size:1.5em;text-decoration:none}}
+.w .nav a{{margin-left:16px;color:#58a6ff;font-size:0.9em}}
+.c{{max-width:960px;margin:0 auto;padding:40px 20px}}
+h2{{color:#fff;font-size:1.9em;margin:0 0 8px}}
+.sub{{color:#888;font-size:0.9em;margin-bottom:36px}}
+.grid{{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px;margin:24px 0}}
+.win-card{{display:block;background:#161b22;border:2px solid #30363d;border-radius:12px;padding:24px;transition:border-color .15s,transform .15s;text-decoration:none;color:inherit}}
+.win-card:hover{{border-color:#1f6feb;transform:translateY(-2px)}}
+.t{{font-size:1.15em;font-weight:bold;margin-bottom:6px}}
+.d{{color:#888;font-size:0.82em;margin-bottom:12px}}
+.l{{color:#c9d1d9;font-size:0.85em;line-height:1.6}}
+.link{{color:#58a6ff;font-size:0.85em;font-weight:bold;display:inline-block;margin-top:12px}}
+.h-badge{{display:inline-block;padding:4px 10px;border-radius:4px;font-size:0.72em;font-weight:bold;margin-bottom:8px}}
+</style>
+</head>
+<body style="margin:0;padding:0;font-family:Segoe UI,Arial,sans-serif;background:#0d1117;color:#c9d1d9;min-height:100vh">
+<div class=w>
+  <h1><a href="/">AI Market Cap</a></h1>
+  <div class=nav>
+    <a href="/">Scanner</a>
+    <a href="/wins">Wins</a>
+    <a href="/blog" style="color:#ffd700;font-weight:bold">Blog</a>
+    <a href="/about">About</a>
+  </div>
+</div>
+<div class=c>
+<h2>Latest Articles</h2>
+<p class=sub>Daily AI stock analysis and pre-earnings insights.</p>
+<div class=grid>
+{cards_html}
+</div>
+</div>
+</body>
+</html>"""
+    
+    resp = make_response(content)
+    resp.headers['Content-Type'] = 'text/html; charset=utf-8'
+    return resp
+
+@app.route("/blog/<slug>")
+def blog_article(slug):
+    """Serve an individual blog article."""
+    app_dir = Path(__file__).parent
+    article_path = app_dir / "blog" / f"{slug}.html"
+
+    if not article_path.exists():
+        return "Article not found", 404
+
+    with open(article_path, 'r', encoding='utf-8') as f:
+        content = f.read()
+
+    resp = make_response(content)
+    resp.headers['Content-Type'] = 'text/html; charset=utf-8'
+    return resp
+
+@app.route("/blog/index.json")
+def blog_index_json():
+    """Serve the blog article index as JSON."""
+    articles = load_blog_index()
+    resp = make_response(json.dumps(articles))
+    resp.headers['Content-Type'] = 'application/json'
     return resp
 
 # ===== MANUAL SCAN TRIGGER (for force-updating the site) =====
