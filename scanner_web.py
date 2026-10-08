@@ -953,6 +953,61 @@ def blog_index_json():
     resp.headers['Content-Type'] = 'application/json'
     return resp
 
+
+@app.route("/sitemap.xml")
+def sitemap():
+    """XML sitemap for SEO — lists all static pages + blog articles."""
+    articles = load_blog_index()
+    base = "https://aismarketcap.com"
+
+    # Static pages
+    static_pages = [
+        {"loc": f"{base}/", "priority": "1.0", "changefreq": "daily"},
+        {"loc": f"{base}/wins", "priority": "0.8", "changefreq": "weekly"},
+        {"loc": f"{base}/blog", "priority": "0.7", "changefreq": "daily"},
+        {"loc": f"{base}/about", "priority": "0.6", "changefreq": "monthly"},
+        {"loc": f"{base}/pricing", "priority": "0.9", "changefreq": "monthly"},
+    ]
+
+    # Individual wins pages
+    wins_pages = []
+    for f in Path(__file__).parent.glob("wins_*.html"):
+        ticker = f.stem.replace("wins_", "")
+        wins_pages.append({
+            "loc": f"{base}/wins/{ticker}",
+            "priority": "0.7",
+            "changefreq": "monthly"
+        })
+
+    # Blog articles
+    blog_items = [
+        {
+            "loc": f"{base}/blog/{a['slug']}",
+            "priority": "0.6",
+            "changefreq": "monthly",
+            "lastmod": a.get("date", "")[:10]
+        }
+        for a in articles
+    ]
+
+    lines = ['<?xml version="1.0" encoding="UTF-8"?>']
+    lines.append('<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">')
+
+    for page in static_pages + wins_pages + blog_items:
+        lines.append("  <url>")
+        lines.append(f"    <loc>{page['loc']}</loc>")
+        if "lastmod" in page:
+            lines.append(f"    <lastmod>{page['lastmod']}</lastmod>")
+        lines.append(f"    <changefreq>{page['changefreq']}</changefreq>")
+        lines.append(f"    <priority>{page['priority']}</priority>")
+        lines.append("  </url>")
+
+    lines.append("</urlset>")
+
+    resp = make_response("\n".join(lines))
+    resp.headers['Content-Type'] = 'application/xml'
+    return resp
+
 # ===== MANUAL SCAN TRIGGER (for force-updating the site) =====
 @app.route("/trigger-scan")
 def trigger_scan():
