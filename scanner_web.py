@@ -404,44 +404,6 @@ def cron_price_alerts():
 def robots():
     return "User-agent: *\nAllow: /\n\nSitemap: https://aismarketcap.com/sitemap.xml", 200, {"Content-Type": "text/plain"}
 
-@app.route("/sitemap.xml")
-def sitemap():
-    today = datetime.now().strftime("%Y-%m-%d")
-    # Dynamic: collect all wins_*.html files from the app directory
-    app_dir = Path(__file__).parent
-    static_pages = [
-        ("/", 1.0),
-        ("/wins", 0.8),
-        ("/about", 0.8),
-        ("/pricing", 0.9),
-    ]
-    wins_pages = []
-    for f in app_dir.glob("wins_*.html"):
-        ticker = f.stem.replace("wins_", "")
-        wins_pages.append((f"/wins/{ticker}", 0.7))
-    xml_urls = ""
-    for loc, priority in static_pages:
-        xml_urls += f"<url><loc>https://aismarketcap.com{loc}</loc><lastmod>{today}</lastmod><priority>{priority}</priority></url>"
-    for loc, priority in wins_pages:
-        xml_urls += f"<url><loc>https://aismarketcap.com{loc}</loc><lastmod>{today}</lastmod><priority>{priority}</priority></url>"
-    xml = f'<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">{xml_urls}</urlset>'
-    resp = make_response(xml)
-    resp.headers["Content-Type"] = "application/xml"
-    return resp
-    html_files = sorted(workspace.glob("ai_earnings_57day_*.html"), key=lambda f: f.stat().st_mtime, reverse=True)
-    if html_files:
-        with open(html_files[0], 'r', encoding='utf-8') as f:
-            content = f.read()
-        content = content.replace('<script>setTimeout(function(){document.getElementById("sub-popup").classList.add("show")},300000)</script>',
-                                  f'{sub_flag}<script>if(!window.isSubscribed){{setTimeout(function(){{document.getElementById("sub-popup").classList.add("show")}},300000)}}else{{document.getElementById("sub-popup")&&(document.getElementById("sub-popup").style.display="none")}}</script>')
-        resp = make_response(content)
-        resp.headers['Content-Type'] = 'text/html; charset=utf-8'
-        resp.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0'
-        return resp
-    resp = make_response("""<!DOCTYPE html><html><head><meta charset="UTF-8"><title>AI Market Cap</title><style>body{font-family:Segoe UI,sans-serif;background:#0d1117;color:#fff;display:flex;justify-content:center;align-items:center;height:100vh;margin:0;text-align:center}h1{color:#58a6ff;font-size:2em}p{color:#8b949e}.btn{background:#238636;color:#fff;padding:12px 24px;border:none;border-radius:8px;font-size:1em;cursor:pointer;text-decoration:none;display:inline-block;margin-top:20px}</style></head><body><h1>AI Market Cap Scanner</h1><p>Scanner is warming up. Check back in a few minutes.</p><a href="/pricing" class=btn>Subscribe to Unlock Full Access</a></body></html>""")
-    resp.headers['Content-Type'] = 'text/html; charset=utf-8'
-    return resp
-
 @app.route("/wins")
 def wins():
     with open(Path(__file__).parent / "wins.html", 'r', encoding='utf-8') as f:
