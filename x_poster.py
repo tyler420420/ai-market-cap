@@ -328,13 +328,56 @@ def post_daily_scan_to_twitter():
     return bool(result)
 
 
+# ===== POST WEEKLY WINS ARTICLE =====
+def post_wins_article_to_twitter():
+    """Post about the latest wins article to Twitter."""
+    import json as _json, re as _re
+    index_path = Path(__file__).parent / "blog" / "index.json"
+    if not index_path.exists():
+        print("[X] blog/index.json not found — skipping wins tweet")
+        return False
+
+    articles = _json.loads(index_path.read_text(encoding="utf-8"))
+    if not articles:
+        print("[X] No articles in index — skipping wins tweet")
+        return False
+
+    # Most recent article is first
+    article = articles[0]
+    slug = article.get("slug", "")
+    title = article.get("title", "")
+
+    # Extract ticker from slug (e.g. "ddog-was-this-weeks-top-pre-earnings-pick" → "DDOG")
+    match = _re.match(r'^([A-Z]+)', slug.upper())
+    ticker = match.group(1) if match else ""
+
+    if not ticker:
+        print("[X] Could not extract ticker from slug — skipping wins tweet")
+        return False
+
+    tweet = (
+        f"This week's top pre-earnings pick: ${ticker}\n\n"
+        f"{title}\n\n"
+        f"https://aismarketcap.com/blog/{slug}"
+    )
+
+    # Truncate if too long
+    if len(tweet) > 280:
+        tweet = tweet[:277] + "..."
+
+    result = post_tweet(tweet)
+    print(f"[X] Wins tweet posted: ${ticker}")
+    return bool(result)
+
+
 # ===== MAIN CLI (for local testing / cron-job.org) =====
 if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser(description="AI Market Cap Twitter Engine")
     parser.add_argument("--post-scan", action="store_true", help="Post top 5 picks from latest scan")
     parser.add_argument("--check-alerts", action="store_true", help="Check price targets and post alerts")
-    parser.add_argument("--all", action="store_true", help="Run both post-scan and alerts")
+    parser.add_argument("--wins-article", action="store_true", help="Post the latest weekly wins article to Twitter")
+    parser.add_argument("--all", action="store_true", help="Run all tasks")
     args = parser.parse_args()
 
     if args.all or args.post_scan:
@@ -347,3 +390,7 @@ if __name__ == "__main__":
         results = check_price_alerts(state)
         save_state(state)
         print(f"[X] Alerts checked. Posted: {results}")
+
+    if args.all or args.wins_article:
+        print("[X] Posting weekly wins article...")
+        post_wins_article_to_twitter()
