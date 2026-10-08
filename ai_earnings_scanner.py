@@ -625,6 +625,7 @@ def generate_html_report(stocks: list, output_path: str):
     buttons_row = (
         '<div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end;flex-shrink:0">'
         '<div style="display:flex;gap:6px;align-items:center">'
+        '<a href="/blog" style="background:#e63946;color:#fff;padding:10px 18px;border-radius:6px;font-size:0.9em;text-decoration:none;font-weight:bold;border:1px solid #fff" onmouseover="this.style.background=\'#ff6b6b\'" onmouseout="this.style.background=\'#e63946\'">Blog</a>'
         '<a href="/about" style="background:#ffd700;color:#000;padding:10px 18px;border-radius:6px;font-size:0.9em;text-decoration:none;font-weight:bold;border:1px solid #fff" onmouseover="this.style.background=\'#fff176\'" onmouseout="this.style.background=\'#ffd700\'">FAQ</a>'
         '<a href="/wins" style="background:#58a6ff;color:#000;padding:10px 18px;border-radius:6px;font-size:0.9em;text-decoration:none;font-weight:bold;border:1px solid #fff" onmouseover="this.style.background=\'#79b8ff\'" onmouseout="this.style.background=\'#58a6ff\'">Wins</a>'
         '<button class=btn id=scanBtn style="background:#00ff88;color:#000;font-weight:bold;border:1px solid #fff;cursor:pointer" onmouseover="this.style.background=\'#79ffc6\'" onmouseout="this.style.background=\'#00ff88\'" onclick=runScan()>PRO SCAN</button>'
