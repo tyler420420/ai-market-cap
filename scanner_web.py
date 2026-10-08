@@ -12,8 +12,8 @@ STRIPE_PUBLISHABLE_KEY = os.environ.get("STRIPE_PUBLISHABLE_KEY", "")
 STRIPE_WEBHOOK_SECRET = os.environ.get("STRIPE_WEBHOOK_SECRET", "")
 
 # Price IDs from Stripe dashboard
-PRICE_MONTHLY = "price_1TZJ6JQtzL43j3LFo67RAb0m"
-PRICE_ANNUAL = "price_1TZJ6iQtzL43j3LFZseI7iuP"
+PRICE_MONTHLY = "price_1UONSbQtzL43j3LF8GWzwl53"
+PRICE_ANNUAL = "price_1UONTCQtzL43j3LF362d4eZl"
 
 # ===== APP CONFIG =====
 PORT = int(os.environ.get("PORT", 18766))
