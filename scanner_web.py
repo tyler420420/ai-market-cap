@@ -1015,6 +1015,337 @@ def trigger_scan():
     except Exception as e:
         return f"Scan error: {e}", 500
 
+# ===== TRAFFIC DASHBOARD =====
+TRAFFIC_DIR = Path(r"C:\Users\Tyler_AI\Desktop\traffic_machine")
+
+@app.route("/traffic")
+def traffic_dashboard():
+    """Serve the Traffic Machine Master Control dashboard."""
+    dashboard_path = TRAFFIC_DIR / "traffic_dashboard.html"
+    if not dashboard_path.exists():
+        return "Dashboard not found.", 404
+    return send_from_directory(str(TRAFFIC_DIR), "traffic_dashboard.html")
+
+@app.route("/traffic/state.json")
+def traffic_state():
+    """Serve the Traffic Machine state for the dashboard."""
+    state_file = TRAFFIC_DIR / "traffic_machine_state.json"
+    if not state_file.exists():
+        return jsonify({"articles_published": {}, "social_posts": {}, "outreach_sent": {}, "last_run": None})
+    return send_from_directory(str(TRAFFIC_DIR), "traffic_machine_state.json")
+
+@app.route("/traffic/backlinks_state.json")
+def traffic_backlinks_state():
+    """Serve comment backlinks state for the dashboard."""
+    cb_file = TRAFFIC_DIR / "comment_backlinks_state.json"
+    if not cb_file.exists():
+        return jsonify({"stats": {"total": 0, "success": 0, "failed": 0}, "commented_urls": [], "daily_runs": []})
+    return send_from_directory(str(TRAFFIC_DIR), "comment_backlinks_state.json")
+
+@app.route("/traffic/syndication_state.json")
+def traffic_syndication_state():
+    """Serve content syndication state for the dashboard."""
+    synd_file = TRAFFIC_DIR / "syndication_state.json"
+    if not synd_file.exists():
+        return jsonify({"daily_runs": [], "articles": {}})
+    return send_from_directory(str(TRAFFIC_DIR), "syndication_state.json")
+
+@app.route("/traffic/niche_backlinks_state.json")
+def traffic_niche_backlinks_state():
+    """Serve niche backlinks state for the dashboard."""
+    nb_file = TRAFFIC_DIR / "niche_backlinks_state.json"
+    if not nb_file.exists():
+        return jsonify({
+            "daily_runs": [], "guest_posts": [], "reddit_posts": [],
+            "quora_posts": [], "comment_urls": [],
+            "stats": {"total": 0, "live": 0, "pending": 0, "failed": 0}
+        })
+    return send_from_directory(str(TRAFFIC_DIR), "niche_backlinks_state.json")
+
+@app.route("/traffic/config.json")
+def traffic_config_status():
+    """Serve config status (which platforms are configured) for the dashboard."""
+    import yaml
+    config_file = TRAFFIC_DIR / "config.yaml"
+    if not config_file.exists():
+        return jsonify({})
+    with open(config_file, encoding="utf-8") as f:
+        cfg = yaml.safe_load(f)
+    g = cfg.get("global", {})
+    clients_raw = cfg.get("clients", {})
+    clients_out = {}
+    for name, c in clients_raw.items():
+        # Build platform list — only show what's actually connected
+        raw_plats = c.get("platforms", {})
+        plats = {}
+        # Twitter — connected if API key set
+        if g.get("twitter_api_key") and "twitter" in raw_plats:
+            plats["twitter"] = raw_plats["twitter"]
+        # Email outreach — connected if Gmail configured
+        if g.get("gmail_from") and g.get("gmail_app_password") and "email_outreach" in raw_plats:
+            plats["email_outreach"] = raw_plats["email_outreach"]
+        # Comment backlinks — always available
+        if "comment_backlinks" in raw_plats:
+            plats["comment_backlinks"] = raw_plats["comment_backlinks"]
+        # Bing — always available (sitemap ping free)
+        if "bing" in raw_plats:
+            plats["bing"] = raw_plats["bing"]
+        # Google — always available (sitemap ping free)
+        plats["google"] = {"enabled": True}
+        # Bluesky — connected if handle set globally
+        if g.get("bluesky", {}).get("handle") and "bluesky" in raw_plats:
+            plats["bluesky"] = raw_plats["bluesky"]
+        # Mastodon — connected if access token set globally
+        if g.get("mastodon", {}).get("access_token") and "mastodon" in raw_plats:
+            plats["mastodon"] = raw_plats["mastodon"]
+        # Skip reddit & linkedin — require API approval, not currently connected
+
+        clients_out[name] = {
+            "url": c.get("wp_url", ""),
+            "niche": c.get("site_niche", ""),
+            "site_type": c.get("site_type", "wordpress"),
+            "enabled": c.get("enabled", False),
+            "platforms": plats,
+        }
+    return jsonify({
+        "hasReddit": bool(g.get("reddit", {}).get("client_id")),
+        "hasLinkedIn": bool(g.get("linkedin", {}).get("access_token")),
+        "hasBing": True,  # Sitemap ping works free, no key needed
+        "hasGSC": bool(g.get("gsc_service_account_json")),
+        "hasEmail": bool(g.get("gmail_from") and g.get("gmail_app_password")),
+        "hasTwitter": bool(g.get("twitter_api_key")),
+        "hasBluesky": bool(g.get("bluesky", {}).get("handle")),
+        "hasMastodon": bool(g.get("mastodon", {}).get("access_token")),
+        "hasCommentBacklinks": True,  # Built-in, no API key needed
+        "clients": clients_out,
+    })
+
+@app.route("/traffic/queue")
+def traffic_queue():
+    """List queued articles (pending, not yet published)."""
+    queue_dir = TRAFFIC_DIR / "article_queue"
+    items = []
+    if queue_dir.exists():
+        for f in queue_dir.glob("aismarketcap_*.json"):
+            items.append({
+                "name": f.name,
+                "date": datetime.fromtimestamp(f.stat().st_mtime).strftime("%Y-%m-%d %H:%M"),
+                "client": "aismarketcap",
+                "type": "wins" if "_wins" in f.name else "daily"
+            })
+    items.sort(key=lambda x: x["date"], reverse=True)
+    return jsonify(items[:20])
+
+
+@app.route("/traffic/new-client")
+def traffic_new_client_page():
+    """Serve the Add New Client wizard page."""
+    wizard_path = TRAFFIC_DIR / "new_client.html"
+    if not wizard_path.exists():
+        return "Wizard not found.", 404
+    return send_from_directory(str(TRAFFIC_DIR), "new_client.html")
+
+
+@app.route("/traffic/add-client", methods=["POST"])
+def traffic_add_client():
+    """Add a new client to config.yaml."""
+    try:
+        data = request.get_json()
+        client_name = data.get("client_name", "").strip().lower()
+        site_url = data.get("site_url", "").strip().rstrip("/")
+        site_niche = data.get("site_niche", "").strip()
+        site_type = data.get("site_type", "flask_blog")
+        author = data.get("author", "").strip() or client_name.replace("-", " ").title()
+        platforms_cfg = data.get("platforms", {})
+
+        if not client_name or not site_url or not site_niche:
+            return jsonify({"ok": False, "error": "Missing required fields"}), 400
+
+        import re
+        if not re.match(r"^[a-z0-9][a-z0-9\-]*$", client_name):
+            return jsonify({"ok": False, "error": "Invalid client slug"}), 400
+
+        config_file = TRAFFIC_DIR / "config.yaml"
+        with open(config_file, "r", encoding="utf-8") as f:
+            config_text = f.read()
+
+        seo_articles_enabled = platforms_cfg.get('seo_articles', True)
+        # Build client YAML block
+        client_block = f"""
+  {client_name}:
+    enabled: true
+    wp_url: "{site_url}"
+    site_url: "{site_url}"
+    site_niche: "{site_niche}"
+    site_type: "{site_type}"
+    author: "{author}"
+    client_name: "{client_name}"
+    seo_articles: {str(seo_articles_enabled).lower()}
+    blog_git_dir: ""   # Set for Flask blog clients, e.g. C:/Users/Tyler_AI/ai-market-cap/blog
+    platforms:
+      twitter:
+        enabled: {str(platforms_cfg.get('twitter', True)).lower()}
+        handle: "@AIMoneyMach"
+      reddit:
+        enabled: false
+        subreddits: []
+      linkedin:
+        enabled: false
+        company_urn: ""
+      bing:
+        enabled: {str(platforms_cfg.get('bing', True)).lower()}
+        sitemap_url: "{site_url}/sitemap.xml"
+      email_outreach:
+        enabled: {str(platforms_cfg.get('email_outreach', True)).lower()}
+        outreach_targets:
+          - "finance"
+          - "investing"
+          - "technology"
+      comment_backlinks:
+        enabled: {str(platforms_cfg.get('comment_backlinks', True)).lower()}
+        max_per_article: 25
+        min_da: 20
+      mastodon:
+        enabled: {str(platforms_cfg.get('mastodon', True)).lower()}
+      bluesky:
+        enabled: {str(platforms_cfg.get('bluesky', False)).lower()}
+"""
+
+        # Append before the last blank line or end of file
+        if "clients:" in config_text:
+            lines = config_text.split("\n")
+            insert_idx = len(lines)
+            for i, line in enumerate(lines):
+                if line.strip().startswith("report_") or (line.strip() == "..." and i > len(lines) - 10):
+                    insert_idx = i
+                    break
+            lines.insert(insert_idx, client_block.lstrip("\n"))
+            config_text = "\n".join(lines)
+
+        with open(config_file, "w", encoding="utf-8") as f:
+            f.write(config_text)
+
+        return jsonify({"ok": True, "client": client_name})
+    except Exception as e:
+        import traceback
+        return jsonify({"ok": False, "error": str(e), "trace": traceback.format_exc()}), 500
+
+
+@app.route("/traffic/report/<client>")
+def traffic_report(client):
+    """Generate a full analytics report for a client — opens in new tab."""
+    try:
+        sys.path.insert(0, str(TRAFFIC_DIR))
+        from generate_report import make_report
+        html = make_report(client)
+        return html, 200, {"Content-Type": "text/html; charset=utf-8"}
+    except Exception:
+        import traceback
+        return f"<pre>Report error:\n{traceback.format_exc()}</pre>", 500
+def traffic_outreach():
+    """Serve outreach state for the dashboard."""
+    state_file = TRAFFIC_DIR / "modules" / "outreach_state.json"
+    fallback = TRAFFIC_DIR / "outreach_state.json"
+    src = state_file if state_file.exists() else fallback
+    if not src.exists():
+        return jsonify({"sent": [], "replied": [], "bounced": [], "last_run": None})
+    with open(src, encoding="utf-8") as f:
+        return jsonify(json.load(f))
+
+@app.route("/traffic/action-log")
+def traffic_action_log():
+    """Read the last action log output."""
+    log_path = TRAFFIC_DIR / "traffic_action.log"
+    if not log_path.exists():
+        return jsonify({"log": ""})
+    content = log_path.read_text(encoding="utf-8")
+    # Return last 3000 chars
+    return jsonify({"log": content[-3000:]})
+
+@app.route("/traffic/action", methods=["POST"])
+def traffic_action():
+    """
+    Launch any Traffic Machine action.
+    - Wizard/setup scripts: open in a new terminal window so Tyler can interact with them
+    - Publish/report scripts: run hidden, capture output to a live log file
+    """
+    import subprocess
+    import threading
+
+    data = request.get_json(silent=True) or {}
+    action = data.get("action", "")
+    client = data.get("client", "")
+    python_exe = sys.executable
+
+    # Scripts that need an interactive terminal (wizards)
+    interactive_scripts = {
+        "reddit_setup", "bing_setup", "linkedin_setup", "bluesky_setup", "mastodon_setup",
+    }
+
+    action_map = {
+        "reddit_setup":     (str(TRAFFIC_DIR / "reddit_setup.py"),       []),
+        "bing_setup":       (str(TRAFFIC_DIR / "bing_setup.py"),         []),
+        "linkedin_setup":   (str(TRAFFIC_DIR / "linkedin_poster.py"),   ["--setup"]),
+        "email_setup":      (str(TRAFFIC_DIR / "email_setup.py"),        []),
+        "bluesky_setup":    (str(TRAFFIC_DIR / "modules" / "bluesky_poster.py"), ["--setup"]),
+        "mastodon_setup":   (str(TRAFFIC_DIR / "modules" / "mastodon_poster.py"), ["--setup"]),
+        "new_client":       (str(TRAFFIC_DIR / "master_setup_wizard.py"), []),
+        "publish":          (str(TRAFFIC_DIR / "traffic_engine.py"),     ["--publish"]),
+        "run_full":         (str(TRAFFIC_DIR / "traffic_engine.py"),     []),    # generate + publish
+        "run_outreach":     (str(TRAFFIC_DIR / "traffic_engine.py"),     ["--outreach"]),
+        "report_all":       (str(TRAFFIC_DIR / "client_report.py"),     []),
+        "run_client":       (str(TRAFFIC_DIR / "traffic_engine.py"),     ["--client", client, "--publish"]) if client else None,
+        "report_client":    (str(TRAFFIC_DIR / "client_report.py"),     ["--client", client]) if client else None,
+    }
+
+    if action not in action_map:
+        return jsonify({"error": "Unknown action", "available": list(action_map.keys())}), 400
+
+    entry = action_map[action]
+    if entry is None:
+        return jsonify({"error": "client name required"}), 400
+
+    script_path, extra_args = entry
+
+    def run_hidden():
+        """Run silently, append output to a live log file."""
+        log_path = TRAFFIC_DIR / "traffic_action.log"
+        with open(log_path, "a", encoding="utf-8") as logf:
+            logf.write(f"\n{'='*50}\n[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] ACTION: {action} | CLIENT: {client or 'all'}\n{'='*50}\n")
+            logf.flush()
+            try:
+                result = subprocess.run(
+                    [python_exe, script_path] + extra_args,
+                    cwd=str(TRAFFIC_DIR),
+                    capture_output=True,
+                    text=True,
+                    timeout=120,
+                )
+                if result.stdout:
+                    logf.write(result.stdout)
+                if result.stderr:
+                    logf.write("STDERR:\n" + result.stderr)
+                logf.write(f"\n[EXIT CODE: {result.returncode}]\n")
+            except subprocess.TimeoutExpired:
+                logf.write("[TIMEOUT: 120s exceeded]\n")
+            except Exception as e:
+                logf.write(f"[ERROR: {e}]\n")
+
+    if action in interactive_scripts:
+        # Open in a new terminal window for interactive input
+        cmd_str = 'start "Traffic Machine" cmd /k cd /d "{}" && {} "{}" {}'.format(
+            TRAFFIC_DIR, python_exe, script_path, ' '.join(extra_args)
+        )
+        try:
+            subprocess.Popen(cmd_str, shell=True, cwd=str(TRAFFIC_DIR))
+            return jsonify({"ok": True, "action": action, "mode": "interactive"})
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500
+    else:
+        # Run silently in background, log to file
+        threading.Thread(target=run_hidden, daemon=True).start()
+        return jsonify({"ok": True, "action": action, "client": client or None})
+
 # ===== MAIN =====
 if __name__ == "__main__":
     @app.route("/push", methods=["GET", "POST"])
