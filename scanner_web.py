@@ -1098,6 +1098,9 @@ def traffic_config_status():
         # Mastodon — connected if access token set globally
         if g.get("mastodon", {}).get("access_token") and "mastodon" in raw_plats:
             plats["mastodon"] = raw_plats["mastodon"]
+        # Quora — connected if email set in client config
+        if "quora" in raw_plats and raw_plats["quora"].get("email"):
+            plats["quora"] = raw_plats["quora"]
         # Skip reddit & linkedin — require API approval, not currently connected
 
         clients_out[name] = {
@@ -1107,6 +1110,11 @@ def traffic_config_status():
             "enabled": c.get("enabled", False),
             "platforms": plats,
         }
+    # Check if any client has Quora configured
+    has_quora = any(
+        bool(c.get("platforms", {}).get("quora", {}).get("email"))
+        for c in clients_raw.values()
+    )
     return jsonify({
         "hasReddit": bool(g.get("reddit", {}).get("client_id")),
         "hasLinkedIn": bool(g.get("linkedin", {}).get("access_token")),
@@ -1116,6 +1124,7 @@ def traffic_config_status():
         "hasTwitter": bool(g.get("twitter_api_key")),
         "hasBluesky": bool(g.get("bluesky", {}).get("handle")),
         "hasMastodon": bool(g.get("mastodon", {}).get("access_token")),
+        "hasQuora": has_quora,
         "hasCommentBacklinks": True,  # Built-in, no API key needed
         "clients": clients_out,
     })
