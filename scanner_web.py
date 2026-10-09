@@ -1056,7 +1056,7 @@ def traffic_niche_backlinks_state():
     nb_file = TRAFFIC_DIR / "niche_backlinks_state.json"
     if not nb_file.exists():
         return jsonify({
-            "daily_runs": [], "guest_posts": [], "reddit_posts": [],
+            "daily_runs": [], "guest_posts": [],
             "quora_posts": [], "comment_urls": [],
             "stats": {"total": 0, "live": 0, "pending": 0, "failed": 0}
         })
