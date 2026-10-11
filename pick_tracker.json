@@ -1,52 +1,52 @@
 [
   {
-    "date": "2026-07-31",
-    "ticker": "ADSK",
-    "price": 234.2,
-    "score": 80,
-    "days_left": 27,
-    "company": "Autodesk, Inc.",
-    "pe_target": 235.95,
-    "5d_target": 242.95
-  },
-  {
-    "date": "2026-07-31",
-    "ticker": "MDB",
-    "price": 337.48,
-    "score": 90,
-    "days_left": 26,
-    "company": "MongoDB, Inc.",
-    "pe_target": 355.19,
-    "5d_target": 426.03
-  },
-  {
-    "date": "2026-07-31",
-    "ticker": "SNOW",
-    "price": 293.28,
-    "score": 83,
-    "days_left": 26,
-    "company": "Snowflake Inc.",
-    "pe_target": 295.39,
-    "5d_target": 303.83
-  },
-  {
-    "date": "2026-07-31",
-    "ticker": "NVDA",
-    "price": 200.75,
+    "date": "2026-10-11",
+    "ticker": "CEG",
+    "price": 298.07,
     "score": 78,
-    "days_left": 26,
-    "company": "NVIDIA Corporation",
-    "pe_target": 201.59,
-    "5d_target": 204.95
+    "days_left": 29,
+    "company": "Constellation Energy Corporation",
+    "pe_target": 313.65,
+    "5d_target": 375.97
   },
   {
-    "date": "2026-07-31",
-    "ticker": "OKTA",
-    "price": 141.93,
-    "score": 80,
+    "date": "2026-10-11",
+    "ticker": "DDOG",
+    "price": 293.26,
+    "score": 97,
     "days_left": 25,
-    "company": "Okta, Inc.",
-    "pe_target": 143.31,
-    "5d_target": 148.83
+    "company": "Datadog, Inc.",
+    "pe_target": 309.01,
+    "5d_target": 372.01
+  },
+  {
+    "date": "2026-10-11",
+    "ticker": "TEAM",
+    "price": 206.79,
+    "score": 87,
+    "days_left": 25,
+    "company": "Atlassian Corporation",
+    "pe_target": 217.36,
+    "5d_target": 259.64
+  },
+  {
+    "date": "2026-10-11",
+    "ticker": "FROG",
+    "price": 102.23,
+    "score": 86,
+    "days_left": 25,
+    "company": "JFrog Ltd.",
+    "pe_target": 108.84,
+    "5d_target": 135.28
+  },
+  {
+    "date": "2026-10-11",
+    "ticker": "MCHP",
+    "price": 75.55,
+    "score": 78,
+    "days_left": 25,
+    "company": "Microchip Technology Incorporated",
+    "pe_target": 79.75,
+    "5d_target": 96.55
   }
 ]

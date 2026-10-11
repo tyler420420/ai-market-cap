@@ -64,6 +64,7 @@ td{color:#fff}
   <div class=nav>
     <a href="/">Scanner</a>
     <a href="/wins" class=active>Wins</a>
+    <a href="/blog">Blog</a>
     <a href="/about">About</a>
   </div>
 </div>
@@ -103,6 +104,38 @@ td{color:#fff}
     <span class=link>Read case study →</span>
   </a>
 </div>
+
+<!-- LATEST ARTICLES -->
+<div id="articles-section" style="margin-top:56px;display:none">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+    <h2 style="color:#fff;font-size:1.5em;margin:0">Latest Articles</h2>
+    <a href="/blog" style="color:#ffd700;font-size:0.9em;font-weight:bold">View all →</a>
+  </div>
+  <div id="articles-grid" class=grid></div>
+</div>
+
+<script>
+(async function() {
+  try {
+    const r = await fetch('/blog/index.json');
+    if (!r.ok) return;
+    const articles = await r.json();
+    if (!articles || articles.length === 0) return;
+    const grid = document.getElementById('articles-grid');
+    articles.slice(0, 3).forEach(a => {
+      const excerpt = (a.excerpt || '').substring(0, 160) + '...';
+      grid.innerHTML += `<a href="/blog/${a.slug}" class="win-card">
+        <div class="h-badge" style="background:#1a3a5c;color:#58a6ff;display:inline-block;padding:4px 10px;border-radius:4px;font-size:0.72em;font-weight:bold;margin-bottom:8px">📝 Article</div>
+        <div class="t" style="color:#fff;font-size:1.05em;margin-bottom:4px">${a.title}</div>
+        <div class="d">${a.date}${a.keyword ? ' · #' + a.keyword : ''}</div>
+        <div class="l" style="margin-top:8px;font-size:0.85em;line-height:1.6">${excerpt}</div>
+        <span class="link">Read article →</span>
+      </a>`;
+    });
+    document.getElementById('articles-section').style.display = 'block';
+  } catch(e) {}
+})();
+</script>
 
 <div class=cta-box>
   <h2>Want to find the next one?</h2>
