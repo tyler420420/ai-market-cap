@@ -578,8 +578,8 @@ def generate_html_report(stocks: list, output_path: str):
     html += '#sub-popup{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.75);display:none;align-items:center;justify-content:center;z-index:99999}#sub-popup.show{display:flex}#sub-popup-box{background:#161b22;border:2px solid #ffd700;border-radius:14px;padding:36px 32px;max-width:420px;width:90%;text-align:center;box-shadow:0 0 40px rgba(255,215,0,.3);animation:pop-in .4s ease}@keyframes pop-in{from{transform:scale(.7);opacity:0}to{transform:scale(1);opacity:1}}#sub-popup-box h2{color:#ffd700;font-size:1.4em;margin:0 0 8px}#sub-popup-box p{color:#c9d1d9;font-size:.95em;margin:0 0 20px;line-height:1.5}#sub-popup-features{display:flex;flex-direction:column;gap:8px;margin-bottom:22px;text-align:left}#sub-popup-features div{color:#fff;font-size:.88em;display:flex;align-items:center;gap:8px}#sub-popup-features div span{color:#00ff88;font-weight:bold}#sub-popup-btn{background:#ffd700;border:2px solid #000;color:#000;padding:12px 28px;border-radius:8px;font-size:1em;font-weight:bold;cursor:pointer;text-decoration:none;display:inline-block;margin-right:10px}#sub-popup-btn:hover{background:#e6c200}#sub-popup-close{background:#30363d;border:1px solid #30363d;color:#8b949e;padding:10px 20px;border-radius:8px;font-size:.88em;cursor:pointer}#sub-popup-close:hover{color:#fff}'
     html += '@media(max-width:600px){body{padding:0;font-size:13px}#stockTable{font-size:12px;width:100%!important;max-width:100%!important;margin:0!important;display:block;overflow-x:visible!important;-webkit-overflow-scrolling:touch}#stockTable thead,#stockTable tbody,#stockTable tr,#stockTable td,#stockTable th{display:block}#stockTable thead{position:absolute;top:-9999px;left:-9999px}#stockTable tr{border:1px solid #30363d;border-radius:0;margin:0;padding:8px;background:#161b22;border-top:none}#stockTable td{position:relative;padding:3px 8px;border:none;font-size:12px;line-height:1.4}#stockTable td:before{content:attr(data-label);font-weight:700;color:#58a6ff;margin-right:6px}#stockTable td.earn-cell{font-size:11px}#stockTable td a{font-size:13px!important}.header{width:100%!important;min-width:0!important;max-width:100%!important;margin:0;padding:12px 8px;background:#161b22;border-left:none;border-right:none;border-radius:0;overflow-x:hidden}.hdr-row{flex-direction:column!important;gap:8px;padding:0!important;width:100%!important}.hdr-row>div{width:100%!important;max-width:100%!important;flex:unset!important}.ticker-strip{border-radius:0;margin:0;background:#161b22;border:1px solid #30363d;border-left:none;border-right:none;overflow:hidden}.note,.disclaimer{border:1px solid #30363d;border-radius:0;margin:0;border-left:none;border-right:none;padding:10px 8px!important;background:#161b22}}'
     html += '</style></head><body>'
-    html += '<div id=sub-popup><div id=sub-popup-box><h2>Unlock Full Scanner Power</h2><p>Subscribe for 3 daily scans, real-time alerts, and the AI Chat Analyst.</p><div id=sub-popup-features><div><span>&#10003;</span> 3 daily scans</div><div><span>&#10003;</span> Real-time earnings alerts</div><div><span>&#10003;</span> AI Chat Analyst</div><div><span>&#10003;</span> Priority pre-earnings picks</div></div><a href="/pricing" id=sub-popup-btn>Subscribe Now</a><button id=sub-popup-close onclick="document.getElementById(\'sub-popup\').classList.remove(\'show\')">Maybe Later</button></div></div>'
-    html += '<script>setTimeout(function(){document.getElementById("sub-popup").classList.add("show")},30000)</script>'
+    html += '<div id=sub-popup><div id=sub-popup-box><h2>Today\'s Pro Pick: ' + (pick.ticker if pick else 'N/A') + '</h2><p>Unlock exact entry, target, and stop loss — every day before earnings.</p><div id=sub-popup-features><div><span>&#10003;</span> Exact entry price + target + stop</div><div><span>&#10003;</span> Top 5 ranked plays</div><div><span>&#10003;</span> Real-time earnings alerts</div><div><span>&#10003;</span> AI Chat Analyst</div></div><a href="/pricing" id=sub-popup-btn>Unlock for $5/month</a><button id=sub-popup-close onclick="document.getElementById(\'sub-popup\').classList.remove(\'show\')">Maybe Later</button></div></div>'
+    html += '<script>setTimeout(function(){document.getElementById("sub-popup").classList.add("show")},15000)</script>'
 
     # Ticker strip
     ticker_items = ''
@@ -671,39 +671,92 @@ def generate_html_report(stocks: list, output_path: str):
     html += '</div></div>'
     html += '<div class=warn id=warnMsg></div>'
 
+    # ── AI PICK BANNER ──────────────────────────────────────────────────────────
+    # Free: ticker + entry + score + days. Subscribe: target + stop + upside.
+    if pick:
+        entry_price = round(pick.current_price, 2) if pick.current_price else 0
+        target_upside = round(pick.post_earnings_upside_pct, 1) if pick.post_earnings_upside_pct else 0
+        target_price = round(entry_price * (1 + target_upside / 100), 2) if entry_price and target_upside else 0
+        stop_loss = round(entry_price * 0.90, 2) if entry_price else 0
+        upside_pct_str = f"+{target_upside}%" if target_upside else "N/A"
+        pick_earn_label = 'Today' if pick.days_to_earnings == 0 else str(pick.days_to_earnings)
+
+        # Compute extra targets
+        target_3d = round(pick.post_earnings_3d_target, 2) if pick.post_earnings_3d_target else 0
+        target_5d = round(pick.post_earnings_5d_target, 2) if pick.post_earnings_5d_target else 0
+        upside_3d = round(pick.post_earnings_3d_upside_pct, 1) if pick.post_earnings_3d_upside_pct else 0
+        upside_5d = round(pick.post_earnings_5d_upside_pct, 1) if pick.post_earnings_5d_upside_pct else 0
+
+        html += '<div style="background:linear-gradient(135deg,#1a3a1a,#0d2818);border:2px solid #2ea043;border-radius:12px;padding:20px;margin-bottom:15px;position:relative">'
+        # Top row: public info + subscribe CTA
+        html += '<div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:12px">'
+        html += '<span style="font-size:1.2em;color:#2ea043;font-weight:bold">&#9733; Today\'s Pick</span>'
+        html += '<span style="font-size:1.1em;font-weight:bold;color:#fff">' + pick.ticker + '</span>'
+        html += '<span style="font-size:0.88em;color:#c9d1d9">' + pick.company_name[:14] + '</span>'
+        html += '<span style="font-size:0.88em;color:#c9d1d9">Score <strong style="color:' + pick_color + '">' + str(round(pick.composite_score)) + '</strong></span>'
+        html += '<span style="font-size:0.88em;color:#c9d1d9">Entry <strong style="color:#00ff88">$' + str(int(entry_price)) + '</strong></span>'
+        html += '<span style="font-size:0.88em;color:#00ff88;font-weight:bold">' + pick_earn_label + 'd to earnings</span>'
+        html += '<a href="/pricing" style="margin-left:auto;background:#ffd700;color:#000;padding:8px 18px;border-radius:6px;font-weight:bold;text-decoration:none;font-size:0.88em;white-space:nowrap">Unlock Targets &#8594;</a>'
+        html += '</div>'
+
+        # Gated section: targets + stop (shown to all, blurred for non-subscribers)
+        html += '<div id="pro-targets" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;position:relative;overflow:hidden;border-radius:8px;padding:10px;background:rgba(0,0,0,0.3)">'
+        html += '<span style="font-size:0.78em;color:#8b949e;font-weight:bold;margin-right:4px">PRO:</span>'
+        if target_upside:
+            html += '<div style="background:#0d1117;border:1px solid #30363d;border-radius:6px;padding:6px 12px;text-align:center;min-width:70px">'
+            html += '<div style="font-size:0.68em;color:#8b949e;margin-bottom:2px">TARGET</div>'
+            html += '<div style="font-size:1em;color:#00ff88;font-weight:bold">$' + str(int(target_price)) + '</div>'
+            html += '<div style="font-size:0.68em;color:#00ff88">' + upside_pct_str + '</div>'
+            html += '</div>'
+        if upside_3d:
+            html += '<div style="background:#0d1117;border:1px solid #30363d;border-radius:6px;padding:6px 12px;text-align:center;min-width:70px">'
+            html += '<div style="font-size:0.68em;color:#8b949e;margin-bottom:2px">3D TARGET</div>'
+            html += '<div style="font-size:1em;color:#58a6ff;font-weight:bold">$' + str(int(target_3d)) + '</div>'
+            html += '<div style="font-size:0.68em;color:#58a6ff">+' + str(upside_3d) + '%</div>'
+            html += '</div>'
+        if upside_5d:
+            html += '<div style="background:#0d1117;border:1px solid #30363d;border-radius:6px;padding:6px 12px;text-align:center;min-width:70px">'
+            html += '<div style="font-size:0.68em;color:#8b949e;margin-bottom:2px">5D TARGET</div>'
+            html += '<div style="font-size:1em;color:#bf8fff;font-weight:bold">$' + str(int(target_5d)) + '</div>'
+            html += '<div style="font-size:0.68em;color:#bf8fff">+' + str(upside_5d) + '%</div>'
+            html += '</div>'
+        if stop_loss:
+            html += '<div style="background:#0d1117;border:1px solid #30363d;border-radius:6px;padding:6px 12px;text-align:center;min-width:70px">'
+            html += '<div style="font-size:0.68em;color:#8b949e;margin-bottom:2px">STOP</div>'
+            html += '<div style="font-size:1em;color:#ff6b6b;font-weight:bold">$' + str(int(stop_loss)) + '</div>'
+            html += '<div style="font-size:0.68em;color:#ff6b6b">-10%</div>'
+            html += '</div>'
+        # Subscribe blur overlay
+        html += '<div id="pro-gate" style="position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.65);backdrop-filter:blur(4px);border-radius:8px;display:flex;align-items:center;justify-content:center;gap:12px;z-index:10">'
+        html += '<span style="color:#ffd700;font-weight:bold;font-size:0.9em">Subscribe to unlock targets</span>'
+        html += '<a href="/pricing" style="background:#ffd700;color:#000;padding:8px 16px;border-radius:6px;font-weight:bold;text-decoration:none;font-size:0.85em">$5/month &#8594;</a>'
+        html += '</div>'
+        html += '</div>'  # end pro-targets
+
+        # Email capture
+        html += '<div style="margin-top:10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">'
+        html += '<span style="font-size:0.82em;color:#8b949e">Get this pick in your inbox free:</span>'
+        html += '<form id="email-capture" onsubmit="return false" style="display:flex;gap:6px;align-items:center">'
+        html += '<input id="ec-email" type="email" placeholder="your@email.com" style="background:#0d1117;border:1px solid #30363d;color:#fff;padding:6px 10px;border-radius:6px;font-size:0.82em;width:180px">'
+        html += '<button onclick="captureEmail()" style="background:#2ea043;border:none;color:#fff;padding:6px 14px;border-radius:6px;font-size:0.82em;font-weight:bold;cursor:pointer">Send Pick</button>'
+        html += '</form>'
+        html += '<span id="ec-msg" style="font-size:0.8em;color:#2ea043;display:none">Sent! Check your inbox.</span>'
+        html += '</div>'
+        html += '</div>'
+
+        # Kraken trade button
+        html += '<div style="margin-bottom:15px"><a href="https://invite.kraken.com/JDNW/dq0q352v" target="_blank" style="display:inline-block;background:#5741d9;color:#fff;padding:8px 18px;border-radius:6px;font-weight:bold;text-decoration:none;font-size:0.9em" onmouseover="this.style.background=\'#6e55e0\'" onmouseout="this.style.background=\'#5741d9\'">Trade ' + pick.ticker + ' on Kraken &#8594;</a></div>'
+
     if pick and pick2:
-        html += '<div style="display:flex;gap:15px;margin-bottom:15px;flex-wrap:nowrap;align-items:center">'
-        html += '<div class=pick-banner style="min-height:120px;background:#161b22;border:2px solid #2ea043;border-radius:10px;padding:40px 18px;display:flex;align-items:center;gap:14px;flex-wrap:nowrap;margin:0;min-height:120px;box-shadow:0 0 20px rgba(46,160,67,0.4);flex:1;min-width:0">'
-        html += '<span style="font-size:1.3em;color:#2ea043;font-weight:bold">&#9733; Ais Next Trade</span>'
-        html += '<span style="font-size:1.2em;font-weight:bold;color:#fff">' + pick.ticker + '</span>'
-        html += '<span style="font-size:0.95em;color:#fff">' + pick.company_name[:12] + '</span>'
-        html += '<span style="font-size:0.95em;color:#fff">Score: <strong style="color:' + pick_color + '">' + str(round(pick.composite_score)) + '</strong></span>'
-        html += '<span style="font-size:0.95em;color:#fff">Buy Price: <strong style="color:#00ff88">$' + str(int(pick.current_price)) + '</strong></span>'
-        pick_earn_label = 'Today' if pick.days_to_earnings == 0 else str(pick.days_to_earnings)
-        html += '<span style="font-size:1em;color:#00ff88;font-weight:bold">Enter now - ' + pick_earn_label + ' days to earnings</span>'
-        html += '<a href="https://invite.kraken.com/JDNW/dq0q352v" target="_blank" style="display:inline-block;background:#5741d9;color:#fff;padding:8px 18px;border-radius:6px;font-weight:bold;text-decoration:none;font-size:0.9em;margin-left:auto" onmouseover="this.style.background=\'#6e55e0\'" onmouseout="this.style.background=\'#5741d9\'">Trade ' + pick.ticker + ' on Kraken</a>'
-        html += '</div>'
-        html += '<div class=pick-banner style="min-height:120px;background:#161b22;border:2px solid #1f6feb;border-radius:10px;padding:40px 18px;display:flex;align-items:center;gap:14px;flex-wrap:nowrap;margin:0;min-height:120px;box-shadow:0 0 20px rgba(31,111,235,0.4);flex:1;min-width:0">'
-        html += '<span style="font-size:1.3em;color:#58a6ff;font-weight:bold">&#9733; Ais Runner Up Pick</span>'
-        html += '<span style="font-size:1.2em;font-weight:bold;color:#fff">' + pick2.ticker + '</span>'
-        html += '<span style="font-size:0.95em;color:#fff">' + pick2.company_name[:12] + '</span>'
-        html += '<span style="font-size:0.95em;color:#fff">Score: <strong style="color:' + pick2_color + '">' + str(round(pick2.composite_score)) + '</strong></span>'
-        html += '<span style="font-size:0.95em;color:#fff">Buy Price: <strong style="color:#58a6ff">$' + str(int(pick2.current_price)) + '</strong></span>'
         pick2_earn_label = 'Today' if pick2.days_to_earnings == 0 else str(pick2.days_to_earnings)
-        html += '<span style="font-size:1em;color:#58a6ff;font-weight:bold">Enter now - ' + pick2_earn_label + ' days to earnings</span>'
-        html += '<a href="https://invite.kraken.com/JDNW/dq0q352v" target="_blank" style="display:inline-block;background:#5741d9;color:#fff;padding:8px 18px;border-radius:6px;font-weight:bold;text-decoration:none;font-size:0.9em;margin-left:auto" onmouseover="this.style.background=\'#6e55e0\'" onmouseout="this.style.background=\'#5741d9\'">Trade ' + pick2.ticker + ' on Kraken</a>'
-        html += '</div>'
-        html += '</div>'
-    elif pick:
-        html += '<div class=pick-banner style="background:#161b22;border:2px solid #2ea043;border-radius:10px;padding:40px 18px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:15px 0;min-height:120px;box-shadow:0 0 20px rgba(46,160,67,0.4)">'
-        html += '<span style="font-size:1.3em;color:#2ea043;font-weight:bold">&#9733; Ais Next Trade</span>'
-        html += '<span style="font-size:1.2em;font-weight:bold;color:#fff">' + pick.ticker + '</span>'
-        html += '<span style="font-size:0.95em;color:#fff">' + pick.company_name[:12] + '</span>'
-        html += '<span style="font-size:0.95em;color:#fff">Score: <strong style="color:' + pick_color + '">' + str(round(pick.composite_score)) + '</strong></span>'
-        html += '<span style="font-size:0.95em;color:#fff">Buy Price: <strong style="color:#00ff88">$' + str(int(pick.current_price)) + '</strong></span>'
-        pick_earn_label = 'Today' if pick.days_to_earnings == 0 else str(pick.days_to_earnings)
-        html += '<span style="font-size:1em;color:#00ff88;font-weight:bold">Enter now - ' + pick_earn_label + ' days to earnings</span>'
-        html += '<a href="https://invite.kraken.com/JDNW/dq0q352v" target="_blank" style="display:inline-block;background:#5741d9;color:#fff;padding:8px 18px;border-radius:6px;font-weight:bold;text-decoration:none;font-size:0.9em;margin-left:auto" onmouseover="this.style.background=\'#6e55e0\'" onmouseout="this.style.background=\'#5741d9\'">Trade ' + pick.ticker + ' on Kraken</a>'
+        html += '<div class=pick-banner style="background:#161b22;border:2px solid #1f6feb;border-radius:10px;padding:16px 20px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:15px">'
+        html += '<span style="font-size:1.1em;color:#58a6ff;font-weight:bold">&#9733; Runner Up</span>'
+        html += '<span style="font-size:1em;font-weight:bold;color:#fff">' + pick2.ticker + '</span>'
+        html += '<span style="font-size:0.88em;color:#c9d1d9">' + pick2.company_name[:14] + '</span>'
+        html += '<span style="font-size:0.88em;color:#c9d1d9">Score <strong style="color:' + pick2_color + '">' + str(round(pick2.composite_score)) + '</strong></span>'
+        html += '<span style="font-size:0.88em;color:#c9d1d9">Entry <strong style="color:#58a6ff">$' + str(int(pick2.current_price)) + '</strong></span>'
+        html += '<span style="font-size:0.88em;color:#58a6ff;font-weight:bold">' + pick2_earn_label + 'd to earnings</span>'
+        html += '<a href="https://invite.kraken.com/JDNW/dq0q352v" target="_blank" style="margin-left:auto;background:#5741d9;color:#fff;padding:6px 14px;border-radius:6px;font-weight:bold;text-decoration:none;font-size:0.85em" onmouseover="this.style.background=\'#6e55e0\'" onmouseout="this.style.background=\'#5741d9\'">Trade ' + pick2.ticker + '</a>'
         html += '</div>'
 
     headers = [
@@ -879,6 +932,28 @@ def generate_html_report(stocks: list, output_path: str):
     html += 'b.disabled=false;'
     html += 'b.textContent="Send";'
     html += '});'
+    html += '}'
+    html += '</script>'
+
+    # ── Email capture + gated display JS ────────────────────────────────────────
+    html += '<script>'
+    html += '// Gate: remove pro-gate overlay if subscriber'
+    html += 'if(window.__isSubscriber){'
+    html += '  var g=document.getElementById("pro-gate");'
+    html += '  if(g){g.style.display="none";}'
+    html += '  var t=document.getElementById("pro-targets");'
+    html += '  if(t){t.style.overflow="visible";}'
+    html += '}'
+    html += '// Email capture'
+    html += 'function captureEmail(){'
+    html += '  var inp=document.getElementById("ec-email");'
+    html += '  var msg=document.getElementById("ec-msg");'
+    html += '  var e=inp.value.trim();'
+    html += '  if(!e||!e.includes("@")){alert("Please enter a valid email.");return;}'
+    html += '  fetch("/api/capture-email",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email:e})}).then(function(r){'
+    html += '    if(r.ok){msg.style.display="inline";msg.textContent="Sent! Check your inbox.";inp.value="";}'
+    html += '    else{alert("Something went wrong. Try again.");}'
+    html += '  }).catch(function(){alert("Error. Try again.");});'
     html += '}'
     html += '</script>'
     html += "</body></html>"
