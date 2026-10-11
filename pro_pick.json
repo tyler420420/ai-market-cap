@@ -1,0 +1,20 @@
+{
+  "ticker": "NOW",
+  "company_name": "ServiceNow Inc.",
+  "score": 98,
+  "sector": "Technology",
+  "earnings_date": "October 28, 2026",
+  "days_to_earnings": 18,
+  "entry_price": 140,
+  "target_price": 155,
+  "stop_loss": 126,
+  "upside_pct": 11,
+  "analysts": 49,
+  "sb": 10,
+  "buy": 35,
+  "sentiment": "Positive",
+  "iv": 5.1,
+  "short_int": 2.8,
+  "reasoning": "ServiceNow has 98/100 score — highest conviction pre-earnings play. 10 Strong Buy ratings, 35 Buy ratings, only 2 Holds. Earnings in 18 days with Positive sentiment. Options implied move of 5.1% but historical beats have run 10-15%+. Short interest is low at 2.8% reducing downside pressure. AI workflow automation demand is accelerating. Enter now before the momentum builds into earnings.",
+  "generated_at": "2026-10-10T09:00:00-07:00"
+}
