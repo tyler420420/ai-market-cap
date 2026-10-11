@@ -1,7 +1,7 @@
 """AI Earnings Scanner -- Web + Background Scanner Server (Railway Deploy) v2"""
 import os, hashlib, secrets, time, subprocess, threading, sys, json, re
 from pathlib import Path
-from datetime import datetime, time as dtime, timedelta
+from datetime import datetime, time as dtime, timedelta, date
 from zoneinfo import ZoneInfo
 from flask import Flask, request, redirect, send_from_directory, abort, make_response, jsonify
 
@@ -55,6 +55,29 @@ def api_pro_pick():
     if not pick:
         return jsonify({"error": "No pick available today"}), 404
     return jsonify(pick)
+
+@app.route("/api/capture-email", methods=["POST"])
+def capture_email():
+    """Capture email for free stock pick + upsell."""
+    data = request.get_json()
+    email = data.get("email", "").strip() if data else ""
+    if not email or "@" not in email:
+        return jsonify({"error": "Invalid email"}), 400
+    emails_file = Path(__file__).parent / "captured_emails.json"
+    emails = []
+    if emails_file.exists():
+        try:
+            emails = json.loads(emails_file.read_text())
+        except:
+            pass
+    # Dedupe
+    if not any(e.get("email") == email for e in emails):
+        emails.append({"email": email, "date": str(date.today()), "source": "scanner_banner"})
+        try:
+            emails_file.write_text(json.dumps(emails, indent=2))
+        except:
+            pass
+    return jsonify({"ok": True})
 
 @app.route("/pro")
 def pro_dashboard():
