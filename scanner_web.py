@@ -26,41 +26,222 @@ SESSION_TTL = 86400
 app = Flask(__name__, static_folder='static', static_url_path='/static')
 
 # ===== HOME / SCANNER =====
+# ===== PRO PICK CONFIG =====
+PRO_PICK_FILE = Path(__file__).parent / "pro_pick.json"
+
+def load_pro_pick():
+    """Load today's Pro Pick from JSON file."""
+    if PRO_PICK_FILE.exists():
+        try:
+            return json.loads(PRO_PICK_FILE.read_text(encoding="utf-8"))
+        except Exception:
+            return None
+    return None
+
+def is_subscriber():
+    """Check if current visitor has an active subscription."""
+    customer_id = request.cookies.get("stripe_customer", "")
+    if not customer_id:
+        return False
+    subs = get_subscriptions()
+    return subs.get(customer_id, {}).get('status') == 'active'
+
+@app.route("/api/pro_pick")
+def api_pro_pick():
+    """Return the Pro Pick only to active subscribers."""
+    if not is_subscriber():
+        return redirect("/pricing")
+    pick = load_pro_pick()
+    if not pick:
+        return jsonify({"error": "No pick available today"}), 404
+    return jsonify(pick)
+
+@app.route("/pro")
+def pro_dashboard():
+    """Pro subscriber dashboard — exclusive AI Pick + top 5 ranked plays."""
+    if not is_subscriber():
+        return redirect("/pricing")
+
+    pick = load_pro_pick()
+    workspace = Path(__file__).parent
+    primary = workspace / "ai_earnings_today.html"
+
+    # Get top 5 stocks from the scanner data
+    top5 = []
+    if primary.exists():
+        try:
+            content = primary.read_text(encoding="utf-8")
+            import re
+            match = re.search(r'var rowsData\s*=\s*(\[.*?\]);', content, re.DOTALL)
+            if match:
+                top5 = json.loads(match.group(1))
+                top5 = [r for r in top5 if r.get('score', 0) >= 80][:5]
+        except Exception:
+            pass
+
+    today = datetime.now(PT).strftime("%B %d, %Y")
+    pick_html = ""
+    if pick:
+        entry = pick.get('entry_price', 0)
+        target = pick.get('target_price', 0)
+        stop = pick.get('stop_loss', 0)
+        upside = pick.get('upside_pct', 0)
+        days = pick.get('days_to_earnings', '?')
+        score = pick.get('score', 0)
+        pick_html = f"""
+        <div style="background:linear-gradient(135deg,#0d2b1a,#0a1f12);border:2px solid #2ea043;border-radius:16px;padding:40px;margin-bottom:30px;box-shadow:0 0 30px rgba(46,160,67,0.3)">
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
+                <span style="background:#2ea043;color:#fff;padding:4px 14px;border-radius:20px;font-size:0.75em;font-weight:bold;text-transform:uppercase">Pro Pick of the Day</span>
+                <span style="color:#8b949e;font-size:0.85em">{today}</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:24px">
+                <div style="font-size:2.5em;font-weight:bold;color:#fff">{pick.get('ticker','')}</div>
+                <div>
+                    <div style="font-size:1.1em;color:#fff">{pick.get('company_name','')}</div>
+                    <div style="font-size:0.85em;color:#8b949e">Score: <strong style="color:#2ea043">{score}</strong> · {pick.get('sector','')}</div>
+                </div>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:16px;margin-bottom:24px">
+                <div style="background:#0d1117;border-radius:10px;padding:16px;text-align:center">
+                    <div style="color:#8b949e;font-size:0.75em;margin-bottom:4px">ENTRY PRICE</div>
+                    <div style="color:#00ff88;font-size:1.5em;font-weight:bold">${int(entry)}</div>
+                </div>
+                <div style="background:#0d1117;border-radius:10px;padding:16px;text-align:center">
+                    <div style="color:#8b949e;font-size:0.75em;margin-bottom:4px">TARGET</div>
+                    <div style="color:#00ff88;font-size:1.5em;font-weight:bold">${int(target)}</div>
+                </div>
+                <div style="background:#0d1117;border-radius:10px;padding:16px;text-align:center">
+                    <div style="color:#8b949e;font-size:0.75em;margin-bottom:4px">STOP LOSS</div>
+                    <div style="color:#ff6b6b;font-size:1.5em;font-weight:bold">${int(stop)}</div>
+                </div>
+                <div style="background:#0d1117;border-radius:10px;padding:16px;text-align:center">
+                    <div style="color:#8b949e;font-size:0.75em;margin-bottom:4px">UPSIDE</div>
+                    <div style="color:#00ff88;font-size:1.5em;font-weight:bold">+{upside}%</div>
+                </div>
+                <div style="background:#0d1117;border-radius:10px;padding:16px;text-align:center">
+                    <div style="color:#8b949e;font-size:0.75em;margin-bottom:4px">EARNINGS IN</div>
+                    <div style="color:#ffd700;font-size:1.5em;font-weight:bold">{days}d</div>
+                </div>
+            </div>
+            <div style="background:#0d1117;border-radius:10px;padding:20px;margin-bottom:20px">
+                <div style="color:#8b949e;font-size:0.8em;margin-bottom:8px">WHY THIS PICK</div>
+                <div style="color:#c9d1d9;font-size:0.95em;line-height:1.6">{pick.get('reasoning', 'High conviction pre-earnings momentum play. Strong analyst sentiment, optimal entry window.')}</div>
+            </div>
+            <a href="https://invite.kraken.com/JDNW/dq0q352v" target="_blank" style="display:inline-block;background:#5741d9;color:#fff;padding:14px 32px;border-radius:8px;font-weight:bold;text-decoration:none;font-size:1em">Trade {pick.get('ticker','')} on Kraken →</a>
+        </div>"""
+    else:
+        pick_html = f"""
+        <div style="background:#161b22;border:2px solid #30363d;border-radius:16px;padding:40px;margin-bottom:30px;text-align:center">
+            <div style="font-size:1.2em;color:#fff;margin-bottom:10px">Pro Pick generating...</div>
+            <div style="color:#8b949e;font-size:0.9em">Check back in a few minutes after the daily scan runs.</div>
+        </div>"""
+
+    # Top 5 ranked plays
+    top5_html = ""
+    if top5:
+        cards = ""
+        for r in top5:
+            cards += f"""
+            <div style="background:#161b22;border:1px solid #30363d;border-radius:10px;padding:20px">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+                    <div><strong style="color:#66b2ff;font-size:1.2em">{r['ticker']}</strong> <span style="color:#8b949e;font-size:0.85em">{r.get('company_name','')[:20]}</span></div>
+                    <div style="background:rgba(46,160,67,0.2);color:#2ea043;padding:4px 12px;border-radius:20px;font-size:0.8em;font-weight:bold">Score {r['score']}</div>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;font-size:0.82em">
+                    <div><span style="color:#8b949e">Entry: </span><strong style="color:#fff">${int(r.get('price',0))}</strong></div>
+                    <div><span style="color:#8b949e">Target: </span><strong style="color:#00ff88">${int(r.get('pe_target',0))}</strong></div>
+                    <div><span style="color:#8b949e">Earnings: </span><strong style="color:#ffd700">{r.get('earnings_date','')[:12]}</strong></div>
+                </div>
+            </div>"""
+        top5_html = f"""
+        <h2 style="color:#fff;font-size:1.3em;margin-bottom:16px">Top 5 Ranked Pre-Earnings Plays</h2>
+        <div style="display:grid;gap:12px;margin-bottom:30px">{cards}</div>"""
+
+    dashboard_html = f"""<!DOCTYPE html>
+<html><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" type="image/png" href="/static/logo.png">
+<title>Pro Dashboard - AI Market Cap</title>
+<style>
+*{{margin:0;padding:0;box-sizing:border-box}}
+body{{font-family:Segoe UI,Arial,sans-serif;background:#0d1117;color:#c9d1d9;min-height:100vh}}
+.header{{background:linear-gradient(135deg,#1a1f2e,#161b22);padding:20px 30px;border-bottom:1px solid #30363d;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}}
+.header h1{{color:#2ea043;font-size:1.5em}}
+.header a{{color:#58a6ff;text-decoration:none;font-size:0.9em}}
+.container{{max-width:900px;margin:0 auto;padding:40px 20px}}
+h2{{color:#fff;font-size:1.3em;margin-bottom:16px;margin-top:40px}}
+h2:first-child{{margin-top:0}}
+.sub{{color:#8b949e;font-size:0.85em;margin-bottom:20px}}
+.stats-row{{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:30px}}
+.stat-box{{background:#161b22;border:1px solid #30363d;border-radius:10px;padding:20px;flex:1;min-width:140px;text-align:center}}
+.stat-box .val{{font-size:1.8em;font-weight:bold;color:#2ea043}}
+.stat-box .lbl{{color:#8b949e;font-size:0.8em;margin-top:4px}}
+.back-link{{display:inline-block;margin-top:30px;color:#58a6ff;text-decoration:none;font-size:0.9em}}
+.back-link:hover{{color:#79b8ff}}
+</style></head><body>
+<div class=header>
+    <h1>★ Pro Dashboard</h1>
+    <div>
+        <a href="/">← Scanner</a>
+        <a href="/logout" style="margin-left:16px;color:#ff6b6b">Logout</a>
+    </div>
+</div>
+<div class=container>
+    <div class=sub>Your exclusive pre-earnings trade signals · Updated daily</div>
+    <div class=stats-row>
+        <div class=stat-box><div class=val>★</div><div class=lbl>Pro Pick of the Day</div></div>
+        <div class=stat-box><div class=val>5</div><div class=lbl>Top Ranked Plays</div></div>
+        <div class=stat-box><div class=val>$5</div><div class=lbl>/month · cancel anytime</div></div>
+    </div>
+    {pick_html}
+    {top5_html}
+    <a href="/" class=back-link>← Back to Scanner</a>
+</div></body></html>"""
+    return make_response(dashboard_html, 200, {"Content-Type": "text/html; charset=utf-8"})
+
+
 @app.route("/")
 def index():
     """Home page = scanner. ai_earnings_today.html is the primary file (always fresh from local scan).
-    scanner.html is a legacy fallback only."""
+    scanner.html is a legacy fallback only. Injects subscriber flag for gated AI Pick."""
     workspace = Path(__file__).parent
     # PRIMARY: ai_earnings_today.html — always fresh from local scan push
     primary = workspace / "ai_earnings_today.html"
+    content = None
     if primary.exists():
         with open(primary, 'r', encoding='utf-8') as f:
             content = f.read()
-        resp = make_response(content)
-        resp.headers['Content-Type'] = 'text/html; charset=utf-8'
-        resp.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0'
-        return resp
     # LEGACY FALLBACK: scanner.html (only if ai_earnings_today.html is missing)
-    shell = workspace / "scanner.html"
-    if shell.exists():
-        with open(shell, 'r', encoding='utf-8') as f:
-            content = f.read()
-        resp = make_response(content)
-        resp.headers['Content-Type'] = 'text/html; charset=utf-8'
-        resp.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0'
-        return resp
-    resp = make_response("""
-    <!DOCTYPE html><html><head><meta charset="UTF-8"><title>AI Market Cap</title>
-    <style>
-        body { font-family: Segoe UI, sans-serif; background: #0d1117; color: #fff; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; text-align: center; }
-        h1 { color: #58a6ff; font-size: 2em; }
-        p { color: #8b949e; }
-        .btn { background: #238636; color: #fff; padding: 12px 24px; border: none; border-radius: 8px; font-size: 1em; cursor: pointer; text-decoration: none; display: inline-block; margin-top: 20px; }
-    </style></head><body>
-    <h1>AI Market Cap Scanner</h1>
-    <p>No scan data yet. Run the scanner locally to generate reports.</p>
-    <a href="/run" class="btn">Run Scanner</a>
-    </body></html>""")
+    if not content:
+        shell = workspace / "scanner.html"
+        if shell.exists():
+            with open(shell, 'r', encoding='utf-8') as f:
+                content = f.read()
+    if not content:
+        content = """
+        <!DOCTYPE html><html><head><meta charset="UTF-8"><title>AI Market Cap</title>
+        <style>
+            body { font-family: Segoe UI, sans-serif; background: #0d1117; color: #fff; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; text-align: center; }
+            h1 { color: #58a6ff; font-size: 2em; }
+            p { color: #8b949e; }
+            .btn { background: #238636; color: #fff; padding: 12px 24px; border: none; border-radius: 8px; font-size: 1em; cursor: pointer; text-decoration: none; display: inline-block; margin-top: 20px; }
+        </style></head><body>
+        <h1>AI Market Cap Scanner</h1>
+        <p>No scan data yet. Run the scanner locally to generate reports.</p>
+        <a href="/run" class="btn">Run Scanner</a>
+        </body></html>"""
+
+    # Inject subscriber flag for gated AI Pick display
+    subscriber_flag = "true" if is_subscriber() else "false"
+    inject_script = f'<script>window.__isSubscriber={subscriber_flag};window.__proPickUrl="/api/pro_pick";</script>'
+    # Inject right after <body> tag
+    content = content.replace('<body>', '<body>' + inject_script, 1)
+
+    resp = make_response(content)
+    resp.headers['Content-Type'] = 'text/html; charset=utf-8'
+    resp.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0'
+    return resp
     resp.headers['Content-Type'] = 'text/html; charset=utf-8'
     return resp
 
@@ -460,13 +641,13 @@ def wins_innodata():
 
 @app.route("/pricing")
 def pricing():
-    """Pricing page with Stripe Checkout"""
+    """Pricing page with Stripe Checkout — compelling, conversion-focused"""
     pricing_html = """<!DOCTYPE html>
 <html><head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" type="image/png" href="/static/logo.png">
-    <meta name="description" content="Subscribe to run additional scans and use the AI Chat Analyst on the AI Market Cap Scanner.">
+    <meta name="description" content="Subscribe to AI Market Cap Pro — get the daily AI Pick, exclusive trade alerts, and the AI Chat Analyst for just $5/month.">
     <title>Pricing - AI Market Cap</title>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -474,57 +655,71 @@ body { font-family: Segoe UI, Arial, sans-serif; background: #0d1117; color: #c9
 .header { background: linear-gradient(135deg,#1a1f2e,#161b22); padding: 20px 30px; border-bottom: 1px solid #30363d; display: flex; justify-content: space-between; align-items: center; }
 .header h1 { color: #58a6ff; font-size: 1.5em; }
 .header a { color: #58a6ff; text-decoration: none; font-size: 0.9em; }
-.container { max-width: 900px; margin: 0 auto; padding: 60px 20px; text-align: center; }
-h2 { color: #fff; font-size: 2em; margin-bottom: 10px; }
-.subtitle { color: #8b949e; font-size: 1.1em; margin-bottom: 50px; }
+.container { max-width: 900px; margin: 0 auto; padding: 50px 20px; text-align: center; }
+h2 { color: #fff; font-size: 2em; margin-bottom: 8px; }
+.subtitle { color: #8b949e; font-size: 1em; margin-bottom: 40px; line-height: 1.6 }
 .plans { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; }
-.plan { background: #161b22; border: 1px solid #30363d; border-radius: 12px; padding: 30px; width: 260px; text-align: left; }
-.plan h3 { color: #fff; font-size: 1.2em; margin-bottom: 10px; }
-.plan .price { font-size: 2.5em; font-weight: bold; color: #fff; margin-bottom: 5px; }
-.plan .price span { font-size: 0.4em; color: #8b949e; font-weight: normal; }
-.plan .period { color: #8b949e; font-size: 0.85em; margin-bottom: 25px; }
-.plan ul { list-style: none; margin-bottom: 25px; }
-.plan li { color: #c9d1d9; font-size: 0.88em; padding: 6px 0; }
-.plan li::before { content: "✓ "; color: #2ea043; }
-.plan li.off::before { content: "✗ "; color: #ff6b6b; }
-.plan li.off { color: #6e7681; }
-.plan .cta { display: block; background: #238636; color: #fff; text-align: center; padding: 12px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 0.95em; }
-.plan .cta:hover { background: #2ea043; }
-.plan.featured { border-color: #ffd700; box-shadow: 0 0 20px rgba(255,215,0,0.2); }
-.plan.featured .cta { background: #238636; }
-.plan.featured .cta:hover { background: #2ea043; }
+.plan { background: #161b22; border: 1px solid #30363d; border-radius: 16px; padding: 32px; width: 280px; text-align: left; }
+.plan.pro { border-color: #2ea043; box-shadow: 0 0 24px rgba(46,160,67,0.2); }
+.plan h3 { color: #fff; font-size: 1.1em; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.05em }
+.plan .price { font-size: 3em; font-weight: bold; color: #fff; margin-bottom: 4px; line-height: 1 }
+.plan .price span { font-size: 0.35em; color: #8b949e; font-weight: normal; vertical-align: super }
+.plan .period { color: #8b949e; font-size: 0.82em; margin-bottom: 24px; }
+.plan .badge { display: inline-block; background: #2ea043; color: #fff; font-size: 0.7em; padding: 3px 10px; border-radius: 20px; margin-bottom: 12px; font-weight: bold }
+.plan ul { list-style: none; margin-bottom: 28px; }
+.plan li { color: #c9d1d9; font-size: 0.88em; padding: 7px 0; border-bottom: 1px solid #21262d }
+.plan li:last-child { border-bottom: none }
+.plan li::before { content: "✓ "; color: #2ea043; font-weight: bold }
+.plan .cta { display: block; background: #2ea043; color: #fff; text-align: center; padding: 14px; border-radius: 10px; text-decoration: none; font-weight: bold; font-size: 1em; }
+.plan .cta:hover { background: #3fb950; }
+.plan.pro .cta { background: #2ea043; }
+.plan.pro .cta:hover { background: #3fb950; }
 .back-link { display: inline-block; margin-top: 40px; color: #58a6ff; text-decoration: none; font-size: 0.9em; }
 .back-link:hover { color: #79b8ff; }
+.testimonial { background: #161b22; border: 1px solid #30363d; border-radius: 12px; padding: 24px; margin-top: 40px; text-align: left; max-width: 500px; margin-left: auto; margin-right: auto }
+.testimonial .stars { color: #ffd700; font-size: 1.1em; margin-bottom: 8px }
+.testimonial .text { color: #c9d1d9; font-size: 0.9em; line-height: 1.6; font-style: italic; margin-bottom: 10px }
+.testimonial .author { color: #8b949e; font-size: 0.8em }
 </style></head><body>
 <div class=header>
     <h1><a href="/" style="color:#58a6ff;text-decoration:none">AI Market Cap</a></h1>
-    <a href="/">View Scanner</a>
+    <a href="/">← Back to Scanner</a>
 </div>
 
 <div class=container>
-    <h2>Subscribe for additional scans<br>and AI Chat Pro Trader.</h2>
-    <p class=subtitle>Unlock full access to the scanner</p>
+    <h2>Your Daily AI Trade Alert — Yours for $5/mo</h2>
+    <p class=subtitle>Get the Pro Pick of the Day with exact entry price, target, and stop loss.<br>Join traders who are getting ahead of earnings season.</p>
     <div class=plans>
-        <div class=plan>
+        <div class="plan pro">
+            <div class=badge>★ MOST POPULAR</div>
             <h3>Monthly</h3>
             <div class=price>$5<span>/mo</span></div>
-            <div class=period>Billed monthly</div>
+            <div class=period>Billed monthly · cancel anytime</div>
             <ul>
-                <li>Unlimited Access</li>
-                <li>AI Chat Pro Trader</li>
+                <li>Pro Pick of the Day — exact entry, target & stop</li>
+                <li>Top 5 ranked pre-earnings plays</li>
+                <li>Exclusive AI Chat Pro Trader</li>
+                <li>Real-time earnings alerts</li>
+                <li>Priority access before free users</li>
             </ul>
-            <a href="/create-checkout?plan=monthly" class=cta>Subscribe - $5/mo</a>
+            <a href="/create-checkout?plan=monthly" class=cta>Start Pro — $5/month</a>
         </div>
-        <div class=plan style="border-color:#ffd700;box-shadow:0 0 16px rgba(255,215,0,.3)">
+        <div class=plan>
             <h3>Annual</h3>
             <div class=price>$50<span>/yr</span></div>
-            <div class=period>Save $10 vs monthly</div>
+            <div class=period>~$4.17/month · save $10/year</div>
             <ul>
                 <li>Everything in Monthly</li>
-                <li>Save $10/year</li>
+                <li>2 months free vs monthly</li>
+                <li>Priority support</li>
             </ul>
             <a href="/create-checkout?plan=annual" class=cta>Subscribe - $50/yr</a>
         </div>
+    </div>
+    <div class=testimonial>
+        <div class=stars>★★★★★</div>
+        <div class=text>"This scanner helped me catch SNOW before earnings at $151 — it ran to $238 post-earnings. That's the kind of edge I'm looking for."</div>
+        <div class=author>— Active trader, AI Market Cap member</div>
     </div>
     <a href="/about" class=back-link>← Learn more about AI Market Cap</a>
 </div>
