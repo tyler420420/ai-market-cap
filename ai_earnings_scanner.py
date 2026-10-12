@@ -706,7 +706,7 @@ def generate_html_report(stocks: list, output_path: str):
         html += '<span style="font-size:0.88em;color:#c9d1d9">Score <strong style="color:' + pick_color + '">' + str(round(pick.composite_score)) + '</strong></span>'
         html += '<span style="font-size:0.88em;color:#c9d1d9">Entry <strong style="color:#00ff88">$' + str(int(entry_price)) + '</strong></span>'
         html += '<span style="font-size:0.88em;color:#00ff88;font-weight:bold">' + pick_earn_label + 'd to earnings</span>'
-        html += '<a href="/pricing" style="margin-left:auto;background:#ffd700;color:#000;padding:8px 18px;border-radius:6px;font-weight:bold;text-decoration:none;font-size:0.88em;white-space:nowrap">Unlock Targets &#8594;</a>'
+        html += f'<a href="/pricing" style="margin-left:auto;background:#ffd700;color:#000;padding:8px 18px;border-radius:6px;font-weight:bold;text-decoration:none;font-size:0.88em;white-space:nowrap">Unlock PRO Targets &#8594;</a>'
         html += '</div>'
 
         # Gated section: targets + stop (shown to all, blurred for non-subscribers)
@@ -736,10 +736,15 @@ def generate_html_report(stocks: list, output_path: str):
             html += '<div style="font-size:1em;color:#ff6b6b;font-weight:bold">$' + str(int(stop_loss)) + '</div>'
             html += '<div style="font-size:0.68em;color:#ff6b6b">-10%</div>'
             html += '</div>'
-        # Subscribe blur overlay
-        html += '<div id="pro-gate" style="position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.65);backdrop-filter:blur(4px);border-radius:8px;display:flex;align-items:center;justify-content:center;gap:12px;z-index:10">'
-        html += '<span style="color:#ffd700;font-weight:bold;font-size:0.9em">Subscribe to unlock targets</span>'
-        html += '<a href="/pricing" style="background:#ffd700;color:#000;padding:8px 16px;border-radius:6px;font-weight:bold;text-decoration:none;font-size:0.85em">$5/month &#8594;</a>'
+        # Subscribe blur overlay — MUCH stronger conversion messaging
+        upside_amt = int(target_price) - int(entry_price) if target_price and entry_price else 0
+        upside_str = f"+{upside_amt}/share" if upside_amt > 0 else ""
+        gate_upside_display = upside_str if upside_str else f"+{target_upside}%"
+        html += '<div id="pro-gate" style="position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.72);backdrop-filter:blur(4px);border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;z-index:10;padding:16px;text-align:center">'
+        html += f'<div style="color:#ffd700;font-weight:bold;font-size:1.0em">&#9889; PRO Target: <span style="color:#00ff88">{gate_upside_display}</span> per share</div>'
+        html += f'<div style="color:#ff6b6b;font-size:0.82em">&#9888; Stop Loss: ${int(stop_loss)} (-10%) — pre-earnings risk management</div>'
+        html += f'<div style="color:#c9d1d9;font-size:0.78em">Earnings in {pick_earn_label} days — optimal entry window closing</div>'
+        html += '<a href="/pricing" style="background:#ffd700;color:#000;padding:10px 20px;border-radius:6px;font-weight:bold;text-decoration:none;font-size:0.9em;margin-top:4px;box-shadow:0 0 12px rgba(255,215,0,0.5)">Unlock PRO Targets &#8594;</a>'
         html += '</div>'
         html += '</div>'  # end pro-targets
 
@@ -755,7 +760,7 @@ def generate_html_report(stocks: list, output_path: str):
         html += '<span style="font-size:0.88em;color:#c9d1d9">Score <strong style="color:' + pick2_color + '">' + str(round(pick2.composite_score)) + '</strong></span>'
         html += '<span style="font-size:0.88em;color:#c9d1d9">Entry <strong style="color:#00ff88">$' + str(int(p2_entry)) + '</strong></span>'
         html += '<span style="font-size:0.88em;color:#00ff88;font-weight:bold">' + p2_earn_label + 'd to earnings</span>'
-        html += '<a href="/pricing" style="margin-left:auto;background:#ffd700;color:#000;padding:8px 18px;border-radius:6px;font-weight:bold;text-decoration:none;font-size:0.88em;white-space:nowrap">Unlock Targets &#8594;</a>'
+        html += '<a href="/pricing" style="margin-left:auto;background:#ffd700;color:#000;padding:8px 18px;border-radius:6px;font-weight:bold;text-decoration:none;font-size:0.88em;white-space:nowrap">Unlock PRO Targets &#8594;</a>'
         html += '</div>'
         # Gated section: targets + stop (shown to all, blurred for non-subscribers)
         html += '<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;position:relative;overflow:hidden;border-radius:8px;padding:10px;background:rgba(0,0,0,0.3)">'
@@ -784,10 +789,14 @@ def generate_html_report(stocks: list, output_path: str):
             html += '<div style="font-size:1em;color:#ff6b6b;font-weight:bold">$' + str(int(p2_stop)) + '</div>'
             html += '<div style="font-size:0.68em;color:#ff6b6b">-10%</div>'
             html += '</div>'
-        # Subscribe blur overlay for Runner Up
-        html += '<div class="ru-pro-gate" style="position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.65);backdrop-filter:blur(4px);border-radius:8px;display:flex;align-items:center;justify-content:center;gap:12px;z-index:10">'
-        html += '<span style="color:#ffd700;font-weight:bold;font-size:0.9em">Subscribe to unlock targets</span>'
-        html += '<a href="/pricing" style="background:#ffd700;color:#000;padding:8px 16px;border-radius:6px;font-weight:bold;text-decoration:none;font-size:0.85em">$5/month &#8594;</a>'
+        # Subscribe blur overlay for Runner Up — strong conversion messaging
+        p2_upside_amt = int(p2_target) - int(p2_entry) if p2_target and p2_entry else 0
+        p2_gate_upside = f"+{p2_upside_amt}/share" if p2_upside_amt > 0 else p2_upside_str
+        html += '<div class="ru-pro-gate" style="position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.72);backdrop-filter:blur(4px);border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;z-index:10;padding:16px;text-align:center">'
+        html += f'<div style="color:#ffd700;font-weight:bold;font-size:1.0em">&#9889; PRO Target: <span style="color:#00ff88">{p2_gate_upside}</span> per share</div>'
+        html += f'<div style="color:#ff6b6b;font-size:0.82em">&#9888; Stop Loss: ${int(p2_stop)} (-10%) — pre-earnings risk management</div>'
+        html += f'<div style="color:#c9d1d9;font-size:0.78em">Earnings in {p2_earn_label} days — optimal entry window closing</div>'
+        html += '<a href="/pricing" style="background:#ffd700;color:#000;padding:10px 20px;border-radius:6px;font-weight:bold;text-decoration:none;font-size:0.9em;margin-top:4px;box-shadow:0 0 12px rgba(255,215,0,0.5)">Unlock PRO Targets &#8594;</a>'
         html += '</div>'
         html += '</div>'  # end pro-targets
         html += '</div>'  # end Runner Up banner
