@@ -539,7 +539,7 @@ def generate_html_report(stocks: list, output_path: str):
     html += '<meta name="twitter:description" content="Pre-earnings momentum scanner for AI/tech stocks. Track scores, analyst ratings, PE targets, and implied moves before earnings.">'
     html += '<meta name="twitter:image" content="https://aismarketcap.com/static/logo.png">'
     html += '<style>'
-    html += '*{margin:0;padding:0;box-sizing:border-box}body{font-family:Segoe UI,Arial,sans-serif;background:#0d1117;color:#c9d1d9;padding:0;margin:0;padding-bottom:56px}'
+    html += '*{margin:0;padding:0;box-sizing:border-box}body{font-family:Segoe UI,Arial,sans-serif;background:#0d1117;color:#c9d1d9;padding:0;margin:0}'
     html += '.header{background:linear-gradient(135deg,#1a1f2e,#161b22);padding:25px;border-radius:12px;margin-bottom:20px;border:1px solid #30363d}'
     html += '.hdr-row{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:15px}'
     html += 'h1{color:#fff;font-size:1.8em;margin-bottom:5px}.desc{color:#8b949e;font-size:0.95em}'
@@ -581,77 +581,17 @@ def generate_html_report(stocks: list, output_path: str):
     html += ".msg-user{background:#238636;color:#fff;align-self:flex-end;border-bottom-right-radius:3px}"
     html += ".msg-bot{background:#1f2937;color:#c9d1d9;align-self:flex-start;border-bottom-left-radius:3px}"
     html += ".msg-bot.loading{color:#8b949e;font-style:italic}"
-    html += "@media(max-width:768px){body{padding:0 0 56px!important;background:#0d1117;min-width:0!important}.header{padding:14px 12px}.hdr-row{flex-direction:column;align-items:start;gap:10px}h1{font-size:1.4em}h1 a{font-size:1.4em}.desc{font-size:0.85em}.btn{padding:10px 16px;font-size:0.95em}#refreshBtn,#scanBtn{margin-top:4px}.stats-bar{flex-direction:column;gap:8px}.ticker-strip{font-size:0.8em;padding:8px 0}.pick-banner{flex-direction:column;gap:8px;padding:16px 12px;min-height:unset}.pick-banner span{font-size:0.95em!important}.stat{padding:8px 12px}.note,.disclaimer{padding:10px 12px;font-size:0.78em}#stockTable{overflow-x:auto;display:block;-webkit-overflow-scrolling:touch}#stockTable thead,#stockTable tbody,#stockTable tr,#stockTable th,#stockTable td{display:block}#stockTable thead tr{position:absolute;top:-9999px;left:-9999px}#stockTable tbody tr{border-bottom:1px solid #30363d;padding:10px 12px;display:flex;flex-wrap:wrap}#stockTable td{position:relative;padding:4px 8px!important;border:none!important;width:auto!important;min-width:50%}#stockTable td:first-child{width:100%!important;font-size:1.1em;font-weight:bold}#stockTable td:nth-child(2){width:100%!important;font-size:0.85em;color:#8b949e;margin-bottom:4px}#stockTable td::before{content:attr(data-label);position:absolute;top:4px;left:8px;font-size:0.7em;color:#6e7681;text-transform:uppercase;font-weight:bold}#stockTable td>strong,#stockTable td>a{font-size:1em!important}#stockTable td>br{display:none}.pick-banner strong{font-size:1.1em!important}#chat-panel{right:4px;bottom:60px;width:calc(100vw-8px);max-width:360px}#chat-btn{padding:12px 20px;font-size:1em}}"
+    html += "@media(max-width:768px){body{padding:0!important;background:#0d1117;min-width:0!important}.header{padding:14px 12px}.hdr-row{flex-direction:column;align-items:start;gap:10px}h1{font-size:1.4em}h1 a{font-size:1.4em}.desc{font-size:0.85em}.btn{padding:10px 16px;font-size:0.95em}#refreshBtn,#scanBtn{margin-top:4px}.stats-bar{flex-direction:column;gap:8px}.ticker-strip{font-size:0.8em;padding:8px 0}.pick-banner{flex-direction:column;gap:8px;padding:16px 12px;min-height:unset}.pick-banner span{font-size:0.95em!important}.stat{padding:8px 12px}.note,.disclaimer{padding:10px 12px;font-size:0.78em}#stockTable{overflow-x:auto;display:block;-webkit-overflow-scrolling:touch}#stockTable thead,#stockTable tbody,#stockTable tr,#stockTable th,#stockTable td{display:block}#stockTable thead tr{position:absolute;top:-9999px;left:-9999px}#stockTable tbody tr{border-bottom:1px solid #30363d;padding:10px 12px;display:flex;flex-wrap:wrap}#stockTable td{position:relative;padding:4px 8px!important;border:none!important;width:auto!important;min-width:50%}#stockTable td:first-child{width:100%!important;font-size:1.1em;font-weight:bold}#stockTable td:nth-child(2){width:100%!important;font-size:0.85em;color:#8b949e;margin-bottom:4px}#stockTable td::before{content:attr(data-label);position:absolute;top:4px;left:8px;font-size:0.7em;color:#6e7681;text-transform:uppercase;font-weight:bold}#stockTable td>strong,#stockTable td>a{font-size:1em!important}#stockTable td>br{display:none}.pick-banner strong{font-size:1.1em!important}#chat-panel{right:4px;bottom:60px;width:calc(100vw-8px);max-width:360px}#chat-btn{padding:12px 20px;font-size:1em}}"
     html += '#chat-input-row{display:flex;border-top:1px solid #30363d;padding:10px 12px;gap:8px}'
     html += '#chat-input{flex:1;background:#0d1117;border:1px solid #30363d;border-radius:8px;color:#c9d1d9;padding:8px 12px;font-size:0.88em;resize:none;outline:none;font-family:Segoe UI,Arial,sans-serif}'
     html += '#chat-input:focus{border-color:#58a6ff}'
     html += '#chat-send{background:#238636;border:none;color:#fff;border-radius:8px;padding:8px 16px;font-size:0.88em;cursor:pointer;font-weight:bold}#chat-send:hover{background:#2ea043}#chat-send:disabled{background:#444;cursor:not-allowed}#stockTableBody tr td:last-child{background:transparent;transition:background .15s}#stockTableBody tr td:last-child:hover{background:rgba(88,166,255,.18)}'
-    html += '#sub-popup{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.8);display:none;align-items:center;justify-content:center;z-index:99999}#sub-popup.show{display:flex}#sub-popup-box{background:#161b22;border:2px solid #ffd700;border-radius:16px;padding:28px 28px;max-width:440px;width:92%;text-align:center;box-shadow:0 0 50px rgba(255,215,0,.35);animation:pop-in .4s ease}@keyframes pop-in{from{transform:scale(.7);opacity:0}to{transform:scale(1);opacity:1}}#sub-popup-features{display:flex;flex-direction:column;gap:6px;margin-bottom:18px;text-align:left}#sub-popup-features div{color:#c9d1d9;font-size:.88em;display:flex;align-items:center;gap:8px}#sub-popup-features div span{font-weight:bold}#sub-popup-btn{background:#ffd700;border:none;color:#000;padding:14px 28px;border-radius:8px;font-size:1em;font-weight:bold;cursor:pointer;text-decoration:none;display:inline-block}#sub-popup-btn:hover{background:#e6c200}'
+    html += '#sub-popup{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.75);display:none;align-items:center;justify-content:center;z-index:99999}#sub-popup.show{display:flex}#sub-popup-box{background:#161b22;border:2px solid #ffd700;border-radius:14px;padding:36px 32px;max-width:420px;width:90%;text-align:center;box-shadow:0 0 40px rgba(255,215,0,.3);animation:pop-in .4s ease}@keyframes pop-in{from{transform:scale(.7);opacity:0}to{transform:scale(1);opacity:1}}#sub-popup-box h2{color:#ffd700;font-size:1.4em;margin:0 0 8px}#sub-popup-box p{color:#c9d1d9;font-size:.95em;margin:0 0 20px;line-height:1.5}#sub-popup-features{display:flex;flex-direction:column;gap:8px;margin-bottom:22px;text-align:left}#sub-popup-features div{color:#fff;font-size:.88em;display:flex;align-items:center;gap:8px}#sub-popup-features div span{color:#00ff88;font-weight:bold}#sub-popup-btn{background:#ffd700;border:2px solid #000;color:#000;padding:12px 28px;border-radius:8px;font-size:1em;font-weight:bold;cursor:pointer;text-decoration:none;display:inline-block;margin-right:10px}#sub-popup-btn:hover{background:#e6c200}#sub-popup-close{background:#30363d;border:1px solid #30363d;color:#8b949e;padding:10px 20px;border-radius:8px;font-size:.88em;cursor:pointer}#sub-popup-close:hover{color:#fff}'
     html += '@media(max-width:600px){body{padding:0;font-size:13px}#stockTable{font-size:12px;width:100%!important;max-width:100%!important;margin:0!important;display:block;overflow-x:visible!important;-webkit-overflow-scrolling:touch}#stockTable thead,#stockTable tbody,#stockTable tr,#stockTable td,#stockTable th{display:block}#stockTable thead{position:absolute;top:-9999px;left:-9999px}#stockTable tr{border:1px solid #30363d;border-radius:0;margin:0;padding:8px;background:#161b22;border-top:none}#stockTable td{position:relative;padding:3px 8px;border:none;font-size:12px;line-height:1.4}#stockTable td:before{content:attr(data-label);font-weight:700;color:#58a6ff;margin-right:6px}#stockTable td.earn-cell{font-size:11px}#stockTable td a{font-size:13px!important}.header{width:100%!important;min-width:0!important;max-width:100%!important;margin:0;padding:12px 8px;background:#161b22;border-left:none;border-right:none;border-radius:0;overflow-x:hidden}.hdr-row{flex-direction:column!important;gap:8px;padding:0!important;width:100%!important}.hdr-row>div{width:100%!important;max-width:100%!important;flex:unset!important}.ticker-strip{border-radius:0;margin:0;background:#161b22;border:1px solid #30363d;border-left:none;border-right:none;overflow:hidden}.note,.disclaimer{border:1px solid #30363d;border-radius:0;margin:0;border-left:none;border-right:none;padding:10px 8px!important;background:#161b22}}'
     html += '</style></head><body>'
-    # Build popup — compute from pick data inline
-    if pick:
-        pop_entry = round(pick.current_price, 2) if pick.current_price else 0
-        pop_upside = round(pick.post_earnings_upside_pct, 1) if pick.post_earnings_upside_pct else 0
-        pop_target = round(pop_entry * (1 + pop_upside / 100), 2) if pop_entry and pop_upside else 0
-        pop_earn = 'Today' if pick.days_to_earnings == 0 else str(pick.days_to_earnings)
-        popup_ticker = pick.ticker
-        popup_entry = '$' + str(int(pop_entry))
-        popup_target = '$' + str(int(pop_target))
-        popup_gain = f"+{pop_upside:.0f}%" if pop_upside else "N/A"
-        earn_countdown = pop_earn + 'd'
-    else:
-        popup_ticker = 'GOOG'
-        popup_entry = '$347'
-        popup_target = '$358'
-        popup_gain = '+3%'
-        earn_countdown = '17d'
-    popup_html = (
-        '<div id=sub-popup><div id=sub-popup-box>'
-        '<div style="background:#1a3a1a;border:1px solid #2ea043;border-radius:10px;padding:12px 16px;margin-bottom:16px;text-align:left">'
-        '<div style="color:#2ea043;font-size:0.7em;font-weight:bold;margin-bottom:4px">&#9733; TODAY\'S PICK</div>'
-        '<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">'
-        '<span style="font-size:1.4em;font-weight:bold;color:#fff">' + popup_ticker + '</span>'
-        '<div style="display:flex;gap:8px;flex-wrap:wrap">'
-        '<div style="background:#0d1117;border:1px solid #30363d;border-radius:6px;padding:4px 10px;text-align:center">'
-        '<div style="font-size:0.62em;color:#8b949e">ENTRY</div>'
-        '<div style="font-size:0.95em;color:#00ff88;font-weight:bold">' + popup_entry + '</div></div>'
-        '<div style="font-size:1.4em;color:#ffd700;font-weight:bold;align-self:center">&#8594;</div>'
-        '<div style="background:#0d1117;border:1px solid #2ea043;border-radius:6px;padding:4px 10px;text-align:center">'
-        '<div style="font-size:0.62em;color:#8b949e">TARGET</div>'
-        '<div style="font-size:0.95em;color:#00ff88;font-weight:bold">' + popup_target + '</div>'
-        '<div style="font-size:0.62em;color:#00ff88">' + popup_gain + '</div></div>'
-        '<div style="background:#0d1117;border:1px solid #30363d;border-radius:6px;padding:4px 10px;text-align:center">'
-        '<div style="font-size:0.62em;color:#8b949e">EARNINGS</div>'
-        '<div style="font-size:0.95em;color:#ffcc00;font-weight:bold">' + earn_countdown + '</div></div>'
-        '</div></div>'
-        '<div style="background:#0d1a0d;border:1px solid #2ea043;border-radius:10px;padding:10px 14px;margin-bottom:14px;text-align:left">'
-        '<div style="color:#00ff88;font-size:0.72em;font-weight:bold;margin-bottom:4px">&#9989; LAST WIN: SNOW +57% in 9 days</div>'
-        '<div style="color:#c9d1d9;font-size:0.8em">Bought pre-earnings at $151 &rarr; Sold after beat at $238. Exact same strategy, every day.</div>'
-        '</div>'
-        '<p style="color:#fff;font-size:1.05em;font-weight:bold;margin:0 0 10px">$5/month = less than 1 winning trade</p>'
-        '<div id=sub-popup-features>'
-        '<div><span style="color:#ffd700">&#10003;</span> Entry price + exact target + stop loss</div>'
-        '<div><span style="color:#ffd700">&#10003;</span> Top 5 ranked plays updated daily</div>'
-        '<div><span style="color:#ffd700">&#10003;</span> Earnings countdown + IV analysis</div>'
-        '<div><span style="color:#ffd700">&#10003;</span> AI Chat Analyst</div>'
-        '</div>'
-        '<div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-bottom:8px">'
-        '<a href="/pricing" id=sub-popup-btn style="background:#ffd700;color:#000;padding:14px 28px;border-radius:8px;font-weight:bold;text-decoration:none;font-size:1.1em;box-shadow:0 0 16px rgba(255,215,0,0.5)">Unlock PRO for $5/month &#8594;</a>'
-        '</div>'
-        '<button id=sub-popup-close onclick="document.getElementById(\'sub-popup\').classList.remove(\'show\');sessionStorage.setItem(\'popupDismissed\',1)" style="background:none;border:none;color:#6e7681;font-size:0.82em;cursor:pointer;padding:4px">No thanks, I\'ll keep guessing</button>'
-        '</div></div>'
-    )
-    html += popup_html
-    # Show popup: 12s delay OR exit intent. Don't show if dismissed this session.
-    html += '<script>'
-    html += 'var popupShown=false;'
-    html += 'function showPopup(){if(popupShown||window.__isSubscriber)return;popupShown=true;document.getElementById("sub-popup").classList.add("show");}'
-    html += 'if(!sessionStorage.getItem("popupDismissed")){'
-    html += '  setTimeout(showPopup,12000);'
-    html += '  document.addEventListener("mouseleave",function(e){if(e.clientY<5&&!popupShown&&!sessionStorage.getItem("popupDismissed")){showPopup();}});'
-    html += '}'
-    html += '</script>'
+    html += '<div id=sub-popup><div id=sub-popup-box><h2>Today\'s Pro Pick: ' + (pick.ticker if pick else 'N/A') + '</h2><p>Unlock exact entry, target, and stop loss — every day before earnings.</p><div id=sub-popup-features><div><span>&#10003;</span> Exact entry price + target + stop</div><div><span>&#10003;</span> Top 5 ranked plays</div><div><span>&#10003;</span> Real-time earnings alerts</div><div><span>&#10003;</span> AI Chat Analyst</div></div><a href="/pricing" id=sub-popup-btn>Unlock for $5/month</a><button id=sub-popup-close onclick="document.getElementById(\'sub-popup\').classList.remove(\'show\')">Maybe Later</button></div></div>'
+    # Only show popup if NOT a subscriber
+    html += '<script>setTimeout(function(){if(!window.__isSubscriber){document.getElementById("sub-popup").classList.add("show");}},15000)</script>'
 
     # Ticker strip
     ticker_items = ''
@@ -757,24 +697,20 @@ def generate_html_report(stocks: list, output_path: str):
         upside_3d = round(pick.post_earnings_3d_upside_pct, 1) if pick.post_earnings_3d_upside_pct else 0
         upside_5d = round(pick.post_earnings_5d_upside_pct, 1) if pick.post_earnings_5d_upside_pct else 0
 
-        html += '<div style="background:linear-gradient(135deg,#1a3a1a,#0d2818);border:2px solid #2ea043;border-radius:12px;padding:20px;margin-bottom:15px;position:relative" id="todays-pick-wrap">'
-        # Label row — always visible (outside the blur wrapper)
+        html += '<div style="background:linear-gradient(135deg,#1a3a1a,#0d2818);border:2px solid #2ea043;border-radius:12px;padding:20px;margin-bottom:15px;position:relative">'
+        # Top row: public info + subscribe CTA
         html += '<div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:12px">'
         html += '<span style="font-size:1.2em;color:#2ea043;font-weight:bold">&#9733; Today\'s Pick</span>'
-        html += '</div>'
-        # Data row — position:relative clips the blur overlay to this row only
-        html += '<div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:10px;position:relative;overflow:hidden;border-radius:6px">'
         html += '<span style="font-size:1.1em;font-weight:bold;color:#fff">' + pick.ticker + '</span>'
         html += '<span style="font-size:0.88em;color:#c9d1d9">' + pick.company_name[:14] + '</span>'
         html += '<span style="font-size:0.88em;color:#c9d1d9">Score <strong style="color:' + pick_color + '">' + str(round(pick.composite_score)) + '</strong></span>'
         html += '<span style="font-size:0.88em;color:#c9d1d9">Entry <strong style="color:#00ff88">$' + str(int(entry_price)) + '</strong></span>'
         html += '<span style="font-size:0.88em;color:#00ff88;font-weight:bold">' + pick_earn_label + 'd to earnings</span>'
-        html += '<div id="pro-gate" style="position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.82);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;z-index:10;padding:10px;border-radius:6px">'
-        html += '<a href="/pricing" style="background:#ffd700;color:#000;padding:12px 24px;border-radius:6px;font-weight:bold;text-decoration:none;font-size:1em;box-shadow:0 0 14px rgba(255,215,0,0.6)">Unlock Entry, Targets &amp; Stop &#8594;</a>'
+        html += f'<a href="/pricing" style="margin-left:auto;background:#ffd700;color:#000;padding:8px 18px;border-radius:6px;font-weight:bold;text-decoration:none;font-size:0.88em;white-space:nowrap">Unlock PRO Targets &#8594;</a>'
         html += '</div>'
-        html += '</div>'
-        # PRO targets row — same blur technique
-        html += '<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;border-radius:8px;padding:10px;background:rgba(0,0,0,0.3);position:relative;overflow:hidden">'
+
+        # Gated section: targets + stop (shown to all, blurred for non-subscribers)
+        html += '<div id="pro-targets" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;position:relative;overflow:hidden;border-radius:8px;padding:10px;background:rgba(0,0,0,0.3)">'
         html += '<span style="font-size:0.78em;color:#8b949e;font-weight:bold;margin-right:4px">PRO:</span>'
         if target_upside:
             html += '<div style="background:#0d1117;border:1px solid #30363d;border-radius:6px;padding:6px 12px;text-align:center;min-width:70px">'
@@ -800,31 +736,31 @@ def generate_html_report(stocks: list, output_path: str):
             html += '<div style="font-size:1em;color:#ff6b6b;font-weight:bold">$' + str(int(stop_loss)) + '</div>'
             html += '<div style="font-size:0.68em;color:#ff6b6b">-10%</div>'
             html += '</div>'
-        html += '<div id="pro-gate2" style="position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.75);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;z-index:10;border-radius:8px">'
-        html += '<a href="/pricing" style="background:#ffd700;color:#000;padding:12px 24px;border-radius:6px;font-weight:bold;text-decoration:none;font-size:0.95em;box-shadow:0 0 14px rgba(255,215,0,0.6)">Unlock Targets &amp; Stop &#8594;</a>'
+        # Subscribe blur overlay — MUCH stronger conversion messaging
+        upside_amt = int(target_price) - int(entry_price) if target_price and entry_price else 0
+        upside_str = f"+{upside_amt}/share" if upside_amt > 0 else ""
+        gate_upside_display = upside_str if upside_str else f"+{target_upside}%"
+        html += '<div id="pro-gate" style="position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.72);backdrop-filter:blur(4px);border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:10;padding:16px;text-align:center">'
+        html += '<a href="/pricing" style="background:#ffd700;color:#000;padding:12px 24px;border-radius:6px;font-weight:bold;text-decoration:none;font-size:0.95em;box-shadow:0 0 12px rgba(255,215,0,0.5)">See Pro Pick of the Day &#8594;</a>'
         html += '</div>'
+        html += '</div>'  # end pro-targets
+
         html += '</div>'
-        html += '</div>'  # end banner
 
     if pick and pick2:
-        html += '<div style="background:linear-gradient(135deg,#0d1a2d,#0d1526);border:2px solid #1f6feb;border-radius:12px;padding:20px;margin-bottom:15px;position:relative" id="runner-up-wrap">'
-        # Label row — always visible
+        html += '<div style="background:linear-gradient(135deg,#0d1a2d,#0d1526);border:2px solid #1f6feb;border-radius:12px;padding:20px;margin-bottom:15px;position:relative">'
+        # Top row: public info + subscribe CTA
         html += '<div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:12px">'
         html += '<span style="font-size:1.2em;color:#58a6ff;font-weight:bold">&#9733; Runner Up Pick</span>'
-        html += '</div>'
-        # Data row — overflow:hidden clips the blur overlay to this row
-        html += '<div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:10px;position:relative;overflow:hidden;border-radius:6px">'
         html += '<span style="font-size:1.1em;font-weight:bold;color:#fff">' + pick2.ticker + '</span>'
         html += '<span style="font-size:0.88em;color:#c9d1d9">' + pick2.company_name[:14] + '</span>'
         html += '<span style="font-size:0.88em;color:#c9d1d9">Score <strong style="color:' + pick2_color + '">' + str(round(pick2.composite_score)) + '</strong></span>'
         html += '<span style="font-size:0.88em;color:#c9d1d9">Entry <strong style="color:#00ff88">$' + str(int(p2_entry)) + '</strong></span>'
         html += '<span style="font-size:0.88em;color:#00ff88;font-weight:bold">' + p2_earn_label + 'd to earnings</span>'
-        html += '<div class="ru-pro-gate" style="position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.82);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;z-index:10;padding:10px;border-radius:6px">'
-        html += '<a href="/pricing" style="background:#ffd700;color:#000;padding:12px 24px;border-radius:6px;font-weight:bold;text-decoration:none;font-size:1em;box-shadow:0 0 14px rgba(255,215,0,0.6)">Unlock Entry, Targets &amp; Stop &#8594;</a>'
+        html += '<a href="/pricing" style="margin-left:auto;background:#ffd700;color:#000;padding:8px 18px;border-radius:6px;font-weight:bold;text-decoration:none;font-size:0.88em;white-space:nowrap">Unlock PRO Targets &#8594;</a>'
         html += '</div>'
-        html += '</div>'
-        # PRO targets row
-        html += '<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;border-radius:8px;padding:10px;background:rgba(0,0,0,0.3);position:relative;overflow:hidden">'
+        # Gated section: targets + stop (shown to all, blurred for non-subscribers)
+        html += '<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;position:relative;overflow:hidden;border-radius:8px;padding:10px;background:rgba(0,0,0,0.3)">'
         html += '<span style="font-size:0.78em;color:#8b949e;font-weight:bold;margin-right:4px">PRO:</span>'
         if p2_upside:
             html += '<div style="background:#0d1117;border:1px solid #30363d;border-radius:6px;padding:6px 12px;text-align:center;min-width:70px">'
@@ -850,11 +786,14 @@ def generate_html_report(stocks: list, output_path: str):
             html += '<div style="font-size:1em;color:#ff6b6b;font-weight:bold">$' + str(int(p2_stop)) + '</div>'
             html += '<div style="font-size:0.68em;color:#ff6b6b">-10%</div>'
             html += '</div>'
-        html += '<div class="ru-pro-gate2" style="position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.75);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;z-index:10;border-radius:8px">'
-        html += '<a href="/pricing" style="background:#ffd700;color:#000;padding:12px 24px;border-radius:6px;font-weight:bold;text-decoration:none;font-size:0.95em;box-shadow:0 0 14px rgba(255,215,0,0.6)">Unlock Targets &amp; Stop &#8594;</a>'
+        # Subscribe blur overlay for Runner Up — strong conversion messaging
+        p2_upside_amt = int(p2_target) - int(p2_entry) if p2_target and p2_entry else 0
+        p2_gate_upside = f"+{p2_upside_amt}/share" if p2_upside_amt > 0 else p2_upside_str
+        html += '<div class="ru-pro-gate" style="position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.72);backdrop-filter:blur(4px);border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:10;padding:16px;text-align:center">'
+        html += '<a href="/pricing" style="background:#ffd700;color:#000;padding:12px 24px;border-radius:6px;font-weight:bold;text-decoration:none;font-size:0.95em;box-shadow:0 0 12px rgba(255,215,0,0.5)">See Pro Pick of the Day &#8594;</a>'
         html += '</div>'
-        html += '</div>'
-        html += '</div>'  # end banner
+        html += '</div>'  # end pro-targets
+        html += '</div>'  # end Runner Up banner
 
     headers = [
         ('Ticker<br>Symbol','ticker'), ('Company<br>Name','company_name'), ('Overall<br>Score','score'),
@@ -1032,21 +971,16 @@ def generate_html_report(stocks: list, output_path: str):
     html += '}'
     html += '</script>'
 
-    # ── Floating conversion bar (hidden for subscribers) ─────────────────────────
-    html += '<div id="float-bar" style="display:none;position:fixed;bottom:0;left:0;right:0;background:linear-gradient(135deg,#1a1f2e,#0d1117);border-top:2px solid #ffd700;padding:10px 16px;z-index:9998;box-shadow:0 -4px 20px rgba(255,215,0,0.2);font-size:0.88em;text-align:center">'
-    html += '<span style="color:#c9d1d9">Unlock <strong style="color:#ffd700">exact entry, target &amp; stop</strong> for today\'s pick — <strong style="color:#00ff88">$5/month</strong></span> '
-    html += '<a href="/pricing" style="background:#ffd700;color:#000;padding:8px 20px;border-radius:6px;font-weight:bold;text-decoration:none;font-size:0.95em;margin-left:12px;box-shadow:0 0 10px rgba(255,215,0,0.4)">See PRO Picks &#8594;</a>'
-    html += '</div>'
-    html += '<script>if(!window.__isSubscriber){document.getElementById("float-bar").style.display="block";}</script>'
-
-    # ── Gated display JS ────────────────────────────────────────────────────────
+    # ── Email capture + gated display JS ────────────────────────────────────────
     html += '<script>'
-    html += '// Gate: remove all blur overlays if subscriber'
+    html += '// Gate: remove pro-gate overlay if subscriber'
     html += 'if(window.__isSubscriber){'
-    html += '  var gates=document.querySelectorAll("[id=\\"pro-gate\\"],#pro-gate2,.ru-pro-gate,.ru-pro-gate2");'
-    html += '  gates.forEach(function(g){g.style.display="none";});'
-    html += '  var fb=document.getElementById("float-bar");'
-    html += '  if(fb){fb.style.display="none";}'
+    html += '  var g=document.getElementById("pro-gate");'
+    html += '  if(g){g.style.display="none";}'
+    html += '  var t=document.getElementById("pro-targets");'
+    html += '  if(t){t.style.overflow="visible";}'
+    html += '  var ru=document.querySelector(".ru-pro-gate");'
+    html += '  if(ru){ru.style.display="none";}'
     html += '}'
     html += '</script>'
     html += "</body></html>"
