@@ -295,6 +295,134 @@ def data():
 def favicon():
     return send_from_directory(os.path.dirname(__file__), 'favicon.ico', mimetype='image/x-icon')
 
+# ===== STOCK PAGES — aismarketcap.com/stock/TICKER =====
+STOCK_PAGES_DIR = Path(__file__).parent / "stock_pages"
+
+@app.route("/stock/<ticker>")
+@app.route("/stock/<ticker>/")
+def stock_page(ticker):
+    """Serve a pre-generated SEO stock page for the given ticker."""
+    ticker = ticker.upper()
+    page_file = STOCK_PAGES_DIR / f"{ticker}.html"
+    if not page_file.exists():
+        # Generate on the fly if not pre-built
+        try:
+            import yfinance as yf
+            t = yf.Ticker(ticker)
+            info = t.info or {}
+            price = info.get('currentPrice') or info.get('regularMarketPrice') or 0
+            name = info.get('shortName', '') or info.get('longName', '') or ticker
+            mktcap = info.get('marketCap', 0)
+            rec = info.get('recommendationKey', 'N/A')
+            analyst = info.get('numberOfAnalystOpinions', 0)
+            target = info.get('targetMeanPrice', 0)
+            pe = info.get('trailingPE', 0)
+            eps = info.get('trailingEps', 0)
+            sector = info.get('sector', '')
+            industry = info.get('industry', '')
+            price_str = f"${price:.2f}" if price else "N/A"
+            mktcap_str = f"${mktcap/1e9:.1f}B" if mktcap else "N/A"
+            rec_color = '#2ea043' if rec in ('buy','strong_buy','moderate_buy') else '#ffa657' if rec=='hold' else '#f85149'
+            earnings_date = info.get('earningsDates', 'Upcoming')
+            if isinstance(earnings_date, list) and earnings_date:
+                earnings_date = str(earnings_date[0])
+            rec_display = rec.replace('_',' ').title() if rec else 'N/A'
+            body = f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{name} ({ticker}) Stock Analysis — {earnings_date}</title>
+<meta name="description" content="{name} ({ticker}) pre-earnings analysis. Entry signals, analyst ratings, and implied move ahead of earnings. Updated daily.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://aismarketcap.com/stock/{ticker}">
+<style>
+  *{{margin:0;padding:0;box-sizing:border-box}}
+  body{{font-family:'Segoe UI',Arial,sans-serif;background:#0d1117;color:#c9d1d9;line-height:1.6}}
+  a{{color:#58a6ff;text-decoration:none}}a:hover{{text-decoration:underline}}
+  .topbar{{background:linear-gradient(135deg,#1a1f2e,#161b22);padding:18px 24px;border-bottom:1px solid #30363d;display:flex;align-items:center;gap:16px}}
+  .brand{{color:#7ee787;font-size:1.1em;font-weight:bold}}.brand span{{color:#ffd700}}
+  .topbar a{{color:#8b949e;font-size:0.85em}}
+  .container{{max-width:820px;margin:0 auto;padding:24px 20px}}
+  .breadcrumb{{font-size:0.78em;color:#444;margin-bottom:16px}}
+  .breadcrumb a{{color:#58a6ff}}
+  h1{{color:#fff;font-size:1.7em;margin-bottom:6px}}
+  .sub{{color:#8b949e;font-size:0.88em;margin-bottom:18px}}
+  .metrics{{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-bottom:24px}}
+  .m{{background:#161b22;border:1px solid #21262d;border-radius:10px;padding:14px;text-align:center}}
+  .m .v{{font-size:1.3em;font-weight:bold;color:#7ee787}}
+  .m .l{{font-size:0.68em;color:#555;text-transform:uppercase;margin-top:3px}}
+  .cta{{background:linear-gradient(135deg,#1a2a1a,#0d1a0d);border:2px solid #2ea043;border-radius:12px;padding:22px;text-align:center;margin-bottom:20px}}
+  .cta h2{{color:#7ee787;font-size:1em;margin-bottom:8px}}
+  .cta p{{color:#8b949e;font-size:0.85em;margin-bottom:14px}}
+  .cta-btn{{display:inline-block;background:#ffd700;color:#000;padding:10px 24px;border-radius:8px;font-weight:bold;font-size:0.88em;text-decoration:none}}
+  .cta-btn:hover{{background:#ffe033;text-decoration:none}}
+  .sec{{background:#161b22;border:1px solid #21262d;border-radius:12px;padding:20px;margin-bottom:16px}}
+  .sec h2{{color:#fff;font-size:0.95em;margin-bottom:12px;font-weight:600;border-bottom:1px solid #21262d;padding-bottom:8px}}
+  .sec p{{color:#8b949e;font-size:0.87em;margin-bottom:10px}}
+  .sec ul{{color:#8b949e;font-size:0.87em;padding-left:18px;margin-bottom:10px}}
+  .sec li{{margin-bottom:6px}}
+  .hi{{color:#fff;font-weight:600}}
+  .gr{{color:#7ee787}}
+  .bl{{color:#58a6ff}}
+  .am{{color:#ffa657}}
+  .footer{{text-align:center;color:#333;font-size:0.72em;padding:24px 20px;border-top:1px solid #1e1e2e;margin-top:20px}}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="brand">AI Market Cap <span>Pro</span></div>
+  <div><a href="https://aismarketcap.com">← Back to Scanner</a><a href="https://aismarketcap.com/pricing" style="margin-left:14px">Pricing</a></div>
+</div>
+<div class="container">
+  <div class="breadcrumb"><a href="https://aismarketcap.com">Home</a> &rsaquo; <a href="https://aismarketcap.com/stocks">Stock Analysis</a> &rsaquo; {ticker}</div>
+  <h1>{name} ({ticker}) — Pre-Earnings Stock Analysis</h1>
+  <p class="sub">{sector}{', '+industry if industry and sector else industry or ''}</p>
+  <div class="metrics">
+    <div class="m"><div class="v">{price_str}</div><div class="l">Price</div></div>
+    <div class="m"><div class="v">{mktcap_str}</div><div class="l">Market Cap</div></div>
+    <div class="m"><div class="v">{'N/A' if not pe else f'{pe:.1f}'}</div><div class="l">P/E Ratio</div></div>
+    <div class="m"><div class="v">{'N/A' if not target else f'${target:.0f}'}</div><div class="l">Price Target</div></div>
+    <div class="m"><div class="v">{analyst}</div><div class="l">Analysts</div></div>
+    <div class="m"><div class="v" style="color:{rec_color}">{rec_display}</div><div class="l">Rating</div></div>
+  </div>
+  <div class="cta">
+    <h2>🔥 Get {ticker} Targets Before Earnings — Unlock with Pro</h2>
+    <p>Pre-earnings entry zone, analyst PE target, 3-day and 5-day implied move, and stop loss — all in the AI Market Cap Pro scanner.</p>
+    <a href="https://aismarketcap.com/pricing" class="cta-btn">Unlock Full Analysis →</a>
+  </div>
+  <div class="sec">
+    <h2>Pre-Earnings Strategy for {ticker}</h2>
+    <p>Trading <span class="hi">{name} ({ticker})</span> before earnings requires identifying high-conviction setups where the implied move is priced below what the stock has historically delivered on a beat.</p>
+    <p>Key factors our scanner tracks for {ticker}: analyst conviction (current: <span class="gr">{rec_display}</span>), implied volatility, pre-earnings momentum, and days to the next earnings report.</p>
+    <ul>
+      <li><strong>Buy 5-12 days before earnings</strong> — captures momentum without excessive time decay on options premium.</li>
+      <li><strong>Set 10% stop loss pre-earnings</strong> — earnings volatility can swing 20-30% on a miss.</li>
+      <li><strong>Sell within 5 days of a beat</strong> — momentum fades as short-term traders take profits.</li>
+      <li><strong>Check short interest</strong> — elevated short interest increases squeeze potential on a positive earnings surprise.</li>
+    </ul>
+  </div>
+  <div class="sec">
+    <h2>AI Market Cap Pro — Full Analysis for {ticker}</h2>
+    <p>The <a href="https://aismarketcap.com">AI Market Cap pre-earnings scanner</a> covers {ticker} alongside 20+ other stocks in the current earnings window. Pro subscribers get:</p>
+    <ul>
+      <li>Pre-earnings <span class="bl">entry price recommendation</span></li>
+      <li>Analyst <span class="gr">PE target</span> and upside %</li>
+      <li><span class="am">3-day and 5-day implied move</span> from options straddle pricing</li>
+      <li><span class="hi">Stop loss level</span> based on IV and historical volatility</li>
+      <li>Daily updated scores across all stocks with earnings in the next 30 days</li>
+    </ul>
+    <p style="margin-top:12px"><a href="https://aismarketcap.com/pricing">Subscribe for $5/month →</a></p>
+  </div>
+</div>
+<div class="footer">AI Market Cap &nbsp;|&nbsp; <a href="https://aismarketcap.com">Scanner</a> &nbsp;|&nbsp; <a href="https://aismarketcap.com/privacy">Privacy</a><br>Not financial advice. Do your own research. © {datetime.now().year}</div>
+</body>
+</html>"""
+            return body, 200, {"Content-Type": "text/html; charset=utf-8", "Cache-Control": "public, max-age=3600"}
+        except Exception:
+            return f"<h1>{ticker} — Page not found</h1><p>No data available for this ticker. <a href='https://aismarketcap.com'>Back to scanner</a>.", 404
+    return send_from_directory(str(STOCK_PAGES_DIR), f"{ticker}.html", mimetype='text/html')
+
 # ===== SCAN STATE =====
 class ScanState:
     scan_state = 'idle'
@@ -1531,6 +1659,7 @@ def traffic_action():
         "publish":          (str(TRAFFIC_DIR / "traffic_engine.py"),     ["--publish"]),
         "run_full":         (str(TRAFFIC_DIR / "traffic_engine.py"),     []),    # generate + publish
         "run_outreach":     (str(TRAFFIC_DIR / "traffic_engine.py"),     ["--outreach"]),
+        "build_stocks":     (str(Path(__file__).parent / "generate_stock_pages.py"), []),
         "report_all":       (str(TRAFFIC_DIR / "client_report.py"),     []),
         "run_client":       (str(TRAFFIC_DIR / "traffic_engine.py"),     ["--client", client, "--publish"]) if client else None,
         "report_client":    (str(TRAFFIC_DIR / "client_report.py"),     ["--client", client]) if client else None,
