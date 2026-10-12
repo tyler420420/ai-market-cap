@@ -910,7 +910,7 @@ h2 { color: #fff; font-size: 2em; margin-bottom: 8px; }
                 <li>2 months free vs monthly</li>
                 <li>Priority support</li>
             </ul>
-            <a href="/create-checkout?plan=annual" class=cta>Subscribe - $50/yr</a>
+            <a href="/create-checkout?plan=annual" class=cta>Start Pro — $50/year</a>
         </div>
     </div>
     <div class=testimonial>
