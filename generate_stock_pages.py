@@ -6,7 +6,7 @@ Target: "TICKER stock earnings [month] [year]" long-tail queries.
 Run: python generate_stock_pages.py
 Pages saved to: stock_pages/ directory (git-tracked, Railway serves statically)
 """
-import os, sys, json, re
+import os, sys, json, re, argparse, requests
 from pathlib import Path
 from datetime import datetime, timedelta
 import yfinance as yf
@@ -306,7 +306,36 @@ def build_page(d):
 </body>
 </html>"""
 
+def ping_search_engines(sitemap_url):
+    """Ping Google and Bing to crawl the sitemap after new pages are added."""
+    results = {}
+    # Google — free, no API key needed
+    google_url = f"https://www.google.com/ping?sitemap={sitemap_url}"
+    try:
+        r = requests.get(google_url, timeout=15, headers={"User-Agent": "Mozilla/5.0 (compatible; AIScannerBot/1.0)"})
+        ok = r.status_code == 200
+        results["google"] = ok
+        print(f"  {'✅' if ok else '⚠️'} Google sitemap ping: {r.status_code}")
+    except Exception as e:
+        results["google"] = False
+        print(f"  ⚠️  Google sitemap ping failed: {e}")
+    # Bing — free, no API key needed
+    bing_url = f"https://www.bing.com/ping?sitemap={sitemap_url}"
+    try:
+        r = requests.get(bing_url, timeout=15, headers={"User-Agent": "Mozilla/5.0 (compatible; AIScannerBot/1.0)"})
+        ok = r.status_code in [200, 201, 202]
+        results["bing"] = ok
+        print(f"  {'✅' if ok else '⚠️'} Bing sitemap ping: {r.status_code}")
+    except Exception as e:
+        results["bing"] = False
+        print(f"  ⚠️  Bing sitemap ping failed: {e}")
+    return results
+
 def main():
+    parser = argparse.ArgumentParser(description="AI Earnings Stock Page Generator")
+    parser.add_argument("--ping", action="store_true", help="Ping Google + Bing sitemaps after generation")
+    args = parser.parse_args()
+
     OUTPUT_DIR.mkdir(exist_ok=True)
     tickers = get_tickers()
     print(f"Generating {len(tickers)} stock pages...")
@@ -316,6 +345,7 @@ def main():
     for i, ticker in enumerate(tickers, 1):
         out_file = OUTPUT_DIR / f"{ticker}.html"
         # Skip if already exists and file is recent (within 24h)
+        # ALWAYS generate if the page doesn't exist yet — catches new scanner tickers
         if out_file.exists():
             age_h = (datetime.now() - datetime.fromtimestamp(out_file.stat().st_mtime)).total_seconds() / 3600
             if age_h < 24:
@@ -334,6 +364,10 @@ def main():
             results['ok'] += 1
 
     print(f"\nDone: {results['ok']} pages generated, {results['skip']} skipped (fresh), {results['fail']} errors")
+
+    if args.ping and results['ok'] > 0:
+        print("\nPinging search engines for indexing...")
+        ping_search_engines("https://aismarketcap.com/sitemap.xml")
 
 if __name__ == '__main__':
     main()
