@@ -698,13 +698,13 @@ def generate_html_report(stocks: list, output_path: str):
         upside_5d = round(pick.post_earnings_5d_upside_pct, 1) if pick.post_earnings_5d_upside_pct else 0
 
         html += '<div style="background:linear-gradient(135deg,#1a3a1a,#0d2818);border:2px solid #2ea043;border-radius:12px;padding:20px;margin-bottom:15px;position:relative" id="todays-pick-wrap">'
-        # Label row — always visible
-        html += '<div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:12px">'
+        # Label row — always visible (outside blur)
+        html += '<div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:14px">'
         html += '<span style="font-size:1.2em;color:#2ea043;font-weight:bold">&#9733; Today\'s Pick</span>'
         html += '</div>'
-        # Blurred content section
-        html += '<div style="position:relative;height:0;overflow:visible;margin-bottom:4px">'
-        # Data row (blurred)
+        # Blurred content section — proper relative wrapper
+        html += '<div style="position:relative;isolation:isolate">'
+        # Data row
         html += '<div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:12px">'
         html += '<span style="font-size:1.1em;font-weight:bold;color:#fff">' + pick.ticker + '</span>'
         html += '<span style="font-size:0.88em;color:#c9d1d9">' + pick.company_name[:14] + '</span>'
@@ -712,7 +712,7 @@ def generate_html_report(stocks: list, output_path: str):
         html += '<span style="font-size:0.88em;color:#c9d1d9">Entry <strong style="color:#00ff88">$' + str(int(entry_price)) + '</strong></span>'
         html += '<span style="font-size:0.88em;color:#00ff88;font-weight:bold">' + pick_earn_label + 'd to earnings</span>'
         html += '</div>'
-        # PRO targets row (blurred)
+        # PRO targets row
         html += '<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;border-radius:8px;padding:10px;background:rgba(0,0,0,0.3)">'
         html += '<span style="font-size:0.78em;color:#8b949e;font-weight:bold;margin-right:4px">PRO:</span>'
         if target_upside:
@@ -740,8 +740,8 @@ def generate_html_report(stocks: list, output_path: str):
             html += '<div style="font-size:0.68em;color:#ff6b6b">-10%</div>'
             html += '</div>'
         html += '</div>'
-        # Blur overlay with CTA — sits on top of the content section
-        html += '<div id="pro-gate" style="position:absolute;top:0;left:-20px;right:-20px;bottom:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(8px);border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:10;padding:24px;text-align:center">'
+        # Blur overlay with CTA — covers everything above, label is outside this div
+        html += '<div id="pro-gate" style="position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(10,10,15,0.88);backdrop-filter:blur(10px);border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:10;padding:24px;text-align:center">'
         html += '<a href="/pricing" style="background:#ffd700;color:#000;padding:14px 28px;border-radius:6px;font-weight:bold;text-decoration:none;font-size:1em;box-shadow:0 0 16px rgba(255,215,0,0.6)">Unlock Entry, Targets &amp; Stop &#8594;</a>'
         html += '</div>'
         html += '</div>'  # end blurred section
@@ -749,13 +749,13 @@ def generate_html_report(stocks: list, output_path: str):
 
     if pick and pick2:
         html += '<div style="background:linear-gradient(135deg,#0d1a2d,#0d1526);border:2px solid #1f6feb;border-radius:12px;padding:20px;margin-bottom:15px;position:relative" id="runner-up-wrap">'
-        # Label row — always visible
-        html += '<div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:12px">'
+        # Label row — always visible (outside blur)
+        html += '<div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:14px">'
         html += '<span style="font-size:1.2em;color:#58a6ff;font-weight:bold">&#9733; Runner Up Pick</span>'
         html += '</div>'
-        # Blurred content section
-        html += '<div style="position:relative;height:0;overflow:visible;margin-bottom:4px">'
-        # Data row (blurred)
+        # Blurred content section — proper relative wrapper
+        html += '<div style="position:relative;isolation:isolate">'
+        # Data row
         html += '<div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:12px">'
         html += '<span style="font-size:1.1em;font-weight:bold;color:#fff">' + pick2.ticker + '</span>'
         html += '<span style="font-size:0.88em;color:#c9d1d9">' + pick2.company_name[:14] + '</span>'
@@ -763,7 +763,7 @@ def generate_html_report(stocks: list, output_path: str):
         html += '<span style="font-size:0.88em;color:#c9d1d9">Entry <strong style="color:#00ff88">$' + str(int(p2_entry)) + '</strong></span>'
         html += '<span style="font-size:0.88em;color:#00ff88;font-weight:bold">' + p2_earn_label + 'd to earnings</span>'
         html += '</div>'
-        # PRO targets row (blurred)
+        # PRO targets row
         html += '<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;border-radius:8px;padding:10px;background:rgba(0,0,0,0.3)">'
         html += '<span style="font-size:0.78em;color:#8b949e;font-weight:bold;margin-right:4px">PRO:</span>'
         if p2_upside:
@@ -791,8 +791,8 @@ def generate_html_report(stocks: list, output_path: str):
             html += '<div style="font-size:0.68em;color:#ff6b6b">-10%</div>'
             html += '</div>'
         html += '</div>'
-        # Blur overlay with CTA — sits on top of the content section
-        html += '<div class="ru-pro-gate" style="position:absolute;top:0;left:-20px;right:-20px;bottom:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(8px);border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:10;padding:24px;text-align:center">'
+        # Blur overlay with CTA — covers everything above, label is outside this div
+        html += '<div class="ru-pro-gate" style="position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(10,10,15,0.88);backdrop-filter:blur(10px);border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:10;padding:24px;text-align:center">'
         html += '<a href="/pricing" style="background:#ffd700;color:#000;padding:14px 28px;border-radius:6px;font-weight:bold;text-decoration:none;font-size:1em;box-shadow:0 0 16px rgba(255,215,0,0.6)">Unlock Entry, Targets &amp; Stop &#8594;</a>'
         html += '</div>'
         html += '</div>'  # end blurred section
