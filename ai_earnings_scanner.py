@@ -489,6 +489,17 @@ def generate_html_report(stocks: list, output_path: str):
         pick2_profit = f"+{round(pick2.post_earnings_upside_pct, 1)}%" if pick2.post_earnings_upside_pct > 0 else 'N/A'
         pick2_sell = f"${round(pick2.post_earnings_target, 2)}" if pick2.post_earnings_target > 0 else 'N/A'
         pick2_color = '#58a6ff'
+        # Compute pick2 derived values
+        p2_entry = round(pick2.current_price, 2) if pick2.current_price else 0
+        p2_upside = round(pick2.post_earnings_upside_pct, 1) if pick2.post_earnings_upside_pct else 0
+        p2_target = round(p2_entry * (1 + p2_upside / 100), 2) if p2_entry and p2_upside else 0
+        p2_3d_target = round(pick2.post_earnings_3d_target, 2) if pick2.post_earnings_3d_target else 0
+        p2_3d_upside = round(pick2.post_earnings_3d_upside_pct, 1) if pick2.post_earnings_3d_upside_pct else 0
+        p2_5d_target = round(pick2.post_earnings_5d_target, 2) if pick2.post_earnings_5d_target else 0
+        p2_5d_upside = round(pick2.post_earnings_5d_upside_pct, 1) if pick2.post_earnings_5d_upside_pct else 0
+        p2_stop = round(p2_entry * 0.90, 2) if p2_entry else 0
+        p2_earn_label = 'Today' if pick2.days_to_earnings == 0 else str(pick2.days_to_earnings)
+        p2_upside_str = f"+{p2_upside}%" if p2_upside else "N/A"
 
     # Build rows first
     rows_html = []
@@ -590,8 +601,6 @@ def generate_html_report(stocks: list, output_path: str):
         chg_cls = 'ticker-up' if chg >= 0 else 'ticker-dn'
         chg_str = f'+{chg:.2f}%' if chg >= 0 else f'{chg:.2f}%'
         ticker_items += f'<span class=ticker-item><span style="font-weight:bold;color:#00ff88">{round(s.composite_score)}</span> <span class=ticker-sym>{s.ticker}</span> <span class=ticker-price>${int(s.current_price)}</span> <span class="ticker-chg {chg_cls}">{chg_str}</span></span>'
-    # Add Kraken referral as last strip item
-    ticker_items += '<a href="https://invite.kraken.com/JDNW/dq0q352v" target="_blank" style="display:inline-flex;align-items:center;gap:6px;padding:0 18px;border-right:1px solid #30363d;flex-shrink:0;text-decoration:none"><span style="font-size:1em">&#x1F4B8;</span><span style="font-weight:bold;color:#00ff88;font-size:0.9em">$300 Sign Up Bonus</span><span style="font-weight:bold;color:#9333ea;font-size:0.9em">Trade On Kraken</span></a>'
     html += '<div class=ticker-strip><div class=ticker-strip-inner>' + ticker_items + ticker_items + '</div></div>'
 
     # IPO cards - centered middle column (auto-skips past IPOs based on date)
@@ -744,20 +753,51 @@ def generate_html_report(stocks: list, output_path: str):
         html += '</div>'
         html += '</div>'
 
-        # Kraken trade button
-        html += '<div style="margin-bottom:15px"><a href="https://invite.kraken.com/JDNW/dq0q352v" target="_blank" style="display:inline-block;background:#5741d9;color:#fff;padding:8px 18px;border-radius:6px;font-weight:bold;text-decoration:none;font-size:0.9em" onmouseover="this.style.background=\'#6e55e0\'" onmouseout="this.style.background=\'#5741d9\'">Trade ' + pick.ticker + ' on Kraken &#8594;</a></div>'
-
     if pick and pick2:
-        pick2_earn_label = 'Today' if pick2.days_to_earnings == 0 else str(pick2.days_to_earnings)
-        html += '<div class=pick-banner style="background:#161b22;border:2px solid #1f6feb;border-radius:10px;padding:16px 20px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:15px">'
-        html += '<span style="font-size:1.1em;color:#58a6ff;font-weight:bold">&#9733; Runner Up</span>'
-        html += '<span style="font-size:1em;font-weight:bold;color:#fff">' + pick2.ticker + '</span>'
+        html += '<div style="background:linear-gradient(135deg,#0d1a2d,#0d1526);border:2px solid #1f6feb;border-radius:12px;padding:20px;margin-bottom:15px;position:relative">'
+        # Top row: public info + subscribe CTA
+        html += '<div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:12px">'
+        html += '<span style="font-size:1.2em;color:#58a6ff;font-weight:bold">&#9733; Runner Up Pick</span>'
+        html += '<span style="font-size:1.1em;font-weight:bold;color:#fff">' + pick2.ticker + '</span>'
         html += '<span style="font-size:0.88em;color:#c9d1d9">' + pick2.company_name[:14] + '</span>'
         html += '<span style="font-size:0.88em;color:#c9d1d9">Score <strong style="color:' + pick2_color + '">' + str(round(pick2.composite_score)) + '</strong></span>'
-        html += '<span style="font-size:0.88em;color:#c9d1d9">Entry <strong style="color:#58a6ff">$' + str(int(pick2.current_price)) + '</strong></span>'
-        html += '<span style="font-size:0.88em;color:#58a6ff;font-weight:bold">' + pick2_earn_label + 'd to earnings</span>'
-        html += '<a href="https://invite.kraken.com/JDNW/dq0q352v" target="_blank" style="margin-left:auto;background:#5741d9;color:#fff;padding:6px 14px;border-radius:6px;font-weight:bold;text-decoration:none;font-size:0.85em" onmouseover="this.style.background=\'#6e55e0\'" onmouseout="this.style.background=\'#5741d9\'">Trade ' + pick2.ticker + '</a>'
+        html += '<span style="font-size:0.88em;color:#c9d1d9">Entry <strong style="color:#00ff88">$' + str(int(p2_entry)) + '</strong></span>'
+        html += '<span style="font-size:0.88em;color:#00ff88;font-weight:bold">' + p2_earn_label + 'd to earnings</span>'
+        html += '<a href="/pricing" style="margin-left:auto;background:#ffd700;color:#000;padding:8px 18px;border-radius:6px;font-weight:bold;text-decoration:none;font-size:0.88em;white-space:nowrap">Unlock Targets &#8594;</a>'
         html += '</div>'
+        # Gated section: targets + stop (shown to all, blurred for non-subscribers)
+        html += '<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;position:relative;overflow:hidden;border-radius:8px;padding:10px;background:rgba(0,0,0,0.3)">'
+        html += '<span style="font-size:0.78em;color:#8b949e;font-weight:bold;margin-right:4px">PRO:</span>'
+        if p2_upside:
+            html += '<div style="background:#0d1117;border:1px solid #30363d;border-radius:6px;padding:6px 12px;text-align:center;min-width:70px">'
+            html += '<div style="font-size:0.68em;color:#8b949e;margin-bottom:2px">TARGET</div>'
+            html += '<div style="font-size:1em;color:#00ff88;font-weight:bold">$' + str(int(p2_target)) + '</div>'
+            html += '<div style="font-size:0.68em;color:#00ff88">' + p2_upside_str + '</div>'
+            html += '</div>'
+        if p2_3d_upside:
+            html += '<div style="background:#0d1117;border:1px solid #30363d;border-radius:6px;padding:6px 12px;text-align:center;min-width:70px">'
+            html += '<div style="font-size:0.68em;color:#8b949e;margin-bottom:2px">3D TARGET</div>'
+            html += '<div style="font-size:1em;color:#58a6ff;font-weight:bold">$' + str(int(p2_3d_target)) + '</div>'
+            html += '<div style="font-size:0.68em;color:#58a6ff">+' + str(p2_3d_upside) + '%</div>'
+            html += '</div>'
+        if p2_5d_upside:
+            html += '<div style="background:#0d1117;border:1px solid #30363d;border-radius:6px;padding:6px 12px;text-align:center;min-width:70px">'
+            html += '<div style="font-size:1em;color:#bf8fff;font-weight:bold">$' + str(int(p2_5d_target)) + '</div>'
+            html += '<div style="font-size:0.68em;color:#bf8fff">+' + str(p2_5d_upside) + '%</div>'
+            html += '</div>'
+        if p2_stop:
+            html += '<div style="background:#0d1117;border:1px solid #30363d;border-radius:6px;padding:6px 12px;text-align:center;min-width:70px">'
+            html += '<div style="font-size:0.68em;color:#8b949e;margin-bottom:2px">STOP</div>'
+            html += '<div style="font-size:1em;color:#ff6b6b;font-weight:bold">$' + str(int(p2_stop)) + '</div>'
+            html += '<div style="font-size:0.68em;color:#ff6b6b">-10%</div>'
+            html += '</div>'
+        # Subscribe blur overlay for Runner Up
+        html += '<div class="ru-pro-gate" style="position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.65);backdrop-filter:blur(4px);border-radius:8px;display:flex;align-items:center;justify-content:center;gap:12px;z-index:10">'
+        html += '<span style="color:#ffd700;font-weight:bold;font-size:0.9em">Subscribe to unlock targets</span>'
+        html += '<a href="/pricing" style="background:#ffd700;color:#000;padding:8px 16px;border-radius:6px;font-weight:bold;text-decoration:none;font-size:0.85em">$5/month &#8594;</a>'
+        html += '</div>'
+        html += '</div>'  # end pro-targets
+        html += '</div>'  # end Runner Up banner
 
     headers = [
         ('Ticker<br>Symbol','ticker'), ('Company<br>Name','company_name'), ('Overall<br>Score','score'),
@@ -943,6 +983,8 @@ def generate_html_report(stocks: list, output_path: str):
     html += '  if(g){g.style.display="none";}'
     html += '  var t=document.getElementById("pro-targets");'
     html += '  if(t){t.style.overflow="visible";}'
+    html += '  var ru=document.querySelector(".ru-pro-gate");'
+    html += '  if(ru){ru.style.display="none";}'
     html += '}'
     html += '// Email capture'
     html += 'function captureEmail(){'
