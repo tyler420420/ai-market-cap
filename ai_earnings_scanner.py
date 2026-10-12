@@ -590,7 +590,8 @@ def generate_html_report(stocks: list, output_path: str):
     html += '@media(max-width:600px){body{padding:0;font-size:13px}#stockTable{font-size:12px;width:100%!important;max-width:100%!important;margin:0!important;display:block;overflow-x:visible!important;-webkit-overflow-scrolling:touch}#stockTable thead,#stockTable tbody,#stockTable tr,#stockTable td,#stockTable th{display:block}#stockTable thead{position:absolute;top:-9999px;left:-9999px}#stockTable tr{border:1px solid #30363d;border-radius:0;margin:0;padding:8px;background:#161b22;border-top:none}#stockTable td{position:relative;padding:3px 8px;border:none;font-size:12px;line-height:1.4}#stockTable td:before{content:attr(data-label);font-weight:700;color:#58a6ff;margin-right:6px}#stockTable td.earn-cell{font-size:11px}#stockTable td a{font-size:13px!important}.header{width:100%!important;min-width:0!important;max-width:100%!important;margin:0;padding:12px 8px;background:#161b22;border-left:none;border-right:none;border-radius:0;overflow-x:hidden}.hdr-row{flex-direction:column!important;gap:8px;padding:0!important;width:100%!important}.hdr-row>div{width:100%!important;max-width:100%!important;flex:unset!important}.ticker-strip{border-radius:0;margin:0;background:#161b22;border:1px solid #30363d;border-left:none;border-right:none;overflow:hidden}.note,.disclaimer{border:1px solid #30363d;border-radius:0;margin:0;border-left:none;border-right:none;padding:10px 8px!important;background:#161b22}}'
     html += '</style></head><body>'
     html += '<div id=sub-popup><div id=sub-popup-box><h2>Today\'s Pro Pick: ' + (pick.ticker if pick else 'N/A') + '</h2><p>Unlock exact entry, target, and stop loss — every day before earnings.</p><div id=sub-popup-features><div><span>&#10003;</span> Exact entry price + target + stop</div><div><span>&#10003;</span> Top 5 ranked plays</div><div><span>&#10003;</span> Real-time earnings alerts</div><div><span>&#10003;</span> AI Chat Analyst</div></div><a href="/pricing" id=sub-popup-btn>Unlock for $5/month</a><button id=sub-popup-close onclick="document.getElementById(\'sub-popup\').classList.remove(\'show\')">Maybe Later</button></div></div>'
-    html += '<script>setTimeout(function(){document.getElementById("sub-popup").classList.add("show")},15000)</script>'
+    # Only show popup if NOT a subscriber
+    html += '<script>setTimeout(function(){if(!window.__isSubscriber){document.getElementById("sub-popup").classList.add("show");}},15000)</script>'
 
     # Ticker strip
     ticker_items = ''
@@ -782,6 +783,7 @@ def generate_html_report(stocks: list, output_path: str):
             html += '</div>'
         if p2_5d_upside:
             html += '<div style="background:#0d1117;border:1px solid #30363d;border-radius:6px;padding:6px 12px;text-align:center;min-width:70px">'
+            html += '<div style="font-size:0.68em;color:#8b949e;margin-bottom:2px">5D TARGET</div>'
             html += '<div style="font-size:1em;color:#bf8fff;font-weight:bold">$' + str(int(p2_5d_target)) + '</div>'
             html += '<div style="font-size:0.68em;color:#bf8fff">+' + str(p2_5d_upside) + '%</div>'
             html += '</div>'
