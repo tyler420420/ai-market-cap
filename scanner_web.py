@@ -160,7 +160,6 @@ def pro_dashboard():
                 <div style="color:#8b949e;font-size:0.8em;margin-bottom:8px">WHY THIS PICK</div>
                 <div style="color:#c9d1d9;font-size:0.95em;line-height:1.6">{pick.get('reasoning', 'High conviction pre-earnings momentum play. Strong analyst sentiment, optimal entry window.')}</div>
             </div>
-            <a href="https://invite.kraken.com/JDNW/dq0q352v" target="_blank" style="display:inline-block;background:#5741d9;color:#fff;padding:14px 32px;border-radius:8px;font-weight:bold;text-decoration:none;font-size:1em">Trade {pick.get('ticker','')} on Kraken →</a>
         </div>"""
     else:
         pick_html = f"""
@@ -267,9 +266,14 @@ def index():
 
     # Inject subscriber flag for gated AI Pick display
     subscriber_flag = "true" if is_subscriber() else "false"
+    # Also hide nav Subscribe link if already subscribed
+    if is_subscriber():
+        nav_hide = '<style>.nav-subscribe{display:none!important}</style>'
+    else:
+        nav_hide = ''
     inject_script = f'<script>window.__isSubscriber={subscriber_flag};window.__proPickUrl="/api/pro_pick";</script>'
     # Inject right after <body> tag
-    content = content.replace('<body>', '<body>' + inject_script, 1)
+    content = content.replace('<body>', '<body>' + nav_hide + inject_script, 1)
 
     resp = make_response(content)
     resp.headers['Content-Type'] = 'text/html; charset=utf-8'
@@ -800,7 +804,8 @@ li { color: #c9d1d9; font-size: 0.95em; line-height: 1.7; margin-bottom: 6px; }
 <div class=header>
     <h1><a href="/">AI Market Cap</a></h1>
     <a href="/wins" class=nav-link>Wins</a>
-    <a href="/pricing" class=nav-link>Subscribe</a>
+    <a href="/pro" class="nav-link">Pro Dashboard</a>
+    <a href="/pricing" class="nav-link nav-subscribe">Subscribe</a>
 </div>
 <div class=container>
     <div class=toc>
