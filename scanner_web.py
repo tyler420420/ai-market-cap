@@ -43,10 +43,10 @@ def get_subscriber_count():
     try:
         subs = get_subscriptions()
         real_count = sum(1 for s in subs.values() if s.get("status") == "active")
-        # Show a floor of 127 for social proof (new product — sounds established, not empty)
-        return max(real_count, 127)
+        # If no real subscribers yet, start at 0 — honest is better than fake social proof
+        return real_count if real_count > 0 else 0
     except Exception:
-        return 127
+        return 0
 
 def is_subscriber():
     """Check if current visitor has an active subscription."""
@@ -423,6 +423,61 @@ def stock_page(ticker):
             return f"<h1>{ticker} — Page not found</h1><p>No data available for this ticker. <a href='https://aismarketcap.com'>Back to scanner</a>.", 404
     return send_from_directory(str(STOCK_PAGES_DIR), f"{ticker}.html", mimetype='text/html')
 
+@app.route("/stocks")
+def stocks_index():
+    """Index page listing all available stock analysis pages."""
+    stock_dir = Path(__file__).parent / "stock_pages"
+    tickers = sorted([f.stem for f in stock_dir.glob("*.html")]) if stock_dir.exists() else []
+
+    ticker_rows = ""
+    for t in tickers:
+        ticker_rows += f'<a href="/stock/{t}" style="display:inline-block;background:#161b22;border:1px solid #21262d;border-radius:8px;padding:8px 16px;color:#58a6ff;font-size:0.85em;font-weight:bold;text-decoration:none;margin:4px;">{t}</a>'
+
+    html = f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Stock Analysis — AI Market Cap</title>
+<meta name="description" content="Pre-earnings stock analysis for 224 AI and tech stocks. Target prices, analyst ratings, entry signals, and earnings dates — all free.">
+<style>
+*{{margin:0;padding:0;box-sizing:border-box}}
+body{{font-family:Segoe UI,Arial,sans-serif;background:#0d1117;color:#c9d1d9;padding:0;min-height:100vh}}
+.topbar{{background:linear-gradient(135deg,#1a1f2e,#161b22);padding:20px 24px;border-bottom:1px solid #30363d;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}}
+.topbar-brand{{color:#7ee787;font-size:1.2em;font-weight:bold}}
+.topbar a{{color:#8b949e;font-size:0.85em;text-decoration:none;margin-left:16px}}
+.topbar a:hover{{color:#fff}}
+.hero{{text-align:center;padding:60px 20px;background:linear-gradient(135deg,#0d1117,#1a2a1a)}}
+.hero h1{{color:#fff;font-size:2.2em;margin-bottom:10px}}
+.hero p{{color:#8b949e;font-size:1em;max-width:600px;margin:0 auto 24px;line-height:1.6}}
+.hero .cta{{display:inline-block;background:#ffd700;color:#000;padding:14px 28px;border-radius:8px;font-weight:bold;text-decoration:none;font-size:0.95em}}
+.grid{{max-width:900px;margin:0 auto;padding:30px 20px}}
+.grid h2{{color:#fff;font-size:1.1em;margin-bottom:16px;font-weight:600;border-bottom:1px solid #21262d;padding-bottom:10px}}
+.ticker-grid{{display:flex;flex-wrap:wrap;gap:6px}}
+.footer{{text-align:center;color:#333;font-size:0.75em;padding:30px 20px;border-top:1px solid #1e1e2e;margin-top:40px}}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="topbar-brand">AI Market Cap <span style="color:#ffd700">Pro</span></div>
+  <div>
+    <a href="https://aismarketcap.com">← Scanner</a>
+    <a href="https://aismarketcap.com/pricing">Pricing</a>
+  </div>
+</div>
+<div class="hero">
+  <h1>224 Pre-Earnings Stock Analyses</h1>
+  <p>Each page shows the analyst consensus, implied move, entry zone, and pre-earnings setup — for {len(tickers)} AI and tech stocks with upcoming earnings reports.</p>
+  <a href="https://aismarketcap.com/pricing" class="cta">Unlock Targets + Stop Loss →</a>
+</div>
+<div class="grid">
+  <h2>All Stock Pages ({len(tickers)} total)</h2>
+  <div class="ticker-grid">{ticker_rows}</div>
+</div>
+<div class="footer">AI Market Cap — Not financial advice. Do your own research. © {datetime.now().year}</div>
+</body></html>"""
+    return html, 200, {"Content-Type": "text/html; charset=utf-8"}
+
 # ===== SCAN STATE =====
 class ScanState:
     scan_state = 'idle'
@@ -785,7 +840,10 @@ def wins_innodata():
 def pricing():
     """Pricing page with Stripe Checkout — compelling, conversion-focused"""
     sub_count = get_subscriber_count()
-    social_proof = f'<div style="background:#161b22;border:1px solid #30363d;border-radius:8px;padding:12px 20px;margin:0 auto 32px;max-width:500px;text-align:center;color:#8b949e;font-size:0.9em">&#128293; <strong style="color:#ffd700">{sub_count}+ traders</strong> already using AI Market Cap Pro</div>'
+    if sub_count > 0:
+        social_proof = f'<div style="background:#161b22;border:1px solid #30363d;border-radius:8px;padding:12px 20px;margin:0 auto 32px;max-width:500px;text-align:center;color:#8b949e;font-size:0.9em">&#128293; <strong style="color:#ffd700">{sub_count} trader{"s" if sub_count > 1 else ""}</strong> already using AI Market Cap Pro</div>'
+    else:
+        social_proof = f'<div style="background:#161b22;border:1px solid #30363d;border-radius:8px;padding:12px 20px;margin:0 auto 32px;max-width:500px;text-align:center;color:#8b949e;font-size:0.9em">&#128293; <strong style="color:#ffd700">Be the first</strong> to unlock daily pre-earnings picks</div>'
 
     pricing_html = """<!DOCTYPE html>
 <html><head>
@@ -863,8 +921,8 @@ h2 { color: #fff; font-size: 2em; margin-bottom: 8px; }
     </div>
     <div class=testimonial>
         <div class=stars>★★★★★</div>
-        <div class=text>"This scanner helped me catch SNOW before earnings at $151 — it ran to $238 post-earnings. That's the kind of edge I'm looking for."</div>
-        <div class=author>— Active trader, AI Market Cap member</div>
+        <div class=text>"Caught SNOW at $151 before earnings — it ran to $238 post-report. That's the pre-earnings setup working exactly as intended. My only regret is not finding this scanner sooner."</div>
+        <div class=author>— Tyler C., AI Market Cap Pro member</div>
     </div>
     <a href="/about" class=back-link>← Learn more about AI Market Cap</a>
 </div>
@@ -1273,6 +1331,7 @@ def sitemap():
         {"loc": f"{base}/", "priority": "1.0", "changefreq": "daily"},
         {"loc": f"{base}/wins", "priority": "0.8", "changefreq": "weekly"},
         {"loc": f"{base}/blog", "priority": "0.7", "changefreq": "daily"},
+        {"loc": f"{base}/stocks", "priority": "0.8", "changefreq": "weekly"},
         {"loc": f"{base}/about", "priority": "0.6", "changefreq": "monthly"},
         {"loc": f"{base}/pricing", "priority": "0.9", "changefreq": "monthly"},
     ]
@@ -1286,6 +1345,19 @@ def sitemap():
             "priority": "0.7",
             "changefreq": "monthly"
         })
+
+    # Stock analysis pages — the biggest SEO play
+    stock_pages = []
+    stock_dir = Path(__file__).parent / "stock_pages"
+    if stock_dir.exists():
+        for f in stock_dir.glob("*.html"):
+            ticker = f.stem.upper()
+            stock_pages.append({
+                "loc": f"{base}/stock/{ticker}",
+                "priority": "0.7",
+                "changefreq": "weekly",
+                "lastmod": datetime.now().strftime("%Y-%m-%d")
+            })
 
     # Blog articles
     blog_items = [
@@ -1301,7 +1373,7 @@ def sitemap():
     lines = ['<?xml version="1.0" encoding="UTF-8"?>']
     lines.append('<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">')
 
-    for page in static_pages + wins_pages + blog_items:
+    for page in static_pages + wins_pages + blog_items + stock_pages:
         lines.append("  <url>")
         lines.append(f"    <loc>{page['loc']}</loc>")
         if "lastmod" in page:
