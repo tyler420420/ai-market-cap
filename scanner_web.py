@@ -66,29 +66,6 @@ def api_pro_pick():
         return jsonify({"error": "No pick available today"}), 404
     return jsonify(pick)
 
-@app.route("/api/capture-email", methods=["POST"])
-def capture_email():
-    """Capture email for free stock pick + upsell."""
-    data = request.get_json()
-    email = data.get("email", "").strip() if data else ""
-    if not email or "@" not in email:
-        return jsonify({"error": "Invalid email"}), 400
-    emails_file = Path(__file__).parent / "captured_emails.json"
-    emails = []
-    if emails_file.exists():
-        try:
-            emails = json.loads(emails_file.read_text())
-        except:
-            pass
-    # Dedupe
-    if not any(e.get("email") == email for e in emails):
-        emails.append({"email": email, "date": str(date.today()), "source": "scanner_banner"})
-        try:
-            emails_file.write_text(json.dumps(emails, indent=2))
-        except:
-            pass
-    return jsonify({"ok": True})
-
 @app.route("/pro")
 def pro_dashboard():
     """Pro subscriber dashboard — exclusive AI Pick + top 5 ranked plays."""
@@ -1302,6 +1279,17 @@ def traffic_niche_backlinks_state():
             "stats": {"total": 0, "live": 0, "pending": 0, "failed": 0}
         })
     return send_from_directory(str(TRAFFIC_DIR), "niche_backlinks_state.json")
+
+@app.route("/traffic/outreach_state.json")
+def traffic_outreach_state():
+    """Serve outreach state (emails sent/replied/bounced)."""
+    primary = TRAFFIC_DIR / "modules" / "outreach_state.json"
+    fallback = TRAFFIC_DIR / "outreach_state.json"
+    src = primary if primary.exists() else fallback
+    if not src.exists():
+        return jsonify({"sent": [], "replied": [], "bounced": []})
+    with open(src, encoding="utf-8") as f:
+        return jsonify(json.load(f))
 
 @app.route("/traffic/config.json")
 def traffic_config_status():

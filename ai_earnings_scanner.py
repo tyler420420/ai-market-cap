@@ -743,15 +743,6 @@ def generate_html_report(stocks: list, output_path: str):
         html += '</div>'
         html += '</div>'  # end pro-targets
 
-        # Email capture
-        html += '<div style="margin-top:10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">'
-        html += '<span style="font-size:0.82em;color:#8b949e">Get this pick in your inbox free:</span>'
-        html += '<form id="email-capture" onsubmit="return false" style="display:flex;gap:6px;align-items:center">'
-        html += '<input id="ec-email" type="email" placeholder="your@email.com" style="background:#0d1117;border:1px solid #30363d;color:#fff;padding:6px 10px;border-radius:6px;font-size:0.82em;width:180px">'
-        html += '<button onclick="captureEmail()" style="background:#2ea043;border:none;color:#fff;padding:6px 14px;border-radius:6px;font-size:0.82em;font-weight:bold;cursor:pointer">Send Pick</button>'
-        html += '</form>'
-        html += '<span id="ec-msg" style="font-size:0.8em;color:#2ea043;display:none">Sent! Check your inbox.</span>'
-        html += '</div>'
         html += '</div>'
 
     if pick and pick2:
@@ -987,17 +978,6 @@ def generate_html_report(stocks: list, output_path: str):
     html += '  if(t){t.style.overflow="visible";}'
     html += '  var ru=document.querySelector(".ru-pro-gate");'
     html += '  if(ru){ru.style.display="none";}'
-    html += '}'
-    html += '// Email capture'
-    html += 'function captureEmail(){'
-    html += '  var inp=document.getElementById("ec-email");'
-    html += '  var msg=document.getElementById("ec-msg");'
-    html += '  var e=inp.value.trim();'
-    html += '  if(!e||!e.includes("@")){alert("Please enter a valid email.");return;}'
-    html += '  fetch("/api/capture-email",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email:e})}).then(function(r){'
-    html += '    if(r.ok){msg.style.display="inline";msg.textContent="Sent! Check your inbox.";inp.value="";}'
-    html += '    else{alert("Something went wrong. Try again.");}'
-    html += '  }).catch(function(){alert("Error. Try again.");});'
     html += '}'
     html += '</script>'
     html += "</body></html>"
