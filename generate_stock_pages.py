@@ -315,20 +315,20 @@ def ping_search_engines(sitemap_url):
         r = requests.get(google_url, timeout=15, headers={"User-Agent": "Mozilla/5.0 (compatible; AIScannerBot/1.0)"})
         ok = r.status_code == 200
         results["google"] = ok
-        print(f"  {'✅' if ok else '⚠️'} Google sitemap ping: {r.status_code}")
+        print(f"  {'[OK]' if ok else '[FAIL]'} Google sitemap ping: {r.status_code}")
     except Exception as e:
         results["google"] = False
-        print(f"  ⚠️  Google sitemap ping failed: {e}")
+        print(f"  [FAIL] Google sitemap ping failed: {e}")
     # Bing — free, no API key needed
     bing_url = f"https://www.bing.com/ping?sitemap={sitemap_url}"
     try:
         r = requests.get(bing_url, timeout=15, headers={"User-Agent": "Mozilla/5.0 (compatible; AIScannerBot/1.0)"})
         ok = r.status_code in [200, 201, 202]
         results["bing"] = ok
-        print(f"  {'✅' if ok else '⚠️'} Bing sitemap ping: {r.status_code}")
+        print(f"  {'[OK]' if ok else '[FAIL]'} Bing sitemap ping: {r.status_code}")
     except Exception as e:
         results["bing"] = False
-        print(f"  ⚠️  Bing sitemap ping failed: {e}")
+        print(f"  [FAIL] Bing sitemap ping failed: {e}")
     return results
 
 def main():
