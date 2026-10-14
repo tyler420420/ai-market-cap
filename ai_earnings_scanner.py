@@ -604,33 +604,19 @@ def generate_html_report(stocks: list, output_path: str):
         ticker_items += f'<span class=ticker-item><span style="font-weight:bold;color:#00ff88">{round(s.composite_score)}</span> <span class=ticker-sym>{s.ticker}</span> <span class=ticker-price>${int(s.current_price)}</span> <span class="ticker-chg {chg_cls}">{chg_str}</span></span>'
     html += '<div class=ticker-strip><div class=ticker-strip-inner>' + ticker_items + ticker_items + '</div></div>'
 
-    # IPO cards - centered middle column (auto-skips past IPOs based on date)
-    all_ipos = [
-        {'company': 'Applied Aerospace', 'date': datetime(2026, 6, 3), 'deal': '$634M', 'link': 'https://www.prnewswire.com/news-releases/applied-aerospace--defense-inc-announces-launch-of-initial-public-offering-302781752.html'},
-        {'company': 'SpaceX', 'date': datetime(2026, 6, 12), 'deal': '$1.5T', 'link': 'https://www.spacex.com/ipo'},
-        {'company': 'Discord', 'date': datetime(2026, 9, 1), 'deal': '$15B', 'link': 'https://discord.com/ipo'},
-        {'company': 'Databricks', 'date': datetime(2026, 9, 15), 'deal': '$134B', 'link': 'https://www.databricks.com/company/corporate-overview/ipo'},
-        {'company': 'OpenAI', 'date': datetime(2026, 12, 1), 'deal': '$1T', 'link': 'https://openai.com/enterprise'},
-        {'company': 'Anthropic', 'date': datetime(2026, 10, 15), 'deal': '$380B', 'link': 'https://www.anthropic.com'},
-    ]
-    # Filter out past IPOs and sort by date
-    today = datetime.now()
-    upcoming = [ipo for ipo in all_ipos if ipo['date'] >= today]
-    upcoming.sort(key=lambda x: x['date'])
-    ipo_list = upcoming[:3]
-
-    # Get DRAM ETF price
+    # ── REAL IPOs + TRENDING ETF ─────────────────────────────────────────────────
+    # Fresh data every scan via fetch_ipo_etf.py
+    script_dir = Path(__file__).parent
     try:
-        import yfinance as yf
-        dram = yf.Ticker("DRAM")
-        dram_info = dram.fast_info
-        dram_price = dram_info.get('last_price') or dram_info.get('previous_close')
-        if not dram_price:
-            hist = dram.history(period="1d")
-            dram_price = hist['Close'].iloc[-1] if not hist.empty else None
-        dram_price_str = f"${dram_price:.2f}" if dram_price else "$--"
-    except:
-        dram_price_str = "$--"
+        from fetch_ipo_etf import run as fetch_ipo_etf_run
+        ipo_etf_data = fetch_ipo_etf_run()
+    except Exception as e:
+        print(f"[WARN] IPO/ETF fetch failed ({e}), falling back to empty data")
+        ipo_etf_data = {'ipos': [], 'trending_etf': None}
+
+    real_ipos = ipo_etf_data.get('ipos', [])[:3]
+    trending = ipo_etf_data.get('trending_etf') or {}
+
     # Buttons row
     buttons_row = (
         '<div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end;flex-shrink:0">'
@@ -647,32 +633,51 @@ def generate_html_report(stocks: list, output_path: str):
         '</div>'
         '</div>'
     )
-    # Build IPO cards dynamically - filters past IPOs, always shows 5 upcoming
+    # Build IPO cards from real scraped data
     ipo_card_html = '<div style="display:flex;gap:6px;align-items:center;justify-content:center;flex-wrap:wrap;max-width:800px;margin:0 auto">'
     styles = [
         ('#2ea043', 'SOONEST TOP IPO', 'rgba(46,160,67,0.3)'),
         ('#1f6feb', 'NEXT TOP IPO', 'rgba(31,111,235,0.3)'),
         ('#ffd700', 'TOP IPO', 'rgba(255,215,0,0.2)'),
     ]
-    for i, ipo in enumerate(ipo_list):
-        lbl_color, lbl_text, glow = styles[i] if i < len(styles) else styles[-1]
-        date_str = ipo['date'].strftime('%b %d')
-        company = ipo['company']
-        deal = ipo.get('deal', '')
-        link = ipo['link']
+    if real_ipos:
+        for i, ipo in enumerate(real_ipos):
+            lbl_color, lbl_text, glow = styles[i] if i < len(styles) else styles[-1]
+            company = ipo.get('company', '')
+            date_str = ipo.get('date', '')
+            deal = ipo.get('deal', '')
+            link = ipo.get('link', '#')
+            ipo_card_html += (
+                f'<div style="background:#0d1a0d;border:1px solid {lbl_color};border-radius:8px;padding:8px 14px;min-width:140px;box-shadow:0 0 10px {glow}">'
+                f'<div style="color:{lbl_color};font-size:0.65em;font-weight:bold;margin-bottom:2px">&#128293; {lbl_text}</div>'
+                f'<a href="{link}" target="_blank" style="color:#00ff88;font-size:0.95em;font-weight:bold;text-decoration:none">{company}</a>'
+                f'<div style="color:#fff;font-size:0.68em">{date_str} | {deal}</div></div>'
+            )
+    else:
+        # No IPOs available — show a placeholder card
         ipo_card_html += (
-            f'<div style="background:#0d1a0d;border:1px solid {lbl_color};border-radius:8px;padding:8px 14px;min-width:140px;box-shadow:0 0 10px {glow}">'
-            f'<div style="color:{lbl_color};font-size:0.65em;font-weight:bold;margin-bottom:2px">&#128293; {lbl_text}</div>'
-            f'<a href="{link}" target="_blank" style="color:#00ff88;font-size:0.95em;font-weight:bold;text-decoration:none">{company}</a>'
-            f'<div style="color:#fff;font-size:0.68em">{date_str} | {deal}</div></div>'
+            '<div style="background:#0d1a0d;border:1px solid #2ea043;border-radius:8px;padding:8px 14px;min-width:140px">'
+            '<div style="color:#2ea043;font-size:0.65em;font-weight:bold;margin-bottom:2px">&#128293; TOP IPO</div>'
+            '<div style="color:#8b949e;font-size:0.9em">No upcoming IPOs</div>'
+            '<div style="color:#8b949e;font-size:0.68em">Check back soon</div></div>'
         )
-    # Add DRAM card in purple (in same row, with gap)
-    ipo_card_html += (
-        f'<div style="background:#0d1428;border:1px solid #5741d9;border-radius:8px;padding:8px 14px;min-width:140px;box-shadow:0 0 10px rgba(87,65,217,0.3);margin-left:48px">'
-        f'<div style="color:#9333ea;font-size:0.65em;font-weight:bold;margin-bottom:2px">&#128293; TRENDING ETF</div>'
-        f'<a href="https://finance.yahoo.com/quote/DRAM/" target="_blank" style="color:#00ff88;font-size:0.95em;font-weight:bold;text-decoration:none">DRAM</a>'
-        f'<div style="color:#fff;font-size:0.68em">{dram_price_str}</div></div>'
-    )
+
+    # Trending ETF card (dynamically selected by 5-day momentum)
+    if trending:
+        ticker = trending.get('ticker', '')
+        name_short = ticker  # keep it tight in the card
+        price = trending.get('price', 0)
+        change = trending.get('change_5d', 0)
+        price_str = f"${price:.2f}" if price else "$--"
+        change_str = f"{change:+.2f}%" if change else "N/A"
+        yahoo_link = f"https://finance.yahoo.com/quote/{ticker}/"
+        ipo_card_html += (
+            f'<div style="background:#0d1428;border:1px solid #5741d9;border-radius:8px;padding:8px 14px;min-width:140px;box-shadow:0 0 10px rgba(87,65,217,0.3);margin-left:48px">'
+            f'<div style="color:#9333ea;font-size:0.65em;font-weight:bold;margin-bottom:2px">&#128293; TRENDING ETF</div>'
+            f'<a href="{yahoo_link}" target="_blank" style="color:#00ff88;font-size:0.95em;font-weight:bold;text-decoration:none">{name_short}</a>'
+            f'<div style="color:#fff;font-size:0.68em">{price_str}</div>'
+            f'<div style="color:#9333ea;font-size:0.62em">{change_str} 5d</div></div>'
+        )
     ipo_card_html += '</div>'
     html += '<div class=header><div class=hdr-row>'
     html += '<div><a href="https://aismarketcap.com" style="color:#fff;text-decoration:none"><h1>AI Market Cap</h1></a><div style="color:#fff;font-size:0.95em">Pre-Earnings Tech Stock Scanner</div></div>'
