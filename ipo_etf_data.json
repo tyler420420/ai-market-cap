@@ -1,0 +1,29 @@
+{
+  "fetched_at": "2026-10-13T20:20:08.843940",
+  "ipos": [
+    {
+      "company": "Iambic Therapeutics, Inc.",
+      "ticker": "IAM",
+      "date": "Oct 15",
+      "date_full": "2026-10-15",
+      "price_range": "$15.00 - $17.00",
+      "deal": "$150M",
+      "link": "https://stockanalysis.com/stocks/iam/"
+    },
+    {
+      "company": "City Therapeutics, Inc.",
+      "ticker": "CTY",
+      "date": "Oct 16",
+      "date_full": "2026-10-16",
+      "price_range": "$17.00 - $19.00",
+      "deal": "$175M",
+      "link": "https://stockanalysis.com/stocks/cty/"
+    }
+  ],
+  "trending_etf": {
+    "ticker": "WCLD",
+    "name": "Citigroup US Cloud Leaders ETF",
+    "price": 43.07,
+    "change_5d": 2.26
+  }
+}
