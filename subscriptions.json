@@ -1,1 +1,1 @@
-{"test123": {"plan": "monthly", "status": "active", "updated": 1747788000}}
+{"test123": {"plan": "monthly", "status": "active", "updated": 1747788000, "email": "tester@example.com", "sub_id": "sub_test", "period_end": 1798761600}, "cancelled_user": {"plan": "monthly", "status": "cancelled", "updated": 1747788000, "email": "cancelled@example.com"}}

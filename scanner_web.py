@@ -243,9 +243,20 @@ def index():
 
     # Inject subscriber flag for gated AI Pick display
     subscriber_flag = "true" if is_subscriber() else "false"
-    # Also hide nav Subscribe link if already subscribed
     if is_subscriber():
-        nav_hide = '<style>.nav-subscribe{display:none!important}</style>'
+        # Hide Subscribe button, show Pro badge linking to /account
+        nav_hide = (
+            '<style>.nav-subscribe{display:none!important}</style>'
+            '<style>'
+            '.pro-account-badge{position:fixed;top:12px;right:12px;z-index:10000;'
+            'background:linear-gradient(135deg,#2ea043,#3fb950);color:#fff;'
+            'padding:6px 14px;border-radius:20px;font-size:0.82em;font-weight:bold;'
+            'text-decoration:none;box-shadow:0 0 12px rgba(46,160,67,0.4);'
+            'border:1px solid #5dff7f}'
+            '.pro-account-badge:hover{background:linear-gradient(135deg,#3fb950,#5dff7f)}'
+            '</style>'
+            '<a href=/account class=pro-account-badge>★ Pro</a>'
+        )
     else:
         nav_hide = ''
     inject_script = f'<script>window.__isSubscriber={subscriber_flag};window.__proPickUrl="/api/pro_pick";</script>'
@@ -527,10 +538,106 @@ def save_scan_counts(counts):
     counts = {k: v for k, v in counts.items() if k.split(":")[0] == today}
     SCAN_COUNTS_FILE.write_text(json.dumps(counts))
 
-def save_subscription(customer_id, plan, status):
+def save_subscription(customer_id, plan, status, email=None, sub_id=None, period_end=None):
+    """Save/refresh subscription. Keeps email + Stripe sub_id for recovery + portal."""
+    if not customer_id:
+        print("[Subs] WARN: no customer_id, skipping save")
+        return
+    customer_id = str(customer_id)
     subs = get_subscriptions()
-    subs[customer_id] = {'plan': plan, 'status': status, 'updated': int(time.time())}
+    existing = subs.get(customer_id, {})
+    if not isinstance(existing, dict):
+        existing = {}
+    record = {
+        'plan': plan,
+        'status': status,
+        'updated': int(time.time()),
+    }
+    final_email = email if email else existing.get('email')
+    if final_email:
+        record['email'] = final_email
+    final_sub_id = sub_id if sub_id else existing.get('sub_id')
+    if final_sub_id:
+        record['sub_id'] = final_sub_id
+    final_pe = period_end if period_end else existing.get('period_end')
+    if final_pe:
+        record['period_end'] = final_pe
+    subs[customer_id] = record
     SUBS_FILE.write_text(json.dumps(subs))
+    print(f"[Subs] Saved: {customer_id} {plan} {status} {email or ''}")
+
+
+def get_customer_by_email(email):
+    """Look up our subscriptions.json for a customer by email. Returns (customer_id, sub_dict) or (None, None)."""
+    if not email:
+        return None, None
+    email = email.strip().lower()
+    subs = get_subscriptions()
+    for cid, data in subs.items():
+        if (data.get('email') or '').strip().lower() == email:
+            return cid, data
+    return None, None
+
+# Cache Stripe API validations for 5 min to avoid hitting API on every page load
+_STRIPE_VALIDATION_CACHE = {}  # customer_id -> (is_active: bool, expires_at: float)
+
+def is_subscriber():
+    """Check if current visitor has an active subscription.
+
+    Two-tier check:
+    1. Local subscriptions.json (fast, set by /success or webhook)
+    2. Live Stripe API validation (slower, but catches expired/cancelled sub
+       if our local file is stale or webhook missed). Cached 5 min.
+    """
+    customer_id = request.cookies.get("stripe_customer", "")
+    if not customer_id:
+        return False
+    subs = get_subscriptions()
+    local = subs.get(customer_id, {})
+    local_status = local.get('status')
+    if local_status == 'active':
+        return True
+    # Local says inactive/cancelled/missing — but maybe webhook missed it.
+    # Don't bother with Stripe API for non-existent customers.
+    if not local:
+        return False
+    # Verify with Stripe API (cached)
+    return _stripe_validate_active(customer_id)
+
+def _stripe_validate_active(customer_id: str) -> bool:
+    """Verify subscription is still active via Stripe API. Cached 5 min."""
+    import time as _time
+    now = _time.time()
+    cached = _STRIPE_VALIDATION_CACHE.get(customer_id)
+    if cached and cached[1] > now:
+        return cached[0]
+    if not stripe.api_key:
+        # No Stripe key configured — fall back to local
+        return get_subscriptions().get(customer_id, {}).get('status') == 'active'
+    try:
+        subs = stripe.Subscription.list(customer=customer_id, limit=1, status='all')
+        is_active = False
+        for s in subs.data:
+            if s.status in ('active', 'trialing'):
+                is_active = True
+                # Refresh local cache so we don't keep hitting API
+                subs_local = get_subscriptions()
+                if customer_id in subs_local:
+                    plan = subs_local[customer_id].get('plan', 'monthly')
+                    period_end = s.current_period_end if hasattr(s, 'current_period_end') else None
+                    save_subscription(
+                        customer_id, plan, 'active',
+                        email=subs_local[customer_id].get('email'),
+                        sub_id=s.id,
+                        period_end=period_end,
+                    )
+                break
+        _STRIPE_VALIDATION_CACHE[customer_id] = (is_active, now + 300)
+        return is_active
+    except Exception as e:
+        print(f"[Stripe Validate] Error for {customer_id}: {e}")
+        # On API error, trust the local status
+        return get_subscriptions().get(customer_id, {}).get('status') == 'active'
 
 def check_subscription_by_session(session_token):
     """Check if session token has active subscription."""
@@ -1063,36 +1170,314 @@ def create_checkout():
 
 @app.route("/success")
 def success():
-    """Payment success page"""
+    """Payment success page — activates subscription, captures email, sets cookie."""
     session_id = request.args.get('session_id', '')
+    customer_id = ''
+    email = ''
+    plan = 'monthly'
+    sub_id = None
+    period_end = None
     try:
         session = stripe.checkout.Session.retrieve(session_id)
         customer_id = session.customer
         plan = session.metadata.get('plan', 'monthly')
+        # Capture email — from session, fall back to customer lookup
+        email = (getattr(session, 'customer_details', None) or {}).get('email') or \
+                getattr(session, 'customer_email', '') or ''
+        sub_id = getattr(session, 'subscription', None)
+        if sub_id and stripe.api_key:
+            try:
+                sub = stripe.Subscription.retrieve(sub_id)
+                period_end = sub.get('current_period_end')
+            except Exception:
+                pass
+        if not email and customer_id and stripe.api_key:
+            try:
+                cust = stripe.Customer.retrieve(customer_id)
+                email = cust.get('email', '')
+            except Exception:
+                pass
 
-        # Grant access
-        subs = get_subscriptions()
-        subs[customer_id] = {'plan': plan, 'status': 'active', 'updated': int(time.time())}
-        SUBS_FILE.write_text(json.dumps(subs))
+        # Persist subscription locally (webhook will also fire, but /success is the
+        # primary path that grants immediate access)
+        save_subscription(
+            customer_id, plan, 'active',
+            email=email, sub_id=sub_id, period_end=period_end,
+        )
+        # Bust the validation cache for this customer
+        _STRIPE_VALIDATION_CACHE.pop(customer_id, None)
+
+        plan_name = plan.capitalize()
+        # Build a "magic link" so the user can restore access from a new device
+        # by visiting /login?email=their@email
+        email_hint = ''
+        if email:
+            masked = email[:3] + '***' + (email.split('@')[1] if '@' in email else '')
+            email_hint = f'<p class="hint">Subscription tied to <strong>{email}</strong> (masked: {masked}).<br>If you ever get logged out, visit <code>/login?email=YOUR_EMAIL</code> to restore access.</p>'
 
         success_html = f"""<!DOCTYPE html>
 <html><head><meta charset="UTF-8"><title>Welcome - AI Market Cap</title>
 <style>
-body {{ font-family: Segoe UI, sans-serif; background: #0d1117; color: #fff; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; text-align: center; }}
-h1 {{ color: #2ea043; font-size: 2em; }}
-p {{ color: #8b949e; font-size: 1.1em; margin: 20px 0; }}
-a {{ background: #238636; color: #fff; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: bold; }}
+body {{ font-family: Segoe UI, sans-serif; background: #0d1117; color: #fff; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 24px; text-align: center; }}
+.box {{ max-width: 520px; }}
+h1 {{ color: #2ea043; font-size: 2em; margin: 0 0 8px; }}
+p {{ color: #8b949e; font-size: 1.05em; margin: 16px 0; line-height: 1.5; }}
+a.btn {{ background: #2ea043; color: #fff; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 1.1em; display: inline-block; margin-top: 16px; }}
+a.btn:hover {{ background: #3fb950; }}
+a.secondary {{ color: #58a6ff; text-decoration: none; font-size: 0.9em; display: inline-block; margin-top: 12px; }}
+.hint {{ color: #6e7681; font-size: 0.82em; margin-top: 24px; padding-top: 20px; border-top: 1px solid #21262d; }}
+.hint code {{ background: #161b22; padding: 2px 6px; border-radius: 4px; color: #c9d1d9; font-size: 0.9em; }}
+.check {{ font-size: 4em; color: #2ea043; margin-bottom: 12px; }}
 </style></head><body>
-<h1>✓ Payment Successful!</h1>
-<p>Welcome to AI Market Cap! Your {plan_name} subscription is now active.</p>
-<p>Click below to access your scanner.</p>
-<a href="/">Go to Scanner →</a>
+<div class=box>
+  <div class=check>✓</div>
+  <h1>Payment Successful!</h1>
+  <p>Welcome to AI Market Cap! Your <strong>{plan_name}</strong> subscription is active.<br>The Pro Pick, Runner-Up, and AI Chat are now unlocked.</p>
+  <a href="/" class=btn>Go to Scanner →</a>
+  <a href="/account" class=secondary>Manage Subscription</a>
+  {email_hint}
+</div>
 </body></html>"""
         resp = make_response(success_html, 200, {"Content-Type": "text/html; charset=utf-8"})
+        # 30-day cookie. Subscribers stay unlocked as long as the cookie exists + Stripe sub is active.
         resp.set_cookie("stripe_customer", customer_id, max_age=86400*30, httponly=True, samesite='Lax')
         return resp
     except Exception as e:
-        return f"Error: {e}", 500
+        return f"<h1>Payment received but there was a problem activating your account</h1><p>Please email support@aismarketcap.com with your receipt. Error: {e}</p>", 200
+
+
+# ===== ACCOUNT + LOGIN + PORTAL =====
+@app.route("/login")
+def login():
+    """Restore access on a new device via email magic-link.
+
+    GET /login         → form to enter email
+    GET /login?email=X → look up customer by email, set cookie, redirect home
+    """
+    email_param = (request.args.get('email') or '').strip()
+
+    if not email_param:
+        # Show email entry form
+        return make_response("""<!DOCTYPE html>
+<html><head>
+<meta charset="UTF-8">
+<title>Login - AI Market Cap</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: Segoe UI, Arial, sans-serif; background: #0d1117; color: #c9d1d9; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; }
+.box { background: #161b22; border: 1px solid #30363d; border-radius: 12px; padding: 36px 32px; max-width: 440px; width: 100%; }
+h1 { color: #fff; font-size: 1.5em; margin-bottom: 6px; }
+.sub { color: #8b949e; font-size: 0.92em; margin-bottom: 24px; line-height: 1.5; }
+label { color: #8b949e; font-size: 0.85em; display: block; margin-bottom: 6px; }
+input[type=email] { width: 100%; background: #0d1117; border: 1px solid #30363d; border-radius: 8px; color: #c9d1d9; padding: 12px 14px; font-size: 1em; font-family: inherit; outline: none; }
+input[type=email]:focus { border-color: #58a6ff; }
+button { width: 100%; background: #2ea043; color: #fff; border: none; border-radius: 8px; padding: 12px; font-size: 1em; font-weight: bold; cursor: pointer; margin-top: 14px; font-family: inherit; }
+button:hover { background: #3fb950; }
+.err { background: #1f0a0a; border: 1px solid #f85149; color: #ff6b6b; padding: 10px 14px; border-radius: 8px; margin-bottom: 14px; font-size: 0.9em; }
+a { color: #58a6ff; text-decoration: none; }
+a:hover { text-decoration: underline; }
+</style></head><body>
+<div class=box>
+  <h1>Restore Pro Access</h1>
+  <p class=sub>Enter the email you used at checkout. We'll set your access cookie and redirect you to the scanner.</p>
+  <form method=GET action=/login>
+    <label for=email>Email address</label>
+    <input type=email id=email name=email placeholder="you@example.com" required autofocus>
+    <button type=submit>Restore Access →</button>
+  </form>
+  <p class=sub style="margin-top:18px"><a href=/pricing>← Back to pricing</a></p>
+</div>
+</body></html>""", 200, {"Content-Type": "text/html; charset=utf-8"})
+
+    # Email provided — look up customer
+    cid, sub = get_customer_by_email(email_param)
+    if not cid:
+        return make_response(f"""<!DOCTYPE html>
+<html><head>
+<meta charset="UTF-8">
+<title>No Subscription Found - AI Market Cap</title>
+<style>
+body {{ font-family: Segoe UI, sans-serif; background: #0d1117; color: #c9d1d9; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; text-align: center; }}
+.box {{ max-width: 480px; }}
+h1 {{ color: #f85149; font-size: 1.4em; margin-bottom: 10px; }}
+p {{ color: #8b949e; font-size: 0.95em; line-height: 1.6; margin-bottom: 18px; }}
+a {{ background: #2ea043; color: #fff; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: bold; display: inline-block; }}
+</style></head><body>
+<div class=box>
+  <h1>No Active Subscription Found</h1>
+  <p>We couldn't find a Pro subscription tied to <strong>{email_param}</strong>.<br>Double-check the email you used at checkout, or subscribe again to unlock Pro features.</p>
+  <a href=/pricing>View Pricing →</a>
+</div>
+</body></html>""", 404, {"Content-Type": "text/html; charset=utf-8"})
+
+    # Found it. Set cookie + redirect home.
+    resp = make_response(redirect("/", code=302))
+    resp.set_cookie("stripe_customer", cid, max_age=86400*30, httponly=True, samesite='Lax')
+    print(f"[Login] Restored access for {email_param} (customer {cid})")
+    return resp
+
+
+@app.route("/create-portal")
+def create_portal():
+    """Create a Stripe Customer Portal session so the user can manage their subscription."""
+    customer_id = request.cookies.get("stripe_customer", "")
+    if not customer_id or not is_subscriber():
+        return redirect("/pricing")
+    if not stripe.api_key:
+        return "Stripe not configured", 500
+    try:
+        session = stripe.billing_portal.Session.create(
+            customer=customer_id,
+            return_url=request.host_url + "account",
+        )
+        return redirect(session.url, code=302)
+    except Exception as e:
+        return f"Portal error: {e}", 500
+
+
+@app.route("/account")
+def account():
+    """Subscriber account page — shows status, plan, renewal date, manage button."""
+    customer_id = request.cookies.get("stripe_customer", "")
+    sub = get_subscriptions().get(customer_id, {}) if customer_id else {}
+
+    if not customer_id or not is_subscriber():
+        # Not a subscriber — show a friendly "not subscribed" page
+        html = """<!DOCTYPE html>
+<html><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Account - AI Market Cap</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: Segoe UI, Arial, sans-serif; background: #0d1117; color: #c9d1d9; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; }
+.box { background: #161b22; border: 1px solid #30363d; border-radius: 12px; padding: 36px 32px; max-width: 480px; text-align: center; }
+h1 { color: #fff; font-size: 1.4em; margin-bottom: 10px; }
+p { color: #8b949e; font-size: 0.95em; line-height: 1.6; margin-bottom: 18px; }
+.btn { background: #2ea043; color: #fff; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: bold; display: inline-block; }
+.btn:hover { background: #3fb950; }
+.secondary { color: #58a6ff; text-decoration: none; display: block; margin-top: 14px; font-size: 0.9em; }
+</style></head><body>
+<div class=box>
+  <h1>No Active Subscription</h1>
+  <p>You don't have a Pro subscription on this device.<br>Subscribe to unlock the daily Pro Pick, Runner-Up, and AI Chat.</p>
+  <a href=/pricing class=btn>Subscribe for $5/month →</a>
+  <a href=/login class=secondary>Restore access from another device →</a>
+</div>
+</body></html>"""
+        return make_response(html, 200, {"Content-Type": "text/html; charset=utf-8"})
+
+    # Active subscriber — show account details
+    email = sub.get('email', 'Not captured')
+    plan = sub.get('plan', 'monthly').capitalize()
+    status = sub.get('status', 'active')
+    period_end_ts = sub.get('period_end')
+    period_end_str = ''
+    if period_end_ts:
+        try:
+            period_end_str = datetime.fromtimestamp(int(period_end_ts), tz=PT).strftime('%B %d, %Y')
+        except Exception:
+            pass
+
+    # Status badge color
+    status_color = {
+        'active': '#2ea043', 'trialing': '#2ea043',
+        'past_due': '#ffa657', 'unpaid': '#f85149',
+        'cancelled': '#f85149', 'canceled': '#f85149',
+    }.get(status, '#8b949e')
+    status_label = {
+        'active': 'Active', 'trialing': 'Free Trial',
+        'past_due': 'Payment Failed — Update Card',
+        'unpaid': 'Unpaid', 'cancelled': 'Cancelled', 'canceled': 'Cancelled',
+    }.get(status, status.capitalize())
+
+    # Get accurate period end from Stripe API (in case our cached value is stale)
+    if stripe.api_key:
+        try:
+            subs_stripe = stripe.Subscription.list(customer=customer_id, limit=1)
+            if subs_stripe.data:
+                pe = subs_stripe.data[0].get('current_period_end')
+                if pe:
+                    period_end_str = datetime.fromtimestamp(int(pe), tz=PT).strftime('%B %d, %Y')
+                    # Refresh local cache
+                    save_subscription(
+                        customer_id, plan.lower(), status,
+                        email=email, sub_id=sub.get('sub_id'),
+                        period_end=int(pe),
+                    )
+        except Exception:
+            pass
+
+    html = f"""<!DOCTYPE html>
+<html><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Account - AI Market Cap</title>
+<style>
+* {{ margin: 0; padding: 0; box-sizing: border-box; }}
+body {{ font-family: Segoe UI, Arial, sans-serif; background: #0d1117; color: #c9d1d9; min-height: 100vh; }}
+.header {{ background: linear-gradient(135deg,#1a1f2e,#161b22); padding: 18px 30px; border-bottom: 1px solid #30363d; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }}
+.header h1 {{ color: #2ea043; font-size: 1.4em; }}
+.header a {{ color: #58a6ff; text-decoration: none; font-size: 0.9em; }}
+.container {{ max-width: 720px; margin: 0 auto; padding: 40px 24px; }}
+.card {{ background: #161b22; border: 1px solid #30363d; border-radius: 12px; padding: 28px; margin-bottom: 18px; }}
+.card h2 {{ color: #fff; font-size: 1.1em; margin-bottom: 18px; padding-bottom: 10px; border-bottom: 1px solid #21262d; }}
+.row {{ display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #21262d; }}
+.row:last-child {{ border-bottom: none; }}
+.lbl {{ color: #8b949e; font-size: 0.9em; }}
+.val {{ color: #fff; font-size: 0.95em; font-weight: 500; }}
+.badge {{ display: inline-block; background: {status_color}22; color: {status_color}; border: 1px solid {status_color}; padding: 3px 12px; border-radius: 20px; font-size: 0.78em; font-weight: bold; }}
+.btn {{ display: inline-block; background: #2ea043; color: #fff; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: bold; margin-right: 10px; }}
+.btn:hover {{ background: #3fb950; }}
+.btn.secondary {{ background: #21262d; color: #c9d1d9; }}
+.btn.secondary:hover {{ background: #30363d; }}
+.note {{ color: #6e7681; font-size: 0.85em; margin-top: 14px; line-height: 1.5; }}
+</style></head><body>
+<div class=header>
+  <h1>★ Your Pro Account</h1>
+  <div>
+    <a href="/">← Scanner</a>
+    <a href=/logout style="margin-left:16px;color:#ff6b6b">Logout</a>
+  </div>
+</div>
+<div class=container>
+  <div class=card>
+    <h2>Subscription</h2>
+    <div class=row>
+      <span class=lbl>Status</span>
+      <span class=val><span class=badge>{status_label}</span></span>
+    </div>
+    <div class=row>
+      <span class=lbl>Plan</span>
+      <span class=val>{plan}</span>
+    </div>
+    <div class=row>
+      <span class=lbl>Email</span>
+      <span class=val>{email}</span>
+    </div>
+    {f'''<div class=row><span class=lbl>Next renewal</span><span class=val>{period_end_str}</span></div>''' if period_end_str else ''}
+    <div class=row>
+      <span class=lbl>Customer ID</span>
+      <span class=val style="font-family:monospace;font-size:0.82em">{customer_id[:18]}...</span>
+    </div>
+  </div>
+
+  <div class=card>
+    <h2>Manage</h2>
+    <a href=/create-portal class=btn>Manage Billing & Cancel →</a>
+    <a href=/ class="btn secondary">Go to Scanner</a>
+    <p class=note>Update your card, view invoices, or cancel anytime through the Stripe billing portal. Your access stays active until the end of your current billing period.</p>
+  </div>
+
+  <div class=card>
+    <h2>Restore Access on Another Device</h2>
+    <p class=note style="margin-top:0">If you get logged out (cleared cookies, new device, different browser), visit <code style="background:#0d1117;padding:2px 6px;border-radius:4px">/login?email=YOUR_EMAIL</code> to restore your Pro access without re-paying.</p>
+  </div>
+</div>
+</body></html>"""
+    return make_response(html, 200, {"Content-Type": "text/html; charset=utf-8"})
+
 
 @app.route("/api/scans", methods=["GET"])
 def api_scans():
@@ -1103,7 +1488,17 @@ def api_scans():
 
 @app.route("/webhook", methods=["POST"])
 def webhook():
-    """Stripe webhook handler"""
+    """Stripe webhook handler — covers full subscription lifecycle.
+
+    Events handled:
+      - checkout.session.completed          → mark active + capture email
+      - customer.subscription.created       → mark active
+      - customer.subscription.updated       → active/trialing/past_due/unpaid/canceled
+      - customer.subscription.deleted       → mark cancelled
+      - invoice.payment_succeeded           → keep active on renewal
+      - invoice.payment_failed              → mark past_due
+      - checkout.session.async_payment_succeeded → delayed (ACH/wire) checkout
+    """
     payload = request.data
     sig = request.headers.get('Stripe-Signature', '')
 
@@ -1111,25 +1506,137 @@ def webhook():
         try:
             event = stripe.Webhook.construct_event(payload, sig, STRIPE_WEBHOOK_SECRET)
         except Exception as e:
-            return f"Webhook error: {e}", 400
+            return f"Webhook signature error: {e}", 400
     else:
-        event = json.loads(payload)
+        try:
+            event = json.loads(payload)
+        except Exception as e:
+            return f"JSON parse error: {e}", 400
 
-    if event['type'] == 'checkout.session.completed':
-        session = event['data']['object']
-        customer_id = session.get('customer')
-        plan = session.get('metadata', {}).get('plan', 'monthly')
-        save_subscription(customer_id, plan, 'active')
-        print(f"[Webhook] Subscription activated for customer: {customer_id}")
+    etype = event.get('type', '')
+    print(f"[Webhook] Event: {etype}")
 
-    elif event['type'] == 'customer.subscription.deleted':
-        sub = event['data']['object']
-        customer_id = sub.get('customer')
-        subs = get_subscriptions()
-        if customer_id in subs:
-            subs[customer_id]['status'] = 'cancelled'
-            SUBS_FILE.write_text(json.dumps(subs))
-        print(f"[Webhook] Subscription cancelled for customer: {customer_id}")
+    try:
+        if etype == 'checkout.session.completed':
+            obj = event['data']['object']
+            customer_id = obj.get('customer')
+            plan = obj.get('metadata', {}).get('plan', 'monthly')
+            email = (obj.get('customer_details') or {}).get('email') or (obj.get('customer_email') or '')
+            # Also fetch the customer's email from Stripe if missing
+            if not email and customer_id and stripe.api_key:
+                try:
+                    cust = stripe.Customer.retrieve(customer_id)
+                    email = cust.get('email', '')
+                except Exception:
+                    pass
+            sub_id = obj.get('subscription')
+            period_end = None
+            if sub_id and stripe.api_key:
+                try:
+                    sub = stripe.Subscription.retrieve(sub_id)
+                    period_end = sub.get('current_period_end')
+                except Exception:
+                    pass
+            save_subscription(customer_id, plan, 'active',
+                              email=email, sub_id=sub_id, period_end=period_end)
+            _STRIPE_VALIDATION_CACHE.pop(customer_id, None)
+            print(f"[Webhook] checkout.session.completed: {customer_id} {plan} {email}")
+
+        elif etype == 'customer.subscription.created':
+            sub = event['data']['object']
+            customer_id = sub.get('customer')
+            status = sub.get('status', 'active')
+            plan = (sub.get('metadata') or {}).get('plan', 'monthly')
+            period_end = sub.get('current_period_end')
+            email = None
+            if customer_id and stripe.api_key:
+                try:
+                    cust = stripe.Customer.retrieve(customer_id)
+                    email = cust.get('email')
+                except Exception:
+                    pass
+            save_subscription(customer_id, plan, status,
+                              email=email, sub_id=sub.get('id'), period_end=period_end)
+            _STRIPE_VALIDATION_CACHE.pop(customer_id, None)
+            print(f"[Webhook] subscription.created: {customer_id} {status}")
+
+        elif etype == 'customer.subscription.updated':
+            sub = event['data']['object']
+            customer_id = sub.get('customer')
+            stripe_status = sub.get('status')  # active, trialing, past_due, unpaid, canceled, etc.
+            # Only 'active' and 'trialing' should grant Pro access
+            local_status = 'active' if stripe_status in ('active', 'trialing') else stripe_status
+            plan = (sub.get('metadata') or {}).get('plan', 'monthly')
+            period_end = sub.get('current_period_end')
+            sub_id = sub.get('id')
+            # Try to keep email we already have, otherwise fetch
+            existing = get_subscriptions().get(customer_id, {})
+            email = existing.get('email')
+            save_subscription(customer_id, plan, local_status,
+                              email=email, sub_id=sub_id, period_end=period_end)
+            _STRIPE_VALIDATION_CACHE.pop(customer_id, None)
+            print(f"[Webhook] subscription.updated: {customer_id} stripe={stripe_status} -> local={local_status}")
+
+        elif etype == 'customer.subscription.deleted':
+            sub = event['data']['object']
+            customer_id = sub.get('customer')
+            existing = get_subscriptions().get(customer_id, {})
+            plan = existing.get('plan', 'monthly')
+            save_subscription(customer_id, plan, 'cancelled', email=existing.get('email'))
+            _STRIPE_VALIDATION_CACHE.pop(customer_id, None)
+            print(f"[Webhook] subscription.deleted: {customer_id} -> cancelled")
+
+        elif etype == 'invoice.payment_succeeded':
+            inv = event['data']['object']
+            customer_id = inv.get('customer')
+            if customer_id and get_subscriptions().get(customer_id):
+                existing = get_subscriptions()[customer_id]
+                plan = existing.get('plan', 'monthly')
+                period_end = inv.get('period_end') or existing.get('period_end')
+                save_subscription(customer_id, plan, 'active',
+                                  email=existing.get('email'),
+                                  sub_id=existing.get('sub_id'),
+                                  period_end=period_end)
+                _STRIPE_VALIDATION_CACHE.pop(customer_id, None)
+                print(f"[Webhook] invoice.payment_succeeded: {customer_id} renewed (period_end={period_end})")
+
+        elif etype == 'invoice.payment_failed':
+            inv = event['data']['object']
+            customer_id = inv.get('customer')
+            if customer_id and get_subscriptions().get(customer_id):
+                existing = get_subscriptions()[customer_id]
+                plan = existing.get('plan', 'monthly')
+                # Don't fully cancel — Stripe will retry. Mark past_due.
+                save_subscription(customer_id, plan, 'past_due',
+                                  email=existing.get('email'),
+                                  sub_id=existing.get('sub_id'),
+                                  period_end=existing.get('period_end'))
+                _STRIPE_VALIDATION_CACHE.pop(customer_id, None)
+                print(f"[Webhook] invoice.payment_failed: {customer_id} -> past_due")
+
+        elif etype == 'checkout.session.async_payment_succeeded':
+            obj = event['data']['object']
+            customer_id = obj.get('customer')
+            plan = obj.get('metadata', {}).get('plan', 'monthly')
+            email = (obj.get('customer_details') or {}).get('email', '')
+            sub_id = obj.get('subscription')
+            period_end = None
+            if sub_id and stripe.api_key:
+                try:
+                    sub = stripe.Subscription.retrieve(sub_id)
+                    period_end = sub.get('current_period_end')
+                except Exception:
+                    pass
+            save_subscription(customer_id, plan, 'active',
+                              email=email, sub_id=sub_id, period_end=period_end)
+            _STRIPE_VALIDATION_CACHE.pop(customer_id, None)
+            print(f"[Webhook] async_payment_succeeded: {customer_id} {plan}")
+
+    except Exception as e:
+        print(f"[Webhook] Handler error on {etype}: {e}")
+        import traceback
+        traceback.print_exc()
+        # Return 200 anyway so Stripe doesn't retry forever on bad data
 
     return "ok", 200
 
@@ -1704,7 +2211,7 @@ def traffic_action_log():
     log_path = TRAFFIC_DIR / "traffic_action.log"
     if not log_path.exists():
         return jsonify({"log": ""})
-    content = log_path.read_text(encoding="utf-8")
+    content = log_path.read_text(encoding="utf-8", errors="replace")
     # Return last 3000 chars
     return jsonify({"log": content[-3000:]})
 
