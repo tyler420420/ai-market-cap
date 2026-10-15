@@ -606,7 +606,6 @@ def generate_html_report(stocks: list, output_path: str):
 
     # ── REAL IPOs + TRENDING ETF ─────────────────────────────────────────────────
     # Fresh data every scan via fetch_ipo_etf.py
-    script_dir = Path(__file__).parent
     try:
         from fetch_ipo_etf import run as fetch_ipo_etf_run
         ipo_etf_data = fetch_ipo_etf_run()

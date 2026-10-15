@@ -1,52 +1,52 @@
 [
   {
-    "date": "2026-10-11",
-    "ticker": "CEG",
-    "price": 298.07,
-    "score": 78,
+    "date": "2026-10-14",
+    "ticker": "BILI",
+    "price": 14.27,
+    "score": 91,
     "days_left": 29,
-    "company": "Constellation Energy Corporation",
-    "pe_target": 313.65,
-    "5d_target": 375.97
+    "company": "Bilibili Inc.",
+    "pe_target": 14.72,
+    "5d_target": 16.52
   },
   {
-    "date": "2026-10-11",
-    "ticker": "DDOG",
-    "price": 293.26,
-    "score": 97,
-    "days_left": 25,
-    "company": "Datadog, Inc.",
-    "pe_target": 309.01,
-    "5d_target": 372.01
-  },
-  {
-    "date": "2026-10-11",
-    "ticker": "TEAM",
-    "price": 206.79,
-    "score": 87,
-    "days_left": 25,
-    "company": "Atlassian Corporation",
-    "pe_target": 217.36,
-    "5d_target": 259.64
-  },
-  {
-    "date": "2026-10-11",
-    "ticker": "FROG",
-    "price": 102.23,
+    "date": "2026-10-14",
+    "ticker": "JD",
+    "price": 26.68,
     "score": 86,
-    "days_left": 25,
-    "company": "JFrog Ltd.",
-    "pe_target": 108.84,
-    "5d_target": 135.28
+    "days_left": 29,
+    "company": "JD.com, Inc.",
+    "pe_target": 27.2,
+    "5d_target": 29.28
   },
   {
-    "date": "2026-10-11",
-    "ticker": "MCHP",
-    "price": 75.55,
+    "date": "2026-10-14",
+    "ticker": "AMAT",
+    "price": 446.63,
+    "score": 84,
+    "days_left": 29,
+    "company": "Applied Materials, Inc.",
+    "pe_target": 466.93,
+    "5d_target": 548.13
+  },
+  {
+    "date": "2026-10-14",
+    "ticker": "CEG",
+    "price": 279.54,
     "score": 78,
-    "days_left": 25,
-    "company": "Microchip Technology Incorporated",
-    "pe_target": 79.75,
-    "5d_target": 96.55
+    "days_left": 26,
+    "company": "Constellation Energy Corporation",
+    "pe_target": 289.74,
+    "5d_target": 330.54
+  },
+  {
+    "date": "2026-10-14",
+    "ticker": "TEAM",
+    "price": 204.66,
+    "score": 87,
+    "days_left": 22,
+    "company": "Atlassian Corporation",
+    "pe_target": 212.34,
+    "5d_target": 243.06
   }
 ]
