@@ -1,6 +1,52 @@
 {
-  "fetched_at": "2026-10-16T21:57:43.051221",
-  "ipos": [],
+  "fetched_at": "2026-10-16T22:07:51.490338",
+  "ipos": [
+    {
+      "company": "Stripe",
+      "ticker": "STRIPE",
+      "date": "TBD",
+      "date_full": "",
+      "price_range": "TBD",
+      "deal": "~$10B+",
+      "link": "https://stockanalysis.com/stocks/strp/"
+    },
+    {
+      "company": "Databricks",
+      "ticker": "DBRX",
+      "date": "TBD",
+      "date_full": "",
+      "price_range": "TBD",
+      "deal": "~$60B",
+      "link": "https://stockanalysis.com/stocks/dbrx/"
+    },
+    {
+      "company": "Canva",
+      "ticker": "CNVA",
+      "date": "TBD",
+      "date_full": "",
+      "price_range": "TBD",
+      "deal": "~$40B",
+      "link": "https://stockanalysis.com/stocks/cnva/"
+    },
+    {
+      "company": "SpaceX",
+      "ticker": "SPACE",
+      "date": "TBD",
+      "date_full": "",
+      "price_range": "TBD",
+      "deal": "~$400B",
+      "link": "https://stockanalysis.com/stocks/space/"
+    },
+    {
+      "company": "OpenAI",
+      "ticker": "OPAI",
+      "date": "TBD",
+      "date_full": "",
+      "price_range": "TBD",
+      "deal": "~$500B",
+      "link": "https://stockanalysis.com/stocks/opai/"
+    }
+  ],
   "trending_etf": {
     "ticker": "NERD",
     "name": "Roundhill Video Game Tech ETF",

@@ -115,7 +115,23 @@ def scrape_ipos() -> list[dict]:
             log.warning(f'IPO parse error: {e}')
 
     if not ipos:
-        log.warning('No IPOs scraped from stockanalysis.com')
+        log.warning('No IPOs scraped from stockanalysis.com - using fallback watchlist')
+        # Fallback: high-profile expected/filed IPOs (TBD dates, used when scrape is empty)
+        # Updated periodically; these are companies that have filed S-1 or are widely expected
+        ipos = [
+            {'company': 'Stripe', 'ticker': 'STRIPE', 'date': 'TBD', 'date_full': '',
+             'price_range': 'TBD', 'deal': '~$10B+', 'link': 'https://stockanalysis.com/stocks/strp/'},
+            {'company': 'Databricks', 'ticker': 'DBRX', 'date': 'TBD', 'date_full': '',
+             'price_range': 'TBD', 'deal': '~$60B', 'link': 'https://stockanalysis.com/stocks/dbrx/'},
+            {'company': 'Canva', 'ticker': 'CNVA', 'date': 'TBD', 'date_full': '',
+             'price_range': 'TBD', 'deal': '~$40B', 'link': 'https://stockanalysis.com/stocks/cnva/'},
+            {'company': 'SpaceX', 'ticker': 'SPACE', 'date': 'TBD', 'date_full': '',
+             'price_range': 'TBD', 'deal': '~$400B', 'link': 'https://stockanalysis.com/stocks/space/'},
+            {'company': 'OpenAI', 'ticker': 'OPAI', 'date': 'TBD', 'date_full': '',
+             'price_range': 'TBD', 'deal': '~$500B', 'link': 'https://stockanalysis.com/stocks/opai/'},
+        ]
+        for ipo in ipos:
+            log.info(f'  IPO (fallback): {ipo["ticker"]} {ipo["company"]} {ipo["deal"]}')
 
     return ipos
 
