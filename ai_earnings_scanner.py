@@ -525,7 +525,8 @@ def generate_html_report(stocks: list, output_path: str):
 
     # Build full HTML
     SCANNER_TITLE = "AI Market Cap"
-    html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>' + SCANNER_TITLE + '</title>'
+    html = '<!DOCTYPE html><html><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1"><title>' + SCANNER_TITLE + '</title>'
     favicon_path = "file:///C:/Users/Tyler_AI/ai-market-cap/favicon.ico" if LOCAL_MODE else "/favicon.ico"
     html += '<link rel="icon" type="image/x-icon" href="' + favicon_path + '">'
     html += '<meta name="description" content="AI pre-earnings momentum scanner for tech stocks. Track scores, analyst ratings, PE targets, and implied moves before earnings reports.">'
