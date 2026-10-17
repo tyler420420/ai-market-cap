@@ -1,47 +1,10 @@
 {
-  "fetched_at": "2026-10-14T21:40:53.702339",
-  "ipos": [
-    {
-      "company": "Amaero Inc.",
-      "ticker": "AMRO",
-      "date": "Oct 15",
-      "date_full": "2026-10-15",
-      "price_range": "$4.25",
-      "deal": "$20M",
-      "link": "https://stockanalysis.com/stocks/amro/"
-    },
-    {
-      "company": "Iambic Therapeutics, Inc.",
-      "ticker": "IAM",
-      "date": "Oct 15",
-      "date_full": "2026-10-15",
-      "price_range": "$16.00",
-      "deal": "$150M",
-      "link": "https://stockanalysis.com/stocks/iam/"
-    },
-    {
-      "company": "SPACCircle Acquisition Corp.",
-      "ticker": "SCQC",
-      "date": "Oct 15",
-      "date_full": "2026-10-15",
-      "price_range": "$10.00",
-      "deal": "$150M",
-      "link": "https://stockanalysis.com/stocks/scqc/"
-    },
-    {
-      "company": "City Therapeutics, Inc.",
-      "ticker": "CTY",
-      "date": "Oct 16",
-      "date_full": "2026-10-16",
-      "price_range": "$17.00 - $19.00",
-      "deal": "$175M",
-      "link": "https://stockanalysis.com/stocks/cty/"
-    }
-  ],
+  "fetched_at": "2026-10-16T17:26:49.369785",
+  "ipos": [],
   "trending_etf": {
     "ticker": "NERD",
     "name": "Roundhill Video Game Tech ETF",
-    "price": 22.54,
-    "change_5d": 1.06
+    "price": 23.13,
+    "change_5d": 3.61
   }
 }
