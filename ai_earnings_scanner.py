@@ -1,5 +1,7 @@
 """AI Earnings Scanner - Pre-Earnings Momentum Strategy (1-35 day window)"""
 import argparse, csv, os, sys, time
+import urllib.request
+import xml.etree.ElementTree as ET
 from datetime import datetime, timedelta, timezone
 import time as _time
 from dataclasses import dataclass
@@ -112,59 +114,57 @@ def fetch_ai_stocks_from_finviz() -> List[str]:
 
 
 def fetch_top_news(ticker: str, count: int = 1) -> List[dict]:
-    """Get the top N recent news headlines for a ticker, filtered to relevant ones."""
+    """Get the top N recent news headlines for a ticker via Google News RSS.
+
+    yfinance's news API has been broken/unreliable since 2024. We use Google News
+    RSS as a free, no-key, reliable alternative.
+    """
     headlines = []
+    # Try Google News RSS (primary source)
     try:
-        ticker_obj = yf.Ticker(ticker)
-        # Get company name for broader matching
-        info = ticker_obj.info
-        company_names = [ticker.upper()]
-        for name_field in ['shortName', 'longName', 'name']:
-            n = info.get(name_field, '') or ''
-            if n and len(n) > 2:
-                company_names.append(n.upper())
-        news = ticker_obj.news
-        if news:
-            for item in news[:10]:
-                title = item.get('title', '') or (item.get('content') or {}).get('title', '') or ''
-                url = item.get('link', '') or item.get('url', '') or ''
-                if not url:
-                    content = item.get('content') or {}
-                    ct = content.get('clickThroughUrl') or {}
-                    url = (ct.get('url') if isinstance(ct, dict) else '') or ''
-                if not url:
-                    content = item.get('content') or {}
-                    cu = content.get('canonicalUrl') or {}
-                    url = (cu.get('url') if isinstance(cu, dict) else '') or ''
-                if title and len(title) > 20:
-                    title_clean = title.replace('&amp;', '&').replace('&quot;', '"').strip()
-                    # Check if ticker or any company name appears in title
-                    title_upper = title_clean.upper()
-                    matched = ticker.upper() in title_upper
-                    if not matched:
-                        for cn in company_names:
-                            # Match first significant word of company name (skip common words like CORP/LTD/INC)
-                            parts = cn.split()
-                            for part in parts:
-                                if len(part) >= 4 and part not in ('CORP', 'CORPORATION', 'INC', 'LTD', 'LLC', 'PLC', 'THE', 'AND', 'OF'):
-                                    import re
-                                    if re.search(r'\b' + re.escape(part) + r'\b', title_upper):
-                                        matched = True
-                                        break
-                            if matched:
-                                break
-                    if matched:
-                        if len(title_clean) > 45:
-                            cutoff = title_clean[:45]
-                            last_space = cutoff.rfind(' ')
-                            remainder = title_clean[last_space+1:last_space+16]
-                            title_clean = cutoff[:last_space] + ' ' + remainder if last_space > 20 else title_clean[:45]
-                            title_clean += '...'
-                        headlines.append({'title': title_clean, 'url': url})
+        query = ticker.upper().replace(' ', '+')
+        url = f'https://news.google.com/rss/search?q={query}&hl=en-US&gl=US&ceid=US:en'
+        req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'})
+        with urllib.request.urlopen(req, timeout=5) as r:
+            xml_data = r.read().decode('utf-8', errors='replace')
+        root = ET.fromstring(xml_data)
+        for item in root.findall('.//item'):
+            title_el = item.find('title')
+            link_el = item.find('link')
+            if title_el is None or link_el is None:
+                continue
+            title = (title_el.text or '').strip()
+            link = (link_el.text or '').strip()
+            if not title or not link:
+                continue
+            # Clean up HTML entities
+            title = title.replace('&amp;', '&').replace('&quot;', '"').replace('&#39;', "'")
+            # Truncate to 60 chars + "..."
+            if len(title) > 60:
+                cutoff = title[:60]
+                last_space = cutoff.rfind(' ')
+                if last_space > 30:
+                    title = cutoff[:last_space] + '...'
+                else:
+                    title = cutoff + '...'
+            headlines.append({'title': title, 'url': link})
+            if len(headlines) >= count:
+                break
+    except Exception:
+        # Try yfinance as a fallback (in case it works for some tickers)
+        try:
+            ticker_obj = yf.Ticker(ticker)
+            news = ticker_obj.news
+            if news:
+                for item in news[:5]:
+                    title = item.get('title', '') or (item.get('content') or {}).get('title', '') or ''
+                    url = item.get('link', '') or item.get('url', '') or ''
+                    if title and url:
+                        headlines.append({'title': title[:60] + ('...' if len(title) > 60 else ''), 'url': url})
                         if len(headlines) >= count:
                             break
-    except Exception:
-        pass
+        except Exception:
+            pass
     return headlines
 # AI Infrastructure
 AI_TICKERS = [

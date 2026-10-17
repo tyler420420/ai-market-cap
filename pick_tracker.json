@@ -1,52 +1,52 @@
 [
   {
-    "date": "2026-10-14",
+    "date": "2026-10-16",
     "ticker": "BILI",
-    "price": 14.27,
+    "price": 14.07,
     "score": 91,
-    "days_left": 29,
+    "days_left": 27,
     "company": "Bilibili Inc.",
-    "pe_target": 14.72,
-    "5d_target": 16.52
+    "pe_target": 15.87,
+    "5d_target": 23.07
   },
   {
-    "date": "2026-10-14",
+    "date": "2026-10-16",
     "ticker": "JD",
-    "price": 26.68,
-    "score": 86,
-    "days_left": 29,
+    "price": 27.01,
+    "score": 91,
+    "days_left": 27,
     "company": "JD.com, Inc.",
-    "pe_target": 27.2,
-    "5d_target": 29.28
+    "pe_target": 27.8,
+    "5d_target": 30.96
   },
   {
-    "date": "2026-10-14",
+    "date": "2026-10-16",
     "ticker": "AMAT",
-    "price": 446.63,
+    "price": 409.29,
     "score": 84,
-    "days_left": 29,
+    "days_left": 27,
     "company": "Applied Materials, Inc.",
-    "pe_target": 466.93,
-    "5d_target": 548.13
+    "pe_target": 433.56,
+    "5d_target": 530.64
   },
   {
-    "date": "2026-10-14",
+    "date": "2026-10-16",
     "ticker": "CEG",
-    "price": 279.54,
-    "score": 78,
-    "days_left": 26,
+    "price": 271.37,
+    "score": 79,
+    "days_left": 24,
     "company": "Constellation Energy Corporation",
-    "pe_target": 289.74,
-    "5d_target": 330.54
+    "pe_target": 285.34,
+    "5d_target": 341.22
   },
   {
-    "date": "2026-10-14",
+    "date": "2026-10-16",
     "ticker": "TEAM",
-    "price": 204.66,
+    "price": 207.82,
     "score": 87,
-    "days_left": 22,
+    "days_left": 20,
     "company": "Atlassian Corporation",
-    "pe_target": 212.34,
-    "5d_target": 243.06
+    "pe_target": 223.09,
+    "5d_target": 284.17
   }
 ]
