@@ -5,7 +5,7 @@
     "company_name": "Alphabet Inc",
     "score": 98,
     "earnings_date": "October 28, 2026",
-    "days_left": 12,
+    "days_left": 9,
     "price": 336.91,
     "pe_target": 348.37,
     "pe_upside": 3.4,
@@ -24,8 +24,8 @@
     "sector": "Communication Services",
     "sentiment": "Positive",
     "news": {
-      "title": "Alphabet Inc. (GOOG) Stock Price, News, Quote & History -...",
-      "url": "https://news.google.com/rss/articles/CBMiUkFVX3lxTE1jeVJwZF93cGNFbUJ0QWJOUHJQeFAyc3BiRFpLbWJPdUdwc0RBQURzeDJDRlZXOEhGclUzTV9RM21kdVdENTYyd2hPS3VXZWtPa3c?oc=5"
+      "title": "Why Alphabet Inc. (GOOG) Dipped More Than Broader Market...",
+      "url": "https://news.google.com/rss/articles/CBMimAFBVV95cUxOSGRPZDNGT1VGbG9XcFhNQzgyZjdTTlBKZmFEcEtlTmwtT0pjYnhMNmg1U29rbzdRNXB0c1d6YWxRQUVneEsyaVh1Z0x3WW1TUy16X3Rjanl2dldyWnBfbW52cnJuNHNKNDNXamJsdG5RTlkzYXNzcXI3SEFVQklCVnVZZktsSVdGZzRyeFVNMlNqWnVfMlR6bQ?oc=5"
     },
     "price_change_pct": -2.32
   },
@@ -35,14 +35,14 @@
     "company_name": "Datadog, Inc",
     "score": 97,
     "earnings_date": "November 4, 2026",
-    "days_left": 19,
+    "days_left": 16,
     "price": 247.11,
-    "pe_target": 265.18,
-    "pe_upside": 7.3,
-    "3d": 301.32,
-    "3d_up": 21.9,
-    "5d": 337.46,
-    "5d_up": 36.6,
+    "pe_target": 264.23,
+    "pe_upside": 6.9,
+    "3d": 298.47,
+    "3d_up": 20.8,
+    "5d": 332.71,
+    "5d_up": 34.6,
     "analysts": 48,
     "sb": 10,
     "buy": 33,
@@ -50,12 +50,12 @@
     "sell": 2,
     "mktcap": 0.0,
     "short_int": 3.3,
-    "iv": 7.3,
+    "iv": 6.9,
     "sector": "Technology",
     "sentiment": "Positive",
     "news": {
-      "title": "DDOG Dec 2026 400.000 put (DDOG261218P00400000) stock...",
-      "url": "https://news.google.com/rss/articles/CBMiZkFVX3lxTFBwQ0l2Q090WGZ4U1lQWEJhQ2h5WnlIem9nWV9TQmR0eDNucThsOVVESFBSTkttYWV2cnFhUkNBaWFaaDBEbXRFR284S1pWYlFDSGV1QjlLQ01DbE9GUFlPdFFnbWNKUQ?oc=5"
+      "title": "Datadog (DDOG) Dropped, So What Is Driving Attention Now? -...",
+      "url": "https://news.google.com/rss/articles/CBMipgFBVV95cUxPTUJCUElTQWZoTWNxbEMtZ0RSS21VM3pBRGpGZE8yVTZBQmRUREZ4MnBnUFZTT3pSczcxT1BGS2pHdDEzUEVYWmZPWFFON2VQMHNoNE1TTUhKbjBLVVJBMndad3MzVVNEeWZnQUJhalV6TkVGLUd5WTVJV1RDczBRNkUybzY1Vjd1bXNXSnVXTTBBNlFXTUktanZ1WGZtRHdpT2FlMUx3?oc=5"
     },
     "price_change_pct": -7.19
   },
@@ -65,7 +65,7 @@
     "company_name": "ServiceNow, ",
     "score": 95,
     "earnings_date": "October 28, 2026",
-    "days_left": 12,
+    "days_left": 9,
     "price": 141.97,
     "pe_target": 150.37,
     "pe_upside": 5.9,
@@ -84,18 +84,48 @@
     "sector": "Technology",
     "sentiment": "Positive",
     "news": {
-      "title": "Five International Movies to Stream Now - The New York Times",
-      "url": "https://news.google.com/rss/articles/CBMigwFBVV95cUxORENkNVJLelJneGR2VnA0WHhZSjgwMzlUalNHdlVjalBUSzFNQkU1OGFWaHQtM2FEWVc2eV9Jdjh5S1NXUmk5OGRKUTlnVDNFRXVOcjk4TF9GZW1kQlAwdG9hQ3JoZ2dKeTVuS0hJNFNBOUpka0tBV3M1V1U5Q0NYUXg2TQ?oc=5"
+      "title": "NDAs: Now They\u2019re for Butlers and Housekeepers, Too - The...",
+      "url": "https://news.google.com/rss/articles/CBMijwFBVV95cUxQYWxUT3hKQkdSWnh6TXNfc2tZUk9GTXF3aHd0YlhtZGxCRWtTem5GQVlfbVJ5SVJYc3ZlbjdsSFI0X1ZvdTFQX3pOR1VGZXBhNUdhTVBqcGVKTHZGLUEtZTZFQkV0MnZpa2FCU2FkWGItMS0yRHFrUi1vTW00ZjUxNEdIZ1oxdGJrRnhwdEI4RQ?oc=5"
     },
     "price_change_pct": -4.44
   },
   {
     "rank": 4,
+    "ticker": "NVDA",
+    "company_name": "NVIDIA Corpo",
+    "score": 95,
+    "earnings_date": "November 17, 2026",
+    "days_left": 29,
+    "price": 214.13,
+    "pe_target": 218.78,
+    "pe_upside": 2.2,
+    "3d": 228.08,
+    "3d_up": 6.5,
+    "5d": 237.38,
+    "5d_up": 10.9,
+    "analysts": 62,
+    "sb": 10,
+    "buy": 49,
+    "hold": 2,
+    "sell": 1,
+    "mktcap": 0.0,
+    "short_int": 1.3,
+    "iv": 2.2,
+    "sector": "Technology",
+    "sentiment": "Positive",
+    "news": {
+      "title": "This Magnificent Seven Stock Could Make Investors Richer by...",
+      "url": "https://news.google.com/rss/articles/CBMirAFBVV95cUxPREl6NXJxZm9sMnVGdktiSnUxUGZQTnNMQlVfS2w5TExtMUdSaFZMMFp6TzZoQ1ZaR2NqZGxIRVlhVjcyQjJfMjRKUTJoSDB2S2VEelkzaHZONjZreHdnbjVJajg0ZENFR1FVZEhyZTJoNkQ2ZUhMM05kSmFWZXVYYkNHZmJlR24wQmFoYjk1dXpRQmd5anhPWHI1eUs1by15WDFyeTIxbHhFemtt?oc=5"
+    },
+    "price_change_pct": -1.43
+  },
+  {
+    "rank": 5,
     "ticker": "FSLR",
     "company_name": "First Solar,",
     "score": 94,
     "earnings_date": "October 29, 2026",
-    "days_left": 13,
+    "days_left": 10,
     "price": 172.64,
     "pe_target": 182.06,
     "pe_upside": 5.5,
@@ -114,25 +144,25 @@
     "sector": "Technology",
     "sentiment": "Positive",
     "news": {
-      "title": "How Investors Are Reacting To First Solar (FSLR) Strong...",
-      "url": "https://news.google.com/rss/articles/CBMiogFBVV95cUxPVDRMSlFmak1iLTZjbmE2dkZLaTVhODZxUTd1UkZ6WVdjVElSalpjajNRZThEZHczbnhwcUNNRC01bG1WeGkzQ2NsMF9YQWJoeU9iOF8yRU5SMEp4SHRJa2VwZ3VRZ3UwNTQ2UXJBUkctVHhFem8waTFqOEkwR2RCcUY4QUxxNVN1T0hyMnRkSmY2Rmh4YjNBZTVzTl9tUHg1REE?oc=5"
+      "title": "First Solar, Inc. $FSLR Stock: SteelPeak Wealth LLC...",
+      "url": "https://news.google.com/rss/articles/CBMiwgFBVV95cUxONGVDMV9iU1NMR3FUdXo5V3dGZ20zakhuTFBnWEJjcHRCcHFraUNELUctVVpSMzFiYXRORXl0c2hiTFE5NnczSDFXMi1sZWlGbG5vRmJTQmlDamczY1lvY3Vvd0p4OXJwZDJiaUhrbHJaeFZwSXMwbmdLbE82eEI4MHRXRnhxWThXNnI0aDVIMmtZYU1zVi1Rai1feEVRS1RIVnNJaThLWDN3eV9velNHbmIyUGgyc09SX2tneVRGWFN5dw?oc=5"
     },
     "price_change_pct": -3.45
   },
   {
-    "rank": 5,
+    "rank": 6,
     "ticker": "ANET",
     "company_name": "Arista Netwo",
     "score": 93,
     "earnings_date": "November 3, 2026",
-    "days_left": 18,
+    "days_left": 15,
     "price": 176.98,
-    "pe_target": 189.69,
-    "pe_upside": 7.2,
-    "3d": 215.11,
-    "3d_up": 21.5,
-    "5d": 240.53,
-    "5d_up": 35.9,
+    "pe_target": 187.16,
+    "pe_upside": 5.8,
+    "3d": 207.52,
+    "3d_up": 17.3,
+    "5d": 227.88,
+    "5d_up": 28.8,
     "analysts": 32,
     "sb": 7,
     "buy": 24,
@@ -140,22 +170,22 @@
     "sell": 0,
     "mktcap": 0.0,
     "short_int": 1.1,
-    "iv": 7.2,
+    "iv": 5.8,
     "sector": "Technology",
     "sentiment": "Positive",
     "news": {
-      "title": "Here's Why Arista Networks (ANET) Could be Great Choice for...",
-      "url": "https://news.google.com/rss/articles/CBMimwFBVV95cUxOblJ6MkpnaGJOWWlMOGpkMHhuUmdGRGVDUFpkdkNtODRpd0xtZ09sM2tlZlg4MWtBV3piU25wVzFuNjI0alk3OEFkQVhhWnFoR0dVYkRrWG5LSF8wdFE0dE0yN0dVN1ZPNkw2VlJHTWp2YVBSQjNOX0loVVRHZ2RZTEJtVExhaWVMNjdrb00xTTZFT3pWQmFMTWFOZw?oc=5"
+      "title": "Arista Networks (ANET) Stock Dropped, What Is Behind The...",
+      "url": "https://news.google.com/rss/articles/CBMioAFBVV95cUxPWUFrY1NTaU1kcFJOMURla0swZWpBcFdIRzhtWGxCV2ttQXpjRXlqaUotb1U1alN2TVVKdnhrWmc5LVVPNDh6LXBHMXh1NFNCV19hNHJTNFZsR3lUVVJRSmtKNFhfR0xLNnh2T0Y4dHJzVEhIU0xVRmpPOE9vT254TGJSWUY0X3ZRQ0FhVzRhZTNybFdHR1IwY0htclpXQy1y?oc=5"
     },
     "price_change_pct": -4.63
   },
   {
-    "rank": 6,
+    "rank": 7,
     "ticker": "SPOT",
     "company_name": "Spotify Tech",
     "score": 92,
     "earnings_date": "October 22, 2026",
-    "days_left": 6,
+    "days_left": 3,
     "price": 530.46,
     "pe_target": 577.77,
     "pe_upside": 8.9,
@@ -174,18 +204,18 @@
     "sector": "Communication Services",
     "sentiment": "Positive",
     "news": {
-      "title": "Geothermal finds rare political sweet spot amid AI boom -...",
-      "url": "https://news.google.com/rss/articles/CBMigwFBVV95cUxNdl9meXBUU2xNaVVmMEs0Yk5NQ2F4eVJWVGx3WkN6NG0tSHY2ZGZkaVBhREVTTlRSdUx6Sk9WZ1doS203QUhhSlF0emZNUFJmUE5fY0lUdk5oVzFqRG5sQ0drZ1JiaFRZT2Fsc2FUd2lFSWhXV3VuajBiSXRPX25YOGcwRQ?oc=5"
+      "title": "Nature spot fears over plan for 35 new homes - Yahoo News...",
+      "url": "https://news.google.com/rss/articles/CBMid0FVX3lxTFBmcFJLbERWWW1oNDFTZzl5RFRiM180cWhMa0c2WklYMDljTTFyV0xiMXQxOXlsVlJLYjQzYkZhYS1KbHNNV2hPTzhFUlduajdHVENFSUY1bHdiaTduVEd0N1FSa1ZVNW1YQW1MdWxaVDZlZFhNNDY0?oc=5"
     },
     "price_change_pct": -0.55
   },
   {
-    "rank": 7,
+    "rank": 8,
     "ticker": "AMZN",
     "company_name": "Amazon.com, ",
     "score": 92,
     "earnings_date": "October 29, 2026",
-    "days_left": 13,
+    "days_left": 10,
     "price": 250.0,
     "pe_target": 254.05,
     "pe_upside": 1.6,
@@ -204,18 +234,18 @@
     "sector": "Consumer Cyclical",
     "sentiment": "Positive",
     "news": {
-      "title": "Elon Musk wants to start an Amazon competitor after Grok...",
-      "url": "https://news.google.com/rss/articles/CBMimAFBVV95cUxQVW1rdlhtbFVZRFoyLXhWRXZ3cllkREtaSzNxdzJRaDVMT2IzaVpTUGNTVU1zbkVTNmxIbGFpWGdURV95eFVJYVkycmdWTUkyVVJxYk1XTkhmWWpLNnlycnZOZTBNSXp5bGtWc1JraDFqeE00TWNucC05T0h6T1FpRE45VHZkUUFINnA1MWtuN0pMNlhFVWlRQQ?oc=5"
+      "title": "Stocks making the biggest moves premarket:...",
+      "url": "https://news.google.com/rss/articles/CBMingFBVV95cUxQRUFudW5lR0xSVGN5RktUTWhmSGdUYjAwQW5TOVh5cmtaSDF5WkFha0JDbTRtVGVMZWJETlhTTkExdTVJNnpLUERpQkoyRFRBa2otZF9TYVhDQWVzRVRGVmlRLU5QY0tEU1hzVXdQMmtSdmxKTnpiTk11SHNaTGxpNlB3U1dWbjZGSFFmNDdXMHVEbVVPaVF6MWZEMkhzUQ?oc=5"
     },
     "price_change_pct": -1.87
   },
   {
-    "rank": 8,
+    "rank": 9,
     "ticker": "GOOGL",
     "company_name": "Alphabet Inc",
     "score": 92,
     "earnings_date": "October 28, 2026",
-    "days_left": 12,
+    "days_left": 9,
     "price": 340.59,
     "pe_target": 346.57,
     "pe_upside": 1.8,
@@ -234,18 +264,48 @@
     "sector": "Communication Services",
     "sentiment": "Positive",
     "news": {
-      "title": "Alphabet Stock Can Soar 22%, J.P. Morgan Says. Why Google...",
-      "url": "https://news.google.com/rss/articles/CBMifEFVX3lxTE91SExKR1JKUTMxSEpGTGxMYkRCX1ZIQ0wwd25pcEJVZ29pc2ZRdlZqN2N6ZHZYdWpVRV9TQkRKUGFwZk4tZFlPMmNQVHFUc25XRTd5YU9QUHVGTm5TQmpRczBYN3ROVjNnUGVQblg2akJKYVJTcG9RQnNLaUY?oc=5"
+      "title": "KeyBanc Maintains Alphabet-A(GOOGL.US) With Buy Rating,...",
+      "url": "https://news.google.com/rss/articles/CBMirAFBVV95cUxNTEtzRU1Tc0c0aE1sOEI1VXBERHFDVEVlSkJvT0JLdzgzSE5mQlhoWnIxSXFtVnJpVHNfcEdSN0ZfV3d3STd2bEU2VkJ6T2ZqUWhPaEQ5R1llN2EyMHpmbXBPbktQN0Z3ZWk0UTd3Qks1akFUUFg4MklGZkhQVElWSm03Mk1jZXZzdGRBNUZQei1ZV3MtMlBYaXdSMG9reG04UVZvdkIzelB2WlJ6?oc=5"
     },
     "price_change_pct": -2.47
   },
   {
-    "rank": 9,
+    "rank": 10,
+    "ticker": "MA",
+    "company_name": "Mastercard I",
+    "score": 92,
+    "earnings_date": "October 29, 2026",
+    "days_left": 10,
+    "price": 617.42,
+    "pe_target": 631.32,
+    "pe_upside": 2.3,
+    "3d": 659.12,
+    "3d_up": 6.8,
+    "5d": 686.92,
+    "5d_up": 11.3,
+    "analysts": 39,
+    "sb": 9,
+    "buy": 26,
+    "hold": 4,
+    "sell": 0,
+    "mktcap": 0.0,
+    "short_int": 0.7,
+    "iv": 2.3,
+    "sector": "Financial Services",
+    "sentiment": "Positive",
+    "news": {
+      "title": "Massachusetts Republican Shawn Oliver suspends campaign...",
+      "url": "https://news.google.com/rss/articles/CBMirwFBVV95cUxPSnoxTUNrb0h4V1BVTUFaVExubnRBUk1YaFAwbDZHOGo4a2hoWnVDU1o3dVYya294S2ZyMUJLSFp5SW9IZVBUTkdmOWoxVDRDSG1KZ1RjNDJ0RGVSU0ZsUTZCUHh5NDBkU0huMVJ2dzhHWndsZjE1MjNVakJyMXRBc2hPUlItc0tkYWdOVlFqb0psOGN6NWhVdHh5RE9ubS0xMGliWEFBRTN6WE1ocG5R0gG0AUFVX3lxTE52VGVoajZMU2pRb0cwY2I1b3lvVHJ2QmVFeVNIcG1NX2JKTUNDQjJZZjRGMEVwSXhEWWtnSG03YnJic1RYT0RLb196dTR6ZDFvVVhXb0lVckNVNm5sbDdCb25Xcml6LWpZR2VRZkR3U0wzck12dDZhbldMNVpQNXRBTGZpR2FHdG1LODg3aDdWWUFIYnBpdGRablBjWHZDNHZVeURUZEVxaFN6SGdfUVVneTRBQg?oc=5"
+    },
+    "price_change_pct": 0.18
+  },
+  {
+    "rank": 11,
     "ticker": "BILI",
     "company_name": "Bilibili Inc",
     "score": 91,
     "earnings_date": "November 12, 2026",
-    "days_left": 27,
+    "days_left": 24,
     "price": 14.07,
     "pe_target": 15.87,
     "pe_upside": 12.8,
@@ -270,42 +330,12 @@
     "price_change_pct": -2.49
   },
   {
-    "rank": 10,
-    "ticker": "MA",
-    "company_name": "Mastercard I",
-    "score": 91,
-    "earnings_date": "October 29, 2026",
-    "days_left": 13,
-    "price": 617.42,
-    "pe_target": 630.22,
-    "pe_upside": 2.1,
-    "3d": 655.82,
-    "3d_up": 6.2,
-    "5d": 681.42,
-    "5d_up": 10.4,
-    "analysts": 39,
-    "sb": 9,
-    "buy": 26,
-    "hold": 4,
-    "sell": 0,
-    "mktcap": 0.0,
-    "short_int": 0.7,
-    "iv": 2.1,
-    "sector": "Financial Services",
-    "sentiment": "Positive",
-    "news": {
-      "title": "Massachusetts ballot question guide for the 2026 election -...",
-      "url": "https://news.google.com/rss/articles/CBMijwFBVV95cUxQR04tV1NPZVJLOWJaems3TXRObTBfbnotVmExWEFlV09BUGlsZUxOOUExU2xsdUhYbU1yN29uNWxHZTV5V2tISl9scnNwel8zSkUyZ0tNb2tFM2NtQWt0UWFWRW81eVhJUzJiYjRhX3ZabDJFUGo0N3VmR09CS0JKMlBGV3pFbTh3UjZ4ZW9Zbw?oc=5"
-    },
-    "price_change_pct": 0.18
-  },
-  {
-    "rank": 11,
+    "rank": 12,
     "ticker": "JD",
     "company_name": "JD.com, Inc.",
     "score": 91,
     "earnings_date": "November 12, 2026",
-    "days_left": 27,
+    "days_left": 24,
     "price": 27.01,
     "pe_target": 27.8,
     "pe_upside": 2.9,
@@ -324,18 +354,18 @@
     "sector": "Consumer Cyclical",
     "sentiment": "Positive",
     "news": {
-      "title": "Fact check: JD Vance attacks Abdul El-Sayed in Michigan -...",
-      "url": "https://news.google.com/rss/articles/CBMinAFBVV95cUxOZTk0VW84bDREQXF3UVNQaVBZS0NTbk9fQ0x4MzlHV1RtVThzMVh2ZVpCM0N2ZzlISXJkWWdkR0pZRUpmdjVWNjVHYTNOM1pReVVrNTNGVjB5ZDZZQWR1QVFZVnJyRVZ2MTRpa3FBbDdEOTRyYURFa2dleklYN1p4VnhLSWlMRko0RUZBbUdkOGNZWEJBZUhSVUxxM28?oc=5"
+      "title": "4 Henderson County Schools dismissing early today ahead of...",
+      "url": "https://news.google.com/rss/articles/CBMi6gFBVV95cUxOYzhneEpid2xLTlZNWkhpa0tyVXp3YTA0ZEFOOUd4WkJkR2x4Z3NQb2d3VzNzRWRBQTd6ZzRJaDhRc0dnckRZZHRJN3N3VUhGbHhMVnBvTmU4UENkRnBkX0k1VTlTNWZwOEFXTnoyQW5wTU9SVXJiM25KVFBoYS1FOXVoUTBfaTZrZUVrcW9XdktOX0ZQRl9RWURQV0JKYnhONmVIVVFGZjA0V2xGNlJ6SGFMV3JCMkVfNTBtZHlpOWRaNEQydldXMmdhbnpReUtJdW11NjZrUk5TbWJYenJUYk9JemVnQjdpdVE?oc=5"
     },
     "price_change_pct": -1.39
   },
   {
-    "rank": 12,
+    "rank": 13,
     "ticker": "BA",
     "company_name": "The Boeing C",
     "score": 91,
     "earnings_date": "October 27, 2026",
-    "days_left": 11,
+    "days_left": 8,
     "price": 190.21,
     "pe_target": 196.91,
     "pe_upside": 3.5,
@@ -354,18 +384,18 @@
     "sector": "Industrials",
     "sentiment": "Positive",
     "news": {
-      "title": "Boeing (BA) Heads Into Talks Over Up To 50 Wide Body Jets -...",
-      "url": "https://news.google.com/rss/articles/CBMilgFBVV95cUxPTVd2WWd3dlY1SXVCYXFXWjd6REY0V1dsU0w5clRQSGZtRmFIakFmTlRLRFk0aUNHOEswa2hjbzR1MVJxcjNtOV8yVjc5Z1Y2cktSU2xrSGdVYXVkcHUyWEowYjJlQVlmckRvZkNSS184RnlRYnB6YjFWRGc1QlBrcXR3OEJMbmlRYnl1ZEFXaFVSbFF5bmc?oc=5"
+      "title": "German Fighter Jets Intercept British Airways Plane to...",
+      "url": "https://news.google.com/rss/articles/CBMi8AFBVV95cUxObnYyLU8tckFZUEg3ZVJjNkhZV2dnSGxOVTBOQlhYNDlJV29jeGlMRnZKeVJQWGtObFRpTmFNeVhYVU96U0lLeEtBT3JZSHVRS1JZYVB2UFlaSU56c2dQdlk4RnpaRHBKSGQ0bG4xcmNZanhCQnNvUEhWZ0hlcHdqakFhMk1tSU9Sd3hYRTVhblpZNG1IQldXQUFmcC1HcVUzX3lKeHlDRGY2MTVWdHJEdGNmVXpwM3VrLTVNLUk0TVJmQzFKSlZ3Vkd3dWdtOEFKSXliLTctY2FLWHM2QXEtU09tOEF3WE5sNzl3SEwzRzA?oc=5"
     },
     "price_change_pct": 0.78
   },
   {
-    "rank": 13,
+    "rank": 14,
     "ticker": "MSFT",
     "company_name": "Microsoft Co",
     "score": 90,
     "earnings_date": "October 28, 2026",
-    "days_left": 12,
+    "days_left": 9,
     "price": 529.05,
     "pe_target": 536.25,
     "pe_upside": 1.4,
@@ -384,18 +414,18 @@
     "sector": "Technology",
     "sentiment": "Positive",
     "news": {
-      "title": "How much MSFT stock does Microsoft founder Bill Gates...",
-      "url": "https://news.google.com/rss/articles/CBMimwFBVV95cUxORjdhaGJZVklLTS1XSldXSG5XYWRTN0VUTDR5ZUhhSjNaOTROMW9hY0poTy1ULUJnNG1xSUwtN1ZXVUdQckZSeGpIM3hqcmJCcGhiYUxIWXYwR0wzN1E0UFB2aHlfUEhXSlU2LVlyQ01CeE42WElUQU14Y3llQUtXemVJXzN5Z29CbXM1ODVlMXZiTHBGMXEwQk5aRQ?oc=5"
+      "title": "Microsoft (MSFT) Is Facing Fresh Regulatory Pressure -...",
+      "url": "https://news.google.com/rss/articles/CBMipAFBVV95cUxNak9LNWhqSzctVl90YWxsZ3lCT0Y0TXNTaW9RWWFtVXdFWWZ0VVJYdUlDWGF6aGJkMElWaDd6YWFhYkFVUzROMFExOWdDS1p5dlpQbWdWMU1xS24tYVd6cTFxT0NEOUZtbHZndHBHM29EM0cwdzFMSzEweGFqbmlZdDB5Q3J4alRNQlVrZ2dseTBSOHF3WFU5Uzc4VUo1QUd1MS0taA?oc=5"
     },
     "price_change_pct": -1.93
   },
   {
-    "rank": 14,
+    "rank": 15,
     "ticker": "ISRG",
     "company_name": "Intuitive Su",
     "score": 90,
     "earnings_date": "October 20, 2026",
-    "days_left": 4,
+    "days_left": 1,
     "price": 426.7,
     "pe_target": 459.97,
     "pe_upside": 7.8,
@@ -414,18 +444,18 @@
     "sector": "Healthcare",
     "sentiment": "Positive",
     "news": {
-      "title": "Intuitive Surgical (ISRG) Stock May Be Fairly Valued On New...",
-      "url": "https://news.google.com/rss/articles/CBMinwFBVV95cUxNUW5pZ3ctWkFGeUpZbkFHZHdPUGEwUk1XN3VTdkdWRElZZ0p5aFZrTnZHZUs5U21fTGlzaWx5dS1JbWxIMVU5bVUweFlrWkV2aUJlaGRITmZPa185aXlnR3NHaEU0dDJIZVBzRDlUSGhfOFFFdVFlV1BZLV90ZVplYVl1N2xhYVFBRGltTWNZUERqZ2pFM1M3Z1BuM0VPeTA?oc=5"
+      "title": "Intuitive Surgical Earnings: What To Look For From ISRG -...",
+      "url": "https://news.google.com/rss/articles/CBMipAFBVV95cUxNRHVISDg2OExqYWNHS25oYzdENGgtcDQzd0ltZkRJZ3B1SDZKVG51czc3dnkyb0gzSUhxTF9DSVp4blR1STl0S3ZIRG9JNjJ5ZWRUUzBkOGNCRWxJMTA0TFh0ZTltZ2paQ3VxZWIxY19jUWVWQWZTRmI1QnlPTXZzQ215YzlBckVFSF9oVzFXdzlfcmpwZVQ3azVSZFBWMTREQ0t2UQ?oc=5"
     },
     "price_change_pct": -0.27
   },
   {
-    "rank": 15,
+    "rank": 16,
     "ticker": "GRAB",
     "company_name": "Grab Holding",
     "score": 89,
     "earnings_date": "November 2, 2026",
-    "days_left": 17,
+    "days_left": 14,
     "price": 2.94,
     "pe_target": 3.07,
     "pe_upside": 4.4,
@@ -444,18 +474,48 @@
     "sector": "Technology",
     "sentiment": "Positive",
     "news": {
-      "title": "Video shows burglars strike at least 15 Chicago businesses...",
-      "url": "https://news.google.com/rss/articles/CBMi5wFBVV95cUxQZXVHZ1U2aXh1U0pWTy11c0lYUHVHVFVhZE5NQmN2WEFFVWduZmNwWGNyeWdzdHlmOUZvaE10el9ORkE0MnpBODRGTUxqbWJaTEZxa1paeGoybzRkZWUtWkxlUjVjbzctQnRMZkxsY3k0Nmk1Nm44ODkyN0NuOE5KZThpMXk2TXNYTVREbDNBcVpOcGNYX2laeVp1eXlUMWF1QjRQa3AtS0prY2hiMlgzN3Q3VXJkb2ZLOVdBT1R0Y2kxWGxCcVhGMDF0ZG5zUHc4X2E3NUxIN1RWMndGZnZMdlhTaldTdjjSAewBQVVfeXFMTURWZDhTYmlzWTN4TFZPVmNlYTFONHlYcjMwZ0U1OGUwQXI5bnZmbndJVUhOVEtEZ0ZueGMyTHdKUXN1WDNPR05xQmoyY0piQWw4QVU0aHVhRUh1WDdoc2RhMDdoOUpaeXpBQTVpNHZhTF9idkR0WElxWENRcWZUUkV0TVY1Vk16ZkIyQjNWQ1kzaW5UaThYc1BDLTdTZnJqTGNPWHRWTXJWUHhTbDlCVFFPRUZ6NmMzQjExNGp6Yi1KQV9ta1V0V1lLakdOeFVKZHp3V3BYMTlwNk5ReF95TlhlVHdTM0VNbjNqOFc?oc=5"
+      "title": "Japan's MMX mission set to grab a piece of Mars's moon...",
+      "url": "https://news.google.com/rss/articles/CBMiW0FVX3lxTE1lQkNrQjBoLVVtV0NFNl9vbVd1aWhVcUtLOVBxRGFJamNYN29pZzZSWjF5Q2tOWVRia3hXcVRhRmR2OW1uLXdWOE4zX3NPbzFZVXNOUC16N1Z1RDA?oc=5"
     },
     "price_change_pct": -2.0
   },
   {
-    "rank": 16,
+    "rank": 17,
+    "ticker": "DIS",
+    "company_name": "The Walt Dis",
+    "score": 89,
+    "earnings_date": "November 17, 2026",
+    "days_left": 29,
+    "price": 110.59,
+    "pe_target": 113.98,
+    "pe_upside": 3.1,
+    "3d": 120.76,
+    "3d_up": 9.2,
+    "5d": 127.54,
+    "5d_up": 15.3,
+    "analysts": 33,
+    "sb": 6,
+    "buy": 23,
+    "hold": 3,
+    "sell": 1,
+    "mktcap": 0.0,
+    "short_int": 1.1,
+    "iv": 3.1,
+    "sector": "Communication Services",
+    "sentiment": "Positive",
+    "news": {
+      "title": "What Walt Disney (DIS)'s Profitable Streaming Shift Means...",
+      "url": "https://news.google.com/rss/articles/CBMiwgFBVV95cUxQT1V5a1hHOUUyU1NMeUVWZUV0YzFQNVhjVWtrZWJDaGZyN3U3TXlJZ0hFRlBwYURIUXdJeW1iSlNVeEM3VjU5SE1vTlR1cFNza0ppaE85cWQ4ZGJ6R1ZEYmZpZkVTdXBobGJrMTlrQVJINTAwTkZFamF4NkZFWmlRVk96SU5XZ1NodEl6R19XWHdHSHZBbnY5VFhyU3p5SzJwdkNXSVVkU1A5RzE3aU9Sa3dzZllPbmYxQmdFSURFdnlkQdIBxwFBVV95cUxPSGhGLVI2T0NDRFRrSl9CU3kwaXNfMHRCOUg2YnF1NGRkMXA4ME83UnRMYk9lS2c3WnFuaGRfQm1CTldBb0NNb0FwTTdlYUFLd2hiVThoTGp2LXY2R294VXRWcDZxX3Z2LWVHUmtTcGRVdTN5bzBHeVdtdHlPMVNiTHc5aEpQaWkwSXp5SktDWWItTDVvM2Y3QWkxTEoza2NUUVhRakhqOC11QnRNbDdHcmM2d0JrNnV3TS1rLXY2Zm1pcDl5ejRn?oc=5"
+    },
+    "price_change_pct": -0.08
+  },
+  {
+    "rank": 18,
     "ticker": "TEAM",
     "company_name": "Atlassian Co",
     "score": 87,
     "earnings_date": "November 5, 2026",
-    "days_left": 20,
+    "days_left": 17,
     "price": 207.82,
     "pe_target": 223.09,
     "pe_upside": 7.3,
@@ -474,18 +534,18 @@
     "sector": "Technology",
     "sentiment": "Positive",
     "news": {
-      "title": "With Anthony Edwards, the Minnesota Timberwolves are among...",
-      "url": "https://news.google.com/rss/articles/CBMiiwFBVV95cUxQNXN1S0tubDV2bTVUWE4wcmZKWUhPTjNQT2tmb2x4Z0o5Ql83eko3dm1FS19oV0w1SGlSRWswdl9GNW5qTDdPLVVhcDdMTVRUdzFBY2RvdkxUYjZOMllVa0JMMFJNUklFVGpIekd6RGR4MmhwZFk4R3VEV0JacWVwblctTnZWdjA3WUo0?oc=5"
+      "title": "Why baseball teams party so hard and so often in October -...",
+      "url": "https://news.google.com/rss/articles/CBMidEFVX3lxTE93WHVnTzNXZVN0eFJRenlYSEo0T1hDazZyTGhteFVKcDZsWnNtcG5GMm42T1cyb0d3VFVJWWN5LXh5RWRUNWhMdEdDemlNRmhzMHluSU9BWUNnNFg4NzR1WmM3X2taSnVnV1d3dXVhQUxBZHpn?oc=5"
     },
     "price_change_pct": -4.28
   },
   {
-    "rank": 17,
+    "rank": 19,
     "ticker": "HOOD",
     "company_name": "Robinhood Ma",
     "score": 87,
     "earnings_date": "October 27, 2026",
-    "days_left": 11,
+    "days_left": 8,
     "price": 98.87,
     "pe_target": 105.62,
     "pe_upside": 6.8,
@@ -504,18 +564,18 @@
     "sector": "Financial Services",
     "sentiment": "Positive",
     "news": {
-      "title": "Trump Cancels Planned Execution Livestream of Nidal Hasan,...",
-      "url": "https://news.google.com/rss/articles/CBMimgFBVV95cUxOdDF2Snl5TEZIRXFONUZRT3cwZk9OYURQak9TWkFKc2JPbjdFZkVSNGFtS3BBazZBdmVOOEVPaHo3eng0Z1ZYbEZ1YllrYl9wQzU2ZTBkc2JMNnBESFpRY3lkeXZpZlNzanFvNXhHcHRpakNPd0JETlN5S1F0a2RHWHRhWXVfWVlOWE01VlA0dmhpWFJwQUpsS3Jn?oc=5"
+      "title": "Opinion | The Fort Hood shooter wants martyrdom. I helped...",
+      "url": "https://news.google.com/rss/articles/CBMipwFBVV95cUxPZVR6TmJERlhtOE9nOUZISS1WdVEyMzBkVUJfeFNKOWM3T3VGb3ZnVXNtWnpHWlE2V0pfZG9hT3FWSnRYYUFuYVZLaUF3MzRnSDZ0UkJuS2Q0ZFZ2VUw4UTkxLV9ISHh0d1o2TVBBa1JsajI1b2hvdFE0SWI2R3lDUm5XcnYyNjJKM2xYVTJ1cEZQWkYwRmpIaEwyVTh5M21tX2NQUEhzbw?oc=5"
     },
     "price_change_pct": -4.92
   },
   {
-    "rank": 18,
+    "rank": 20,
     "ticker": "TWLO",
     "company_name": "Twilio Inc.",
     "score": 87,
     "earnings_date": "October 29, 2026",
-    "days_left": 13,
+    "days_left": 10,
     "price": 244.37,
     "pe_target": 261.64,
     "pe_upside": 7.1,
@@ -534,18 +594,18 @@
     "sector": "Technology",
     "sentiment": "Positive",
     "news": {
-      "title": "S&P 500 Movers | Winners: TRGP, FANG, EOG | Losers: TWLO,...",
-      "url": "https://news.google.com/rss/articles/CBMiuAFBVV95cUxPT1YyenMwXzhTbXN1SjEzUEQ5dnotZlcxLVp0TmFDU2dJd284MnVOVjBwVEE0azhMOHZjZHo1YUFmdkpzN3kxWWxjSXZCdUVqS09ZWXpxcU1tMVhBdTlRMlJGZE1ncllwWDNoVVJDeUJyZnRKSWJnWnZicDJoT1pLeFZsU0xyZ3VCRG9jZm1oeUtWS0FvYXV5LW1fNU43TFB1bm00amgyWFNybXlKMzRRQ3dGZVlYdHBq?oc=5"
+      "title": "TWLO Stock Quote Price and Forecast - CNN",
+      "url": "https://news.google.com/rss/articles/CBMiUEFVX3lxTE9qZHlFNlA2amNfTWlHLUloWlRQUTB5TGJpM0lodDhpN2RDR21HSEVHdTNxb015dGN6RW02ZjZPcTJNRnE3WEJnVC1YX3dmMXJ4?oc=5"
     },
     "price_change_pct": -10.62
   },
   {
-    "rank": 19,
+    "rank": 21,
     "ticker": "SHOP",
     "company_name": "Shopify Inc.",
     "score": 86,
     "earnings_date": "November 3, 2026",
-    "days_left": 18,
+    "days_left": 15,
     "price": 169.52,
     "pe_target": 179.97,
     "pe_upside": 6.2,
@@ -564,25 +624,85 @@
     "sector": "Technology",
     "sentiment": "Mixed",
     "news": {
-      "title": "Google rolling out Universal Cart that lets you shop the...",
-      "url": "https://news.google.com/rss/articles/CBMiyAFBVV95cUxQdElEVHkweDAzYy1SZlNoRUhUUUl3a0QyUmpXYXIyNXFKcktrT2ZVX2xqTVUySjVMX3V6bTU5V3BPOEs4MWdXYzJBa2IxdU1Ed3p6NkZrTE9USldjWWZKdlFrTmpFLXlxMURLcmJqUXhoZXMyX1FSSzJJSk9wWHlkZGNCNjFic0hYQ3I2Zmg5MUc3S0dOUHV0NEJXYTZGclA1ZEJNOG5ZZG9rQTUxeENjdmFMcjR6bkdrM0s2N2o1dzM3QmpEdzUtVA?oc=5"
+      "title": "It\u2019s Time to Shop Medicare, and This Year, It\u2019s Extra...",
+      "url": "https://news.google.com/rss/articles/CBMigwFBVV95cUxOWFBXLUZuVEQtZEhkT2xCZ2xoRlcxQUZ3WC15d1hja0dsZ205V0czR2MwZ1N1WndhclBvcmd2ZnFuWmRCM2dORXFtYjJrYU55NU9jWDktQlQyTHFhQl9BRVc3Yk1qQmx3VzRITk05blJqRi1mbV80MFNRSVBCYnhwVlp1bw?oc=5"
     },
     "price_change_pct": -4.84
   },
   {
-    "rank": 20,
+    "rank": 22,
+    "ticker": "AMAT",
+    "company_name": "Applied Mate",
+    "score": 86,
+    "earnings_date": "November 12, 2026",
+    "days_left": 24,
+    "price": 409.29,
+    "pe_target": 433.56,
+    "pe_upside": 5.9,
+    "3d": 482.1,
+    "3d_up": 17.8,
+    "5d": 530.64,
+    "5d_up": 29.6,
+    "analysts": 40,
+    "sb": 5,
+    "buy": 29,
+    "hold": 6,
+    "sell": 0,
+    "mktcap": 0.0,
+    "short_int": 1.7,
+    "iv": 5.9,
+    "sector": "Technology",
+    "sentiment": "Positive",
+    "news": {
+      "title": "Applied Materials (AMAT) Sees $58.8 Million in Net ETF...",
+      "url": "https://news.google.com/rss/articles/CBMimwFBVV95cUxOYTlrbnZqU3NGZ0o2TVo4Z1hBMzlzVWdZSmNpN1JyTmhtUFlOYlNfUk5HQ3hjTXZDbjM1TU10UjNTWjh4dnFfeTFPc0xoeFJIdmhadEpraWtPRXRqay1YSC1UeUE0WktDRC1xYmlQanQwRXd4QUJoUzdKdTRNZXJVXzJxY2FCbnQ0bmVtWEhvX3g1NnJQSFY1Ymp6UQ?oc=5"
+    },
+    "price_change_pct": -4.82
+  },
+  {
+    "rank": 23,
+    "ticker": "WDC",
+    "company_name": "Western Digi",
+    "score": 86,
+    "earnings_date": "October 22, 2026",
+    "days_left": 3,
+    "price": 332.0,
+    "pe_target": 368.2,
+    "pe_upside": 10.9,
+    "3d": 440.6,
+    "3d_up": 32.7,
+    "5d": 513.0,
+    "5d_up": 54.5,
+    "analysts": 26,
+    "sb": 5,
+    "buy": 17,
+    "hold": 4,
+    "sell": 0,
+    "mktcap": 0.0,
+    "short_int": 4.9,
+    "iv": 10.9,
+    "sector": "Technology",
+    "sentiment": "Positive",
+    "news": {
+      "title": "Western Digital (WDC) Says CFO Mark Long Is Leaving - Yahoo...",
+      "url": "https://news.google.com/rss/articles/CBMimAFBVV95cUxQcGpqN2FBaUo3Nk5FVkxXWGpHcDJGTVZYVWFGNVUyV2IyQ2hyV0pxN2VUWTlJdWptZjlIdEZESzF2SnIzQWI0U241bDUtaS0wWk1RaDk2TlV1VXIwUHlQMW5TLWRUdHZHYjdNZ19CWmFkVFdLeFZpbHlkaklxX3A2RUozZXdaTmVpOUVaZDNtMDdrSXVtMlZ0VQ?oc=5"
+    },
+    "price_change_pct": -6.86
+  },
+  {
+    "rank": 24,
     "ticker": "NET",
     "company_name": "Cloudflare, ",
     "score": 86,
     "earnings_date": "November 5, 2026",
-    "days_left": 20,
+    "days_left": 17,
     "price": 296.3,
-    "pe_target": 318.5,
-    "pe_upside": 7.5,
-    "3d": 362.9,
-    "3d_up": 22.5,
-    "5d": 407.3,
-    "5d_up": 37.5,
+    "pe_target": 317.23,
+    "pe_upside": 7.1,
+    "3d": 359.09,
+    "3d_up": 21.2,
+    "5d": 400.95,
+    "5d_up": 35.3,
     "analysts": 34,
     "sb": 7,
     "buy": 16,
@@ -590,22 +710,22 @@
     "sell": 2,
     "mktcap": 0.0,
     "short_int": 2.7,
-    "iv": 7.5,
+    "iv": 7.1,
     "sector": "Technology",
     "sentiment": "Positive",
     "news": {
-      "title": "Midway Rising May Not Create 2,000 \u2018Net-New\u2019 Affordable...",
-      "url": "https://news.google.com/rss/articles/CBMinwFBVV95cUxQbFRFUUs3ejA5M3o0bERsdHBRcGdaZTEyNWZWVV9rWExqRGRJZUo0Q1dEWVQ0XzZNTlZCdWVxNlhPRzNQQ1NZMUlhTnhaVkNnaGNwbDdZSURBZ2I1UWwtRExseTJRZnRXR2NlTUVPR0M5bDRlVEhWRWc5Tkc4RDlQTlVBc0YtbUpqNzE4Ymw3dXhWUkZrZ1FnUlhNWlljMkk?oc=5"
+      "title": "10/17 Preview - Panarin/Laferriere/Kempe Tonight + Forsberg...",
+      "url": "https://news.google.com/rss/articles/CBMi4AFBVV95cUxPclk1UGVEbFdCZDI5aDZyRkNMQ3lBbkEwUXNSRlNnbkswQmEzR082NTdreko0emRlTjRoYmQ2eS1Hb2VDcTVPSWowZzJVNUJCTUlvdWpDazJuZ2RjVTJnOURNUHFMZGNxLU9adlIzM0dnZTFzeEJyV2lseXRkcE81NzU0U00zNDh0OV9fRkpmNjZoV1F4YlYyNk44RVdMbFpvVkk3Q1MtbmV4LXFYcnNwM3BwRTFRenp0R0VLUTYtcXpRVFZNWVhyMmJWajNPM2V1cW1xRExTWkl5T0hxN25ldQ?oc=5"
     },
     "price_change_pct": -6.33
   },
   {
-    "rank": 21,
+    "rank": 25,
     "ticker": "FROG",
     "company_name": "JFrog Ltd.",
     "score": 86,
     "earnings_date": "November 5, 2026",
-    "days_left": 20,
+    "days_left": 17,
     "price": 84.31,
     "pe_target": 107.15,
     "pe_upside": 27.1,
@@ -624,18 +744,18 @@
     "sector": "Technology",
     "sentiment": "Positive",
     "news": {
-      "title": "Tiny rare frogs bred for first time at London Zoo - BBC",
-      "url": "https://news.google.com/rss/articles/CBMiW0FVX3lxTE1jRXpOYnllLXdabDRPYmlJcWdqLXE0UUZueTA5ZHhhXzk1UnZBNkQyTHZLUk9DdTBVbDVsU3JjN1l6bk54TXBRQzViNzhFM2VPVS1XbHNqQ3lkV3M?oc=5"
+      "title": "Makana Eyre: If Bad Bunny Can Love Coqui Frogs, So Can We -...",
+      "url": "https://news.google.com/rss/articles/CBMiggFBVV95cUxPUHpRVV9BSTdDQnpIbWoyZ01ZOW5Od19LS2poWTIyMmd2aUdQazMxRllwc3l0SkRnMW82Q3ZGOVdUMDI1S1dDNi1QU0ZMUFN4RmRqU1lIMnJnaHpiREdZSmhYRTZmOXFCQjZ2UHZhN2NCemV6RFk5QTcyVnQ0em40MHJ3?oc=5"
     },
     "price_change_pct": -10.82
   },
   {
-    "rank": 22,
+    "rank": 26,
     "ticker": "DXCM",
     "company_name": "DexCom, Inc.",
     "score": 85,
     "earnings_date": "October 29, 2026",
-    "days_left": 13,
+    "days_left": 10,
     "price": 86.04,
     "pe_target": 89.5,
     "pe_upside": 4.0,
@@ -660,12 +780,12 @@
     "price_change_pct": -1.9
   },
   {
-    "rank": 23,
+    "rank": 27,
     "ticker": "STX",
     "company_name": "Seagate Tech",
     "score": 85,
     "earnings_date": "October 27, 2026",
-    "days_left": 11,
+    "days_left": 8,
     "price": 639.01,
     "pe_target": 693.31,
     "pe_upside": 8.5,
@@ -684,48 +804,48 @@
     "sector": "Technology",
     "sentiment": "Positive",
     "news": {
-      "title": "WDC, STX Stocks Headed For Third Straight Weekly Loss \u2014...",
-      "url": "https://news.google.com/rss/articles/CBMi9AFBVV95cUxOOHJGTGJQUWtaSWN2eW9rMjdKaF9tb3I2ZjRpY3lwZ3pxTlNxQ21UZWlhVWF6WG85XzZ1N3FPLTVPM2lPMUJjM0lrTFBXS0dHcTZOeTczSUVKY2U5Y0pxVGVkWUZ2WmdnWjBYMldsVWxEdWhONVdWMGxZMHFZaWY5Nl90czZLcTNwVWpzQllnSi02ZUdJMy1QR1YxX2tsMm44VHZsMmNSaU8xMnh0ZDVUZDhucE5IeXJ1UWdna2ZfQi16WDNEai1waVFTbzQySGFnRmYyTnllTlRNc3oyYmo4WkVfbUl0QmxLZ3lfNXp5SDZlYU0z?oc=5"
+      "title": "Tested: The 2026 Ford F-150 STX Lobo Phones It In - Car and...",
+      "url": "https://news.google.com/rss/articles/CBMigwFBVV95cUxOS0YweTRybkstaUNRc3Y4VlhJUWdNNWl0VmJ0dEdrcExZZ2dRRTZoV1hyTmM2RUpKWEdQNkNjR09jaEphXy01LThEM2FocV9jaVk2cnZoQ2VjTnlNdUZZbURhRHJIUDQ2TTBpYUFVOF9kNE9pS3d0RXB2MENvWDFCc3VmRQ?oc=5"
     },
     "price_change_pct": -7.5
   },
   {
-    "rank": 24,
+    "rank": 28,
     "ticker": "AMD",
     "company_name": "Advanced Mic",
     "score": 85,
     "earnings_date": "November 3, 2026",
-    "days_left": 18,
+    "days_left": 15,
     "price": 528.75,
-    "pe_target": 545.15,
-    "pe_upside": 3.1,
-    "3d": 577.95,
-    "3d_up": 9.3,
-    "5d": 610.75,
-    "5d_up": 15.5,
-    "analysts": 55,
+    "pe_target": 546.51,
+    "pe_upside": 3.4,
+    "3d": 582.03,
+    "3d_up": 10.1,
+    "5d": 617.55,
+    "5d_up": 16.8,
+    "analysts": 56,
     "sb": 5,
-    "buy": 39,
+    "buy": 40,
     "hold": 11,
     "sell": 0,
     "mktcap": 0.0,
     "short_int": 2.4,
-    "iv": 3.1,
+    "iv": 3.4,
     "sector": "Technology",
     "sentiment": "Positive",
     "news": {
-      "title": "If You Invest $1,000 in AMD Each Month Starting Now, This...",
-      "url": "https://news.google.com/rss/articles/CBMixgFBVV95cUxQM0ZsZ3lPTzJ6bktQQTNTaUNDd25SZk5La0p2WWJkLWVKeHB1dUxRNlhoUXBVcmVkb0stMURQMlpZS2YzSjdCU25ONHl1M3VUcHctcFBHNGhjREpMTlRIVGVIZ0VzX2lpQndnSUFXQ0FKbWxyMFVoZ19lWVhTazN2enhDZ1VINlYzajlPUkhOTUd4MWdaeWlFNGd3SlV3bXB3VVNaRFI2ZmxpVlNabk5iVWJMOXJPamhQY0tFa3lBQlM1SjlwdkE?oc=5"
+      "title": "AMD Radeon Owners Can Now Run Nearly Every DLSS Feature...",
+      "url": "https://news.google.com/rss/articles/CBMisAFBVV95cUxPa1FWMnJBS0VFOExEVDhlYUtGWldwV19qei0wTnhlSUg2QzBjNlMwRzYwMGFsLVBxMTBvLXdGRy1vVXV2a25veUdkcGNPd3JDdjJoVHljTF93eXdBVXVTM3VyMF9YRVJxZU9GWkduZE8yeG9KRHBlUWJsTHZrNDh1Ml9kbzM4dFBlUVlaXzYtakQ3R3Z6dFZXT0I5MUlWNXJ4d1gxakFoNXNRUUhxcHFwWNIBtgFBVV95cUxQT213ZXREbDZrUVZaUkFhMVRWdnFVTWhTUmU0WGhWWHMwX0FZOVlmYUJqWlFseU9OZkNjeUg4Mm1VUmNDVkdWRWxqaEdTekhyTHI4Qm9ZQkREZHBoTDMyQ3Fnd3NocjU0V0RJTFg0VE1fWlIwbTRmcU8wY2Z6M1dOaS1LQUh1a3VBQ3ZvZGNXYWQwVGEyX2pGVGo4eFFOUUY3aDZPZW9zM2g1cG5IcGs5bmJBZWtCdw?oc=5"
     },
     "price_change_pct": -5.95
   },
   {
-    "rank": 25,
+    "rank": 29,
     "ticker": "V",
     "company_name": "Visa Inc.",
     "score": 84,
     "earnings_date": "October 27, 2026",
-    "days_left": 11,
+    "days_left": 8,
     "price": 402.61,
     "pe_target": 411.76,
     "pe_upside": 2.3,
@@ -744,18 +864,18 @@
     "sector": "Financial Services",
     "sentiment": "Mixed",
     "news": {
-      "title": "BTS\u2019 V Gets Dinner With His Bandmates, Practices Spanish &...",
-      "url": "https://news.google.com/rss/articles/CBMigwFBVV95cUxOMExickRHbmxmczRmZ3pWcFI4ZndHYzBXRnl5a3VmMXdXN2R1RVpHOVc2WEcyd00xUXNBTWxUcTJYUzJBc2NzQllsYmtqcFZaT1pvWlZkOTk2MDNRNGZhZHkwdi15ZkJLTFR1Y0pYbDlfQ2R3S0NBTXBDNE9Edkd4UENWdw?oc=5"
+      "title": "South Africa v Australia: second men\u2019s cricket Test, day...",
+      "url": "https://news.google.com/rss/articles/CBMi2AFBVV95cUxOdXFxeklxUkJqWExkV0VRLWFGQ1lPT3QyaHpPdXliM3docmpRUmxVNU4wS3BrdkFwcmN0cFpGUGVxQVNOT1dSaWs0ZGxfcjZDQ013bXkzN2tueFpFOWlGQkpNQWVpMlJoMmJpTkVCRU9xX3puNUJJUDJFeVpySjRNQ1luRGMtMGc1UWZoNWN1aFpNaWx6cXdYVUd1MUJrdmxORHk3QnpmR3JDTVBvLTZNM2VYUTE1UHFpMDlaTFpGaVBqa2syc2dKeXgwZmR1c1IwNUI5YjV2MmY?oc=5"
     },
     "price_change_pct": 0.72
   },
   {
-    "rank": 26,
+    "rank": 30,
     "ticker": "LRCX",
     "company_name": "Lam Research",
     "score": 84,
     "earnings_date": "October 21, 2026",
-    "days_left": 5,
+    "days_left": 2,
     "price": 263.94,
     "pe_target": 286.08,
     "pe_upside": 8.4,
@@ -774,78 +894,18 @@
     "sector": "Technology",
     "sentiment": "Positive",
     "news": {
-      "title": "Lam Research (LRCX) Q1 Earnings Preview: What You Should...",
-      "url": "https://news.google.com/rss/articles/CBMimgFBVV95cUxPWFhRUG1kaEVrYUlKbUJ0MmZkMU1NUmtvaWR2blAtbjI5ZHdfMnBVQ0xtNWlCTzBtUTZZUnB6REFLSXRVT0hDRVJ2UDBFT29zeWdPaTlYWWRYNV9yaXhSNEJRNTJsTFdiY2tvWmg5Ry1kLU5zdDc2U2VBcVdQZ1p0QUpkRjZpcDBDWkJZM2lJeS01T1JId25ydFZR?oc=5"
+      "title": "ETFs Are Net Sellers of Lam Research (LRCX) on Oct. 15 -...",
+      "url": "https://news.google.com/rss/articles/CBMimgFBVV95cUxPbDNsZ0V3VXlOaGt6NEk0eHd0aHhOREVBYlZYNEdNMm5jVktnSHVDYXFtN0xJRzI2OGZyeENoVEZFUFk4dlBEN2NyczlTb2RZTzhYNk1pWmo5R3ktWkR4TDlmN2NfYk5Jclg4eUlmeHNQU050VHdEUENOWTQyRkNNMl9NUThsRVA5UWM0dTdaRmJsYnl1aU5qcW5R?oc=5"
     },
     "price_change_pct": -4.87
   },
   {
-    "rank": 27,
-    "ticker": "AMAT",
-    "company_name": "Applied Mate",
-    "score": 84,
-    "earnings_date": "November 12, 2026",
-    "days_left": 27,
-    "price": 409.29,
-    "pe_target": 433.56,
-    "pe_upside": 5.9,
-    "3d": 482.1,
-    "3d_up": 17.8,
-    "5d": 530.64,
-    "5d_up": 29.6,
-    "analysts": 40,
-    "sb": 4,
-    "buy": 29,
-    "hold": 7,
-    "sell": 0,
-    "mktcap": 0.0,
-    "short_int": 1.7,
-    "iv": 5.9,
-    "sector": "Technology",
-    "sentiment": "Positive",
-    "news": {
-      "title": "Has Buying Applied Materials Stock's Dips Paid Off? - Yahoo...",
-      "url": "https://news.google.com/rss/articles/CBMiowFBVV95cUxPdnJNNHNLNHJQeS1XanZseDQ0NlROY2dtQ3dlcEljckV2ZUhfYm9BUjE4bUQ1MUhQOTEycVZ3VHNPNlJCZXpFa0wzX0lqN1lWTHlrUHdNaDYyeWFQZEFkdkE5OHJMZjdWQVNPRnQ2VjVHaGNiQ0hEc3VpNmxjMkRyRVNWaF9POWd1VURqYmlDSkxjWDJNemMwYU5odjI3bWFoYjNR?oc=5"
-    },
-    "price_change_pct": -4.82
-  },
-  {
-    "rank": 28,
-    "ticker": "WDC",
-    "company_name": "Western Digi",
-    "score": 83,
-    "earnings_date": "October 22, 2026",
-    "days_left": 6,
-    "price": 332.0,
-    "pe_target": 367.45,
-    "pe_upside": 10.7,
-    "3d": 438.35,
-    "3d_up": 32.0,
-    "5d": 509.25,
-    "5d_up": 53.4,
-    "analysts": 26,
-    "sb": 4,
-    "buy": 17,
-    "hold": 5,
-    "sell": 0,
-    "mktcap": 0.0,
-    "short_int": 4.9,
-    "iv": 10.7,
-    "sector": "Technology",
-    "sentiment": "Positive",
-    "news": {
-      "title": "Entegris, Micron, AMD, Marvell Technology, and Western...",
-      "url": "https://news.google.com/rss/articles/CBMipgFBVV95cUxPZTB1MzZ2TXlkOVZYTXAtRmZDdjdPTlVJRkZVMDZxdWgzY01kSmVtVk1TT0piY1pISFRsM0w1SVEtZjdrY3pPQ3RMWi0yTTdqU09OSnQ0STNUbXNiOHZ3OHVCSkRQUFBkaDRlUDdNLXA3cVBLSzl5ZGVSVTBfcEVfMnV1MWFKaThxNHFRTnV2YzFhTUI4Qi1IMFVZRnlHb1ZVOFpsVENR?oc=5"
-    },
-    "price_change_pct": -6.86
-  },
-  {
-    "rank": 29,
+    "rank": 31,
     "ticker": "SYK",
     "company_name": "Stryker Corp",
     "score": 83,
     "earnings_date": "October 29, 2026",
-    "days_left": 13,
+    "days_left": 10,
     "price": 294.66,
     "pe_target": 323.6,
     "pe_upside": 9.8,
@@ -864,25 +924,25 @@
     "sector": "Healthcare",
     "sentiment": "Mixed",
     "news": {
-      "title": "What Is Stryker (SYK) Really Getting From Its $400 Million...",
-      "url": "https://news.google.com/rss/articles/CBMilgFBVV95cUxQZ1gwSTNCd1c1ZDZIYU1FX2hFdmVQb0U1TXVjWmljWXFOd2FyazlEczRzRV9YWGlJa3ZzVFYtcENRenFhcFJjLWpqZDdCNlU1M0pYVTBmd0N0QjlOb2N0Ml9VeG9hWjFaZlpnOXhMR2FvazE5MENxTXhEdlFfd3NrUFdlRzRDTmRuNS1Xa2o5TXNqVGxvbmc?oc=5"
+      "title": "SYK: Stryker Corp. Latest Stock Price, Analysis, News and...",
+      "url": "https://news.google.com/rss/articles/CBMiSEFVX3lxTE9oa2dOb3FhRi13UUl2cUlWUlJ6UUNrSWNFWTR1bFNYWmtiN2ZCMUctQkhsRjFmTGRTNUI5SU5QNUhjMGo2VnZmbw?oc=5"
     },
     "price_change_pct": 0.49
   },
   {
-    "rank": 30,
+    "rank": 32,
     "ticker": "VRT",
     "company_name": "Vertiv Holdi",
     "score": 83,
     "earnings_date": "October 28, 2026",
-    "days_left": 12,
+    "days_left": 9,
     "price": 206.42,
-    "pe_target": 221.83,
-    "pe_upside": 7.5,
-    "3d": 252.65,
-    "3d_up": 22.4,
-    "5d": 283.47,
-    "5d_up": 37.3,
+    "pe_target": 220.21,
+    "pe_upside": 6.7,
+    "3d": 247.79,
+    "3d_up": 20.0,
+    "5d": 275.37,
+    "5d_up": 33.4,
     "analysts": 30,
     "sb": 3,
     "buy": 23,
@@ -890,22 +950,22 @@
     "sell": 0,
     "mktcap": 0.0,
     "short_int": 3.7,
-    "iv": 7.5,
+    "iv": 6.7,
     "sector": "Industrials",
     "sentiment": "Positive",
     "news": {
-      "title": "Vertiv (NYSE:VRT) Stock Gets Downgrade from Wall Street Zen...",
-      "url": "https://news.google.com/rss/articles/CBMiuwFBVV95cUxQajU2cVVqaGxJWUY1djdCMTNBeUFkZjY4LUZRdGRQMEFvNk9Eai1KaG42UnA0VkI3d2MySHNxbWZzM21TR0xfbFh1N3hMb2F3cjJzZ0hMSTBfMTg5Rkw4RGprTlhiVGVweVdyRHJLbUgxQndDQXA5SlRpSC1mSXNBVENtbUFXQ1FJSTVsNW5veE95T2FvQXFWTmE2cTRhWDZlejVpcmREVXBhT3Mwb0dGQ0FSVjMzT2taTUV3?oc=5"
+      "title": "Vertiv Holdings, LLC (VRT) Stock Forecasts - Yahoo! Finance...",
+      "url": "https://news.google.com/rss/articles/CBMilAFBVV95cUxQcFQ3ZW56SWVZZnBsNE12THNVamR3OGQxQjIybk1pNmNHcTZHcGE1RlQzaUVBU2pJN05jcEZWSkhkbmg4ZUVzdDM4b1dpMVMxSWZEVmRGWTRQdG5MbE81akNILTdaR1prNHVVSzFPQm9jVVoySUR6djN5Zlc3anRqQ1hIUmlSclA0SkVyTHlPeGQ3bUts?oc=5"
     },
     "price_change_pct": -3.88
   },
   {
-    "rank": 31,
+    "rank": 33,
     "ticker": "RTX",
     "company_name": "RTX Corporat",
     "score": 83,
     "earnings_date": "October 20, 2026",
-    "days_left": 4,
+    "days_left": 1,
     "price": 193.92,
     "pe_target": 204.48,
     "pe_upside": 5.4,
@@ -924,18 +984,18 @@
     "sector": "Industrials",
     "sentiment": "Positive",
     "news": {
-      "title": "NVIDIA RTX Spark PCs Available Today \u2014 A New Beginning for...",
-      "url": "https://news.google.com/rss/articles/CBMipgFBVV95cUxNTFF1Y3NscnpKMlBtdk52SF9LOFE5Y2F3VjBMRGZFNVhOX2NTQkJEUGFENTdvZVQ0ajI0R012ZmNxeTBYaVZzaEJhc0J2YVM2Vy0xZVpqOTNKeno5TDZqMEJSWFU2b1BNb3FrOVZHU29ERXoxYzBKVW9lR1JyVzlIUmRYSXVLX28yNmtja3hDdWQ5QXI4SHBWLTlmNkQ5TTFwRVh6VXZB?oc=5"
+      "title": "RTX 5090 disappears from Nvidia marketplace amid reports of...",
+      "url": "https://news.google.com/rss/articles/CBMioAJBVV95cUxNY1NQUEdyNndVajlUbDJnX3lZd3BNaHFpOFV6Nm00RkFxellpOGl0ZVlVSkdRRVhWdWg0V1BnWVo1RWFoZ2U3alFwaXViZVliUVBsY3puNFJoYkpKaHh6TEJ0cl9YbFYwR1hYLURDdldHZVZBTlFDbU0wSW13aDhmb25fV0NEc0FrUnNZcE96TUN3cFk2WU1aZFZBYl9aMV84Q2U0dnBIeU5XZFNQNnp2MEpCT1B3SlRoYncwaVZCb3l2X20zMUF0WjlDa0ZOaEtEaFNSRUZUZk0yYm5oQm9mN3M4bl9FWDlncWdRZTd1bE5CMllpaUZCbVYzYTJJS2l3LVJGQndrSWVGckFMWk9HTUg0SmdnQlBGUVVYYzQ5Z0I?oc=5"
     },
     "price_change_pct": 3.73
   },
   {
-    "rank": 32,
+    "rank": 34,
     "ticker": "APP",
     "company_name": "AppLovin Cor",
     "score": 81,
     "earnings_date": "November 4, 2026",
-    "days_left": 19,
+    "days_left": 16,
     "price": 266.13,
     "pe_target": 282.26,
     "pe_upside": 6.1,
@@ -954,18 +1014,18 @@
     "sector": "Communication Services",
     "sentiment": "Mixed",
     "news": {
-      "title": "Apple\u2019s new App Store rules crack down on AI nudification...",
-      "url": "https://news.google.com/rss/articles/CBMiswFBVV95cUxQU1lDR29iSGcyem5nUVJUSGMtMkdkTjRZTjJ4TmlFeXd0azVONDRLREJ4MWIxTS1zT3Y0RG9vaDNka0ZnRjJLUXl5eE5WVlAyeV9IMll2T3BuS0ItQ093NzF2ak9zVjVVeFphN2NESDZ0SVhCV3J0ZGg4ek9TTDhoTnBWNnExeldGUk5zQklpV2o5X0lfSUUzRDBZcEhVNmowYU5RTkprMTdLS2puTkpfWEdKTQ?oc=5"
+      "title": "Three Phone app features worth turning on right now -...",
+      "url": "https://news.google.com/rss/articles/CBMiiAFBVV95cUxPdlV5cWQ4LUF0YTdOdDRKektBXzBKa1pPTWEtdUtVU1JLMzY5Z0JqdDBQdGpHQ28xYXI5S0Y4X2M1THZ4bXEwTWt0b0xCaW5TS3JKWlNTakFremJtODZxVGVPY3ItdlNfbEwxWFRpWWlZRjhsV3J3UEQ2Y1pXbHg1amtuX2FibEZ4?oc=5"
     },
     "price_change_pct": -4.71
   },
   {
-    "rank": 33,
+    "rank": 35,
     "ticker": "TAL",
     "company_name": "TAL Educatio",
     "score": 80,
     "earnings_date": "October 29, 2026",
-    "days_left": 13,
+    "days_left": 10,
     "price": 12.0,
     "pe_target": 13.52,
     "pe_upside": 12.7,
@@ -984,18 +1044,18 @@
     "sector": "Consumer Defensive",
     "sentiment": "Positive",
     "news": {
-      "title": "Alexander brothers found guilty on all counts in sex...",
-      "url": "https://news.google.com/rss/articles/CBMipAFBVV95cUxPT0I5R2Rjc3FvR1hyeXdFWWFYYVJ6aWRDRU5zY2RJbU9WaFgxcU5TNElJUHg0Y0Z3VjZmcTV3cW1rS3BWM1dYMDg4cmRtVHFDVDNDZ3JpTEo5T2RHTlY2Q2Vpc2dQM0lIanVTWDV5cTRMZWNGRDRQYzZJbi1ST3FLcDRzVTg4VHJCZ1JvVmJFS0pIaTlyTHp2NlhuYTF4TDZhQ3htVtIBqgFBVV95cUxPbUFpTGNRWEYxc3ViLWtxVW1xX2JGQnVwNlBtTi01Sm12TUtWRE9HbmxXZzg1TGV3a0xyYUtGd0dEZ3NTZkVVbktDRUNzZERQTjdIZ2hnTFd5WXM4MGd1cXBsQVVPLXRqNlZPaGxIeTRpTTY2S1F4cXNDN080UVJkVXdMb0poYUZBaURYTVBFSkNaS1V1b0FFR1hyY25rYzg5TW9ldEFoTE5oZw?oc=5"
+      "title": "Japan's Daiichi Life unit tables offer to take over...",
+      "url": "https://news.google.com/rss/articles/CBMiuwFBVV95cUxNaHBxWmpQTnRabkREbWRsWWZPUzZUdkpDWXh1b3M2aWdERGxSMVlLODVaaHlkU0lkSTBaa3dhVVZEcmJPejRfVHpScTRCRXhCZjRHTWxMbzYwYU5IbVpPUzNUdzNDWUlzbFJMWVYzSkFvRlZOMWtxeGk5dlpEWDRtVDRqVmlhSXpFODdqaWlsX1RqOVFUckNHbE1jOVVObE1FdHhrREVMNlZ6dDFuM1ViY19SNll4Q3k2M0pV?oc=5"
     },
     "price_change_pct": -4.31
   },
   {
-    "rank": 34,
+    "rank": 36,
     "ticker": "CDNS",
     "company_name": "Cadence Desi",
     "score": 80,
     "earnings_date": "October 26, 2026",
-    "days_left": 10,
+    "days_left": 7,
     "price": 319.51,
     "pe_target": 333.79,
     "pe_upside": 4.5,
@@ -1014,18 +1074,18 @@
     "sector": "Technology",
     "sentiment": "Mixed",
     "news": {
-      "title": "Cadence Design Systems (CDNS) SVP exercises 1,000 options...",
-      "url": "https://news.google.com/rss/articles/CBMivAFBVV95cUxPU2NmU056Uy1sNjA2dERFTENiQy1obHNHTG1wR1JyMFo4akRheHFsZmRTdUhsTWNpYzNGOFRFa3BraDFCVUhkemtsUXdXTl9pUTRacmxNajhjZXBCWHdhd0p6Y3hUQkNLMmpxd1p6eGtuN3pJLUlWai1tVG44VGUzMGZjSUpFbGNWVm5XZUJ1SVdybC0wYWNraGxYYXZEWVhzSXoxQTYzbUJ3eEV0Y21qcGJwSktYeUZZcDRUeg?oc=5"
+      "title": "Cadence Design Systems (CDNS) Deepens AI Chip Design...",
+      "url": "https://news.google.com/rss/articles/CBMioAFBVV95cUxNRzFKdFhMd0NXX2psaktaX0Y4ZVV1M2paMWJmZ2hma2xHamU5ZFFDRDQ4bTlVTGpMQTBERWNPcDZkSDRob2R5MThCZGc3bW1qZ1JyRW1FQXlhb3ZpUHFqWEhpLXZJWmVuQkxTU1NOaXdNTDFuM0ZRWjd6X20xSXR5SDQyamlnTUNLbkJNTlBfS0phVmVqRlhBMmNvRDl6dlZ0?oc=5"
     },
     "price_change_pct": -1.5
   },
   {
-    "rank": 35,
+    "rank": 37,
     "ticker": "BIIB",
     "company_name": "Biogen Inc.",
     "score": 80,
     "earnings_date": "October 28, 2026",
-    "days_left": 12,
+    "days_left": 9,
     "price": 232.65,
     "pe_target": 242.63,
     "pe_upside": 4.3,
@@ -1050,12 +1110,12 @@
     "price_change_pct": -1.15
   },
   {
-    "rank": 36,
+    "rank": 38,
     "ticker": "VRTX",
     "company_name": "Vertex Pharm",
     "score": 79,
     "earnings_date": "November 2, 2026",
-    "days_left": 17,
+    "days_left": 14,
     "price": 499.74,
     "pe_target": 522.74,
     "pe_upside": 4.6,
@@ -1074,18 +1134,18 @@
     "sector": "Healthcare",
     "sentiment": "Mixed",
     "news": {
-      "title": "Is Trending Stock Vertex Pharmaceuticals Incorporated...",
-      "url": "https://news.google.com/rss/articles/CBMitgFBVV95cUxPT25LeVNKekZUbDBCTGw1VWNDbjM1UlFyQ09Qc3ZHZXdUOVRLd2xJWWJJTENibDJtZGhpTmZlVnBnVjN4QWtmMjZCbXNGUVpxems2SU5zMmV5MGpvdHVxd1pfOVNPMlZGeTBzRHJfVUVHMGpveGxrOXg5aklnZEQ1TFc5c3c0Rk5RbWx5NFpOb2NLcTMxTUdoOER1UkpaUDBEWTNraE9nT3N2N2RNbFNwcHEtb3U5Zw?oc=5"
+      "title": "Vertex Pharmaceuticals (VRTX) Sees $11.6 Million in Net ETF...",
+      "url": "https://news.google.com/rss/articles/CBMiogFBVV95cUxPd2EwdVRkTThwN1h6WjVxYkxtc205MzBOUUFONkZiWlpMMUJ1UV8xSW9kQjBJQ2tBZHIzYUZMX3lNTlktcWZ2UTFGc0tuTHVycExfa0VkM254SUxSZElkR2F6NkQtNzJHWjlwblhzMllmOEZWOWJEMWp5bURRNG9YOWxSRXhUdnRFTVVVdDBaTTh5ZklRMzI3MFRORGwwSWVhVmc?oc=5"
     },
     "price_change_pct": -1.77
   },
   {
-    "rank": 37,
+    "rank": 39,
     "ticker": "PH",
     "company_name": "Parker-Hanni",
     "score": 79,
     "earnings_date": "November 5, 2026",
-    "days_left": 20,
+    "days_left": 17,
     "price": 963.34,
     "pe_target": 1041.29,
     "pe_upside": 8.1,
@@ -1104,18 +1164,18 @@
     "sector": "Industrials",
     "sentiment": "Positive",
     "news": {
-      "title": "Former Crick Ph.D. student loses COVID vaccine paper for...",
-      "url": "https://news.google.com/rss/articles/CBMiqwFBVV95cUxQVXZVWV9BQ01RaWFYZ2xUaG03RlVpTkhSUkNabmM1dUtyQ0l2QjNMbHkwamJ1bjZIVml5Q2ZGb1JnS1BuUGkzN3VpcFdGLWpLQmRQaTdmOV9VV2Q3dnJnbm1FT195amhlLXhSQTVnSnIxV2dzbmpwMHY1QjZ5d0RDWHdzYVFPa1YzaWJFYTVuLXFSbE4wUWFjMWQyMzdmYWFkWkFMMkVoelVESlk?oc=5"
+      "title": "A Princeton Ph.D. Applied to 2,300 Jobs. He Still Can\u2019t Get...",
+      "url": "https://news.google.com/rss/articles/CBMihgFBVV95cUxPM0JDd2NOS2ZBN0lLR0pjbTNFb3B5bEtFM1d4VDBXa2R4c1hVVElQOGU3aDFpWU5CUU1LZF9GRlBCU2c0ek9BTVdBVnF0T25uWWZ4MWdGYzNFYjJpQ0pqTkpKZDRoenIta1VRc0VZM055MmlPdk4tLV8wZWlPbkFyODdMa3J3UQ?oc=5"
     },
     "price_change_pct": 0.17
   },
   {
-    "rank": 38,
+    "rank": 40,
     "ticker": "CEG",
     "company_name": "Constellatio",
     "score": 79,
     "earnings_date": "November 9, 2026",
-    "days_left": 24,
+    "days_left": 21,
     "price": 271.37,
     "pe_target": 285.34,
     "pe_upside": 5.1,
@@ -1134,18 +1194,48 @@
     "sector": "Utilities",
     "sentiment": "Mixed",
     "news": {
-      "title": "CEG Stock Quote Price and Forecast - CNN",
-      "url": "https://news.google.com/rss/articles/CBMiT0FVX3lxTE9xMjNRVVMySWl3d1RJR0I5anBxM0FmNE5aWUZnWEtONDNkeW5TX0ZGZmx1Q3pfaE5Gejc0SzdUc0FsaS1xRlVfandnUURRVm8?oc=5"
+      "title": "Constellation Energy Corporation (CEG) Stock Price, News,...",
+      "url": "https://news.google.com/rss/articles/CBMiUEFVX3lxTFBBSFVOTHgxWnY1V0ktMGFHTzNDMG5UaDV6c3E0dzVWRFV6UDFXZm96MlBJVXozQnNTdFNzdHRNUk55TGdWYVZxRTVUT1JiWEtM?oc=5"
     },
     "price_change_pct": -1.32
   },
   {
-    "rank": 39,
+    "rank": 41,
+    "ticker": "REGN",
+    "company_name": "Regeneron Ph",
+    "score": 79,
+    "earnings_date": "October 30, 2026",
+    "days_left": 11,
+    "price": 790.74,
+    "pe_target": 812.59,
+    "pe_upside": 2.8,
+    "3d": 856.29,
+    "3d_up": 8.3,
+    "5d": 899.99,
+    "5d_up": 13.8,
+    "analysts": 28,
+    "sb": 4,
+    "buy": 15,
+    "hold": 8,
+    "sell": 1,
+    "mktcap": 0.0,
+    "short_int": 2.2,
+    "iv": 2.8,
+    "sector": "Healthcare",
+    "sentiment": "Positive",
+    "news": {
+      "title": "How Investors Are Reacting To Regeneron Pharmaceuticals...",
+      "url": "https://news.google.com/rss/articles/CBMi8wFBVV95cUxNMjFLUVhzVnZoa0pZVERnNk1BZVRHbTlQOTE3MkpoYUpHYkhzOXByNTg0Q2JkNTl5Y0JabzlpLUpELWJBMDVzbHBWUkFKYkZKWGlJNE9ScGxLQ1oyYVVyZU5YNGtfSDJobzBtV2NLYlpVSFFWZzAtYW9Fa2tzS2tlLUQ3ZlZLN2ZPSlNWRl9GaTNaY1lrQWlWLXN0ZkFRVlJZbkJIMVhCME5lT0VUc1NpUEZZeFZhaVVINHd4VjRqODBZRnpPMUNIYXZIS3J1bzgtQTJOQktnN1pIeWphN3MtWmhOcWllTWctd2ZUTzljQ3BLZjDSAfgBQVVfeXFMTUtuTWppRE9aa0lhcE9mcEdiZkNrVmpkQWRSVDQxNFM3OGlRMGVwT0wxQlZJMDlYeVJHRmRwWkctb1hTandMRDZRa2FTZmRrTEtLNXBNRE4yZHVsWHVqbHNxeDlvSjRQTVhNUDlxRFRXdWdGTGxsNTR0WVF6Q0dvdUx1YXpndlRiVktRMHpXc2ZfRFpDVjNmMm50eXlEQ0VxNVMwS2pIWTdqQXlINXQxQ20yXzQwTXZiekZQZTNVblZaMzY1ZmM0S3VTSVZaV1JzbVVGNTFtRzBuQlF0SDAtSHRpNkVjM0JIVzAwNlhEaWVOTERLeEk2MEI?oc=5"
+    },
+    "price_change_pct": -0.7
+  },
+  {
+    "rank": 42,
     "ticker": "WST",
     "company_name": "West Pharmac",
     "score": 79,
     "earnings_date": "October 29, 2026",
-    "days_left": 13,
+    "days_left": 10,
     "price": 384.02,
     "pe_target": 425.25,
     "pe_upside": 10.7,
@@ -1164,25 +1254,25 @@
     "sector": "Healthcare",
     "sentiment": "Positive",
     "news": {
-      "title": "How Investors May Respond To West (WST) Raised Guidance -...",
-      "url": "https://news.google.com/rss/articles/CBMi7AFBVV95cUxPNUhOeW1yMWt3c0xxMVdLbV9obW51ZkxRbmNtakY2ejFyZEhuSlhwTmh6VnRZajZtZkpDN2JqcGJweWZDVlFLMl9KWW9zTUUwc3lMR01ocDVLYnpOcE56QVRkUHI4eHV6WExwdkJ2b3RycGVlZllRYkgzTGk0TlFXVXBLNm9SLXA5VGVWRU9XVkR0ZDlrODBPX0RveE9XTk1fbHoydGhWSjUzU3pkX2gwOFhhU3BpdFJjRlRyN1ZoM1ZLOWhjOVBRTlViWUw0XzlxX3BrT0RmMmRNekFZMWQtLWxVRzgwYWk0N0dMMtIB7AFBVV95cUxPNUhOeW1yMWt3c0xxMVdLbV9obW51ZkxRbmNtakY2ejFyZEhuSlhwTmh6VnRZajZtZkpDN2JqcGJweWZDVlFLMl9KWW9zTUUwc3lMR01ocDVLYnpOcE56QVRkUHI4eHV6WExwdkJ2b3RycGVlZllRYkgzTGk0TlFXVXBLNm9SLXA5VGVWRU9XVkR0ZDlrODBPX0RveE9XTk1fbHoydGhWSjUzU3pkX2gwOFhhU3BpdFJjRlRyN1ZoM1ZLOWhjOVBRTlViWUw0XzlxX3BrT0RmMmRNekFZMWQtLWxVRzgwYWk0N0dMMg?oc=5"
+      "title": "3 Low-Volatility Stocks We\u2019re Skeptical Of -...",
+      "url": "https://news.google.com/rss/articles/CBMipwFBVV95cUxPb3pxVmNkOFliT290ZmVudkg1N2FBUlZ0Y05jeUZDaEs2R0ZNVWZ6ckNnUU1HdDhoQTFQUXBmZ1VUWjJRRHdxbnlIbGdaWU1NVmc2V0tNdmxLNXZlZ0JkRUFaYlFrTTgyd3p2cWJJSU8xdFVwTmFGMXRIb0liQnVRSkJJNjBJdjQ1d3RfbDFSZFc5LXF4ZzJ5eDBUakYtYlFXUXpkS0NOVQ?oc=5"
     },
     "price_change_pct": 0.26
   },
   {
-    "rank": 40,
+    "rank": 43,
     "ticker": "PCTY",
     "company_name": "Paylocity Ho",
     "score": 78,
     "earnings_date": "November 5, 2026",
-    "days_left": 20,
+    "days_left": 17,
     "price": 166.32,
-    "pe_target": 229.92,
-    "pe_upside": 38.2,
-    "3d": 357.12,
-    "3d_up": 114.7,
-    "5d": 484.32,
-    "5d_up": 191.2,
+    "pe_target": 179.82,
+    "pe_upside": 8.1,
+    "3d": 206.82,
+    "3d_up": 24.4,
+    "5d": 233.82,
+    "5d_up": 40.6,
     "analysts": 21,
     "sb": 3,
     "buy": 15,
@@ -1190,22 +1280,22 @@
     "sell": 0,
     "mktcap": 0.0,
     "short_int": 7.0,
-    "iv": 38.2,
+    "iv": 8.1,
     "sector": "Technology",
     "sentiment": "Positive",
     "news": {
-      "title": "Paylocity Holding Corporation (PCTY) stock price, news,...",
-      "url": "https://news.google.com/rss/articles/CBMiUkFVX3lxTFBCdl9QVGlnSExwclFLS1FSUE9QVjJGQnZJQjNBSm0zcG5wbVAycXRCb2pxdWNqcFBjQi1vVFJtRlBMV1R2TEdiV1dWaXFuLVBoY1E?oc=5"
+      "title": "Paylocity Holding Corporation (PCTY) Stock Price, News,...",
+      "url": "https://news.google.com/rss/articles/CBMiUkFVX3lxTE92UFIzX2lSMnhFR1Nia1kwazlRWm5tcXE5QzVBdnd6N3RxMHhGRmpRaGw1MkRVYUxrc2JOekViMmQtTkktUVFfMFJlQUZReExEVlE?oc=5"
     },
     "price_change_pct": 0.04
   },
   {
-    "rank": 41,
+    "rank": 44,
     "ticker": "MCHP",
     "company_name": "Microchip Te",
     "score": 78,
     "earnings_date": "November 5, 2026",
-    "days_left": 20,
+    "days_left": 17,
     "price": 73.85,
     "pe_target": 78.6,
     "pe_upside": 6.4,
@@ -1224,25 +1314,25 @@
     "sector": "Technology",
     "sentiment": "Positive",
     "news": {
-      "title": "Why Microchip Tech (MCHP) is Poised to Beat Earnings...",
-      "url": "https://news.google.com/rss/articles/CBMimwFBVV95cUxQbm91dU9DUWVJbWhNb0pXeUdyVHNPUDZyd2g4dHJXTFB3Uk5xeGN1X2M1ZnFLUTRPbGN0UWp6ZGRrc0M5cVczZ1pBdndWZm85cWg0QkNtSjcwel9OVWhVSEVIdUtyNW9tVWRvNmpWTzZzUG1LX1hYejFka0tKczJQX3U4ZkZFU3dVbWNqandQMUxGWTRUSTNvNTZmWQ?oc=5"
+      "title": "Microchip Technology (MCHP) Tests Its Valuation As The...",
+      "url": "https://news.google.com/rss/articles/CBMiqgFBVV95cUxNX3gxLVNmUWZ2R2I0RzFtc3JraEZ3Wl9nbl9QYjROZ0JGdkRLTnBxVGhMTnU4ZlUwRHFvbmdFU0FMMnlrQ2I4RWpnX1l1TXpjQzVkZ1VNTXpfN3hWcHlrRk9nVEpTUzlqN2xrcnpQSXRXY2lXV2c4OXh0XzZ3em43cWtXR2pQeHBsNElyRm4zYm1xWnMtYmtPNjV1am5hUHIzUzRGcHVnUWlHUQ?oc=5"
     },
     "price_change_pct": -0.55
   },
   {
-    "rank": 42,
+    "rank": 45,
     "ticker": "BE",
     "company_name": "Bloom Energy",
     "score": 78,
     "earnings_date": "October 22, 2026",
-    "days_left": 6,
+    "days_left": 3,
     "price": 221.31,
-    "pe_target": 249.96,
-    "pe_upside": 12.9,
-    "3d": 307.26,
-    "3d_up": 38.8,
-    "5d": 364.56,
-    "5d_up": 64.7,
+    "pe_target": 248.71,
+    "pe_upside": 12.4,
+    "3d": 303.51,
+    "3d_up": 37.1,
+    "5d": 358.31,
+    "5d_up": 61.9,
     "analysts": 29,
     "sb": 5,
     "buy": 10,
@@ -1250,22 +1340,22 @@
     "sell": 2,
     "mktcap": 0.0,
     "short_int": 8.1,
-    "iv": 12.9,
+    "iv": 12.4,
     "sector": "Industrials",
     "sentiment": "Positive",
     "news": {
-      "title": "Conor Kennedy and Giulia Be Share Their Love Story and...",
-      "url": "https://news.google.com/rss/articles/CBMiowFBVV95cUxNczktdlY0WFdhRlRzWnZXM3NkUGtadUEzczJPdFVxWFNySFJMbkp0NXp0dU8zWmRRMHBqaEt2c3RWRWhFREVfRWdfRTNWSHQ2ell2LW5ZT3A4bFVSMjVNaUNMRlV4MnhTeWI0TWpFcXBEQW1IYXJndndlTVFtQ0dSNmlCejFseG11dkJ4bmdLTDdCWjBtRjZUWDBid3B4cHhYdHVB?oc=5"
+      "title": "Why Mercedes should be worried about F1 2027 - The Race",
+      "url": "https://news.google.com/rss/articles/CBMihwFBVV95cUxQcGxSai1memlxcW9taDlPeWMzWnZacVhjM01LdnJqaFVBZFpXSzFGU3VsdW1qb01LX1RJMHlkWktZOGRMU2dkYWNRVG4ySWRuSkxrLWlBZ1h2WnllNi0xSXRUS3p1OUUzMkNvVVp1NmY0WWUwZUZ6eDhHMXJRcWplYXFwa1JuX0E?oc=5"
     },
     "price_change_pct": -6.34
   },
   {
-    "rank": 43,
+    "rank": 46,
     "ticker": "NFLX",
     "company_name": "Netflix, Inc",
     "score": 78,
     "earnings_date": "October 20, 2026",
-    "days_left": 4,
+    "days_left": 1,
     "price": 70.53,
     "pe_target": 77.28,
     "pe_upside": 9.6,
@@ -1284,18 +1374,18 @@
     "sector": "Communication Services",
     "sentiment": "Mixed",
     "news": {
-      "title": "What Netflix (NFLX)'s 1,000 Job Cuts Mean For Shareholders...",
-      "url": "https://news.google.com/rss/articles/CBMikAFBVV95cUxQbEZMOEJpVWhzVjJ0dFF2MjBqTUU3T2xodnJTbjROYVVxc0pxSm5Hamt6ZnpvZWJjQkZnbURrSTcxM1VnX1JtUTlMWjdsTkZ5SjZ6YTJhM0R1eVZKem5tYWliWGVKSjI2MnZyYkV1dXBmRlVxc1dDVkpOTTRSa0dBZ0Jzc25Ib0I5Q2xUWGg4N3Y?oc=5"
+      "title": "Netflix (NFLX) Sees $11.5 Million in Net ETF Buying on...",
+      "url": "https://news.google.com/rss/articles/CBMikAFBVV95cUxOOEtrWGhzTmpPRm5BaGVBZGp6ZTVxbDlWMVJBZF9qM0lqZGFya05yREpWcEw5TTJ5VU9yU1FfTURwQmNCdGdhWXRKQUVmZmdYUmFSb0RPTVZCbUNZaGlKeFlmN3FnamdwNlhaMzR6NXlzZG1tYmpnWkN4WHJ2YzM2bkUxalZOcEhDNUZhQ3lwS3c?oc=5"
     },
     "price_change_pct": -2.86
   },
   {
-    "rank": 44,
+    "rank": 47,
     "ticker": "ETN",
     "company_name": "Eaton Corpor",
     "score": 78,
     "earnings_date": "November 3, 2026",
-    "days_left": 18,
+    "days_left": 15,
     "price": 391.25,
     "pe_target": 409.22,
     "pe_upside": 4.6,
@@ -1314,48 +1404,18 @@
     "sector": "Industrials",
     "sentiment": "Mixed",
     "news": {
-      "title": "A Mobility spin-off is expected by Q1 2027's end at Eaton...",
-      "url": "https://news.google.com/rss/articles/CBMipAFBVV95cUxOd0U4RVBtTENJNEp1YlNFSE5fdVZxSWZsT2xMVEhVc19MSkdGYW1LNEN1YVFWd0gya1RPcEc3SzJsRmFNYkN5Q0ZsOHlsdXY1dktla3RrWWhXaFNtejZraEljTXpvcUxkd2lKTXY2dlg1T2FlTTlMREE4Vm82Q2VlaFZvZU9RTFBDTkE2LS1WQWtTQ2lfaEp1VmlmaUNtZ3ZMOWFPcQ?oc=5"
+      "title": "Eaton (ETN) Finance Reshuffle Meets AI Power Narrative With...",
+      "url": "https://news.google.com/rss/articles/CBMinwFBVV95cUxPeFFwcDFaZzl2eEt1bTVKdVA4SEhZdVNUY2lUY09sZHRQUkctY3l3WUxlREVOeWJMYWxnZ21BZ2lwcWV3a3A3cDNoSldKZXg1VkVuRk1xaUVUbV8xN2F5cGdRQlZxTWMxTzRIeXgtM2pQWmN0WkdfQzRHZFZsTndqQ2hka1lWRjZNbmZGb0tLQ1JfbEVOZ1VoU2dONklzRWc?oc=5"
     },
     "price_change_pct": -2.79
   },
   {
-    "rank": 45,
-    "ticker": "REGN",
-    "company_name": "Regeneron Ph",
-    "score": 77,
-    "earnings_date": "October 30, 2026",
-    "days_left": 14,
-    "price": 790.74,
-    "pe_target": 809.99,
-    "pe_upside": 2.4,
-    "3d": 848.49,
-    "3d_up": 7.3,
-    "5d": 886.99,
-    "5d_up": 12.2,
-    "analysts": 28,
-    "sb": 4,
-    "buy": 15,
-    "hold": 8,
-    "sell": 1,
-    "mktcap": 0.0,
-    "short_int": 2.2,
-    "iv": 2.4,
-    "sector": "Healthcare",
-    "sentiment": "Positive",
-    "news": {
-      "title": "Regeneron Pharmaceuticals, Inc. (REGN) options chain -...",
-      "url": "https://news.google.com/rss/articles/CBMihAFBVV95cUxNMjkzSDFha2doYmlJNkJHaFcyUFJURTZzd3lIdVN1OFdpel9vUExrZGZzMVhHdFJva3pGdGZmVnczcl82TTdablhCalQ5eHZlcHQyMHhDdC1BYklwVnAxYmtENjQxeDVpZ1N4ZnU2TTd2MzJtVDdHazMtSjY0SGtfMW1lYzE?oc=5"
-    },
-    "price_change_pct": -0.7
-  },
-  {
-    "rank": 46,
+    "rank": 48,
     "ticker": "ECL",
     "company_name": "Ecolab Inc.",
     "score": 77,
     "earnings_date": "October 27, 2026",
-    "days_left": 11,
+    "days_left": 8,
     "price": 288.89,
     "pe_target": 308.16,
     "pe_upside": 6.7,
@@ -1380,12 +1440,12 @@
     "price_change_pct": -0.66
   },
   {
-    "rank": 47,
+    "rank": 49,
     "ticker": "EW",
     "company_name": "Edwards Life",
     "score": 77,
     "earnings_date": "November 4, 2026",
-    "days_left": 19,
+    "days_left": 16,
     "price": 86.6,
     "pe_target": 95.05,
     "pe_upside": 9.8,
@@ -1404,18 +1464,18 @@
     "sector": "Healthcare",
     "sentiment": "Mixed",
     "news": {
-      "title": "See Billy Porter as reptile-obsessed stylist Magno Stift in...",
-      "url": "https://news.google.com/rss/articles/CBMijAFBVV95cUxPanF0Q0VkUnFSajA5TDMySUZmWXYtWTJWeHF2bk1sZVNMZ05Sazg1SUR5YUJHeVNjZktsWGNzemNuN29zM3UtMXU2dWxXYjMxLXJYRHJ3THBkT0xzWHBvSnRfS1VBeUtRajZNTUxGNzNDNFI1NU9vTlU5WTA1aDMxVEhzaVh2X1ZIVkpOTw?oc=5"
+      "title": "\u2018Other Desert Cities\u2019 Broadway review: A-listers take...",
+      "url": "https://news.google.com/rss/articles/CBMiiAFBVV95cUxQb2RTOHZRbENSRkVVWE5idE4weXoteHgyN1dtd21iaW85NExfTkJmbXdNOVZtZ0VxQUp3OTdIQy15RGtNQ3dzUE03d3FhQkJ5UmZSdUVidVJqY3ZxajQ3R01SbDBVcmJBWVFxWTcwSFlmZ0lYbVlPOHRLZl9sdkVYMEtHeWtSZWZM?oc=5"
     },
     "price_change_pct": -1.7
   },
   {
-    "rank": 48,
+    "rank": 50,
     "ticker": "EFX",
     "company_name": "Equifax Inc.",
     "score": 77,
     "earnings_date": "October 20, 2026",
-    "days_left": 4,
+    "days_left": 1,
     "price": 161.25,
     "pe_target": 180.35,
     "pe_upside": 11.8,
@@ -1434,18 +1494,18 @@
     "sector": "Industrials",
     "sentiment": "Mixed",
     "news": {
-      "title": "Equifax (EFX) Could Be 28% Undervalued On Its Mortgage Push...",
-      "url": "https://news.google.com/rss/articles/CBMingFBVV95cUxPM1Jpejl2RHdoVnhZQm5vS3FTU1BNLW5ZMlZuSjZ1Njk2SWdYbmM3VmFXbkhWamtkaFV3M29nXzlpV1NFREE5anp4bDctelFGZXFRcEQ2Szd2ejVDY2Q2RDBNMmtDQjU1dDJ3TWFtMUJONFVzQlFVRVNuRTh1dXBHYjZueEVEbmxSb1VDb2dxQnhITk5oTWFENVFWUFY5QQ?oc=5"
+      "title": "Equifax (EFX) Reports Earnings Tomorrow: What To Expect -...",
+      "url": "https://news.google.com/rss/articles/CBMipAFBVV95cUxORnVCdWJYTHNvMTNOV2JBeWdHSXRmcjI2d3lxQmpwUnJCRmFMNy0yVDB0SExXb2Vhbl9pVVViRGRIb0I5Zm02ekRja0FIbjhxcEVEYmNtZEcwV2paSXItZ2w3MnRwSUowVk5OdTNET2VQUk00SVBsMmZRQ3Q1TnlGT0ZZTGM2Q0R5dXdUNElleF94OGRPdlJmckExN1A1Q3lCRHN6NA?oc=5"
     },
     "price_change_pct": -0.01
   },
   {
-    "rank": 49,
+    "rank": 51,
     "ticker": "NXPI",
     "company_name": "NXP Semicond",
     "score": 76,
     "earnings_date": "October 27, 2026",
-    "days_left": 11,
+    "days_left": 8,
     "price": 229.33,
     "pe_target": 257.36,
     "pe_upside": 12.2,
@@ -1464,18 +1524,18 @@
     "sector": "Technology",
     "sentiment": "Mixed",
     "news": {
-      "title": "All You Need to Know About NXP (NXPI) Rating Upgrade to Buy...",
-      "url": "https://news.google.com/rss/articles/CBMimAFBVV95cUxQM1k0WVpIdEFzUnlneTlBVVA2QXNIR0Y4d29yYmxHYzdud2h2dGg2bVBSMGp1TXhHWC1FYXFScXlKUW1yUTYtWHNNekc1MllUTVBHUVBRel9MeHhCMnMwZlZ4MWJ4RUFpV2JHWHd6aWowZ1UxN2YzVGlKYjNQMHFCbFU0TWtnSzBxOWJrY2JTbE95YjRybWZFWA?oc=5"
+      "title": "NXP Semiconductors (NXPI) Could Be 26% Undervalued After...",
+      "url": "https://news.google.com/rss/articles/CBMi2wFBVV95cUxQeUN0SVE2d1NZU1kwMFlodzF4SU1aQlBlWmFENGNuYWtVRGNqVnNqckd5Qlc2aFJ0SFo4dUlwTDR4ZEpjdlRnNUlGT1VlUWNVTWdwMG1IVGVjZ2ZCa0QwVGtRRDdrRnRQSGRsbjZNd2JsdUdLc3VxWmNVYi1ycTl4MzFYRVNReFlPVmVRdXhIZXJHSzJsanNKYzRMbE1yMDA2TWtFRmhBbVloN0ZwanBGWEVzNlVqaEsxLUZwOVllS0Y3S0IyWWx4ckZndFMwb3h2VmFGbjd3QVh3YTDSAeABQVVfeXFMTWxsVHZEQVFid0ZkWjB0RHFzakhDdGhKLVd6TUZKM3pDY2IwZ0dJem9CTHhyV1VIMHVfODViSllwMVlMRDNKMGZWcF83d0NsaHlYQjRUX0w4bDBFZlVMQTFhcWduRUx6c2ZwNTNILV9iaTU5QkJud1VORHk3S0RzTnZnaGRZZ1g0QXVVdVVXQUxKXzAxdlhKV1hnblRDQlJveUs4cVhqd2EtZ09KZWt5cFd2aWxYQ1diSk91bkNzb3VneHdBeGlQZXE5aVRBS3lPREUySk43OXNLeUJOdFVOLWk?oc=5"
     },
     "price_change_pct": -0.76
   },
   {
-    "rank": 50,
+    "rank": 52,
     "ticker": "EDU",
     "company_name": "New Oriental",
     "score": 76,
     "earnings_date": "October 28, 2026",
-    "days_left": 12,
+    "days_left": 9,
     "price": 60.88,
     "pe_target": 67.68,
     "pe_upside": 11.2,
@@ -1494,18 +1554,18 @@
     "sector": "Consumer Defensive",
     "sentiment": "Positive",
     "news": {
-      "title": "Margaret Hamilton, computing pioneer who led software...",
-      "url": "https://news.google.com/rss/articles/CBMie0FVX3lxTE10TGFYS3RlcVRrbURhOENrTkIwRHBVbV9OYkh3ZWd3c0FUTTBjX0JhSU1rTU1BLVI4eUVlNmFscHM2RV9IcjRYZk9UWUVMdG1PVU9Uc2pmYmVTaGRuM3REZEJ6NFBjMmxZRG1rdFF1SEg4R0ZmM3lhREJfVQ?oc=5"
+      "title": "How are countries evaluating AI models? - Brookings",
+      "url": "https://news.google.com/rss/articles/CBMif0FVX3lxTE1HQWM0UGhfM19WRHh5MjFYbjRpNlA5Z2JCVTVrQlJRZG1va0l1V05SUUdLQ09TdWVEMUpPd18ySjRRc3czVFdXNDU4U3ZWXzVfc01qbkI3REdnTFB6VVdTek5GMG9HZjR4d2F0M01BR2NwLVcwak9VeWl6ejRpNGM?oc=5"
     },
     "price_change_pct": 0.88
   },
   {
-    "rank": 51,
+    "rank": 53,
     "ticker": "XYL",
     "company_name": "Xylem Inc.",
     "score": 76,
     "earnings_date": "October 27, 2026",
-    "days_left": 11,
+    "days_left": 8,
     "price": 104.05,
     "pe_target": 113.03,
     "pe_upside": 8.6,
@@ -1524,18 +1584,18 @@
     "sector": "Industrials",
     "sentiment": "Positive",
     "news": {
-      "title": "Xylem Inc. (XYL) Stock Price, News, Quote & History -...",
-      "url": "https://news.google.com/rss/articles/CBMiUEFVX3lxTE9tLW16eHk4bkIxZUxRUTZyNnotZnBJWFh0SThCSWtlalJ6QzVJV0NPSVhmMnowYjEzWDdPaXF0Tmxvb0JSdWxseHQ4SnZaTFoy?oc=5"
+      "title": "Xylem (NYSE:XYL) Stock Forecast & Analyst Predictions -...",
+      "url": "https://news.google.com/rss/articles/CBMidkFVX3lxTE5xa2pia216MXpBQTd6Zzh4bnVLaWRtS213VDRqazJkZWpXWG5vRFhQeGdiazFJaW8ySUdGS2tUSzdSZUNDNHo2WVpYNHUwZHh3OTVXRnJrUk9KdE9qcXNjU1h5ZGQxQ01iUk1XOTNqQ01kVzJhNGc?oc=5"
     },
     "price_change_pct": 0.66
   },
   {
-    "rank": 52,
+    "rank": 54,
     "ticker": "RBLX",
     "company_name": "Roblox Corpo",
     "score": 76,
     "earnings_date": "October 29, 2026",
-    "days_left": 13,
+    "days_left": 10,
     "price": 49.55,
     "pe_target": 52.83,
     "pe_upside": 6.6,
@@ -1554,18 +1614,18 @@
     "sector": "Communication Services",
     "sentiment": "Positive",
     "news": {
-      "title": "Here's Why Roblox (RBLX) Fell More Than Broader Market -...",
-      "url": "https://news.google.com/rss/articles/CBMiowFBVV95cUxOaTVJX1NDc3RLSTRzeU9JeG5jcXcxYlBOenlzQTZGZHUwbGdHZVUyR1l2TXEySXdNRmNaSDlnM1NkbjdPcFlxYkNNTi1STVhWMDZ2ZUFXWW1Vc01nM0ktbXFkOHprMXBacEF3QzllUFBaRFJxVUoxMDdjaHZnaUtSUU94SXBjTmJmS0N4NUtwZDNGeTRONUt2RVZjODdBa3BueW9N?oc=5"
+      "title": "Why Did RBLX, HTZ, MYGN Stocks Plunge To 52-Week Lows Last...",
+      "url": "https://news.google.com/rss/articles/CBMiwwFBVV95cUxQRlhEZ0ZwSGxzelE0XzZlMUNGN1ljU2tLb0U3MGM3UUs1TkJqd3QtTEVDVFlhSWdBWWRELXhaNXI0bGRuNGJKZzN5aVNwRDBiZkQtWjJWTFV6djBmcTVHNThSWHR4aEx3QWdIRmJKc3ZFVEtxb1cxV3BVSDNXVEE5djlZZGpqXzhETnI0M2JuS2xHYXhndXJ3UkdvWUtOVTFPRW93M3BFRHRON01oOW5OcXNNSnloTXVqVE5lZmhRMk1raDA?oc=5"
     },
     "price_change_pct": -3.09
   },
   {
-    "rank": 53,
+    "rank": 55,
     "ticker": "ALLY",
     "company_name": "Ally Financi",
     "score": 75,
     "earnings_date": "October 20, 2026",
-    "days_left": 4,
+    "days_left": 1,
     "price": 37.68,
     "pe_target": 40.85,
     "pe_upside": 8.4,
@@ -1584,18 +1644,18 @@
     "sector": "Financial Services",
     "sentiment": "Positive",
     "news": {
-      "title": "Trump Ally, Paolo Zampolli, Leaves State Department - The...",
+      "title": "Close Trump Friend and Ally Is Ousted From State Department...",
       "url": "https://news.google.com/rss/articles/CBMikgFBVV95cUxPVnlXOU9RVFZEZjVoeUR0MGFnNXhVa0tzMGFOUV9STUpJT2NoVUhnTGREcmlkZ29GbGlKQmU5RmhlbU1RdXNXVmE5a0RiajJmUkwyRkpHRWJtXzFhY0RxLXI0cExGcWtlNmxMRURYeWIxOHpHLWdIY1JPM3JSOXY2MHNkY3kybEJvdmYtaGlmdnc0UQ?oc=5"
     },
     "price_change_pct": -0.13
   },
   {
-    "rank": 54,
+    "rank": 56,
     "ticker": "PLTR",
     "company_name": "Palantir Tec",
     "score": 75,
     "earnings_date": "November 2, 2026",
-    "days_left": 17,
+    "days_left": 14,
     "price": 186.03,
     "pe_target": 196.03,
     "pe_upside": 5.4,
@@ -1606,26 +1666,26 @@
     "analysts": 32,
     "sb": 2,
     "buy": 19,
-    "hold": 8,
-    "sell": 3,
+    "hold": 9,
+    "sell": 2,
     "mktcap": 0.0,
     "short_int": 2.6,
     "iv": 5.4,
     "sector": "Technology",
     "sentiment": "Positive",
     "news": {
-      "title": "Palantir's record breakout unravels as software stocks shed...",
-      "url": "https://news.google.com/rss/articles/CBMixgFBVV95cUxNSXJobDgweVN4Yk0xRFJMQk5EeXlYRUtnTVUtdDFsNzZLTnl2QW10M2RRamVxQXpJcmdxVFVoSWVUSW04MDhEU2pZZHFjalBUTFpud05DS2pSX1FqWGtrUWxaVmxtbVRhSGJvTEgwVFgtYm9TckpjZ1BicXEtZVZ4cEFwakZkaHE3dGpJeXpjYUFxY2t6Zm1wQXZqNUlZRmZTUzJxZVFpYWlFR1ozUmw0Tm9aYl9tcjk3OVZMbm1rWTliemMtcUE?oc=5"
+      "title": "Palantir teams up to bring software to government through...",
+      "url": "https://news.google.com/rss/articles/CBMiwAFBVV95cUxQWFVaMjZ2R2dfS2hBaDc5VjJBNG5FbmpUVWJDZjZSMXNSNlNtQXl1Z3ltQ1V6cFQybVJGOVZDV1g2RVVhc3ZjU2FPSVdZN2FXOGF0a2k3QUJXbFVsalJmYldQdmtiZjB5N2JuY2tEUm1DWlMxeDVSZE1oc2NHQm44NEw4azlaRXhUUGdfTDhFSG1fZFV3enNyTDAzUlpBN01fTVg2U1pmOTBpR1lRV2NOVHowQ2ZHc1FlbElFUmk1MUs?oc=5"
     },
     "price_change_pct": -7.22
   },
   {
-    "rank": 55,
+    "rank": 57,
     "ticker": "FICO",
     "company_name": "Fair Isaac C",
     "score": 75,
     "earnings_date": "November 4, 2026",
-    "days_left": 19,
+    "days_left": 16,
     "price": 771.19,
     "pe_target": 898.34,
     "pe_upside": 16.5,
@@ -1644,18 +1704,18 @@
     "sector": "Technology",
     "sentiment": "Positive",
     "news": {
-      "title": "Julie May Details FICO Score 10T & Mortgage Access -...",
-      "url": "https://news.google.com/rss/articles/CBMia0FVX3lxTE9FVE5pYlJEUU9ya3Y2N2lDR2hsZTUwSUwtYTRxUWkzRWRMU18yYkljQ0hNQnZOMEdPUW1KNlFCOEpxMVFEcDNMY3BxOGNSX1ZDLWIwVGRrZHRFclg4ay1VbGVtd3BDOUNMcE1j?oc=5"
+      "title": "FICO Stock Rose 16% Last Week With No News. The Street\u2019s...",
+      "url": "https://news.google.com/rss/articles/CBMikgFBVV95cUxQa3JHZ05pMVhaUUYwS0I1aDM3QkxFemVPanFNVDljN0ZwSzFVWDlzOFUyNEhpbExrRW5DcTNfNHozMmxCOWdsSkJ0QmZWV2V2XzlpeTg0YWFYbzIxOUhvT3F0ak4tNU1td2xDTFBUN0NuWW1ENk14aHBWTE1qXzV2dHZlZUR1aU9NNXlObmdWanFjQQ?oc=5"
     },
     "price_change_pct": 0.16
   },
   {
-    "rank": 56,
+    "rank": 58,
     "ticker": "NEE",
     "company_name": "NextEra Ener",
     "score": 75,
     "earnings_date": "October 21, 2026",
-    "days_left": 5,
+    "days_left": 2,
     "price": 79.8,
     "pe_target": 83.03,
     "pe_upside": 4.0,
@@ -1674,25 +1734,25 @@
     "sector": "Utilities",
     "sentiment": "Positive",
     "news": {
-      "title": "Schulze, Marlene M. (nee Manhal) - Kutis Funeral Home Inc",
-      "url": "https://news.google.com/rss/articles/CBMia0FVX3lxTE4yTFpQWkpoeGNWMkt6Z0hySWg3UXFWRWpacmJ1dmlFTm44RW9McDVtOHNJT002LTlsV25kS1RNUl9hMnpWcVFFc2VPdGROcFpWNi03R3dEamNidnNxNDljcGkzeXlvOUtlUWU4?oc=5"
+      "title": "Elizabeth Theresa (n\u00e9e Gilman) Carey Obituary - The...",
+      "url": "https://news.google.com/rss/articles/CBMiZ0FVX3lxTFBfcGlZQ1ItUnA4eUJFamFOOV9wb0lvRm0zd2JrckRGQWNIbGx3d2RmY0dWX0ljdHNmczZ2RE5Qak16Y3ItZktZa29YT2UwemhEaWlOUTEwc2kxYnJGVEZDRTEwUGFPTms?oc=5"
     },
     "price_change_pct": 1.06
   },
   {
-    "rank": 57,
+    "rank": 59,
     "ticker": "RIOT",
     "company_name": "Riot Platfor",
     "score": 75,
     "earnings_date": "October 29, 2026",
-    "days_left": 13,
+    "days_left": 10,
     "price": 13.72,
-    "pe_target": 14.89,
-    "pe_upside": 8.5,
-    "3d": 17.23,
-    "3d_up": 25.6,
-    "5d": 19.57,
-    "5d_up": 42.6,
+    "pe_target": 15.12,
+    "pe_upside": 10.2,
+    "3d": 17.92,
+    "3d_up": 30.6,
+    "5d": 20.72,
+    "5d_up": 51.0,
     "analysts": 22,
     "sb": 7,
     "buy": 14,
@@ -1700,22 +1760,22 @@
     "sell": 0,
     "mktcap": 0.0,
     "short_int": 13.9,
-    "iv": 8.5,
+    "iv": 10.2,
     "sector": "Financial Services",
     "sentiment": "Negative",
     "news": {
-      "title": "/dev: League Classic - League of Legends",
-      "url": "https://news.google.com/rss/articles/CBMidEFVX3lxTFBxYWFSc0xoY1R1dm9MSE5mSFBQUi02N1JKaF83Q1hibUNxcS1GREdRMDFoRHFHS2hsTUdQUmwyZlJnam9rR21Wa1ZJeEdzZ1hiTGF6TURBaEswU0t6ckc4YlptUV9zRUh4WlFtTzlQOEl6aDlG?oc=5"
+      "title": "French riots: PM asks some cities to impose partial curfews...",
+      "url": "https://news.google.com/rss/articles/CBMiVkFVX3lxTFBpZklSWldWXzY3TzVZLUFfRUtuZkZoZEFNTWhFVTVKV2VvRDJrcVF1LU00Njk5TkdCSlI3NWc5Y3l4cF9PbndBcXJWTGpmYzBXSmF3NlVn?oc=5"
     },
     "price_change_pct": -11.48
   },
   {
-    "rank": 58,
+    "rank": 60,
     "ticker": "HON",
     "company_name": "Honeywell In",
     "score": 75,
     "earnings_date": "October 22, 2026",
-    "days_left": 6,
+    "days_left": 3,
     "price": 211.41,
     "pe_target": 223.03,
     "pe_upside": 5.5,
@@ -1734,18 +1794,18 @@
     "sector": "Industrials",
     "sentiment": "Positive",
     "news": {
-      "title": "HON Stock Quote Price and Forecast - CNN",
-      "url": "https://news.google.com/rss/articles/CBMiT0FVX3lxTFBZWUdLTzRxUmxfSGpIRnlDVWNqYlp2ZXFjbmpWVTVPTkw3M0ZUcUhKYTA3N0xfYnRDSXNiNU5yeXZRVXRzbzFKRkxzWWg1REk?oc=5"
+      "title": "Is Honeywell International (HON) Still Below Fair Value...",
+      "url": "https://news.google.com/rss/articles/CBMi3gFBVV95cUxNU3JqYWJZVGtSUWlOODhGVFI1WFg3Wm4xU2lmSC0yenBhMGM0MWZlY0VrdUg5cTYwRXVQWUJPNDljZEtwUXdpd2dNd0V0OUxKMFpJVVNKT1JjZ3NmT2tTZE15QXdpeHduWC04Y0dQYUdNeGV1d3EzVVZDYk9QRlV1c0hSdUloLUpTN0dTYzIxMnBqT3dEZTFJT1Q5QllrU25BTlVpLUZ6QWZ5clAyODZIa2dzSWlHX1F1ZXVmckJaYy0yU0I2aDlxVHl2ckZXUTZ2bTlqUlNSbk5vVGtmZWfSAeMBQVVfeXFMTXROcFVVay0tVjExZmphVFlkTzRSWFpHYTZZMHJQbUhyZEZDd3dBT0lUOElxazV5ZlFkTTVSWXRLNHEyMV9PTXl3ZGo5T1hqQlR0cFpld0l0N3BidnFLSHEtMmFsRkdocG02bllGVXRlSlR5ZHFCVjJpcFBUUFFGTzBrWU93Y1lWN1lway1fdHlZU0pkZmxJY3dBRFRLblBqSWpXSmVCdWdTMnJzOFdkRGhBRUdQTEhVc0hTNFdMbUZMbnRpZE9ZUGVpSktMdERqeUxlMU1ySGp6c2s2cVRSRDZMVEE?oc=5"
     },
     "price_change_pct": 0.43
   },
   {
-    "rank": 59,
+    "rank": 61,
     "ticker": "GD",
     "company_name": "General Dyna",
     "score": 74,
     "earnings_date": "October 30, 2026",
-    "days_left": 14,
+    "days_left": 11,
     "price": 344.23,
     "pe_target": 353.08,
     "pe_upside": 2.6,
@@ -1764,18 +1824,18 @@
     "sector": "Industrials",
     "sentiment": "Positive",
     "news": {
-      "title": "General Dynamics (GD) Rises As Market Takes a Dip: Key...",
-      "url": "https://news.google.com/rss/articles/CBMingFBVV95cUxOR215NUx0LVlLbWR1T0tCaXlNOG5rMElUU3p2bVNkMTE3ZnRUUjlucFNVU2Vzei1Jd1psbGVEUE1jcEh0ZFhvNS04WmFxXzFyMGgtX1JvZmp1OHJVNkxPcnNrTGE4YWVhMmsyVkZ4RFdaY0tRRTAtUkZ6RFhDNUEydTQzNUNjc1I5TzZTTlh4a3ZzUEtMMXZJLTNKNElIQQ?oc=5"
+      "title": "Government Contract Update: $19M payment to GENERAL...",
+      "url": "https://news.google.com/rss/articles/CBMixgFBVV95cUxOb0FRMEhqallwZENONTdEUW1FUlhnVVVDWnZ2NUt0SEs3SEFOOWdTYVFWdkVPWVdCVHNyOVlDTzN4QXYwNDJla193b19LNjU4U0w4UzdIdDlHMkthY2JGYmRpOUloY3o0MkRDdGgwSFBfc3dNWEhqSzdFVWxURjJWMGpBTEM4V29aU3I0OHNKTHRVU3ROM0NjcXhJNy11cXEyTjdHZnFvREtJSEFISG9OZnpkVFRRekt3QlBBdmJOc2hqVVEyOVE?oc=5"
     },
     "price_change_pct": 2.14
   },
   {
-    "rank": 60,
+    "rank": 62,
     "ticker": "NOC",
     "company_name": "Northrop Gru",
     "score": 74,
     "earnings_date": "October 20, 2026",
-    "days_left": 4,
+    "days_left": 1,
     "price": 519.86,
     "pe_target": 560.79,
     "pe_upside": 7.9,
@@ -1794,18 +1854,18 @@
     "sector": "Industrials",
     "sentiment": "Positive",
     "news": {
-      "title": "NOC Week in Review #15: 10/10-16/2026 - The Nerds of Color",
-      "url": "https://news.google.com/rss/articles/CBMigAFBVV95cUxQUjJsSTVuM1VpQW9BdjRYNzZpOVFjTnBuMXFkVEREZFNyR2Zkc01BSmxmY29VeWlyWG1wdXdQU0txZkh5QWdPdGxfX3lhVlVuMXU1ejVkWUJEUG92bXhPZjJFTzZtNmNpd0xveXlQaFpGUmJnZHh0OXkzZk1QTml0Qw?oc=5"
+      "title": "Northrop Grumman (NOC) Q3 Earnings: What To Expect - Yahoo...",
+      "url": "https://news.google.com/rss/articles/CBMingFBVV95cUxPVVV5aU41SFZUN0JDWmNoT1BpZnVxUXJoZGFNdXFGUV9yMU1NTDNKTkxxUW9TdDJyemRvQWQwcEM1aldja1plWTkwRzRnLTVlU09lWjM5ZjU5WV9vTGw1SW00Y0dxSjNLaWhLajdxQVd5N0RrNTdaRTZRLXhsaGpsZFZ2Z1ZuNHJYTk5HMnY0QUNJRE5DWDVzNm11RkxGdw?oc=5"
     },
     "price_change_pct": 4.05
   },
   {
-    "rank": 61,
+    "rank": 63,
     "ticker": "MELI",
     "company_name": "MercadoLibre",
     "score": 74,
     "earnings_date": "November 4, 2026",
-    "days_left": 19,
+    "days_left": 16,
     "price": 1834.0,
     "pe_target": 1898.61,
     "pe_upside": 3.5,
@@ -1824,25 +1884,25 @@
     "sector": "Consumer Cyclical",
     "sentiment": "Mixed",
     "news": {
-      "title": "MercadoLibre (MELI) Declines More Than Market: Some...",
-      "url": "https://news.google.com/rss/articles/CBMikAFBVV95cUxNcXlUbHh5NUdRNHU5QjFGUmQyS1phaE9jeUFLUFZodlMxYkhmTGFmOHhmZHZuR0pydjdZRk5SUVZjOGFweUkxZldnZ1NhTV82T3ZKT0U0YnZSSG56YUdwSXJxNzVIOVhlTExpeTlOVG1rNEFNUENyc3EzRWhFLUxtNEoxSHpXYTNtd1NCYTRwRTQ?oc=5"
+      "title": "Should You Buy, Sell or Hold MELI Stock at a P/S Valuation...",
+      "url": "https://news.google.com/rss/articles/CBMikwFBVV95cUxQT2N5NDNTV2pIZFJ6UWpEUlNhUWlYTmdiU2lHMHl5LUhHdVZLYlJMelljdTdxek9ub2FqM3d6bmRJOUJCdW1rcWc0TktlekE2U2hKZ0NqTW9tN2pKQTFnR3NNei1fcDFYT20xbnFzX2ZCcnRWNU92M25CbV9fQ0h0bHNMQ2NiS3lrYzIzc3lieXVfMFE?oc=5"
     },
     "price_change_pct": -1.24
   },
   {
-    "rank": 62,
+    "rank": 64,
     "ticker": "ALB",
     "company_name": "Albemarle Co",
     "score": 74,
     "earnings_date": "November 4, 2026",
-    "days_left": 19,
+    "days_left": 16,
     "price": 95.48,
-    "pe_target": 100.28,
-    "pe_upside": 5.0,
-    "3d": 109.88,
-    "3d_up": 15.1,
-    "5d": 119.48,
-    "5d_up": 25.1,
+    "pe_target": 100.74,
+    "pe_upside": 5.5,
+    "3d": 111.26,
+    "3d_up": 16.5,
+    "5d": 121.78,
+    "5d_up": 27.5,
     "analysts": 23,
     "sb": 3,
     "buy": 11,
@@ -1850,22 +1910,52 @@
     "sell": 0,
     "mktcap": 0.0,
     "short_int": 11.4,
-    "iv": 5.0,
+    "iv": 5.5,
     "sector": "Basic Materials",
     "sentiment": "Positive",
     "news": {
-      "title": "Albemarle (ALB) Sees a More Significant Dip Than Broader...",
-      "url": "https://news.google.com/rss/articles/CBMiogFBVV95cUxQc00xYlg1X0pETHBmWmJxSVZCNGF0T1hyS3l6SG9xRkF5cVRnM1FTanFCS09qd3hzTlJTaDA0SVU2c0Y3Vi0wemYxa2J6V0RITGlJcWVjajZyTlRBRnFkaGk5TzRlMHFaamFVbGllajBLUldGX0hadjZkalRNNjM0THhQZTBvUVRPWnpkUF9Zb3ZJZ29HdXlCRjlnYjc2ckxvNmc?oc=5"
+      "title": "Albemarle Corporation (ALB) Stock Price, News, Quote &...",
+      "url": "https://news.google.com/rss/articles/CBMiUEFVX3lxTFBtUGMtanFUSVhDaTh0Rko3MW5vdzFSc0I4bDVfLVpmc0pWOTFhUUp6RFRyUXJIQ1dzemZEWG5XRWd5NE1lV3RJalMwSzdXREFt?oc=5"
     },
     "price_change_pct": -2.75
   },
   {
-    "rank": 63,
+    "rank": 65,
+    "ticker": "ZTO",
+    "company_name": "ZTO Express ",
+    "score": 74,
+    "earnings_date": "November 17, 2026",
+    "days_left": 29,
+    "price": 20.17,
+    "pe_target": 22.57,
+    "pe_upside": 11.9,
+    "3d": 27.37,
+    "3d_up": 35.7,
+    "5d": 32.17,
+    "5d_up": 59.5,
+    "analysts": 17,
+    "sb": 4,
+    "buy": 9,
+    "hold": 4,
+    "sell": 0,
+    "mktcap": 0.0,
+    "short_int": 2.1,
+    "iv": 11.9,
+    "sector": "Industrials",
+    "sentiment": "Positive",
+    "news": {
+      "title": "ZTO Express (Cayman) Inc. (ZTO) Stock Price, News, Quote &...",
+      "url": "https://news.google.com/rss/articles/CBMiUEFVX3lxTE1JQUQxVjJmSV9JdDdnd05jZmkwV0hNZHNpb09rWmZhanZjeUFybkRRcTJ1VlFiaDAxcVd0MzBqSEZlVks4SU0zSXJUUk16Q1Ju?oc=5"
+    },
+    "price_change_pct": 0.75
+  },
+  {
+    "rank": 66,
     "ticker": "KLAC",
     "company_name": "KLA Corporat",
     "score": 74,
     "earnings_date": "October 28, 2026",
-    "days_left": 12,
+    "days_left": 9,
     "price": 165.74,
     "pe_target": 176.63,
     "pe_upside": 6.6,
@@ -1884,18 +1974,18 @@
     "sector": "Technology",
     "sentiment": "Mixed",
     "news": {
-      "title": "Fund Update: 248,700 KLA (KLAC) shares added to PineStone...",
-      "url": "https://news.google.com/rss/articles/CBMiywFBVV95cUxNY2JfdTJMRWFtQldtNTFtaXBMZXR5Q2I1RWxqRFk3QUJzTEE1WmdLYU9HTWlGZS1venJ1WDFvaHZ1TGUtQWx4djNteGRIcktWbEVXdG5HWFhFYi05SEpGNXpLYzhLejN1a1lUay1NZzV4UWp4bTdjanVienBRektnLWhUemd3c2lHQWVZb3c1MS1kMTUtMWlGd2tiM3ZxZWlyZG1uWFRNZHVvNFgtOFY3d1RKTTFrbzZvbEo3WHdoV0pNdHZGNWxqVExkVQ?oc=5"
+      "title": "ETFs Are Net Sellers of Kla-Tencor (KLAC) on Oct. 15 -...",
+      "url": "https://news.google.com/rss/articles/CBMilwFBVV95cUxPZ2tORWlzTGw0QmxKdGVKMnAtbm9NOENTcXBxcVQyMnVsemF1UC01LXdTbC1uNkRBOTMzMWc1Z3RHWVdjcloxclRHRENzMVljTi1YcUtBdEtaRDk0emlZYmZlSkRjMkdQWmkwMUhNOXU3WFlUQTdhSXctWUlqeDFmbnBqWVYzWWRKV2dPUFhOaEFUcFg3Nkw0?oc=5"
     },
     "price_change_pct": -5.0
   },
   {
-    "rank": 64,
+    "rank": 67,
     "ticker": "META",
     "company_name": "Meta Platfor",
     "score": 74,
     "earnings_date": "October 21, 2026",
-    "days_left": 5,
+    "days_left": 2,
     "price": 709.33,
     "pe_target": 724.68,
     "pe_upside": 2.2,
@@ -1914,18 +2004,18 @@
     "sector": "Communication Services",
     "sentiment": "Negative",
     "news": {
-      "title": "Meta\u2019s new commercial terms will allow the scraping of news...",
-      "url": "https://news.google.com/rss/articles/CBMiuAFBVV95cUxQbUFaa1hZTVpsY0hVWE5UU0xnSkhLQV90U19KMXpOaUVMWjJnZk5sNkFXTTBZd3NId2R6OHJVWGxfN0oyZ2dQSDh5dENmYXNEZUVMNHNNUmVBYkNjUm5pRGpFMDNIQUE0d1VheGpMYmxLTVJCa2h4ZGVmS2l6cWdRNFJTXzBEMWlpWVA4S3I1UVN3OEJyUHNmc2t4QWU5aXBBakpQeGdCYnhjWHhZNUlBamJIV3gtdklB?oc=5"
+      "title": "Outrage after Meta suspends No Kings Instagram account...",
+      "url": "https://news.google.com/rss/articles/CBMiogFBVV95cUxOTUtKUlZFd0NXc1laRHpOdzlYQVRqWGFfWjZQWmwtYkVCYUR4NXJhWXpaSHFFZkVObmJWdmFWZ1owbjk1SGRPd3RySThpVFdTcEJ1cGxBUThkdFZ2MzA1WUo0dUpWeEZNNGRyRDhXMTFFQ3VqMHdXZzhSM0FCZW1BNzRQZ3VlZEtGN0pXVzQ2RjEwT3B5dXNZYmxWTW1kTDJNNVE?oc=5"
     },
     "price_change_pct": -3.72
   },
   {
-    "rank": 65,
+    "rank": 68,
     "ticker": "AAPL",
     "company_name": "Apple Inc.",
     "score": 74,
     "earnings_date": "November 2, 2026",
-    "days_left": 17,
+    "days_left": 14,
     "price": 343.46,
     "pe_target": 348.45,
     "pe_upside": 1.5,
@@ -1944,18 +2034,18 @@
     "sector": "Technology",
     "sentiment": "Positive",
     "news": {
-      "title": "AAPL Stock Gains As Strong Demand Reportedly Pushes iPhone...",
-      "url": "https://news.google.com/rss/articles/CBMimwFBVV95cUxNdlZhYnRXZjRPdmFYME1jcmZwdnR5NDZfN3pKRXBaWlgtX2I1b0ppNDBUQ3BqNXhGMlJ3THVBU2piMlRQTU1tdVRQc1ZNUVZtMEhka0hUbE1LYS1RaFNFVEh4ZExpZ2pHdVA0LXRzYW9Ra1FMY3dxSV9UcGJyUy1rVFRsQjd3X0FQSkhCZTJCelhJOTE2cDA4RHlzTQ?oc=5"
+      "title": "ETFs Are Net Sellers of Apple (AAPL) on Thursday - Yahoo...",
+      "url": "https://news.google.com/rss/articles/CBMilwFBVV95cUxQdHFiUVRzZnlPZ3RBc3A5dWlpQjJwekxwckNUZVJqeHh6aVd6U1g5X0dFRUlFZXRMVlhpZnVTUlBrdjdkalRtTDhteklQdWZ1bFp0bkNhZ1FvR2NNakZYWVhzNDl4M29Vb3I3Y0IyM3NycnZWblpsZGtSXzlfV3FZOEIydW56MUxhTzFzVy14TldKTWZyRDM0?oc=5"
     },
     "price_change_pct": 0.43
   },
   {
-    "rank": 66,
+    "rank": 69,
     "ticker": "CSCO",
     "company_name": "Cisco System",
     "score": 73,
     "earnings_date": "November 12, 2026",
-    "days_left": 27,
+    "days_left": 24,
     "price": 107.39,
     "pe_target": 111.47,
     "pe_upside": 3.8,
@@ -1974,18 +2064,18 @@
     "sector": "Technology",
     "sentiment": "Mixed",
     "news": {
-      "title": "ALAB vs. CSCO: Which AI Infrastructure Stock Is a Better...",
-      "url": "https://news.google.com/rss/articles/CBMioAFBVV95cUxQMUN3dFMzdW5TTW1DOEY5MV9BRHBWbWhBYzJtTzFvX0ZWWUdndnloenduRmszamlpSllTX29qNnJTa3V2Ym5ZMzZyd3ozenByZ1FmRGtkZXZwY1BuLVd1NE9PUWRyaFdFNkszaWpQTHdvbXJ0ZFp1VFFxNHZ4LU5vRkZPN1JNdlYtUDUtZVdYczNyVGoySDlTNnQwa0x4aG13?oc=5"
+      "title": "Cisco Systems, Inc. $CSCO Stock Sold by Generali...",
+      "url": "https://news.google.com/rss/articles/CBMi0gFBVV95cUxQbTNMOUZtWWpJcXRrUHo1LVd5ZkxHOXZEdFlzMDdzQ0ttMUJ5aDgwdXN4dExWelZ2ZzJsbHpsUmdiLWJJWHU3SU96RDluTktLVWtqOGxLdlI1dFk5UFR3bnhKZnE5eVZpYXMwRlZhbER5VUxKRXc0bVcwTm5rYUkzbVR5amlIVVRETmhyS1lYQlNLZGRNeFV0Xy1GZVcwZDJXX1E5ZVBmcWhBNDA0VWE3WklNT3gzMmFsY2M2d29fX3JmbUVhUlVQNDAwZEpRcVRvZGc?oc=5"
     },
     "price_change_pct": -2.24
   },
   {
-    "rank": 67,
+    "rank": 70,
     "ticker": "SE",
     "company_name": "Sea Limited",
     "score": 73,
     "earnings_date": "November 10, 2026",
-    "days_left": 25,
+    "days_left": 22,
     "price": 93.77,
     "pe_target": 98.42,
     "pe_upside": 5.0,
@@ -2004,18 +2094,18 @@
     "sector": "Consumer Cyclical",
     "sentiment": "Negative",
     "news": {
-      "title": "Wind-driven two alarm fire burns SE Portland home,...",
-      "url": "https://news.google.com/rss/articles/CBMipgFBVV95cUxPSUtYY1haZ2NJbmFtUU5Rd3FtNkl5MUpxMTVzcEFYdjZTOWc4dHJqYzNCMFJUXzJ0YmUxYzZZRTQ3Wkp2QW1WVW1vUURwYk1LZ3VBeC13TnRsS3B5WXpPOGdpdmFlQlJySXVfV0dER1poeHB3eVU0ckxQbDByZUZDNWhOUVNBSG9XQkZPdmh1TmNtTnU1Q3d5V2N1Z1RyQlJrY3VBb0xn?oc=5"
+      "title": "Man and woman shot in neck outside SE Houston club - FOX 26...",
+      "url": "https://news.google.com/rss/articles/CBMigwFBVV95cUxNQkdTVlNzREVTSzF6YUw0SlZlNUM0M3RuYWVZendlV3VKQUQ2bEtHRDNFaVl1ZWFRM2tRNnU2b1IzUGp0OURBWlR6d09QOTNtTy1Rc1RhbUhKWDJtZkZBak9tU1Z6MGdOQWxjekEtZGxzcGFvbVIxWmxrcm1OQXN0eS1sZw?oc=5"
     },
     "price_change_pct": -3.83
   },
   {
-    "rank": 68,
+    "rank": 71,
     "ticker": "LSCC",
     "company_name": "Lattice Semi",
     "score": 73,
     "earnings_date": "November 2, 2026",
-    "days_left": 17,
+    "days_left": 14,
     "price": 103.65,
     "pe_target": 121.68,
     "pe_upside": 17.4,
@@ -2034,18 +2124,18 @@
     "sector": "Technology",
     "sentiment": "Positive",
     "news": {
-      "title": "Lattice Semiconductor Corporati (LSCC) Stock forecasts -...",
-      "url": "https://news.google.com/rss/articles/CBMikwFBVV95cUxNRXlONGJyNEZqcnViV2ZaZ0JjbHRWVVFYeF80YUJoMkdxR1cwX3JZbURUdW5wOF9ORDFydDBpR1VUSzdtdDdEamI1QkFKUVVta2lOaURxVTFYSG84WUVNTllrX1pKSVVBam9TWi1wSzhMWXhhU2hUM0hGZ1pxTnpLcEh1WW9jZHhsRkdZanlEcXhQWTA?oc=5"
+      "title": "Lattice Semiconductor (LSCC) Shares Slid, So What Is Behind...",
+      "url": "https://news.google.com/rss/articles/CBMi3wFBVV95cUxNLU5kNkx2VmhWcUplTXl3S1dyYXdrODM2X0gyRUZDVXBNZjFuUzRuSHJMSzRyRHU1MXNPVmlNYmU1MFBQVEp2dlhwYXRWRGIxaFMwZGRsMkVsU0h4U2Rsd2hDTGxDOVdUZHl6YTFYR2ZCRXNpMXhNNXd5NkxkUTdyX2pYUjVkWU9KdVlGOGN6MlZNR09Kejc3V25Cbnl0bnpRLVg3VndiUk1hNmdNckhKY2RvUTQ2alVobFdGbnZ1RXNDdWRLWDZhX2Vla19oYWN2a0pUdFNTRW5YbW11U0t30gHkAUFVX3lxTE9zWkhQcEFyRjNvdW1PUmZoWGZ0U3VZamU3R0t2ek13c1I2ZVVGVGtVNUdkS0JNVE00UjR0UVBRdGsxSkVhMDZjVVZnTnExby1WSmlsUHRKdXJsUG1kQjRfbUEydWpUSjE5ckdmSDBEdjZMN0RvQkVWcFhEbGhMYXktTzNsWmpSN3ZMN0xQZE9sbE0wT08wbURRTkNFNHVZWmRNbkF3UWtpWktpcGlIeVk2SkZWZ2gwRWFrZkRJay1nYm9od2pSc2tXZkVPU1d6TmFxbWFfREtMWllONXZLQVVTb21vag?oc=5"
     },
     "price_change_pct": -3.21
   },
   {
-    "rank": 69,
+    "rank": 72,
     "ticker": "SOFI",
     "company_name": "SoFi Technol",
     "score": 73,
     "earnings_date": "October 27, 2026",
-    "days_left": 11,
+    "days_left": 8,
     "price": 14.55,
     "pe_target": 15.34,
     "pe_upside": 5.4,
@@ -2064,25 +2154,25 @@
     "sector": "Financial Services",
     "sentiment": "Positive",
     "news": {
-      "title": "SoFi, Figure co-founder raises $19M for newest venture -...",
-      "url": "https://news.google.com/rss/articles/CBMioAFBVV95cUxOVE5rNVJmWlBvbTcwMlowOFJJdFdlcGVOTVFTeV9jVU1HZV9ZMENPMnVIazJLM2NkWEhIWDQtNE5EQWptZnlGLXBpXy03S0RoaEJBTENvOW9UOUUtSkktbWZLd2pocEdoaVlnZktwcVlWWWFlNzJ0cFlndDJoUEFLNU1fV2ZiTmE0Z05OUnNJX1pVX2dfTGJWTDV2ZFVyOXVE?oc=5"
+      "title": "Game Recap: Rams fall to Cardinals 18-16 at SoFi Stadium -...",
+      "url": "https://news.google.com/rss/articles/CBMijAFBVV95cUxPTUdON09jc1BPc2VLOVQ3TlVGdXNNbGl1YlpLUEJTbWQ4cHNDcGZEdmZMUm1Bb2NNNHMxWXZXUklqVVpYeEhTcndNYkY3cjlnUW42VUlpaUprd2lMcU93c0M4ckhNUUJ6blA5RDlGa3JxSW11RGlkY050V243dUxFcW45VGxjUHVLRkI0Wg?oc=5"
     },
     "price_change_pct": -3.58
   },
   {
-    "rank": 70,
+    "rank": 73,
     "ticker": "BILL",
     "company_name": "BILL Holding",
     "score": 73,
     "earnings_date": "November 5, 2026",
-    "days_left": 20,
+    "days_left": 17,
     "price": 45.6,
-    "pe_target": 47.32,
-    "pe_upside": 3.8,
-    "3d": 50.76,
-    "3d_up": 11.3,
-    "5d": 54.2,
-    "5d_up": 18.9,
+    "pe_target": 47.73,
+    "pe_upside": 4.7,
+    "3d": 51.99,
+    "3d_up": 14.0,
+    "5d": 56.25,
+    "5d_up": 23.4,
     "analysts": 22,
     "sb": 3,
     "buy": 10,
@@ -2090,22 +2180,22 @@
     "sell": 0,
     "mktcap": 0.0,
     "short_int": 17.1,
-    "iv": 3.8,
+    "iv": 4.7,
     "sector": "Technology",
     "sentiment": "Positive",
     "news": {
-      "title": "Trump issues order to bypass Russian sanctions in bill...",
-      "url": "https://news.google.com/rss/articles/CBMizwFBVV95cUxNb2tsZ2VhNUJDSGh1RHJ3WUdIZUliTUJhWDhQazUwSzJWcFdjYXdtQzZLbjRpaFQ4bEFZbDBEQmRfcmxydEJEeF96YUVKNUlONnlrUlR1TzROY05fNmZUYVQ0N1g1VmtNV3dKYk1NOG9FUEc4UTQwNzR0dkUwR2hVNUpqZG8tQndVR1hJd0tkb19zOWZ0cE13cE12LW5ld0s1blphZEJIeVBFbXhFMGppMzhIR0w1Tk55Nkk5ZkNWZ1YwNGRIUVJ2MjBLOEZrSFk?oc=5"
+      "title": "Bill Michaels shares Fly Creek Cider Mill autumn apple...",
+      "url": "https://news.google.com/rss/articles/CBMiVkFVX3lxTFB6NVFlcHk1ekhobGNVazAzc0U5MlA0WG9QRTY1cUVFU0U5OU5TQXI4N0J1cFpRVm13enFERzBpaFd0eGpyWU5BZFExS2FGYWlnNy1xUHRR?oc=5"
     },
     "price_change_pct": -2.81
   },
   {
-    "rank": 71,
+    "rank": 74,
     "ticker": "APD",
     "company_name": "Air Products",
     "score": 72,
     "earnings_date": "November 5, 2026",
-    "days_left": 20,
+    "days_left": 17,
     "price": 299.59,
     "pe_target": 320.99,
     "pe_upside": 7.1,
@@ -2124,18 +2214,18 @@
     "sector": "Basic Materials",
     "sentiment": "Mixed",
     "news": {
-      "title": "Arrest made in deadly shooting in Atlanta's Monroe Heights...",
-      "url": "https://news.google.com/rss/articles/CBMi3wFBVV95cUxORGE4b0NwNDNJbjJqTDM0X1Bjb0o2b3hSeU1MdUFIeGhxQzhlRVhEem1NaGMwdXZWV1QwekdKQzBEZ3hnLUtoalRHVTk5NWNFSEJ4XzdSMlR3MWxEd0RnN2FjZ2xMYVdleGVUYkRPRC1wX1gyOGJUNDA0bjFFSlE3M3d4UjVVQm45cUVIN0xxZmU5QUJDdXF3LTRsQ1gzQXRtMmdidG9WcThPUGdIdEpiYTJSV1BoVENYLVhFV1lZVGtqSWF0eDhubHJNRmlmOGxWeXJmdDVsVEl5ZkhqTF80?oc=5"
+      "title": "APD investigating serious crash involving motorcycle - KOB 4",
+      "url": "https://news.google.com/rss/articles/CBMijAFBVV95cUxPT0tyZkZ1ejlhdVdKS0hRX251ZjVRVVZHc1VWX3BMeHdrWkh2bFRhcUJRZl9CTmtPV21rNjBfNjBxb3J0UjNoaGNHRFgzZUdhMTdFWDhrOWJZT2UzTnFGdFptZHEyM2dMOHZvSld2cEdETFMwY2dyVWJ0VlNCY0lEbEN6ckJ2ZUdFX2FPSQ?oc=5"
     },
     "price_change_pct": 1.01
   },
   {
-    "rank": 72,
+    "rank": 75,
     "ticker": "ENPH",
     "company_name": "Enphase Ener",
     "score": 72,
     "earnings_date": "October 27, 2026",
-    "days_left": 11,
+    "days_left": 8,
     "price": 30.62,
     "pe_target": 32.76,
     "pe_upside": 7.0,
@@ -2154,18 +2244,18 @@
     "sector": "Technology",
     "sentiment": "Positive",
     "news": {
-      "title": "Can Enphase Energy (ENPH) Turn India\u2019s Grid Outage...",
-      "url": "https://news.google.com/rss/articles/CBMikAFBVV95cUxPanc1SXBOMnQ4OHlMOXFzc0hESDRkQ3pQNFlvbENZbmRlYnRGb3QxOUtIZVhHMVJTUkVHWnRDTmtBdm80NlE2b0hCZGZGWl9iRjIzaFNfTXktY1JwS2pQVWNaMWZVeFRUMWFSOEFkRlR1aDg1eFRPbDRMRGUxUzU3UXF6MG1Kem1oVWJ0X05tbms?oc=5"
+      "title": "Enphase Stock Price Forecast. Should You Buy ENPH? -...",
+      "url": "https://news.google.com/rss/articles/CBMiSEFVX3lxTE5odFZzVVo4SGVLcjhrSFIwR3pqVUZhSlgtbURFLUZULWFvWDFJdHR1RUp2QUZqTzdNU1JRWlI0UHY5VHhPVEN1Wg?oc=5"
     },
     "price_change_pct": -0.65
   },
   {
-    "rank": 73,
+    "rank": 76,
     "ticker": "TXN",
     "company_name": "Texas Instru",
     "score": 72,
     "earnings_date": "October 21, 2026",
-    "days_left": 5,
+    "days_left": 2,
     "price": 276.48,
     "pe_target": 300.38,
     "pe_upside": 8.6,
@@ -2184,18 +2274,18 @@
     "sector": "Technology",
     "sentiment": "Positive",
     "news": {
-      "title": "Will Texas Instruments (TXN) Beat Estimates Again in Its...",
-      "url": "https://news.google.com/rss/articles/CBMiowFBVV95cUxOb2lUai1feVp1RjIxODhtampRUFZFeWwybWRiMTZ0Qm5QaGdGcnBZc3FwMHVhTHlYYUFabXFCbnk2MWNObnZHdlNqcWM2ZWVkTzZKRUxERUE3eDdtVGVIVThqRVJTUHdkM05JelZCMElraWpsUjlPc040Smpabk9zYkdUbmZwZlFKQWtNR2F0NG43UGhPSDAyaGxleEpJM1ZxNG9j?oc=5"
+      "title": "ETFs Are Net Sellers of Texas Instruments (TXN) on Oct. 15...",
+      "url": "https://news.google.com/rss/articles/CBMioAFBVV95cUxPS1BZWDZuVDF5c0ZKTWRVMjBJQmxOV2ZfcThjbDBISGk3Z2psZDJMTjVjLUV6VWdsNHJXbkFvcTBQY19KdzdJc2dRNkJpa0dZSWt4eEViZjlCSWMyVXhibFViVjJpeWtDZy1RTm5uYjdqRjdqVjd1NlNTMmRXM2tHbnBfSmEySS04S1B3NnZJbGtkRXBBbjVDcUo2VjA1OTJv?oc=5"
     },
     "price_change_pct": -0.95
   },
   {
-    "rank": 74,
+    "rank": 77,
     "ticker": "ILMN",
     "company_name": "Illumina, In",
     "score": 72,
     "earnings_date": "October 29, 2026",
-    "days_left": 13,
+    "days_left": 10,
     "price": 262.54,
     "pe_target": 306.23,
     "pe_upside": 16.6,
@@ -2214,18 +2304,18 @@
     "sector": "Healthcare",
     "sentiment": "Positive",
     "news": {
-      "title": "Introducing SpliceAI2: The Next Generation of Splicing and...",
-      "url": "https://news.google.com/rss/articles/CBMiyAFBVV95cUxPQnlFSjZUc1FZczFLZjl6UzJqd293M2ZvdE5aRi1KZjBteWRTZWlaWkEzTURwSmszeTdtSmQ0U0YxQlV2SlF0cUpqN2NhTVhkeGE4NkEwMmZ5ZmlWVkVUQVZ0UTVuY29JdVdOeXQ2WmpncG5OOE9yaXhKRlotTk1kQnN6OHJWUnIyU0pmc3JGZzBmdC1PNjU2TzBmeVliaWdVT1Fsc0FzZ0IyZzU3UkwzUjRHYWs2QXhvOHZJaGswUDItZWJDVkFOag?oc=5"
+      "title": "What Has Actually Changed At Illumina After A 175% Jump -...",
+      "url": "https://news.google.com/rss/articles/CBMi0gFBVV95cUxPWHdaenZCREVSOVdwdmFFN0FIb25wN3I0U3BzMjY1ZG9GY0c2ZWJsY1NFLUs2dkxCTzhCSTF3WVdNekE2M3pYU01uNDE5Y1JZelZ1UnJVT3BzNFdSaTBtOTdoSTNKQWdjNlh5cE0walJZMjVoaWYxaFRiWGpNVVY4ajA4RVdKbGVyaVE3QkRlYUxMeUEzcFloTlV0WFBQa0Y3RVdJQ2VOVEx0WFNzbUV4RmNXaGI2amxKU0ptZm1FNkw2bnh0YTR0U0NmVjh6bGRwVmfSAdcBQVVfeXFMTVhOVW42WEZ3UzMxNnlyMVhBSk5LNE9vamRRTlhCbmlOT2VuUXAwclU3Tm94VExDMW9FVFl6eV9FN3lLc1ROdU4xZE1QZ0NHeGI1bDBFeW92WllSRVNxRkFyWTdrVkhZQ1JIME9tNnZjWDRKbGJwc0dhOWE5VXBjYURTUE9yUWhTSnVocEw1S2F2aXh3YWxBRFJHcW1MbTZ4alFIalh6TnJkeUtzZEE5Y0o5bnVaRmFWZDhUaXpJTXhKZTJtcEx1VjY5RzhRWS1wOHZESmhLT1U?oc=5"
     },
     "price_change_pct": -2.01
   },
   {
-    "rank": 75,
+    "rank": 78,
     "ticker": "ROK",
     "company_name": "Rockwell Aut",
     "score": 72,
     "earnings_date": "November 5, 2026",
-    "days_left": 20,
+    "days_left": 17,
     "price": 426.23,
     "pe_target": 467.23,
     "pe_upside": 9.6,
@@ -2244,18 +2334,18 @@
     "sector": "Industrials",
     "sentiment": "Positive",
     "news": {
-      "title": "403rd AFSB and KAAY forge future ROK officers together -...",
-      "url": "https://news.google.com/rss/articles/CBMimgFBVV95cUxNeHBTRmxJWGpKZUp6U3Ffc3BwamE3Vzc0VTVhU1pCallYQTF3MkxTT2dJLWp3aEdvZ3ZBTGdjZXR4WXktaTFValBDUTFCR3k3bVU0VnpGbG9fQWJ0dmdSanJldmxKVjNNZWJLVWtBamtvSHdld0cycVIwSnVwempWNFg3T3lLLWJ2ZWsxRFU5R3ZYUzRXWFA1d3JB0gGaAUFVX3lxTE14cFNGbElYakplSnpTcV9zcHBqYTdXNzRVNWFTWkJqWVhBMXcyTFNPZ0ktandoR29ndkFMZ2NldHhZeS1pMVVqUENRMUJHeTdtVTRWekZsb19BYnR2Z1JqcmV2bEpWM01lYktVa0Fqa29Id2V3RzJxUjBKdXB6alY0WDdPeUstYnZlazFEVTlHdlhTNFdYUDV3ckE?oc=5"
+      "title": "ROK kicks off exercise on countering North Korea, postponed...",
+      "url": "https://news.google.com/rss/articles/CBMiqAFBVV95cUxOdExRX0JEX0pqUGtiVXRHTEZScnRBam9GVXZGQ0tZNUItaDFiRU5SZEU4eFBqTzBsZXNOMEhtY1RIam9aOC1CTnFTQWkxR29zRGFYNnhLWEw1XzF6X1d4LUMyRFgydEY4OTdIdlEya1dGbVlXUGdxWlFNZlFkSndBYmttZWExcXAxT200Vjkwdk5aT3liTXZDR2pvXzF5SWtvd1NraFI2X0s?oc=5"
     },
     "price_change_pct": 1.0
   },
   {
-    "rank": 76,
+    "rank": 79,
     "ticker": "EMR",
     "company_name": "Emerson Elec",
     "score": 72,
     "earnings_date": "November 4, 2026",
-    "days_left": 19,
+    "days_left": 16,
     "price": 161.47,
     "pe_target": 166.78,
     "pe_upside": 3.3,
@@ -2274,18 +2364,18 @@
     "sector": "Industrials",
     "sentiment": "Mixed",
     "news": {
-      "title": "Camden sues scrap metal recycler EMR, claiming company fell...",
-      "url": "https://news.google.com/rss/articles/CBMidEFVX3lxTE1Sam9FalBVVGhra2NUUUY5ZWtyVzloWWVjQmtrT0tHTVJUV196NS1ueW1YVFg1dXFUbE1WUno2YlNBeVh2NTZBeVJWcF9sMkYwaklWUnIyV2ZXeXljX0t3anJqYzJtb2xJdlAtR3VsS2dLaGRI?oc=5"
+      "title": "Physitrack EMR Early Access Reaches 480 Clinic Signups...",
+      "url": "https://news.google.com/rss/articles/CBMinAFBVV95cUxNRkJKVHVHZ2ZtLUNEcHhyQkItb1JxWE1nYmY1SkRCQWRxQ2MzWFhfUlJ1SWFrUEhzRmFvdTRPSzktdGlwVnlhZ185dVdYeGl2SkljeU1lTzFiUW1vVTBfWEVNVDAzNC1mZGJLalVLTm1tWHFTZ0lrUDFOMVo4WXdTY2U1cm15ckt2MmlpdUJzeml2TWc1TTVyNTVPUFA?oc=5"
     },
     "price_change_pct": -0.42
   },
   {
-    "rank": 77,
+    "rank": 80,
     "ticker": "DUK",
     "company_name": "Duke Energy ",
     "score": 72,
     "earnings_date": "November 5, 2026",
-    "days_left": 20,
+    "days_left": 17,
     "price": 121.47,
     "pe_target": 127.35,
     "pe_upside": 4.8,
@@ -2304,18 +2394,18 @@
     "sector": "Utilities",
     "sentiment": "Positive",
     "news": {
-      "title": "Duke Energy (DUK) Increases Despite Market Slip: Here's...",
-      "url": "https://news.google.com/rss/articles/CBMinwFBVV95cUxNYnI2R1ZBbTNkbjNoSGpCYVZ0cWRPWWs5R1Z6MldSQVROVFVFZDZWbS1ESlMzcmpiZmszZ2ZMUzZuZVR5UHNnVU5GNDRtVFV1cW5HNDV1UVM1VzNSb3RTR1BqQkNqQTVseHFucEhxWG5KSDVJMGlyeTZfWnRaMks1WG53ajlNcWlVQzhSOGw3ZmhJWUFQQUNUNGs3Zll4eDA?oc=5"
+      "title": "NextEra Energy (NEE) Has Bigger Growth Ambitions. Is Duke...",
+      "url": "https://news.google.com/rss/articles/CBMikwFBVV95cUxObVA3R2tETGxyMG9qUzJwdGJNTjI1RVJTSC0zVklpSlU3NUl5SFB0UVpNUFJsOXpXMUxOWUVCcnZ2eTEydS00cDNPSm9TTnJiVmdOTEdoanRFZV9RUXphSW85SktBU01VTFNLMUczMXV4MTV2elJjekpuTHFjSHVKam9OaFEwSHJITnJXTVV2akc3UW8?oc=5"
     },
     "price_change_pct": 2.18
   },
   {
-    "rank": 78,
+    "rank": 81,
     "ticker": "IQV",
     "company_name": "IQVIA Holdin",
     "score": 72,
     "earnings_date": "October 27, 2026",
-    "days_left": 11,
+    "days_left": 8,
     "price": 266.9,
     "pe_target": 298.35,
     "pe_upside": 11.8,
@@ -2340,12 +2430,12 @@
     "price_change_pct": -1.53
   },
   {
-    "rank": 79,
+    "rank": 82,
     "ticker": "CARR",
     "company_name": "Carrier Glob",
     "score": 72,
     "earnings_date": "October 29, 2026",
-    "days_left": 13,
+    "days_left": 10,
     "price": 55.0,
     "pe_target": 56.98,
     "pe_upside": 3.6,
@@ -2364,18 +2454,18 @@
     "sector": "Industrials",
     "sentiment": "Positive",
     "news": {
-      "title": "JJ Redick says that Lakers want Cameron Carr to build \u2026 -...",
-      "url": "https://news.google.com/rss/articles/CBMigAFBVV95cUxOOU5fNFdLcWtnTElTSlRHTldJN0trXy1fR1ZtQ2Z5eHhJdE4tRWJGTE5GR1pOV0tnTldFSFp1X1VvM2dFMTNDRW8zRVF6QTdNNXgzdjFEcFJhQVJ4MU4zc0RjZ1lRLUlFUl9TZW1zbWluZjlQLXNGSlVINUVMQmR3cQ?oc=5"
+      "title": "Michigan topping Penn State confirms benching Bryce...",
+      "url": "https://news.google.com/rss/articles/CBMisAFBVV95cUxQVzhST21xWS1qMDhzN3BLMzZnTXJQNXNCS200dy1SX1Jfa2xaWkdYRkh2MFJuUG1NYUtZbXRQRzNiNkRVVkNaaTFNMnY1V2ZoNnlxMW5kNGY3QjdrVjRQUTJYRnNsN1djTXlDTmNvajFVenpOQW00YTlfSm95VUhTLV8ySnlyUTAtMDFCVGs4eXJOMXg4MlVMbENNWGJNRHpRT1RNdDFLSThIdkVmaHZzaw?oc=5"
     },
     "price_change_pct": 0.07
   },
   {
-    "rank": 80,
+    "rank": 83,
     "ticker": "PINS",
     "company_name": "Pinterest, I",
     "score": 72,
     "earnings_date": "November 9, 2026",
-    "days_left": 24,
+    "days_left": 21,
     "price": 21.91,
     "pe_target": 22.96,
     "pe_upside": 4.8,
@@ -2394,18 +2484,18 @@
     "sector": "Communication Services",
     "sentiment": "Positive",
     "news": {
-      "title": "'He pins the wings': Why Elon Musk's ex says she refused...",
-      "url": "https://news.google.com/rss/articles/CBMirwFBVV95cUxOUS1vM0hsal93cHpyMmdwX0s5OXU2WlR4VjNNU1NQSE5tclJkN2o0bjI4VzNIaTFBbmNBa29qMFJDbS00T3V0ZTV2M0pXb09jLWhTbUdQZzNESTlyLW9LZHoxeGoyVE9xU3FQdWtlam1veUk4dHF0MEEwbTRSZ0lja3lQU2Etem8ybk10V1hseXRFUFFLNlFGalRCQXlqZ1JLZVJaSjE0c29ZRVV6TWxJ?oc=5"
+      "title": "Ricoh\u2019s 30th Anniversary Camera Pins Are Cute As a Button -...",
+      "url": "https://news.google.com/rss/articles/CBMilAFBVV95cUxPZmVYNGhjNVY0RUxqdFo2czZ1eUdmQ3NSVC1NUHNZeDl1TzV6NmVNTUwzZVppbnlqRDhrT2lmOFppZDJuckpxc1RrdURfak9uT2VpNGlza3QxSnFrV1BJSnprQlQ5RGQzWUxfbmUweWI4Ui1hUHAyWk5vd3FYVXQtSUdPaG1KVE0weWx3QXFBZ0lycEt3?oc=5"
     },
     "price_change_pct": -3.52
   },
   {
-    "rank": 81,
+    "rank": 84,
     "ticker": "NU",
     "company_name": "Nu Holdings ",
     "score": 71,
     "earnings_date": "November 12, 2026",
-    "days_left": 27,
+    "days_left": 24,
     "price": 14.56,
     "pe_target": 15.36,
     "pe_upside": 5.5,
@@ -2424,18 +2514,18 @@
     "sector": "Financial Services",
     "sentiment": "Mixed",
     "news": {
-      "title": "NU alum in ICE custody - The Daily Northwestern",
-      "url": "https://news.google.com/rss/articles/CBMiggFBVV95cUxQRWwyVVpsNG5nOXVLclJZVHNwemlzZWU5dnBCR3pZcWtmQXQ0NVJQMDhwVEFfSnlFNnk2U1c3SmxwS21VbHJhZ3FWclUtcVowcTJ6c0ZzUzl4Yk16aVdVRlMzb09xVUh0T0NhUjZGZU1QNmVYNUNOdHl3UWVwQzRuUG9n?oc=5"
+      "title": "NU's Marquez and women's golf set records in winning...",
+      "url": "https://news.google.com/rss/articles/CBMiogFBVV95cUxORDB4TmhmNXlRcExybVVmU3JBUkZBMGVabEJQTFV2Tko0TVF0MnBER3J6a2M3RHYwN1NvY0ZBTTNzNHNUTDB3SnM0SzdtWEdIZzlfeHRGam9SQ2stV2VvZHJFbGFNVlpWZVRxaDJQSmhrdk56RU0xS2dGay05MnE0MFJ1eEZfbHJiN1g0TVp0UVJTRTA5NHJXMmQwWWw4S041Q2c?oc=5"
     },
     "price_change_pct": -1.15
   },
   {
-    "rank": 82,
+    "rank": 85,
     "ticker": "DKNG",
     "company_name": "DraftKings I",
     "score": 71,
     "earnings_date": "November 5, 2026",
-    "days_left": 20,
+    "days_left": 17,
     "price": 18.9,
     "pe_target": 20.14,
     "pe_upside": 6.6,
@@ -2454,18 +2544,18 @@
     "sector": "Consumer Cyclical",
     "sentiment": "Negative",
     "news": {
-      "title": "DraftKings (DKNG) Could Be 8% Undervalued On Spending And...",
-      "url": "https://news.google.com/rss/articles/CBMiogFBVV95cUxQdC1UWllOZFhIN1F6aWp0dVg4UGV3czNOYVR2aDA2N05CWmVQTVBtVDNrSUtKWlJrV1NRQzlZSjFyWnRDdnFxQmNsMUg5UGd3MkFnWUplb1VBdEEyMTVxaWNKSFJackVsaklKOEYwMjNUMTM3cmVILVdCTEJ6alg5LXhoeVRXVWQ5bHZvZFlrOC1lOGhOa21rQU0zS3VwMC1UUFE?oc=5"
+      "title": "Why IREN, CIFR, DKNG Stocks Crashed To 52-Week Lows Last...",
+      "url": "https://news.google.com/rss/articles/CBMilAFBVV95cUxOakxSc0twcXhqck81Q1BoMzc5V1BhMDdsWVhrdmVQdFdKZFNNUGtlMWJpcXJoZmV1dGRmSG15VDFqUjFET1BObEVZbVBSOG00aFBnUDhoLXJVWVBZZHB4Rjd4dTNpdTZvVU5BODF6MFc0VFhUMEdFYndTd21ycURJZ0lOSy1ZQzMzQmlyN0VlaWVLUU5a?oc=5"
     },
     "price_change_pct": -2.12
   },
   {
-    "rank": 83,
+    "rank": 86,
     "ticker": "LYFT",
     "company_name": "Lyft, Inc.",
     "score": 71,
     "earnings_date": "November 5, 2026",
-    "days_left": 20,
+    "days_left": 17,
     "price": 16.82,
     "pe_target": 17.83,
     "pe_upside": 6.0,
@@ -2490,12 +2580,12 @@
     "price_change_pct": -1.98
   },
   {
-    "rank": 84,
+    "rank": 87,
     "ticker": "CAT",
     "company_name": "Caterpillar ",
     "score": 70,
     "earnings_date": "October 29, 2026",
-    "days_left": 13,
+    "days_left": 10,
     "price": 730.76,
     "pe_target": 765.47,
     "pe_upside": 4.7,
@@ -2514,18 +2604,18 @@
     "sector": "Industrials",
     "sentiment": "Positive",
     "news": {
-      "title": "Rabies case confirmed in Roanoke cat - WDBJ7",
-      "url": "https://news.google.com/rss/articles/CBMidkFVX3lxTE12V3ozcEVBNHM0T1cxTXNPMHZzV2JZV18zMmFqNWY2OXJQcEpnRWY2Y0JNRHF4UVlsNm80M0todGxTZExqNlR4R00zRm5KYkdsTnpwSFpReEYyVzhPSlJwblBTckc1b0JfQ2V5bm96VENuZ0VGSWfSAYoBQVVfeXFMTjd1UzVUcG91RG84bnN2a3E1U050cnA2aVlpdjhBR01fNl9JZmxYbVlOWkZMVHQwYURxcVZMUmNNYlRHVE1OcTRTcGI5aE02Y2JkUjIxbko3Zjc5c2VHOWxUZEtTZTYyeENQRXBNWkZzeTJsRmJSNWFjbnVIdi1PRjhMUGZMY0l1MF9R?oc=5"
+      "title": "Deadly feline disease outbreak kills 20 cats in...",
+      "url": "https://news.google.com/rss/articles/CBMiogFBVV95cUxPcF9fTGEyZmM4c01WQmtHX2stTDRNSzdMOUtuUDV3ekRuelBPbHE0UXAxZUlrSGFUSmNZTjdDaXk2RTdwQWViQ0VvcTRzc0I2M0lvOVNYb3BidF9JUnBHX2U1MklHS3ZhZEVYcXhwSXRhbEIybU9WdmFOYW9sMDlHQjVYc1VDeTlrTHdmQzhBTERzRThlVEpWMVNVTFFRMUNoZ0E?oc=5"
     },
     "price_change_pct": -0.66
   },
   {
-    "rank": 85,
+    "rank": 88,
     "ticker": "TTWO",
     "company_name": "Take-Two Int",
     "score": 70,
     "earnings_date": "November 9, 2026",
-    "days_left": 24,
+    "days_left": 21,
     "price": 205.28,
     "pe_target": 213.67,
     "pe_upside": 4.1,
@@ -2544,18 +2634,18 @@
     "sector": "Communication Services",
     "sentiment": "Negative",
     "news": {
-      "title": "TTWO Stock In Focus: Citi Says This Blockbuster Game Could...",
-      "url": "https://news.google.com/rss/articles/CBMilgFBVV95cUxQODkyTDVINUc1VXRKamVwU1htOHY3SUpRczZ0bXFqQjhfRldhRi03TDZQWmFkVlFwdW9FYXJUa3FBZ3RRRjI5U2lfcElEZ0JOUmttMFIwbExwR1pnV2hCT041OXpDOFVkdjRpYldrWkJQcElDbTdld1JmMXlsS3N3enMxVWhZRi1tQ3k2NE0tSFgtbGNWRXc?oc=5"
+      "title": "Grand Theft Auto VI Is Weeks Away. Is Take-Two Interactive...",
+      "url": "https://news.google.com/rss/articles/CBMilAFBVV95cUxPX3p4cjN0TFJkbnBOV1FEdjhyemdzd0hwdXJLQ0ZjeDRabm5XeXA5cFRtZVZfbER6Z0FYdXFSOU85aFNDOHBHVGp6Wlhpcm9uWEJPaGRyRl9XYzA5S3pkck54UnNJMjBUSUM0YVlHWlJYVFR3Qmg1MGRDdjBUM1NKZUY3cVhveExHTlNaSHdfdnYzcEpQ?oc=5"
     },
     "price_change_pct": -1.96
   },
   {
-    "rank": 86,
+    "rank": 89,
     "ticker": "RUN",
     "company_name": "Sunrun Inc.",
     "score": 70,
     "earnings_date": "November 4, 2026",
-    "days_left": 19,
+    "days_left": 16,
     "price": 7.3,
     "pe_target": 7.92,
     "pe_upside": 8.5,
@@ -2574,18 +2664,18 @@
     "sector": "Technology",
     "sentiment": "Positive",
     "news": {
-      "title": "The Penelopiad review \u2013 move over, Odysseus! Margaret...",
-      "url": "https://news.google.com/rss/articles/CBMisAFBVV95cUxOMWJIalN2WnExWE4teFpFRHcxWVozcTZxYVBseldWMjN1TUJUQXRGeGtRdlNtX3VjYmZwSzU1SE5ZZmRONDZJSnhfSVR6QXJTMDA4OHQ4ZVF4M2tsejQzeVdHZElWbm9BTktMOFpFVEZLWnlyMUZfMG5fZmgyNXBPT1ktLWF5VEduVDVoSFY5cnc2MFY4Vmcwby1fY2FNSWdBcF9ZSG11VGczc1BPQWhFWA?oc=5"
+      "title": "Thousands take part in Great South Run in Portsmouth - BBC",
+      "url": "https://news.google.com/rss/articles/CBMiVkFVX3lxTE10REkxRVpVVGtheFloN1BVeE81WDFzN3hOaGNnTXhmSlBWZkstcjFZdGkwOXJRc3RwbnR3aGVhUklPbDd2MUhKTUVhek5GZ1hQamxwbGh3?oc=5"
     },
     "price_change_pct": -4.45
   },
   {
-    "rank": 87,
+    "rank": 90,
     "ticker": "HUBS",
     "company_name": "HubSpot, Inc",
     "score": 70,
     "earnings_date": "November 4, 2026",
-    "days_left": 19,
+    "days_left": 16,
     "price": 230.94,
     "pe_target": 275.24,
     "pe_upside": 19.2,
@@ -2604,18 +2694,18 @@
     "sector": "Technology",
     "sentiment": "Positive",
     "news": {
-      "title": "I\u2019ve Tested Echo Shows and Nest Hubs. Here\u2019s How Apple\u2019s...",
-      "url": "https://news.google.com/rss/articles/CBMikgFBVV95cUxQV3dOUGotX2xISWEtcDFHVkdLbkNrZE52VXUzb0Z1YUtwNFZuQ2JTZFJ3cGhackZNeFNPSFlGVU9jMk96eXhKTTNodzI3WnAyNE5tUHotLWpHTkwtV3RRWjZlMFhWMUdSenpKekNoNjgwZ01vdTlJSkVUU2lrSmgteGtya1FYNHNwQ2RrS19BVzBiZw?oc=5"
+      "title": "Neighborhood Health Hubs Deliver Big Blood Pressure Gains...",
+      "url": "https://news.google.com/rss/articles/CBMirgFBVV95cUxQbU0xQVozS0hONDNCVWk0UjlTZGxLdk5RVjBldHBLaVN1LWlfeWwySkQwaTI3X1dkWFl4TGFmYWVmLUIwZWJqbHMzNFVPbEJUX1Jtc2RqUTdZanZxMlNqSWtnaEtyRUlXUVRLVUFFUHJKSDNPaV8zZUlfV0RpNnlPSUlFSkEwNEdCRDE0eHlhNHdVMEZ6VUpCZDlhWWpCMzkteE5jc2k3UVdvRnNQZ0E?oc=5"
     },
     "price_change_pct": -3.34
   },
   {
-    "rank": 88,
+    "rank": 91,
     "ticker": "TT",
     "company_name": "Trane Techno",
     "score": 69,
     "earnings_date": "October 29, 2026",
-    "days_left": 13,
+    "days_left": 10,
     "price": 458.89,
     "pe_target": 489.77,
     "pe_upside": 6.7,
@@ -2634,18 +2724,18 @@
     "sector": "Industrials",
     "sentiment": "Mixed",
     "news": {
-      "title": "TT CUT-INS (2) 10.16.26 - KITV",
-      "url": "https://news.google.com/rss/articles/CBMiowFBVV95cUxQNFhaNTM2bkEzNjItcnh1TVVxa3lneWNUcGVkcThYbVByYjdPbEttU0VacDlNeG1lTUZfNkFVbFp3X2kycWdoWGhlU2JwT3VKeXN2allsQTdrLVpaSEcweEhDUDBzYTg2TjcxTk5LVUhIcVJZOGVBa3hGanYyT1lDZ0Z1eWhZbWdFbVdoUFBpSUwweEFYcnlWaUZUVUl6Q1Bmb2ZV?oc=5"
+      "title": "Compliance Expert Retires. Now What? - Transport Topics",
+      "url": "https://news.google.com/rss/articles/CBMidEFVX3lxTE5oVFFQakNGMkVXeHVlekF1TXlDbzJxeHdBWU5QTEtnN2JLRXI4WG1lbkxPZ2FGS3VRRGE4b1o3OEVEOU9TbzR4eWI2Q2sxaE8ySllOZk13NzljUDBMdEhPWmlaNU1UUHVxTWlqYVpTOWhoUVI4?oc=5"
     },
     "price_change_pct": 0.33
   },
   {
-    "rank": 89,
+    "rank": 92,
     "ticker": "ENTG",
     "company_name": "Entegris, In",
     "score": 69,
     "earnings_date": "October 29, 2026",
-    "days_left": 13,
+    "days_left": 10,
     "price": 138.74,
     "pe_target": 163.08,
     "pe_upside": 17.5,
@@ -2664,18 +2754,18 @@
     "sector": "Technology",
     "sentiment": "Positive",
     "news": {
-      "title": "Here\u2019s How Much You Would Have Made Owning Entegris Stock...",
-      "url": "https://news.google.com/rss/articles/CBMitwFBVV95cUxPT1FGX0Vzc0drRVg2WUV5RFJJR3BlNDlrWUZLWFFuZHZUdEE1THI4TTg5c1JoaVF4VTJtMDlLMUE5dzJ6NDM0WDhfMWZvcUJrQXU4dmM5WmJva3dEdGp5djlvUHQtaVl3d3VPWGVtUElJSWxHekMxY0J2a0QtRGYyaXhCSVpRVGhoZjE4ZGZSQzJpMFg3ZDlmNml4dVNVT2JVenJKSWwyTzRTXzh4MEpJa2ZPcXdDckE?oc=5"
+      "title": "Curated Wealth Partners LLC Sells 24,810 Shares of...",
+      "url": "https://news.google.com/rss/articles/CBMixwFBVV95cUxPUnJ5eW9mQk9oQlI3TElDMGpTeGVlYVdGSE85dUtVX3hEUmc0d0p5ZUYxN3hCTUcyeUtmWE90ZlVjc0dOVEM1UUx3blZVcDQtNmdyUXBFci1zRFdxQ0NobDVLT2l4NWNwWWRHN2dpUnhaWERyZ3FQakpGdjBIVVEtcElINFV5dThyUGtYbjUyRm1YY2ptMDVPd2hDY2dmMTNxaWg2Zl83Ym95c0k5SlRfRUhUMHRRZl83S2pXbXppRTVfOUFMalNF?oc=5"
     },
     "price_change_pct": -5.54
   },
   {
-    "rank": 90,
+    "rank": 93,
     "ticker": "FOXA",
     "company_name": "Fox Corporat",
     "score": 69,
     "earnings_date": "November 2, 2026",
-    "days_left": 17,
+    "days_left": 14,
     "price": 64.15,
     "pe_target": 69.9,
     "pe_upside": 9.0,
@@ -2694,18 +2784,18 @@
     "sector": "Communication Services",
     "sentiment": "Positive",
     "news": {
-      "title": "FOXA Stock Quote Price and Forecast - CNN",
-      "url": "https://news.google.com/rss/articles/CBMiUEFVX3lxTFBJQTlUZnJOV1RnR2I3d3Q2NTM4LXpNMHEwX0xtbW9STDMtX2lJSTZEbExoNkdKeGdsZi1aUU9vbG9tbDVOWFhfYVRKWXhZRV92?oc=5"
+      "title": "Can Fox\u2019s Record Sales Growth Last? - Trefis",
+      "url": "https://news.google.com/rss/articles/CBMimgFBVV95cUxNaUQwUEZzUHByZXBmOXZnTkxLZ044WEhOb3BhVkhRdXYzNzRGYk1TaWJZNjdZMnNNaG9XU0J3NHZVOFk0N2x3WHVKRlZCX25Eemx4WDlTM3hCZWk2NWhjYXhHWHJKRUkwRHVCUWRRaVRHU1o2bGVEbTBMTnZoTHRuNFY1RFZZQzlMMEs2Z3k0MU94TmpjOUxfMDBB?oc=5"
     },
     "price_change_pct": 0.27
   },
   {
-    "rank": 91,
+    "rank": 94,
     "ticker": "TRMB",
     "company_name": "Trimble Inc.",
     "score": 69,
     "earnings_date": "November 4, 2026",
-    "days_left": 19,
+    "days_left": 16,
     "price": 59.46,
     "pe_target": 65.23,
     "pe_upside": 9.7,
@@ -2724,18 +2814,18 @@
     "sector": "Technology",
     "sentiment": "Positive",
     "news": {
-      "title": "Trimble Inc. (TRMB) stock price, news, quote and history -...",
-      "url": "https://news.google.com/rss/articles/CBMiUkFVX3lxTFBIZWo4cTRoaXdHRDBMaW5tTUUwN0swSlN3Sk5JNjhMZWdOdkFNN1lnN3MzNTNBLVVsNVlaUmEyX2RlanRJT1dleTdrbk9rTTFiNmc?oc=5"
+      "title": "Trimble Inc. (TRMB) Stock Price, News, Quote & History -...",
+      "url": "https://news.google.com/rss/articles/CBMiUkFVX3lxTFBUMF9Ka0NEamtMQXBwMTd2b1hwZklHa0FRNThwcDRqNVRrVzhicC00YUJ6TnI5UmhzclRQVFZlVHdTRWZqVFJEMGZ0SWVUY2I4U1E?oc=5"
     },
     "price_change_pct": -2.48
   },
   {
-    "rank": 92,
+    "rank": 95,
     "ticker": "VST",
     "company_name": "Vistra Corp.",
     "score": 69,
     "earnings_date": "November 6, 2026",
-    "days_left": 21,
+    "days_left": 18,
     "price": 152.02,
     "pe_target": 160.37,
     "pe_upside": 5.5,
@@ -2754,18 +2844,18 @@
     "sector": "Utilities",
     "sentiment": "Negative",
     "news": {
-      "title": "Vistra (VST) Redeemed $1 Billion Of Series A Preferred...",
-      "url": "https://news.google.com/rss/articles/CBMiwgFBVV95cUxOdnZFamNLUDRqN1R2TGU3NlVJVFUyMmUxNjNiUmo0THozbVZJM1BhUHhLd3V5enZGcjZFcU9zS1ZYZk9tblAtd3ZBOWRyWmN6a25JRmJkWnJoc1RkYmFucXFhelhNZlBfbjRhei1PVTJ0WWlWR3VvUzR5RHJGOTBISWRRYzFKbDd1RVFSeFY3cHl1R21tc1h2MjI5dmVmWEpWUjg3OHowRjJwSC1MNUwxTlYyXzl3eE5VVUpmeEN5bWwwd9IBwgFBVV95cUxOdnZFamNLUDRqN1R2TGU3NlVJVFUyMmUxNjNiUmo0THozbVZJM1BhUHhLd3V5enZGcjZFcU9zS1ZYZk9tblAtd3ZBOWRyWmN6a25JRmJkWnJoc1RkYmFucXFhelhNZlBfbjRhei1PVTJ0WWlWR3VvUzR5RHJGOTBISWRRYzFKbDd1RVFSeFY3cHl1R21tc1h2MjI5dmVmWEpWUjg3OHowRjJwSC1MNUwxTlYyXzl3eE5VVUpmeEN5bWwwdw?oc=5"
+      "title": "Is Preferred Stock Redemption Altering The Investment Case...",
+      "url": "https://news.google.com/rss/articles/CBMiwAFBVV95cUxOS3JCNEFSemlmYlVQOXVMSVJsREMzbFNGbWtNZzJKTlRfLVhiSE82WVBTenlacEdIem84UE9iaVh0dUc2MFpuMDhKcGg2a002c09RbkkyRjFsWGxWazVabGIweW1nUlNRU3RkLVdfUmpkX1B2Y2tRdDNBTl9HLTliNVJuaU1jekFYQldmS0JENEF2T3pkV1ZldHlSMHo0NHctTlNPbHZrU2ZSVk1VRzFTaU1rVXF1eWxIYlhmdHNqbkPSAcYBQVVfeXFMUEVxYmRkWDNRVmI3VFotMVlTTkVNbDZabzEtYWtMQjBxSmFQY2NBLTJCdEFRZndxSHo1QkNiM3l5UklRVGZnSmpBeDZNS0NzUTJyQ202TVBFVE1zckdlVkhYY3JtREFxWlBYQzlJT19BOW5PS3B5MlpVbW02TDNDelNaNnB5MmdjVEN6bUxkWnJfT1J2LS1pcXZCZnlKRTNhMDZNZS1JN0hoU2E1dlo2cUNXMDVPTVhTcjJqN1F2NDg4dkh0b1ZB?oc=5"
     },
     "price_change_pct": -1.39
   },
   {
-    "rank": 93,
+    "rank": 96,
     "ticker": "MPWR",
     "company_name": "Monolithic P",
     "score": 69,
     "earnings_date": "October 29, 2026",
-    "days_left": 13,
+    "days_left": 10,
     "price": 1210.86,
     "pe_target": 1448.28,
     "pe_upside": 19.6,
@@ -2784,18 +2874,48 @@
     "sector": "Technology",
     "sentiment": "Mixed",
     "news": {
-      "title": "Monolithic Power Systems (NASDAQ:MPWR) Downgraded by Wall...",
-      "url": "https://news.google.com/rss/articles/CBMi0gFBVV95cUxQckJ3cDRKNEJNWGxURnRidEJoaDBTWGFxdjNyMUM5TTJjTktRalJZWDJPRVpFV0NwbWNQdGhHMmwzUlpQanVHOG4wNlBwU1MtWU1HQVFZMi12ckczZmJjY3BlRDVJUDlOeEo0aFZaMmstVzBqYVkyQTB3LUgwOWVtQjBXUlZsZjVFLW1qYUpTN1ZKWGN6R3Z5dUUxeEZvclozdlQ1RkNtR3lxTkh6NDVJTWVIdTlzejNnd2o2dVhFQmZ1TV9TWmdVeF95R1lzNXAxX0E?oc=5"
+      "title": "Monolithic Power Systems, Inc. (MPWR) Stock Price, News,...",
+      "url": "https://news.google.com/rss/articles/CBMiUkFVX3lxTE1NRmZzZmhFSEhHdURFV3F5Q2I2QkFzS2F4ajZid1YwV29USGI2U2JSdHlabVoxMGhGVXZyZUxtQUdyVHpaaldFSTVCTURnT3IzRWc?oc=5"
     },
     "price_change_pct": -3.07
   },
   {
-    "rank": 94,
+    "rank": 97,
+    "ticker": "TME",
+    "company_name": "Tencent Musi",
+    "score": 69,
+    "earnings_date": "November 17, 2026",
+    "days_left": 29,
+    "price": 8.63,
+    "pe_target": 9.56,
+    "pe_upside": 10.8,
+    "3d": 11.42,
+    "3d_up": 32.3,
+    "5d": 13.28,
+    "5d_up": 53.9,
+    "analysts": 29,
+    "sb": 3,
+    "buy": 15,
+    "hold": 11,
+    "sell": 0,
+    "mktcap": 0.0,
+    "short_int": 5.5,
+    "iv": 10.8,
+    "sector": "Communication Services",
+    "sentiment": "Mixed",
+    "news": {
+      "title": "A director's 9,271-unit stock grant at Tencent Music (TME)...",
+      "url": "https://news.google.com/rss/articles/CBMixAFBVV95cUxOMTduRmtHNGVyY2lGUEh4eGtEeFRUQlV3Z2lWUXV0QU9RalNJSGZTTWdQaENSVzc0UjBYbmRLWWplMnE5RzBaOTA1MEdDcGtOaDhwdllkT21HU29sTVNuNE0wT002cWxVMHdjeV9uWkRLNGJtaGFLRlFUQUZ6QVF4ZW5jdE9oczVoRm5iMlhLTF9oaXpLZjdrZDZMMFExandCMVRUZjFfN0Q2UW1mZlhJT3lDakh0V1BTeHZtWkROS3FLNHdm?oc=5"
+    },
+    "price_change_pct": -0.23
+  },
+  {
+    "rank": 98,
     "ticker": "CACI",
     "company_name": "CACI Interna",
     "score": 68,
     "earnings_date": "October 21, 2026",
-    "days_left": 5,
+    "days_left": 2,
     "price": 614.31,
     "pe_target": 702.85,
     "pe_upside": 14.4,
@@ -2814,18 +2934,18 @@
     "sector": "Technology",
     "sentiment": "Positive",
     "news": {
-      "title": "Las Vegas man sentenced in drunken crash that critically...",
-      "url": "https://news.google.com/rss/articles/CBMixAFBVV95cUxNU1VaeGdLX2xvZnphRTZJbk91TjlHVUNvbEhxTmo4cks5bTVDTXFkaXRtS3ZYMXV1WTB6UklGY3haYnU5eTlFYVNvb3F3aUE4bkEtWWZDczBhYThDVGZmWTlTTUZpdGZrSXMtYzlKQ1JiaW1UTTZJTVR4ZkV0NkIzVWhhRnpsek96M3A4dUtCOHYyZi1tQXZHNU5iang1OWRwb3hCeGlwQnB2WS1NNW1fVTc4dGNJS1FDSG1SbFFOb3Iwb3ND?oc=5"
+      "title": "Government Contract Update: $29M payment to CACI, INC. -...",
+      "url": "https://news.google.com/rss/articles/CBMipgFBVV95cUxNQ1daSUFkMjBQUy1jRW9JbkRROEMzY0RZRHlfaTlVWXNWQ3VVVmJPZDBHQXZJbXd1eFRnRkg2ckhCak5va3BjZ05EX0FFeGFfZVJLRkZCU3lmOFFwZUV2RnFWVHU0UmQzYnhWakxybmhvVWpKZ1hiTzVXLXZPQjZaemVGeGJjMmgwN0Q5eVQ3cEtYdlVmNkE1bVA3dkVNRklfT1NEcUJ3?oc=5"
     },
     "price_change_pct": 0.48
   },
   {
-    "rank": 95,
+    "rank": 99,
     "ticker": "IDXX",
     "company_name": "IDEXX Labora",
     "score": 68,
     "earnings_date": "November 2, 2026",
-    "days_left": 17,
+    "days_left": 14,
     "price": 560.36,
     "pe_target": 643.56,
     "pe_upside": 14.8,
@@ -2844,18 +2964,18 @@
     "sector": "Healthcare",
     "sentiment": "Positive",
     "news": {
-      "title": "IDEXX Laboratories, Inc. (IDXX) Stock Price, News, Quote &...",
-      "url": "https://news.google.com/rss/articles/CBMiUkFVX3lxTE1zZU1Pc1dxUGlYV2dCSUM4Mk40YjByeTd1UTMydTJHVTdEeXFCaXAyNmxEcC1aUGt2OWNfN3h0RnR2akZMajJ5cF9FbFlqSldXN0E?oc=5"
+      "title": "IDEXX Laboratories (IDXX) Stock May Be 12% Undervalued...",
+      "url": "https://news.google.com/rss/articles/CBMi1AFBVV95cUxOeWxncmhBY25RLVA4RVlXVWhweVpnS0FGWjlNbndmXzA0LW5xUEExWmlnWG1uSDB4SFRPQ3BLSFJRTEVOZTJqR0tsRWNMRjdjckNVVmpNazJjanJSWTljOU10VGhRa2JiczVRZm1Mb0R1a3V3ekJLU2ZsS28zaWNJRVI5UTFfdEZmMThPb0tqVi14TFVvd29rcFVKdUVzZlNBOVBVTXUxNzJjOVZzVm1QeUt0cWI4NEZERC1iRTFVNVdXNXlZal9Zck1DY19BVGhqaVlBWtIB2gFBVV95cUxPR284a1JFVHJJLUFPTk5TbzFBZjZEWW9wYUhhVnJFa2tyWUstekNmNWF4WE82MWttSlJ0UTd5NS1hdDBuTVNsQWwwd0xUMXdxOXkyOUYyd3NIT1hTdnBTcFhDMHhhTUhOR09qX203QmZvQUVOeXBOSzAyWDEtVmh5LUxyYnJhSTdIWlNMLUJ5b1BtWXNBMS1sQkRQby1CRXJXeU5iYXZ4a0I4VXhrWE52aFRPRXlUNk9MZUJMQzMtX2lEendtVWxVTkxabjRFRGRJYWZUZWhjalpOdw?oc=5"
     },
     "price_change_pct": 2.41
   },
   {
-    "rank": 96,
+    "rank": 100,
     "ticker": "JCI",
     "company_name": "Johnson Cont",
     "score": 68,
     "earnings_date": "October 27, 2026",
-    "days_left": 11,
+    "days_left": 8,
     "price": 145.47,
     "pe_target": 159.65,
     "pe_upside": 9.7,
@@ -2874,129 +2994,9 @@
     "sector": "Industrials",
     "sentiment": "Positive",
     "news": {
-      "title": "Johnson Controls named to TIME's 2026 Best Inventions list...",
-      "url": "https://news.google.com/rss/articles/CBMiwwFBVV95cUxNYmV6YXFrZFRCSkxXWV9VcGV6U3h3YjN5V2ktUlVQdXhQNVQzTFZhS0gwcllESm4tUnJmblVtbS1xVkdBcExZRmpfbnZBOTZzVGlPTGk4Yk1lcXZtT1lSc2FLeEgzWGZFQWlQMmN1NGhGckpiRF85NjVVd1RkVW1zc2JiekJhYlVQeDBBX0dWei0ybmpEdmJKdFd2Nk9uRjRad0ZoeEYwX3Z1Z1hpNWhxekRVUHY3bHdab0k2Vm5DVFNDUzg?oc=5"
+      "title": "Jakarta Composite Index Drops 5.1% Amid MSCI Downgrade...",
+      "url": "https://news.google.com/rss/articles/CBMiwwFBVV95cUxQX1JoZkpvTUZ2eHllOGtPRy1XMEZTYW1sZ0VDR3hiSE1LeUNySE5zakVYT3VxQVp6UzRKU09VU0x1dVJJLU5jX09la21IZkVDQjJKdUpjQldQalp0djBpTnBjNlVpZ1dBSWFBTm5KZ1A4LVZmMGV1aE9qN0hBN0NiTkZZU3dzRkhfWnE0bkpGdUc0a2tFLXdzaDhGYUpqWFIwUkpZUjJnR1drQlNpb0Rnak5fXzFCUUR5RE95VE1yRnB5MVE?oc=5"
     },
     "price_change_pct": -1.46
-  },
-  {
-    "rank": 97,
-    "ticker": "IFF",
-    "company_name": "Internationa",
-    "score": 68,
-    "earnings_date": "November 3, 2026",
-    "days_left": 18,
-    "price": 90.68,
-    "pe_target": 98.13,
-    "pe_upside": 8.2,
-    "3d": 113.03,
-    "3d_up": 24.6,
-    "5d": 127.93,
-    "5d_up": 41.1,
-    "analysts": 20,
-    "sb": 4,
-    "buy": 10,
-    "hold": 6,
-    "sell": 0,
-    "mktcap": 0.0,
-    "short_int": 8.7,
-    "iv": 8.2,
-    "sector": "Basic Materials",
-    "sentiment": "Mixed",
-    "news": {
-      "title": "Barclays Issues Positive Forecast for International Flavors...",
-      "url": "https://news.google.com/rss/articles/CBMi6AFBVV95cUxPdlU4T2NuYjg3cDllLTlvVkNoVUt0cmZHQ0Vybjg2cnVULXRUTjZwQm9ZLW5idmFibnF1ZTJacmJEal91bzlEYzJOQ2JQU1RrYXFJUG5hNklGbnd5bEprVU44X1M2ckxkSFczc25DUjcwNlduWHJLLXN4aGdPQk1mNkt6ZmJHLUtwdmpyVHN6TDNKSzBmTDl0WVR4ekdJREctVFZQaEF0d1BGVTRuU3JFMTl0RGtjeW9FQzV2TjhiX2FnTlh0RWtCeXdGcC14aGwweDd2RDFEZnFFX3RlUEczUURMWF9VOGpn?oc=5"
-    },
-    "price_change_pct": 0.43
-  },
-  {
-    "rank": 98,
-    "ticker": "LHX",
-    "company_name": "L3Harris Tec",
-    "score": 67,
-    "earnings_date": "October 29, 2026",
-    "days_left": 13,
-    "price": 248.51,
-    "pe_target": 256.65,
-    "pe_upside": 3.3,
-    "3d": 272.93,
-    "3d_up": 9.8,
-    "5d": 289.21,
-    "5d_up": 16.4,
-    "analysts": 20,
-    "sb": 1,
-    "buy": 11,
-    "hold": 8,
-    "sell": 0,
-    "mktcap": 0.0,
-    "short_int": 2.8,
-    "iv": 3.3,
-    "sector": "Industrials",
-    "sentiment": "Positive",
-    "news": {
-      "title": "L3Harris Technologies Inc (LHX) Shares Surge 3.3% -- What...",
-      "url": "https://news.google.com/rss/articles/CBMivAFBVV95cUxPMWJEU3lyckpLcjdUUGhFejJFUF95MGprLUdDY0VOamJOd0pzWW8xNWlKaVhjUC1QMVg0U1puQ24tcnF5VnlYenZ6eUtzNm9rTi1hX3p1RHhNR3BWNnZyR2tfWmxDZkV2QXdpVXJoY0oyZlRYeDVhYm1qNU53VnMwSDFvaThHS1pLX0FjNjRUSXpORF9LYjBrdDhMd0wwYU1aUWtjTmpDVGt6cU5NbExoN1pvRmo0eG1BdFU0MA?oc=5"
-    },
-    "price_change_pct": 3.33
-  },
-  {
-    "rank": 99,
-    "ticker": "WAL",
-    "company_name": "Western Alli",
-    "score": 67,
-    "earnings_date": "October 19, 2026",
-    "days_left": 3,
-    "price": 74.51,
-    "pe_target": 81.86,
-    "pe_upside": 9.9,
-    "3d": 96.56,
-    "3d_up": 29.6,
-    "5d": 111.26,
-    "5d_up": 49.3,
-    "analysts": 16,
-    "sb": 5,
-    "buy": 7,
-    "hold": 4,
-    "sell": 0,
-    "mktcap": 0.0,
-    "short_int": 5.9,
-    "iv": 9.9,
-    "sector": "Financial Services",
-    "sentiment": "Mixed",
-    "news": {
-      "title": "(DAZN)How to watch ENG v WAL LIVE Free Broadcast ON Tv...",
-      "url": "https://news.google.com/rss/articles/CBMitwJBVV95cUxOYUxoNm5HdnBuSTIzVmt0UW52aGktMXRSeTZkZFhYcmhoOERTNWlMUm96ZFEydjdGMUZUZVU5cHpOWGRBVWdjR3VEMXVhMC1aQmZJRzBNck1Ua0NmMVpCblR6Z1F2UUZqLTJac2FONTZLbTFnVnhWWENmV0NzR0xndFhFNjV4cWYzWTA3WUNPVURtZFFvQ01nS21FZ3RuOGk3ZVJHdTlTRXp2elhISVZkT3pvZXNiQ1phaXd5aHFuM0gtZ2RjbklEVTdKeVFBYTU4SDV2ZHpQT0JxQXhNd0pJU0dyQW92d1lXWHpKTHVMbEpxeXY4dl9zNWdxUXVyWWhuamV3M2VITHNyVUJXckpDZEhGT0JSUU1JeUpueFJvT1N0QkxRR0VRSnlGZFVnM3FfaFBySThMNA?oc=5"
-    },
-    "price_change_pct": 0.22
-  },
-  {
-    "rank": 100,
-    "ticker": "TDY",
-    "company_name": "Teledyne Tec",
-    "score": 67,
-    "earnings_date": "October 21, 2026",
-    "days_left": 5,
-    "price": 618.6,
-    "pe_target": 667.74,
-    "pe_upside": 7.9,
-    "3d": 766.02,
-    "3d_up": 23.8,
-    "5d": 864.3,
-    "5d_up": 39.7,
-    "analysts": 12,
-    "sb": 3,
-    "buy": 6,
-    "hold": 3,
-    "sell": 0,
-    "mktcap": 0.0,
-    "short_int": 2.8,
-    "iv": 7.9,
-    "sector": "Technology",
-    "sentiment": "Positive",
-    "news": {
-      "title": "Teledyne Technologies (TDY) Q3 2026 Preview: EPS Est....",
-      "url": "https://news.google.com/rss/articles/CBMipgFBVV95cUxNWmhqZFFOWHA5S3JDSjlhS0xLOUk4cHZUd1paVk1JZVRjU3oxUXNwQlV4NjFhXzhIR0pMVFVPLVpYTTUzNmY0RnhURWlaOVV1Mmo4V01KVDVScmxxNU5OYzlFOUhZazVaaExHR0dRVFZ1dzNQUjBEMXE0cm81UXhOZU9rTXN3elA2bnd4UmpOU1hfWUFMdDYtTHNsUFV6R1RnUXdqSC1B0gGmAUFVX3lxTE1aaGpkUU5YcDlLckNKOWFLTEs5SThwdlR3WlpWTUllVGNTejFRc3BCVXg2MWFfOEhHSkxUVU8tWlhNNTM2ZjRGeFRFaVo5VXUyajhXTUpUNVJybHE1Tk5jOUU5SFlrNVpoTEdHR1FUVnV3M1BSMEQxcTRybzVReE5lT2tNc3d6UDZud3hSak5TWF9ZQUx0Ni1Mc2xQVXpHVGdRd2pILUE?oc=5"
-    },
-    "price_change_pct": -0.21
   }
 ]
