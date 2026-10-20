@@ -23,6 +23,22 @@ AUTO_SCAN_MINUTE = 30
 COOKIE_NAME = "scanner_session"
 SESSION_TTL = 86400
 
+# ===== RAILWAY SAFETY =====
+# NEVER run the scanner inside the Railway web container.
+#
+# The scanner loads pandas/numpy and pulls ~224 tickers from yfinance, which
+# blows past Railway's free-tier memory limit. The container gets OOM-killed,
+# enters a restart loop, Railway marks the service unhealthy, and the domain
+# serves `x-railway-fallback: true` -> 404 on every route. This is exactly
+# what happened on 2026-10-20.
+#
+# Fresh data comes from the local Windows machine: daily_scan.ps1 scans,
+# commits and pushes to GitHub, and Railway redeploys the static HTML.
+# Set ALLOW_IN_CONTAINER_SCAN=1 to re-enable (local dev only).
+ALLOW_IN_CONTAINER_SCAN = os.environ.get("ALLOW_IN_CONTAINER_SCAN", "") == "1"
+if not ALLOW_IN_CONTAINER_SCAN:
+    print("[Safety] In-container scanner DISABLED — data comes from local push")
+
 app = Flask(__name__, static_folder='static', static_url_path='/static')
 
 # ===== HOME / SCANNER =====
@@ -669,11 +685,20 @@ def set_session(resp, plan=None):
 SCANNER_PATH = Path(__file__).parent / "ai_earnings_scanner.py"
 
 def trigger_scan():
+    # SAFETY: never spawn the scanner inside the Railway container (OOM -> restart
+    # loop -> 404). Fresh data arrives via GitHub push from the local machine.
+    if not ALLOW_IN_CONTAINER_SCAN:
+        scan_state.scan_state = 'done'
+        scan_state.refresh_state = 'idle'
+        print('[Scanner] BLOCKED - in-container scan disabled. '
+              'Data is pushed from the local machine; run daily_scan.ps1 there.')
+        return False
     scan_state.scan_state = 'running'
     scan_state.refresh_state = 'idle'
     print('[Scanner] Scan triggered.')
     t = threading.Thread(target=run_full_scan, daemon=True)
     t.start()
+    return True
 
 def run_full_scan():
     today_path = Path(__file__).parent / "ai_earnings_today.html"
@@ -1912,6 +1937,14 @@ def trigger_scan():
     provided = request.args.get("key", "")
     if key and provided != key:
         abort(403)
+    # SAFETY: this route shadows the earlier trigger_scan() and would spawn the
+    # scanner in-container (OOM -> restart loop -> 404 on every route).
+    if not ALLOW_IN_CONTAINER_SCAN:
+        return jsonify({
+            "error": "disabled_in_container",
+            "message": "In-container scanning is disabled to keep the service healthy. "
+                       "Data is refreshed by the local daily_scan.ps1 and pushed to GitHub.",
+        }), 503
     now = datetime.now(PT)
     today_path = Path(__file__).parent / "ai_earnings_today.html"
     golden_path = Path(__file__).parent / "ai_earnings_golden.html"
@@ -2353,5 +2386,9 @@ if __name__ == "__main__":
             return f"Written JSON ({len(data)} bytes), HTML regen failed: {e}", 200
         return f"Written JSON: {len(data)} bytes", 200
 
-    threading.Thread(target=auto_scan_loop, daemon=True).start()
+    if ALLOW_IN_CONTAINER_SCAN:
+        threading.Thread(target=auto_scan_loop, daemon=True).start()
+        print("[Safety] auto_scan_loop STARTED (ALLOW_IN_CONTAINER_SCAN=1)")
+    else:
+        print("[Safety] auto_scan_loop NOT started — local push supplies the data")
     app.run(host="0.0.0.0", port=PORT, debug=False)
