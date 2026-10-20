@@ -63,7 +63,15 @@ try {
     $remoteSha = (& $git rev-parse origin/master).Trim()
     if ($localSha -ne $remoteSha) {
         Log "[GIT] Local $localSha != origin $remoteSha - hard reset to origin/master"
-        & $git reset --hard origin/master 2>&1 | Out-Null
+        # EAP=Continue: git emits stderr chatter (line-ending warnings) that
+        # would otherwise abort this script under ErrorActionPreference=Stop.
+        $prevEap0 = $ErrorActionPreference
+        $ErrorActionPreference = 'Continue'
+        try {
+            $null = & $git reset --hard origin/master 2>&1
+        } finally {
+            $ErrorActionPreference = $prevEap0
+        }
         $discarded = (& $git log --oneline origin/master..@{u} 2>$null)
         if ($discarded) { Log "[GIT] Discarded divergent commits: $($discarded.Count)" }
     } else {
@@ -76,9 +84,29 @@ try {
     # load in production. The same HTML is committed and deployed, so --local
     # leaked a broken favicon path to every live visitor.
     Log "[SCAN] Running scanner (--no-finviz)..."
-    $scanOut = & $python $scanner --no-finviz 2>&1
+
+    # CRITICAL: drop to 'Continue' around the scanner call.
+    # With $ErrorActionPreference='Stop', ANY line the scanner writes to stderr
+    # becomes a terminating PowerShell error and kills this script - even
+    # though the scanner itself succeeds. yfinance prints routine notices like
+    # 'No fundamentals data found for symbol: KLA' to stderr for any ticker
+    # Yahoo has no fundamentals for. That is normal, not a failure.
+    #
+    # This silently aborted the 7 AM scan on 2026-10-20 with:
+    #   [FATAL] HTTP Error 404 ... No fundamentals data found for symbol: KLA
+    # Real success is determined by $LASTEXITCODE, not by stderr noise.
+    $prevEap = $ErrorActionPreference
+    $ErrorActionPreference = 'Continue'
+    try {
+        $scanOut = & $python $scanner --no-finviz 2>&1
+    } finally {
+        $ErrorActionPreference = $prevEap
+    }
     $scanCode = $LASTEXITCODE
-    $scanTail = ($scanOut | Select-Object -Last 6) -join ' | '
+    # drop stderr noise from the tail so real errors stay visible
+    $scanTail = ($scanOut |
+        Where-Object { $_ -isnot [System.Management.Automation.ErrorRecord] } |
+        Select-Object -Last 6) -join ' | '
     if ($scanCode -ne 0) {
         Log "[SCAN] FAILED exit=$scanCode :: $scanTail"
         exit 1
@@ -120,29 +148,44 @@ try {
     } catch { Log "[DESKTOP] WARN - $_" }
 
     # ---- 5. commit + push (verified) --------------------------------------
-    & $git add ai_earnings_today.html scanner_data.json ai_earnings_scanner.py `
-                ipo_etf_data.json pick_tracker.json daily_scan.ps1 2>&1 | Out-Null
+    # All git calls run under EAP=Continue for the same reason as the scanner:
+    # git writes harmless chatter to stderr ("LF will be replaced by CRLF",
+    # "warning: LF will be replaced..."), and with Stop that is fatal.
+    $prevEap2 = $ErrorActionPreference
+    $ErrorActionPreference = 'Continue'
+    try {
+        & $git add ai_earnings_today.html scanner_data.json ai_earnings_scanner.py `
+                    ipo_etf_data.json pick_tracker.json daily_scan.ps1 2>&1 | Out-Null
 
-    if (& $git diff --cached --quiet) {
-        Log "[GIT] No data changes to commit"
-    } else {
-        & $git commit -m "Daily scan - $(Get-Date -Format 'yyyy-MM-dd HH:mm') PT" 2>&1 | Out-Null
-        Log "[GIT] Committed $((& $git rev-parse --short HEAD).Trim())"
+        $staged = $false
+        & $git diff --cached --quiet
+        if ($LASTEXITCODE -ne 0) { $staged = $true }
+
+        if (-not $staged) {
+            Log "[GIT] No data changes to commit"
+        } else {
+            $null = & $git commit -m "Daily scan - $(Get-Date -Format 'yyyy-MM-dd HH:mm') PT" 2>&1
+            $sha = (& $git rev-parse --short HEAD).Trim()
+            Log "[GIT] Committed $sha"
+        }
+
+        $pushed = $false
+        for ($try = 1; $try -le 3; $try++) {
+            $pushOut = & $git push origin master 2>&1
+            if ($LASTEXITCODE -eq 0) { $pushed = $true; Log "[GIT] Push OK (attempt $try)"; break }
+            Log "[GIT] Push FAILED (attempt $try): $(($pushOut | Select-Object -Last 2) -join ' ')"
+            Start-Sleep -Seconds 10
+            $null = & $git pull --rebase --autostash origin master 2>&1
+        }
+
+        # ---- 6. VERIFY the push actually landed ---------------------------
+        $null = & $git fetch origin --prune 2>&1
+        $finalLocal  = (& $git rev-parse HEAD).Trim()
+        $finalRemote = (& $git rev-parse origin/master).Trim()
+    } finally {
+        $ErrorActionPreference = $prevEap2
     }
 
-    $pushed = $false
-    for ($try = 1; $try -le 3; $try++) {
-        $pushOut = & $git push origin master 2>&1
-        if ($LASTEXITCODE -eq 0) { $pushed = $true; Log "[GIT] Push OK (attempt $try)"; break }
-        Log "[GIT] Push FAILED (attempt $try): $(($pushOut | Select-Object -Last 2) -join ' ')"
-        Start-Sleep -Seconds 10
-        & $git pull --rebase --autostash origin master 2>&1 | Out-Null
-    }
-
-    # ---- 6. VERIFY the push actually landed -------------------------------
-    & $git fetch origin --prune 2>&1 | Out-Null
-    $finalLocal  = (& $git rev-parse HEAD).Trim()
-    $finalRemote = (& $git rev-parse origin/master).Trim()
     if ($finalLocal -eq $finalRemote) {
         Log "[VERIFY] OK - local == origin/master ($($finalLocal.Substring(0,7)))"
     } else {
