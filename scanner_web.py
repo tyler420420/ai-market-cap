@@ -1776,6 +1776,12 @@ def load_blog_index():
         return json.loads(idx_path.read_text(encoding="utf-8"))
     return []
 
+
+def _esc(text):
+    """HTML-escape for safe interpolation into card markup."""
+    return (str(text).replace("&", "&amp;").replace("<", "&lt;")
+            .replace(">", "&gt;").replace('"', "&quot;").replace("'", "&#39;"))
+
 @app.route("/blog")
 def blog_index():
     """Blog index — latest articles listing."""
@@ -1791,11 +1797,16 @@ def blog_index():
         articles = load_blog_index()
         cards_html = ""
         for a in articles[:6]:  # Latest 6
+            # Escape all interpolated fields. index.json stores PLAIN TEXT excerpts;
+            # emitting them raw is what previously leaked a literal "<p>" into every card.
+            s_title = _esc(str(a.get("title", "")))
+            s_keyword = _esc(str(a.get("keyword", "")))
+            s_excerpt = _esc(str(a.get("excerpt", "")))
             cards_html += f"""<a href="/blog/{a['slug']}" class="win-card">
                 <div class="h-badge" style="background:#1a3a5c;color:#58a6ff">📝 Article</div>
-                <div class="t" style="color:#fff;font-size:1.1em;font-weight:bold;margin:8px 0 4px">{a['title']}</div>
-                <div class="d" style="color:#888;font-size:0.82em;margin-bottom:8px">{a['date']} · {a.get('keyword', '')}</div>
-                <div class="l" style="color:#c9d1d9;font-size:0.85em;line-height:1.6">{a.get('excerpt', '')}</div>
+                <div class="t" style="color:#fff;font-size:1.1em;font-weight:bold;margin:8px 0 4px">{s_title}</div>
+                <div class="d" style="color:#888;font-size:0.82em;margin-bottom:8px">{a['date']} · {s_keyword}</div>
+                <div class="l" style="color:#c9d1d9;font-size:0.85em;line-height:1.6">{s_excerpt}</div>
                 <span class="link">Read article →</span>
             </a>"""
         
