@@ -92,6 +92,23 @@ try {
     if ($rowCount -lt 20)  { Log "[CHECK] FAIL - only $rowCount rows"; exit 1 }
     Log "[CHECK] OK - $size bytes, $rowCount stocks, data-labels=$(([regex]::Matches($content,'data-label=')).Count)"
 
+    # ---- 3b. regression guard on the GENERATED artifact -----------------
+    # The source can be correct while the shipped HTML is stale (that is how
+    # 'Overall Score' + empty sentiment cells shipped twice). Assert on the
+    # file users actually receive.
+    $verifier = Join-Path $repo 'verify_output.py'
+    if (Test-Path $verifier) {
+        $vOut = & $python $verifier 2>&1
+        $vCode = $LASTEXITCODE
+        foreach ($line in $vOut) { Log "[VERIFY] $line" }
+        if ($vCode -ne 0) {
+            Log "[VERIFY] REGRESSION DETECTED - refusing to deploy broken HTML"
+            exit 1
+        }
+    } else {
+        Log "[VERIFY] WARN - verify_output.py missing, skipping regression guard"
+    }
+
     # ---- 4. desktop copy ---------------------------------------------------
     try {
         Copy-Item $html $desktop -Force
