@@ -1,18 +1,26 @@
-# Temp / debug scripts
-_*.py
-_*.txt
-_*.json
-test_scanner.html
+# Adds the safeguard files that must not be committed.
+# Keeps stray test artifacts and local runtime state out of the repo.
 
-# Generated scan files - don't commit old scans
-ai_earnings_57day_*.html
-ai_earnings_57day_*.csv
-ai_earnings_report_*.html
-ai_earnings_report_*.csv
+# local runtime state
+.cron_state.json
+.scan.lock
+.watch.lock
 
-# Images
-matrix-media-*.png
+# uptime monitoring
+uptime_log.csv
+uptime_log.csv.1
+SITE_DOWN_ALERT.txt
 
-# Python caches
+# scratch / one-off test artifacts
+*.guardtest
+*.bak2
+_mobile_preview.html
+_mobile_test.html
+_test_script.js
+fix_dram_link.py
+fix_ticker_links.py
+verify_fix.py
+
+# python
 __pycache__/
 *.pyc

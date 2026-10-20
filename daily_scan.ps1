@@ -147,14 +147,29 @@ try {
     }
 
     # ---- 7. site health check --------------------------------------------
+    # Confirm the deployment actually serves healthy content, and that the
+    # feature checks still hold over HTTP (not just in the local file).
     try {
         $resp = Invoke-WebRequest -Uri $siteUrl -UseBasicParsing -TimeoutSec 25
         Log "[SITE] HTTP $($resp.StatusCode), $($resp.Content.Length) bytes"
-        if ($resp.StatusCode -ne 200) { Log "[SITE] WARN - non-200"; }
+        if ($resp.StatusCode -ne 200) { Log "[SITE] WARN - non-200" }
     } catch {
         Log "[SITE] ERROR - $($_.Exception.Message)"
         Log "[SITE] NOTE: if this is '404 / x-railway-fallback', the Railway service"
         Log "[SITE]       is down and needs a manual Restart in the Railway dashboard."
+    }
+
+    # Live feature audit - catches "source is fine but the deploy is stale"
+    $auditor = Join-Path $repo 'audit_live.py'
+    if (Test-Path $auditor) {
+        $aOut = & $python $auditor 2>&1
+        $aCode = $LASTEXITCODE
+        foreach ($line in ($aOut | Select-Object -Last 6)) { Log "[AUDIT] $line" }
+        if ($aCode -ne 0) {
+            Log "[AUDIT] FAILURES DETECTED on the live site - see output above"
+        } else {
+            Log "[AUDIT] Live site clean"
+        }
     }
 
     Log "===== Daily scan complete (pushed=$pushed) ====="

@@ -1,0 +1,56 @@
+#!/bin/sh
+# Pre-commit gate: never let a broken ai_earnings_today.html reach git.
+#
+# Every regression in this project had the same shape - the Python source was
+# correct but the generated HTML was stale or broken, and it got committed and
+# deployed anyway. This blocks that at the last possible moment.
+#
+# Set SKIP_GUARD=1 to bypass in an emergency:
+#   SKIP_GUARD=1 git commit ...
+#
+# NOTE: .git/hooks/ is not version-controlled. If the repo is recloned or the
+# hooks directory is reset, reinstall with:
+#   powershell -ExecutionPolicy Bypass -File install_hooks.ps1
+
+STAGED=$(git diff --cached --name-only)
+case "$STAGED" in
+  *ai_earnings_today.html*) ;;
+  *) exit 0 ;;   # nothing scanner-related staged, nothing to check
+esac
+
+if [ "$SKIP_GUARD" = "1" ]; then
+  echo "pre-commit: SKIP_GUARD=1 set, bypassing HTML regression check"
+  exit 0
+fi
+
+ROOT=$(git rev-parse --show-toplevel)
+cd "$ROOT" || exit 1
+
+PY=""
+for c in python python3 py; do
+  if command -v "$c" >/dev/null 2>&1; then PY="$c"; break; fi
+done
+
+if [ -z "$PY" ]; then
+  echo "pre-commit: no python found, skipping check"
+  exit 0
+fi
+
+echo "pre-commit: running HTML regression guard..."
+if "$PY" verify_output.py; then
+  echo "pre-commit: OK"
+  exit 0
+else
+  echo ""
+  echo "=============================================================="
+  echo " COMMIT BLOCKED - ai_earnings_today.html has a regression."
+  echo ""
+  echo " The page you are about to publish is broken. Fix the scanner,"
+  echo " regenerate the HTML, and re-run:"
+  echo "     python ai_earnings_scanner.py --no-finviz"
+  echo "=============================================================="
+  echo ""
+  echo " To bypass deliberately (not recommended):"
+  echo "     SKIP_GUARD=1 git commit ..."
+  exit 1
+fi
