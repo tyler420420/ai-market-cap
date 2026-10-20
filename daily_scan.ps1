@@ -71,8 +71,12 @@ try {
     }
 
     # ---- 2. run scanner ----------------------------------------------------
+    # NOTE: deliberately NOT passing --local.
+    # --local rewrites asset paths to file:///C:/... which browsers refuse to
+    # load in production. The same HTML is committed and deployed, so --local
+    # leaked a broken favicon path to every live visitor.
     Log "[SCAN] Running scanner (--no-finviz)..."
-    $scanOut = & $python $scanner --no-finviz --local 2>&1
+    $scanOut = & $python $scanner --no-finviz 2>&1
     $scanCode = $LASTEXITCODE
     $scanTail = ($scanOut | Select-Object -Last 6) -join ' | '
     if ($scanCode -ne 0) {

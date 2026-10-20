@@ -318,9 +318,26 @@ def data():
     return '{"error": "No data available"}', 404
 
 # ===== FAVICON =====
+# Cache-Control is deliberately short (5 min) rather than the long default.
+# Favicons are cached hard by browsers, and a stale/404 entry survives a long
+# max-age - which is how the icon stayed missing long after the outage ended.
+def _serve_icon(filename, mimetype):
+    resp = make_response(send_from_directory(
+        os.path.dirname(__file__), filename, mimetype=mimetype))
+    resp.headers['Cache-Control'] = 'public, max-age=300'
+    return resp
+
 @app.route('/favicon.ico')
 def favicon():
-    return send_from_directory(os.path.dirname(__file__), 'favicon.ico', mimetype='image/x-icon')
+    return _serve_icon('favicon.ico', 'image/x-icon')
+
+@app.route('/favicon.png')
+def favicon_png():
+    return _serve_icon('favicon.png', 'image/png')
+
+@app.route('/apple-touch-icon.png')
+def apple_touch_icon():
+    return _serve_icon('favicon.png', 'image/png')
 
 # ===== STOCK PAGES — aismarketcap.com/stock/TICKER =====
 STOCK_PAGES_DIR = Path(__file__).parent / "stock_pages"

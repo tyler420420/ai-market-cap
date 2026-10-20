@@ -103,6 +103,12 @@ def main():
     check("favicon link uses /favicon.ico (not file:///)",
           'href="/favicon.ico"' in c and "file:///" not in c,
           "favicon href points at file:/// which browsers block in production")
+    check("PNG icon declared (browsers prefer it over ICO)",
+          'rel="icon" type="image/png"' in c,
+          "only the ICO is declared; Chrome/Safari fall back to a globe")
+    check("apple-touch-icon declared",
+          'rel="apple-touch-icon"' in c,
+          "missing apple-touch-icon - iOS home screen icon will be blank")
 
     print("\n=== Popup timing ===")
     check("popup delay is 5 min (300000)", "300000" in c)

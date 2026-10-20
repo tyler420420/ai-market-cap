@@ -132,6 +132,17 @@ def main():
               fm.group(0)[:90])
         check("no file:/// favicon in production",
               "file:///" not in fm.group(0), "local-mode path leaked into deploy")
+    check("PNG icon declared", 'rel="icon" type="image/png"' in home,
+          "ICO-only declaration; Chrome/Safari may fall back to a globe")
+    check("apple-touch-icon declared", 'rel="apple-touch-icon"' in home,
+          "missing apple-touch-icon")
+    for icon_path in ("/favicon.ico", "/favicon.png", "/apple-touch-icon.png"):
+        try:
+            code, body, hdrs = get(icon_path)
+            check(f"{icon_path} serves icon bytes", code == 200 and len(body) > 300,
+                  f"status={code} bytes={len(body)}")
+        except Exception as e:
+            check(f"{icon_path} serves icon bytes", False, str(e)[:60])
 
     # ---------- 7. subscription popup ----------
     print("\n=== Subscription popup ===")

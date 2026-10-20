@@ -529,8 +529,18 @@ def generate_html_report(stocks: list, output_path: str):
     html += '<meta charset="UTF-8">'
     html += '<meta name="viewport" content="width=device-width, initial-scale=1">'
     html += '<title>' + SCANNER_TITLE + '</title>'
-    favicon_path = "file:///C:/Users/Tyler_AI/ai-market-cap/favicon.ico" if LOCAL_MODE else "/favicon.ico"
-    html += '<link rel="icon" type="image/x-icon" href="' + favicon_path + '">'
+    # Favicon: declare ICO + PNG + apple-touch. Chrome/Safari prefer the PNG
+    # variants, and an ICO-only declaration silently falls back to a globe icon.
+    # The file:// path is desktop-only; browsers refuse it in production.
+    if LOCAL_MODE:
+        favicon_ico = "file:///C:/Users/Tyler_AI/ai-market-cap/favicon.ico"
+        favicon_png = "file:///C:/Users/Tyler_AI/ai-market-cap/favicon.png"
+    else:
+        favicon_ico = "/favicon.ico"
+        favicon_png = "/favicon.png"
+    html += '<link rel="icon" type="image/x-icon" href="' + favicon_ico + '">'
+    html += '<link rel="icon" type="image/png" sizes="32x32" href="' + favicon_png + '">'
+    html += '<link rel="apple-touch-icon" href="/apple-touch-icon.png">'
     html += '<meta name="description" content="AI pre-earnings momentum scanner for tech stocks. Track scores, analyst ratings, PE targets, and implied moves before earnings reports.">'
     html += '<meta property="og:title" content="AI Market Cap">'
     html += '<meta property="og:description" content="Pre-Earnings Tech Stock Scanner for AI stocks. Scores, PE targets, and 14-day implied moves before earnings reports.">'
