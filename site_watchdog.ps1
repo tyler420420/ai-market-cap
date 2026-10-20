@@ -130,24 +130,44 @@ try {
         Log "No RAILWAY_TOKEN set - skipping API restart."
     }
 
-    # Recovery 2: force a redeploy via empty commit
+    # Recovery 2: nudge a Railway redeploy with an empty commit.
+    #
+    # SAFETY: the watchdog must NEVER mutate the working tree.
+    #   Original line here was `git reset --hard origin/master`, which destroyed
+    #   uncommitted edits on every down event. Replacing it with
+    #   `git stash push -u` avoided the data loss but was still wrong here:
+    #   this repo carries ~500 untracked artifacts (_*.py scratch scripts,
+    #   ai_earnings_57day_*.html snapshots), so `stash -u` would sweep all of
+    #   them into a stash and never restore them, and `git merge` could leave
+    #   the repo mid-conflict on a timer the user never asked for.
+    #
+    # Correct behaviour: only commit when the tree is clean. If the user has
+    # work in progress, refuse and report - the daily scan (lock-protected,
+    # the authorised writer) owns repo surgery.
     if (-not $recovered) {
         try {
             Set-Location $repo
             $null = & $git fetch origin --prune 2>&1
-            $null = & $git reset --hard origin/master 2>&1
-            # NOTE: do NOT pipe through Out-Null here - piping resets $LASTEXITCODE.
-            $null = & $git commit --allow-empty -m "Watchdog: force Railway redeploy $(Get-Date -Format 'yyyy-MM-dd HH:mm')" 2>&1
-            $push = & $git push origin master 2>&1
-            $pushCode = $LASTEXITCODE
-            if ($pushCode -eq 0) {
-                Log "Redeploy triggered (empty commit pushed). Waiting 90s..."
-                Start-Sleep -Seconds 90
-                $s3 = Test-Site
-                if ($s3.Ok) { $recovered = $true; Log "RECOVERED via redeploy" }
-                else { Log "Redeploy did not help yet: $($s3.Note)" }
+
+            $dirty = @(& $git status --porcelain 2>$null)
+            if ($dirty.Count -gt 0) {
+                Log "REDEPLOY SKIPPED - working tree has $($dirty.Count) uncommitted change(s)."
+                Log "  Commit or stash them yourself, then the redeploy can proceed."
+                Log "  First few: $(($dirty | Select-Object -First 3 | ForEach-Object { $_.Trim() }) -join ' / ')"
             } else {
-                Log "Redeploy push failed (exit $pushCode): $(($push | Select-Object -Last 2) -join ' / ')"
+                # NOTE: do NOT pipe through Out-Null - piping resets $LASTEXITCODE.
+                $null = & $git commit --allow-empty -m "Watchdog: force Railway redeploy $(Get-Date -Format 'yyyy-MM-dd HH:mm')" 2>&1
+                $push = & $git push origin master 2>&1
+                $pushCode = $LASTEXITCODE
+                if ($pushCode -eq 0) {
+                    Log "Redeploy triggered (empty commit pushed). Waiting 90s..."
+                    Start-Sleep -Seconds 90
+                    $s3 = Test-Site
+                    if ($s3.Ok) { $recovered = $true; Log "RECOVERED via redeploy" }
+                    else { Log "Redeploy did not help yet: $($s3.Note)" }
+                } else {
+                    Log "Redeploy push failed (exit $pushCode): $(($push | Select-Object -Last 2) -join ' / ')"
+                }
             }
         } catch {
             Log "Redeploy attempt failed: $($_.Exception.Message)"

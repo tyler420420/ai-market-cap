@@ -1,26 +1,36 @@
-# Adds the safeguard files that must not be committed.
-# Keeps stray test artifacts and local runtime state out of the repo.
-
-# local runtime state
+# ===== local runtime state =====
 .cron_state.json
 .scan.lock
 .watch.lock
 
-# uptime monitoring
+# ===== uptime monitoring =====
 uptime_log.csv
 uptime_log.csv.1
 SITE_DOWN_ALERT.txt
+daily_scan.log
 
-# scratch / one-off test artifacts
-*.guardtest
-*.bak2
-_mobile_preview.html
-_mobile_test.html
-_test_script.js
-fix_dram_link.py
-fix_ticker_links.py
-verify_fix.py
+# ===== historical scan snapshots =====
+# Each run writes ai_earnings_57day_<ts>.{html,csv}. These accumulate ~2 per
+# day and are purely archival - the live page is ai_earnings_today.html.
+# Before this was ignored the repo carried 1000+ untracked files, which made
+# git status unusable and made `git stash -u` catastrophic.
+ai_earnings_57day_*.html
+ai_earnings_57day_*.csv
 
-# python
+# ===== scratch / one-off scripts =====
+# Ad-hoc _fix_*.py / _check_*.py / _verify_*.py helpers written during
+# debugging. Not part of the site.
+_*.py
+_*.js
+_*.html
+_*.txt
+_*.json
+
+# ===== python =====
 __pycache__/
 *.pyc
+
+# ===== backups =====
+*.bak
+*.bak2
+*.guardtest

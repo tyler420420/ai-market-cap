@@ -1,52 +1,52 @@
 [
   {
-    "date": "2026-10-19",
+    "date": "2026-10-20",
+    "ticker": "BIDU",
+    "price": 80.5,
+    "score": 87,
+    "days_left": 29,
+    "company": "Baidu, Inc.",
+    "pe_target": 83.15,
+    "5d_target": 93.75
+  },
+  {
+    "date": "2026-10-20",
     "ticker": "NVDA",
-    "price": 214.13,
-    "score": 95,
-    "days_left": 29,
+    "price": 216.47,
+    "score": 93,
+    "days_left": 28,
     "company": "NVIDIA Corporation",
-    "pe_target": 218.78,
-    "5d_target": 237.38
+    "pe_target": 220.42,
+    "5d_target": 236.22
   },
   {
-    "date": "2026-10-19",
+    "date": "2026-10-20",
     "ticker": "DIS",
-    "price": 110.59,
-    "score": 89,
-    "days_left": 29,
+    "price": 111.67,
+    "score": 85,
+    "days_left": 28,
     "company": "The Walt Disney Company",
-    "pe_target": 113.98,
-    "5d_target": 127.54
+    "pe_target": 114.15,
+    "5d_target": 124.07
   },
   {
-    "date": "2026-10-19",
+    "date": "2026-10-20",
     "ticker": "BILI",
-    "price": 14.07,
+    "price": 13.92,
     "score": 91,
-    "days_left": 24,
+    "days_left": 23,
     "company": "Bilibili Inc.",
-    "pe_target": 15.87,
-    "5d_target": 23.07
+    "pe_target": 15.69,
+    "5d_target": 22.77
   },
   {
-    "date": "2026-10-19",
+    "date": "2026-10-20",
     "ticker": "JD",
-    "price": 27.01,
-    "score": 91,
-    "days_left": 24,
+    "price": 26.76,
+    "score": 87,
+    "days_left": 23,
     "company": "JD.com, Inc.",
-    "pe_target": 27.8,
-    "5d_target": 30.96
-  },
-  {
-    "date": "2026-10-19",
-    "ticker": "AMAT",
-    "price": 409.29,
-    "score": 86,
-    "days_left": 24,
-    "company": "Applied Materials, Inc.",
-    "pe_target": 433.56,
-    "5d_target": 530.64
+    "pe_target": 27.35,
+    "5d_target": 29.71
   }
 ]
