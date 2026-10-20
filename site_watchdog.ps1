@@ -145,6 +145,13 @@ try {
     # work in progress, refuse and report - the daily scan (lock-protected,
     # the authorised writer) owns repo surgery.
     if (-not $recovered) {
+        # EAP=Continue: git writes harmless chatter to stderr (line-ending
+        # warnings, fetch progress). Under ErrorActionPreference='Stop' that
+        # becomes a terminating error and aborts the recovery - the same bug
+        # that killed the 7 AM daily scan on 2026-10-20. Real success is
+        # $LASTEXITCODE, not stderr silence.
+        $prevEap = $ErrorActionPreference
+        $ErrorActionPreference = 'Continue'
         try {
             Set-Location $repo
             $null = & $git fetch origin --prune 2>&1
@@ -171,6 +178,8 @@ try {
             }
         } catch {
             Log "Redeploy attempt failed: $($_.Exception.Message)"
+        } finally {
+            $ErrorActionPreference = $prevEap
         }
     }
 
