@@ -1863,13 +1863,32 @@ h2{{color:#fff;font-size:1.9em;margin:0 0 8px}}
     resp.headers['Content-Type'] = 'text/html; charset=utf-8'
     return resp
 
+def _retired_slugs():
+    """Slugs of purged template-filler articles (blog/retired_slugs.json)."""
+    p = BLOG_DIR / "retired_slugs.json"
+    if p.exists():
+        try:
+            return json.loads(p.read_text(encoding="utf-8"))
+        except Exception:
+            return {}
+    return {}
+
+
 @app.route("/blog/<slug>")
 def blog_article(slug):
-    """Serve an individual blog article."""
+    """Serve an individual blog article.
+
+    Purged template-filler articles (19 of them, e.g. "Why Does Pre-Earnings
+    Stock Picks: The Complete Guide for 2026") are 301'd to the blog index
+    instead of 404ing. They were removed from index.json and therefore from
+    sitemap.xml; the redirect preserves any ranking signal they earned.
+    """
     app_dir = Path(__file__).parent
     article_path = app_dir / "blog" / f"{slug}.html"
 
     if not article_path.exists():
+        if slug in _retired_slugs():
+            return redirect("/blog", code=301)
         return "Article not found", 404
 
     with open(article_path, 'r', encoding='utf-8') as f:
@@ -1886,6 +1905,17 @@ def blog_index_json():
     resp = make_response(json.dumps(articles))
     resp.headers['Content-Type'] = 'application/json'
     return resp
+
+
+def _retired_slugs():
+    """Slugs of purged template-filler articles (blog/retired_slugs.json)."""
+    p = BLOG_DIR / "retired_slugs.json"
+    if p.exists():
+        try:
+            return json.loads(p.read_text(encoding="utf-8"))
+        except Exception:
+            return {}
+    return {}
 
 
 @app.route("/sitemap.xml")
