@@ -11,11 +11,24 @@ from pathlib import Path
 from datetime import timezone, timedelta
 import requests
 
-# ===== CREDENTIALS (use env vars in production, fall back to hardcoded for Railway) =====
-X_API_KEY = os.environ.get("X_API_KEY", "REDACTED_X_CREDENTIAL")
-X_API_SECRET = os.environ.get("X_API_KEY_SECRET", "REDACTED_X_CREDENTIAL")
-X_ACCESS_TOKEN = os.environ.get("X_ACCESS_TOKEN", "REDACTED_X_CREDENTIAL")
-X_ACCESS_SECRET = os.environ.get("X_ACCESS_TOKEN_SECRET", "REDACTED_X_CREDENTIAL")
+# ===== CREDENTIALS =====
+# SECURITY: these were previously hardcoded here as fallback literals so that
+# Railway would "just work". That committed live X API keys to the repository,
+# where they remain in git history (commits 0257a13, 46ee4a0). The keys are
+# compromised and must be rotated at the X developer portal.
+#
+# They are now read from the environment only, with no fallback, and auth fails
+# closed rather than posting with a baked-in key. Set these in the deployment
+# environment to re-enable posting.
+X_API_KEY = os.environ.get("X_API_KEY", "")
+X_API_SECRET = os.environ.get("X_API_KEY_SECRET", "")
+X_ACCESS_TOKEN = os.environ.get("X_ACCESS_TOKEN", "")
+X_ACCESS_SECRET = os.environ.get("X_ACCESS_TOKEN_SECRET", "")
+
+
+def credentials_present():
+    """True only when every X credential is supplied by the environment."""
+    return all([X_API_KEY, X_API_SECRET, X_ACCESS_TOKEN, X_ACCESS_SECRET])
 
 PT = timezone(timedelta(hours=-7))
 SCAN_FILE = Path(__file__).parent / "ai_earnings_today.html"
@@ -31,6 +44,11 @@ _twitter_auth = None
 def get_twitter_auth():
     global _twitter_auth
     if _twitter_auth is None:
+        if not credentials_present():
+            raise RuntimeError(
+                "X credentials are not configured. Set X_API_KEY, X_API_KEY_SECRET, "
+                "X_ACCESS_TOKEN and X_ACCESS_TOKEN_SECRET in the environment."
+            )
         _twitter_auth = OAuth1(
             client_key=X_API_KEY,
             client_secret=X_API_SECRET,
