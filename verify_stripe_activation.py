@@ -245,6 +245,62 @@ with tempfile.TemporaryDirectory() as td:
     ra = client.get("/account", environ_overrides={"HTTP_COOKIE": "stripe_customer=cus_test_2"})
     check("/account does not 500", ra.status_code < 500, str(ra.status_code))
 
+    print("\n=== 9. access survives a redeploy wiping subscriptions.json ===")
+    # Railway's container disk is ephemeral and subscriptions.json is NOT
+    # committed by the daily scan, so it comes back empty after every deploy.
+    # A paid customer must not lose access because our cache vanished - Stripe
+    # still has the subscription active, so we must ask Stripe.
+    CID = "cus_redeploy_1"
+    saved_subs = read_subs()
+    mod.save_subscription(CID, "monthly", "active",
+                      email="redeploy@example.com", sub_id="sub_rd_1",
+                      period_end=1800000000)
+    check("record present before the wipe", CID in read_subs())
+
+    # Simulate the wipe: local file is gone.
+    subs_path.unlink()
+    check("subscriptions.json wiped (simulated redeploy)", not subs_path.exists())
+
+    class FakeSub:
+        id = "sub_rd_1"
+        status = "active"
+        current_period_end = 1800000000
+
+    class FakeList:
+        data = [FakeSub()]
+
+    orig_list = mod.stripe.Subscription.list
+    real_key = mod.stripe.api_key
+    mod.stripe.api_key = "sk_test_present"          # key exists -> Stripe is authoritative
+    mod.stripe.Subscription.list = staticmethod(lambda **kw: FakeList())
+    try:
+        mod.app.config["TESTING"] = True
+        with mod.app.test_request_context("/", headers={"Cookie": f"stripe_customer={CID}"}):
+            active = mod.is_subscriber()
+        check("still active after the wipe (asked Stripe)",
+              active is True, f"is_subscriber() returned {active}")
+
+        # And a genuinely cancelled sub must still be denied - no blanket bypass.
+        # Use a DIFFERENT customer id: the validation cache is keyed by
+        # customer and lasts 5 minutes, so reusing the same id would return the
+        # cached True from the check above and mask a real regression.
+        CID2 = "cus_redeploy_2"
+        class FakeCancelled(FakeSub):
+            id = "sub_rd_2"
+            status = "canceled"
+        mod.stripe.Subscription.list = staticmethod(
+            lambda **kw: type("L", (), {"data": [FakeCancelled()]})())
+        with mod.app.test_request_context("/", headers={"Cookie": f"stripe_customer={CID2}"}):
+            denied = mod.is_subscriber()
+        check("cancelled sub is still DENIED after a wipe",
+              denied is False, f"is_subscriber() returned {denied}")
+    finally:
+        mod.stripe.Subscription.list = orig_list
+        mod.stripe.api_key = real_key
+        # Restore the records the earlier sections created.
+        if saved_subs:
+            subs_path.write_text(json.dumps(saved_subs), encoding="utf-8")
+
 print("\n" + "=" * 62)
 failed = [r for r in results if not r[1]]
 print(f"{len(results) - len(failed)}/{len(results)} checks passed")

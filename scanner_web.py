@@ -833,11 +833,18 @@ def is_subscriber():
     local_status = local.get('status')
     if local_status == 'active':
         return True
-    # Local says inactive/cancelled/missing — but maybe webhook missed it.
-    # Don't bother with Stripe API for non-existent customers.
-    if not local:
+    # Local says inactive/cancelled/missing — but maybe webhook missed it, or
+    # Railway wiped the container filesystem on the last redeploy.
+    #
+    # A MISSING record used to short-circuit to False here, which meant a
+    # redeploy silently revoked every paid account: subscriptions.json lives on
+    # the container's ephemeral disk and is deliberately not committed by the
+    # daily scan, so it comes back empty after every deploy. Stripe still knows
+    # the subscription is paid and active, so ask Stripe before denying access.
+    # Losing access because our cache was wiped is far worse than one extra API
+    # call. The 5-minute validation cache keeps that cost bounded.
+    if not stripe.api_key:
         return False
-    # Verify with Stripe API (cached)
     return _stripe_validate_active(customer_id)
 
 def _stripe_validate_active(customer_id: str) -> bool:
