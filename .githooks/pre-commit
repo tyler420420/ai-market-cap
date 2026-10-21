@@ -37,6 +37,20 @@ case "$STAGED" in
           echo "=============================================================="
           exit 1
         fi
+        echo "pre-commit: running auth guard..."
+        if ! "$PY0" verify_auth.py; then
+          echo ""
+          echo "=============================================================="
+          echo " COMMIT BLOCKED - an authentication invariant is broken."
+          echo ""
+          echo " /login must never grant Pro access on the strength of an"
+          echo " email alone, and /webhook must fail closed when"
+          echo " STRIPE_WEBHOOK_SECRET is unset. Re-introducing either one"
+          echo " lets anyone who knows a subscriber's email read Pro for"
+          echo " free, or forge Stripe events to grant access to anyone."
+          echo "=============================================================="
+          exit 1
+        fi
       fi
     fi
     ;;

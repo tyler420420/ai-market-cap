@@ -64,13 +64,12 @@ def get_subscriber_count():
     except Exception:
         return 0
 
-def is_subscriber():
-    """Check if current visitor has an active subscription."""
-    customer_id = request.cookies.get("stripe_customer", "")
-    if not customer_id:
-        return False
-    subs = get_subscriptions()
-    return subs.get(customer_id, {}).get('status') == 'active'
+# NOTE: an earlier version of this file defined a simplified is_subscriber() here
+# that trusted the stripe_customer cookie plus the local file, with no Stripe
+# validation. It was dead code shadowed by the real two-tier implementation
+# further down. It has been removed so there is exactly ONE definition — having
+# two meant an edit to the weak one could look correct while the live one
+# silently stayed different.
 
 @app.route("/api/pro_pick")
 def api_pro_pick():
@@ -1171,12 +1170,16 @@ def success():
         _STRIPE_VALIDATION_CACHE.pop(customer_id, None)
 
         plan_name = plan.capitalize()
-        # Build a "magic link" so the user can restore access from a new device
-        # by visiting /login?email=their@email
-        email_hint = ''
+        # Offer to set a password NOW, while we still know the payer is present.
+        # This is the only moment in the flow where we get a free, proven
+        # identity. Skipping it leaves them unable to sign in on a new device.
+        setpw_hint = ''
         if email:
-            masked = email[:3] + '***' + (email.split('@')[1] if '@' in email else '')
-            email_hint = f'<p class="hint">Subscription tied to <strong>{email}</strong> (masked: {masked}).<br>If you ever get logged out, visit <code>/login?email=YOUR_EMAIL</code> to restore access.</p>'
+            setpw_hint = (
+                '<p class="setpw"><strong>One last step:</strong> set a password so you '
+                'can sign in on any device.<br>'
+                '<a href="/set-password" class="btn2">Set My Password →</a></p>'
+            )
 
         success_html = f"""<!DOCTYPE html>
 <html><head><meta charset="UTF-8"><title>Welcome - AI Market Cap</title>
@@ -1187,9 +1190,10 @@ h1 {{ color: #2ea043; font-size: 2em; margin: 0 0 8px; }}
 p {{ color: #8b949e; font-size: 1.05em; margin: 16px 0; line-height: 1.5; }}
 a.btn {{ background: #2ea043; color: #fff; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 1.1em; display: inline-block; margin-top: 16px; }}
 a.btn:hover {{ background: #3fb950; }}
+a.btn2 {{ background: #1f6feb; color: #fff; padding: 11px 22px; border-radius: 8px; text-decoration: none; font-weight: bold; display: inline-block; margin-top: 10px; }}
+a.btn2:hover {{ background: #2f81f7; }}
 a.secondary {{ color: #58a6ff; text-decoration: none; font-size: 0.9em; display: inline-block; margin-top: 12px; }}
-.hint {{ color: #6e7681; font-size: 0.82em; margin-top: 24px; padding-top: 20px; border-top: 1px solid #21262d; }}
-.hint code {{ background: #161b22; padding: 2px 6px; border-radius: 4px; color: #c9d1d9; font-size: 0.9em; }}
+.setpw {{ background: #161b22; border: 1px solid #30363d; border-radius: 10px; padding: 18px; margin-top: 24px; font-size: 0.92em; color: #c9d1d9; }}
 .check {{ font-size: 4em; color: #2ea043; margin-bottom: 12px; }}
 </style></head><body>
 <div class=box>
@@ -1198,7 +1202,7 @@ a.secondary {{ color: #58a6ff; text-decoration: none; font-size: 0.9em; display:
   <p>Welcome to AI Market Cap! Your <strong>{plan_name}</strong> subscription is active.<br>The Pro Pick, Runner-Up, and AI Chat are now unlocked.</p>
   <a href="/" class=btn>Go to Scanner →</a>
   <a href="/account" class=secondary>Manage Subscription</a>
-  {email_hint}
+  {setpw_hint}
 </div>
 </body></html>"""
         resp = make_response(success_html, 200, {"Content-Type": "text/html; charset=utf-8"})
@@ -1209,76 +1213,275 @@ a.secondary {{ color: #58a6ff; text-decoration: none; font-size: 0.9em; display:
         return f"<h1>Payment received but there was a problem activating your account</h1><p>Please email support@aismarketcap.com with your receipt. Error: {e}</p>", 200
 
 
-# ===== ACCOUNT + LOGIN + PORTAL =====
-@app.route("/login")
-def login():
-    """Restore access on a new device via email magic-link.
+# ===== PASSWORD AUTH =====================================================
+# /login used to accept a bare ?email=X and set the access cookie for whoever
+# matched. Knowing (or guessing) a subscriber's email was therefore enough to
+# get Pro — no proof of anything. Anyone could read a subscriber's address off
+# a Stripe receipt screenshot, a shared thread, or just try the obvious
+# first.last@gmail.com, and walk into their account.
+#
+# The fix is a real credential. /success sets a password immediately after
+# payment (the one moment we KNOW the payer is present and paid), and /login
+# requires email + password. The cookie is issued only after that check passes.
+#
+# We deliberately did NOT implement an emailed one-time magic link. This app
+# has no outbound email transport — the only smtplib code in the repo lives in
+# content_pipeline/ and expects Gmail app-passwords passed in by the caller.
+# A magic link with no way to send the mail is a door that never opens: a
+# subscriber who clears their cookies could never get back in. A password they
+# choose at checkout always works, needs no new infrastructure, and no new
+# Railway env vars.
+from werkzeug.security import generate_password_hash, check_password_hash
+from threading import Lock as _ThreadLock
 
-    GET /login         → form to enter email
-    GET /login?email=X → look up customer by email, set cookie, redirect home
+MIN_PASSWORD_LEN = 8
+_LOGIN_FAIL_WINDOW = 900      # 15 minutes
+_LOGIN_MAX_FAILS = 10
+_login_failures = {}          # email -> (count, first_fail_ts)
+_login_lock = _ThreadLock()
+
+def _prune_login_failures(now=None):
+    now = now or time.time()
+    stale = [k for k, (c, first) in _login_failures.items()
+             if now - first > _LOGIN_FAIL_WINDOW]
+    for k in stale:
+        _login_failures.pop(k, None)
+
+def record_login_failure(email):
+    email = (email or '').strip().lower()
+    if not email:
+        return
+    with _login_lock:
+        now = time.time()
+        _prune_login_failures(now)
+        count, first = _login_failures.get(email, (0, now))
+        if now - first > _LOGIN_FAIL_WINDOW:
+            count, first = 0, now
+        _login_failures[email] = (count + 1, first)
+
+def clear_login_failures(email):
+    email = (email or '').strip().lower()
+    with _login_lock:
+        _login_failures.pop(email, None)
+
+def login_throttled(email):
+    """True if this email has burned too many attempts in the window."""
+    email = (email or '').strip().lower()
+    with _login_lock:
+        _prune_login_failures()
+        rec = _login_failures.get(email)
+        if not rec:
+            return False
+        count, first = rec
+        return count >= _LOGIN_MAX_FAILS
+
+def set_subscriber_password(customer_id, password):
+    """Store a scrypt password hash on the subscription record.
+
+    Returns (ok, error_message). The hash is the only thing persisted — the
+    plaintext is never written anywhere.
     """
-    email_param = (request.args.get('email') or '').strip()
+    if not password or len(password) < MIN_PASSWORD_LEN:
+        return False, f"Password must be at least {MIN_PASSWORD_LEN} characters."
+    if len(password) > 200:
+        return False, "Password is too long."
+    subs = get_subscriptions()
+    rec = subs.get(customer_id)
+    if not isinstance(rec, dict):
+        return False, "No subscription found for this account."
+    if rec.get('status') != 'active':
+        return False, "This subscription is not active."
+    pw_hash = generate_password_hash(password)
+    rec['pw_hash'] = pw_hash
+    rec['pw_set'] = int(time.time())
+    # A new password invalidates the failure counter for that email.
+    if rec.get('email'):
+        clear_login_failures(rec.get('email'))
+    subs[customer_id] = rec
+    try:
+        SUBS_FILE.write_text(json.dumps(subs), encoding='utf-8')
+    except Exception as e:
+        print(f"[Auth] FATAL: could not persist password for {customer_id}: {e}")
+        return False, "Could not save your password. Please contact support."
+    print(f"[Auth] Password set for {customer_id}")
+    return True, ""
 
-    if not email_param:
-        # Show email entry form
-        return make_response("""<!DOCTYPE html>
+def verify_subscriber_password(customer_id, password):
+    """Check a password against the stored scrypt hash. Returns bool."""
+    subs = get_subscriptions()
+    rec = subs.get(customer_id)
+    if not isinstance(rec, dict):
+        return False
+    pw_hash = rec.get('pw_hash')
+    if not pw_hash:
+        return False
+    try:
+        return check_password_hash(pw_hash, password or '')
+    except Exception as e:
+        print(f"[Auth] hash check error for {customer_id}: {e}")
+        return False
+
+
+# ===== ACCOUNT + LOGIN + PORTAL =====
+@app.route("/set-password", methods=["GET", "POST"])
+def set_password():
+    """Let an already-authenticated subscriber choose or change their password.
+
+    Reached straight from /success while the payment cookie is fresh, and from
+    /account for existing subscribers who subscribed before passwords existed.
+    It requires a VALID access cookie (set by /success after payment or by
+    /login after a correct password) — it will not set a password for someone
+    who cannot already prove their subscription.
+    """
+    customer_id = request.cookies.get("stripe_customer", "")
+    if not customer_id or not is_subscriber():
+        return redirect("/pricing")
+
+    rec = get_subscriptions().get(customer_id, {})
+    email = rec.get('email', '') or 'your account'
+    already = bool(rec.get('pw_hash'))
+
+    if request.method == 'POST':
+        pw = request.form.get('password', '')
+        pw2 = request.form.get('password2', '')
+        if pw != pw2:
+            return _set_password_page(email, already, error="Passwords do not match.")
+        ok, err = set_subscriber_password(customer_id, pw)
+        if not ok:
+            return _set_password_page(email, already, error=err)
+        clear_login_failures(rec.get('email'))
+        resp = make_response(redirect("/account", code=302))
+        resp.set_cookie("pw_set_flash", "1", max_age=30, httponly=True, samesite='Lax')
+        return resp
+
+    return _set_password_page(email, already, error=None)
+
+
+def _set_password_page(email, already, error=None):
+    heading = "Change Your Password" if already else "Set Your Password"
+    intro = ("Your Pro access is active on this device. Set a password so you can "
+             "sign back in from any device."
+             if not already else
+             "Choose a new password for your Pro account.")
+    err_html = f'<div class="err">{error}</div>' if error else ''
+    return make_response(f"""<!DOCTYPE html>
 <html><head>
 <meta charset="UTF-8">
-<title>Login - AI Market Cap</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Set Password - AI Market Cap</title>
 <style>
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body { font-family: Segoe UI, Arial, sans-serif; background: #0d1117; color: #c9d1d9; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; }
-.box { background: #161b22; border: 1px solid #30363d; border-radius: 12px; padding: 36px 32px; max-width: 440px; width: 100%; }
-h1 { color: #fff; font-size: 1.5em; margin-bottom: 6px; }
-.sub { color: #8b949e; font-size: 0.92em; margin-bottom: 24px; line-height: 1.5; }
-label { color: #8b949e; font-size: 0.85em; display: block; margin-bottom: 6px; }
-input[type=email] { width: 100%; background: #0d1117; border: 1px solid #30363d; border-radius: 8px; color: #c9d1d9; padding: 12px 14px; font-size: 1em; font-family: inherit; outline: none; }
-input[type=email]:focus { border-color: #58a6ff; }
-button { width: 100%; background: #2ea043; color: #fff; border: none; border-radius: 8px; padding: 12px; font-size: 1em; font-weight: bold; cursor: pointer; margin-top: 14px; font-family: inherit; }
-button:hover { background: #3fb950; }
-.err { background: #1f0a0a; border: 1px solid #f85149; color: #ff6b6b; padding: 10px 14px; border-radius: 8px; margin-bottom: 14px; font-size: 0.9em; }
-a { color: #58a6ff; text-decoration: none; }
-a:hover { text-decoration: underline; }
+body {{ font-family: Segoe UI, sans-serif; background: #0d1117; color: #c9d1d9; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; }}
+.box {{ background: #161b22; border: 1px solid #30363d; border-radius: 12px; padding: 36px 32px; max-width: 460px; width: 100%; }}
+h1 {{ color: #fff; font-size: 1.4em; margin: 0 0 10px; }}
+p.sub {{ color: #8b949e; font-size: 0.92em; line-height: 1.6; margin-bottom: 22px; }}
+label {{ display: block; font-size: 0.85em; color: #8b949e; margin-bottom: 6px; }}
+input[type=password] {{ width: 100%; padding: 12px 14px; margin-bottom: 16px; border-radius: 8px; border: 1px solid #30363d; background: #0d1117; color: #c9d1d9; font-size: 1em; box-sizing: border-box; }}
+button {{ background: #2ea043; color: #fff; padding: 12px 24px; border-radius: 8px; border: 0; font-weight: bold; font-size: 1em; cursor: pointer; width: 100%; }}
+button:hover {{ background: #3fb950; }}
+.err {{ background: #1f0a0a; border: 1px solid #f85149; color: #ff6b6b; padding: 10px 14px; border-radius: 8px; margin-bottom: 14px; font-size: 0.9em; }}
+a {{ color: #58a6ff; text-decoration: none; }}
+a:hover {{ text-decoration: underline; }}
 </style></head><body>
 <div class=box>
-  <h1>Restore Pro Access</h1>
-  <p class=sub>Enter the email you used at checkout. We'll set your access cookie and redirect you to the scanner.</p>
-  <form method=GET action=/login>
-    <label for=email>Email address</label>
-    <input type=email id=email name=email placeholder="you@example.com" required autofocus>
-    <button type=submit>Restore Access →</button>
+  <h1>{heading}</h1>
+  <p class=sub>{intro}<br>Account: <strong>{email}</strong></p>
+  {err_html}
+  <form method=POST action=/set-password>
+    <label for=password>Password (min {MIN_PASSWORD_LEN} characters)</label>
+    <input type=password id=password name=password minlength="{MIN_PASSWORD_LEN}" required autofocus>
+    <label for=password2>Confirm password</label>
+    <input type=password id=password2 name=password2 minlength="{MIN_PASSWORD_LEN}" required>
+    <button type=submit>Save Password →</button>
   </form>
-  <p class=sub style="margin-top:18px"><a href=/pricing>← Back to pricing</a></p>
+  <p class=sub style="margin-top:18px"><a href=/account>← Back to account</a></p>
 </div>
 </body></html>""", 200, {"Content-Type": "text/html; charset=utf-8"})
 
-    # Email provided — look up customer
-    cid, sub = get_customer_by_email(email_param)
-    if not cid:
-        return make_response(f"""<!DOCTYPE html>
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    """Sign in with email + password to restore Pro access on a new device.
+
+    SECURITY: this route NEVER grants access on the strength of an email alone.
+    A GET /login?email=X returns the form and nothing else; the access cookie
+    is issued only after verify_subscriber_password() confirms the hash.
+    """
+    # Already signed in on this device — nothing to do.
+    if request.cookies.get("stripe_customer") and is_subscriber():
+        return redirect("/account")
+
+    if request.method == 'POST':
+        email = (request.form.get('email') or '').strip().lower()
+        password = request.form.get('password') or ''
+
+        if login_throttled(email):
+            return _login_page(email, error="Too many attempts. Try again in 15 minutes.")
+
+        cid, sub = get_customer_by_email(email)
+
+        # Unknown email, no password set, cancelled sub, and wrong password all
+        # take the SAME path and return the SAME message. Differentiating them
+        # would turn /login into an oracle for discovering who pays.
+        ok = bool(cid) and verify_subscriber_password(cid, password)
+        if ok and sub.get('status') != 'active':
+            ok = False
+
+        if not ok:
+            record_login_failure(email)
+            if cid and not sub.get('pw_hash'):
+                # Known subscriber who has not set a password yet.
+                err = ("This account has not set a password yet. Open the device "
+                       "where you subscribed and visit /set-password, or email "
+                       "support@aismarketcap.com.")
+            else:
+                err = "Incorrect email or password."
+            return _login_page(email, error=err)
+
+        clear_login_failures(email)
+        resp = make_response(redirect("/", code=302))
+        resp.set_cookie("stripe_customer", cid, max_age=86400*30, httponly=True, samesite='Lax')
+        print(f"[Login] Authenticated {email} (customer {cid})")
+        return resp
+
+    # GET — show the form. Any ?email= just prefills the input.
+    return _login_page((request.args.get('email') or '').strip())
+
+
+def _login_page(email_value='', error=None):
+    err_html = f'<div class="err">{error}</div>' if error else ''
+    return make_response(f"""<!DOCTYPE html>
 <html><head>
 <meta charset="UTF-8">
-<title>No Subscription Found - AI Market Cap</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sign In - AI Market Cap</title>
 <style>
-body {{ font-family: Segoe UI, sans-serif; background: #0d1117; color: #c9d1d9; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; text-align: center; }}
-.box {{ max-width: 480px; }}
-h1 {{ color: #f85149; font-size: 1.4em; margin-bottom: 10px; }}
-p {{ color: #8b949e; font-size: 0.95em; line-height: 1.6; margin-bottom: 18px; }}
-a {{ background: #2ea043; color: #fff; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: bold; display: inline-block; }}
+body {{ font-family: Segoe UI, sans-serif; background: #0d1117; color: #c9d1d9; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; }}
+.box {{ background: #161b22; border: 1px solid #30363d; border-radius: 12px; padding: 36px 32px; max-width: 460px; width: 100%; }}
+h1 {{ color: #fff; font-size: 1.4em; margin: 0 0 10px; }}
+p.sub {{ color: #8b949e; font-size: 0.92em; line-height: 1.6; margin-bottom: 22px; }}
+label {{ display: block; font-size: 0.85em; color: #8b949e; margin-bottom: 6px; }}
+input {{ width: 100%; padding: 12px 14px; margin-bottom: 16px; border-radius: 8px; border: 1px solid #30363d; background: #0d1117; color: #c9d1d9; font-size: 1em; box-sizing: border-box; }}
+button {{ background: #2ea043; color: #fff; padding: 12px 24px; border-radius: 8px; border: 0; font-weight: bold; font-size: 1em; cursor: pointer; width: 100%; }}
+button:hover {{ background: #3fb950; }}
+.err {{ background: #1f0a0a; border: 1px solid #f85149; color: #ff6b6b; padding: 10px 14px; border-radius: 8px; margin-bottom: 14px; font-size: 0.9em; }}
+a {{ color: #58a6ff; text-decoration: none; }}
+a:hover {{ text-decoration: underline; }}
 </style></head><body>
 <div class=box>
-  <h1>No Active Subscription Found</h1>
-  <p>We couldn't find a Pro subscription tied to <strong>{email_param}</strong>.<br>Double-check the email you used at checkout, or subscribe again to unlock Pro features.</p>
-  <a href=/pricing>View Pricing →</a>
+  <h1>Sign In to Pro</h1>
+  <p class=sub>Enter the email and password from your subscription to restore Pro access on this device.</p>
+  {err_html}
+  <form method=POST action=/login>
+    <label for=email>Email address</label>
+    <input type=email id=email name=email value="{email_value}" placeholder="you@example.com" required autofocus>
+    <label for=password>Password</label>
+    <input type=password id=password name=password placeholder="Your password" required>
+    <button type=submit>Sign In →</button>
+  </form>
+  <p class=sub style="margin-top:18px">Never set a password? <a href=/pricing>Subscribe for $5/month →</a><br>
+  Lost access? <a href="mailto:support@aismarketcap.com">Contact support</a></p>
 </div>
-</body></html>""", 404, {"Content-Type": "text/html; charset=utf-8"})
-
-    # Found it. Set cookie + redirect home.
-    resp = make_response(redirect("/", code=302))
-    resp.set_cookie("stripe_customer", cid, max_age=86400*30, httponly=True, samesite='Lax')
-    print(f"[Login] Restored access for {email_param} (customer {cid})")
-    return resp
+</body></html>""", 200, {"Content-Type": "text/html; charset=utf-8"})
 
 
 @app.route("/create-portal")
@@ -1434,8 +1637,8 @@ body {{ font-family: Segoe UI, Arial, sans-serif; background: #0d1117; color: #c
   </div>
 
   <div class=card>
-    <h2>Restore Access on Another Device</h2>
-    <p class=note style="margin-top:0">If you get logged out (cleared cookies, new device, different browser), visit <code style="background:#0d1117;padding:2px 6px;border-radius:4px">/login?email=YOUR_EMAIL</code> to restore your Pro access without re-paying.</p>
+    <h2>Sign In on Another Device</h2>
+    <p class=note style="margin-top:0">If you get logged out (cleared cookies, new device, different browser), use <a href=/login style="color:#58a6ff">/login</a> with the email and password from your subscription to restore Pro access without re-paying.</p>
   </div>
 </div>
 </body></html>"""
@@ -1465,16 +1668,34 @@ def webhook():
     payload = request.data
     sig = request.headers.get('Stripe-Signature', '')
 
-    if STRIPE_WEBHOOK_SECRET:
-        try:
-            event = stripe.Webhook.construct_event(payload, sig, STRIPE_WEBHOOK_SECRET)
-        except Exception as e:
-            return f"Webhook signature error: {e}", 400
-    else:
-        try:
-            event = json.loads(payload)
-        except Exception as e:
-            return f"JSON parse error: {e}", 400
+    # ---- FAIL CLOSED -------------------------------------------------------
+    # Previously, when STRIPE_WEBHOOK_SECRET was unset we fell back to
+    # json.loads(payload) and trusted the body. That is not a safe default: it
+    # means anyone who can POST to /webhook can fabricate
+    # checkout.session.completed or customer.subscription.updated and grant or
+    # revoke any subscription by guessing a customer id. An unset env var —
+    # a missing Railway variable, a typo, a redeploy that dropped it — silently
+    # turned the whole endpoint into an unauthenticated write API.
+    #
+    # Signature verification is the ONLY thing that proves an event came from
+    # Stripe, so if we cannot verify we must refuse the event. Returning 500
+    # (not 400) tells Stripe this is a server-side configuration problem worth
+    # retrying, rather than a malformed request from the sender.
+    if not STRIPE_WEBHOOK_SECRET:
+        print("[Webhook] FATAL: STRIPE_WEBHOOK_SECRET is not set - refusing to "
+              "process unsigned events. Set it in Railway to the signing secret "
+              "from Stripe Dashboard > Developers > Webhooks > your endpoint.")
+        return ("Webhook misconfigured: STRIPE_WEBHOOK_SECRET is not set on the "
+                "server. Unsigned events are rejected."), 500
+
+    try:
+        event = stripe.Webhook.construct_event(payload, sig, STRIPE_WEBHOOK_SECRET)
+    except ValueError as e:
+        # Payload is not valid JSON / signature header malformed
+        return f"Webhook signature error: {e}", 400
+    except Exception as e:
+        # Signature did not match. Treat as bad request.
+        return f"Webhook signature error: {e}", 400
 
     etype = event.get('type', '')
     print(f"[Webhook] Event: {etype}")

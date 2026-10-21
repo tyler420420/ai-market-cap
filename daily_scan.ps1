@@ -232,6 +232,28 @@ try {
         exit 1
     }
 
+    # ---- 3c. auth invariant guard -----------------------------------------
+    # /login used to grant Pro to anyone who knew a subscriber's email, and
+    # /webhook used to trust unsigned bodies when its secret was unset. Both
+    # were live on the deployed site. scanner_web.py is committed by this
+    # script, so the auth invariants are checked HERE as well as at pre-commit:
+    # the daily scan is the unattended writer, and it is the last gate before
+    # Railway redeploys.
+    $authGuard = Join-Path $repo 'verify_auth.py'
+    if (-not (Test-Path $authGuard)) {
+        Log "[AUTH] FATAL - verify_auth.py is missing. The auth guard is"
+        Log "[AUTH]        required; refusing to deploy unverified auth code."
+        exit 1
+    }
+    $agOut = & $python $authGuard 2>&1
+    $agCode = $LASTEXITCODE
+    foreach ($line in ($agOut | Select-Object -Last 8)) { Log "[AUTH] $line" }
+    if ($agCode -ne 0) {
+        Log "[AUTH] AUTH INVARIANT BROKEN - refusing to deploy"
+        exit 1
+    }
+    Log "[AUTH] Auth invariants hold"
+
     # ---- 4. desktop copy ---------------------------------------------------
     try {
         Copy-Item $html $desktop -Force
@@ -245,8 +267,19 @@ try {
     $prevEap2 = $ErrorActionPreference
     $ErrorActionPreference = 'Continue'
     try {
+        # scanner_web.py is included so an auth/route fix made outside scan
+        # time still gets deployed by the next run. It was missing, which meant
+        # an out-of-band commit would sit on the local machine and never reach
+        # Railway - the source would be fixed while the live site stayed
+        # vulnerable, and audit_live would have had nothing to compare against.
+        # NOTE: subscriptions.json is deliberately NOT staged here. It holds
+        # subscriber records and scrypt password hashes, is already tracked,
+        # and is written by the web app on Railway - not by this scan. Staging
+        # it here risks committing a half-written file. Password changes reach
+        # git through a normal explicit commit.
         & $git add ai_earnings_today.html scanner_data.json ai_earnings_scanner.py `
-                    ipo_etf_data.json pick_tracker.json daily_scan.ps1 2>&1 | Out-Null
+                    ipo_etf_data.json pick_tracker.json daily_scan.ps1 `
+                    scanner_web.py 2>&1 | Out-Null
 
         $staged = $false
         & $git diff --cached --quiet
