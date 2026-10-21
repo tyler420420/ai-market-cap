@@ -15,6 +15,36 @@ STRIPE_WEBHOOK_SECRET = os.environ.get("STRIPE_WEBHOOK_SECRET", "")
 PRICE_MONTHLY = "price_1UONSbQtzL43j3LF8GWzwl53"
 PRICE_ANNUAL = "price_1UONTCQtzL43j3LF362d4eZl"
 
+
+def _plain(obj):
+    """Convert a StripeObject to a real dict so .get() works.
+
+    stripe-python >= 7 returns StripeObject (Session, Subscription, Customer,
+    Invoice), which is NOT a dict subclass - calling .get() on one raises
+    "AttributeError: get". Older code here treated webhook payloads as dicts,
+    so a real payment raised inside the webhook handler, the subscription was
+    never saved, and the buyer saw "Payment received but there was a problem
+    activating your account" - while Stripe had already taken the money.
+
+    to_dict() recurses into nested objects, so obj['metadata'] and
+    obj['customer_details'] come back as plain dicts too. Dicts and None pass
+    through unchanged, so this is safe to call on anything from the API.
+    """
+    if obj is None:
+        return {}
+    if isinstance(obj, dict):
+        return obj
+    try:
+        return obj.to_dict()
+    except Exception:
+        # Already a plain mapping-like, or an object that cannot convert.
+        # Returning {} keeps callers safe: they all use .get(...) with a
+        # default, so a missing value degrades instead of crashing.
+        try:
+            return dict(obj)
+        except Exception:
+            return {}
+
 # ===== APP CONFIG =====
 PORT = int(os.environ.get("PORT", 18766))
 PT = ZoneInfo("America/Los_Angeles")
@@ -1298,22 +1328,22 @@ def success():
     sub_id = None
     period_end = None
     try:
-        session = stripe.checkout.Session.retrieve(session_id)
-        customer_id = session.customer
-        plan = session.metadata.get('plan', 'monthly')
+        session = _plain(stripe.checkout.Session.retrieve(session_id))
+        customer_id = session.get('customer')
+        plan = (session.get('metadata') or {}).get('plan', 'monthly')
         # Capture email — from session, fall back to customer lookup
-        email = (getattr(session, 'customer_details', None) or {}).get('email') or \
-                getattr(session, 'customer_email', '') or ''
-        sub_id = getattr(session, 'subscription', None)
+        email = (session.get('customer_details') or {}).get('email') or \
+                (session.get('customer_email') or '')
+        sub_id = session.get('subscription')
         if sub_id and stripe.api_key:
             try:
-                sub = stripe.Subscription.retrieve(sub_id)
+                sub = _plain(stripe.Subscription.retrieve(sub_id))
                 period_end = sub.get('current_period_end')
             except Exception:
                 pass
         if not email and customer_id and stripe.api_key:
             try:
-                cust = stripe.Customer.retrieve(customer_id)
+                cust = _plain(stripe.Customer.retrieve(customer_id))
                 email = cust.get('email', '')
             except Exception:
                 pass
@@ -1721,7 +1751,7 @@ p { color: #8b949e; font-size: 0.95em; line-height: 1.6; margin-bottom: 18px; }
         try:
             subs_stripe = stripe.Subscription.list(customer=customer_id, limit=1)
             if subs_stripe.data:
-                pe = subs_stripe.data[0].get('current_period_end')
+                pe = _plain(subs_stripe.data[0]).get('current_period_end')
                 if pe:
                     period_end_str = datetime.fromtimestamp(int(pe), tz=PT).strftime('%B %d, %Y')
                     # Refresh local cache
@@ -1855,19 +1885,22 @@ def webhook():
         # Signature did not match. Treat as bad request.
         return f"Webhook signature error: {e}", 400
 
+    # The Event is a StripeObject too. Normalise the whole thing once so every
+    # branch below can use plain dict access safely.
+    event = _plain(event)
     etype = event.get('type', '')
     print(f"[Webhook] Event: {etype}")
 
     try:
         if etype == 'checkout.session.completed':
-            obj = event['data']['object']
+            obj = _plain(event['data']['object'])
             customer_id = obj.get('customer')
-            plan = obj.get('metadata', {}).get('plan', 'monthly')
+            plan = (obj.get('metadata') or {}).get('plan', 'monthly')
             email = (obj.get('customer_details') or {}).get('email') or (obj.get('customer_email') or '')
             # Also fetch the customer's email from Stripe if missing
             if not email and customer_id and stripe.api_key:
                 try:
-                    cust = stripe.Customer.retrieve(customer_id)
+                    cust = _plain(stripe.Customer.retrieve(customer_id))
                     email = cust.get('email', '')
                 except Exception:
                     pass
@@ -1875,7 +1908,7 @@ def webhook():
             period_end = None
             if sub_id and stripe.api_key:
                 try:
-                    sub = stripe.Subscription.retrieve(sub_id)
+                    sub = _plain(stripe.Subscription.retrieve(sub_id))
                     period_end = sub.get('current_period_end')
                 except Exception:
                     pass
@@ -1885,7 +1918,7 @@ def webhook():
             print(f"[Webhook] checkout.session.completed: {customer_id} {plan} {email}")
 
         elif etype == 'customer.subscription.created':
-            sub = event['data']['object']
+            sub = _plain(event['data']['object'])
             customer_id = sub.get('customer')
             status = sub.get('status', 'active')
             plan = (sub.get('metadata') or {}).get('plan', 'monthly')
@@ -1893,7 +1926,7 @@ def webhook():
             email = None
             if customer_id and stripe.api_key:
                 try:
-                    cust = stripe.Customer.retrieve(customer_id)
+                    cust = _plain(stripe.Customer.retrieve(customer_id))
                     email = cust.get('email')
                 except Exception:
                     pass
@@ -1903,7 +1936,7 @@ def webhook():
             print(f"[Webhook] subscription.created: {customer_id} {status}")
 
         elif etype == 'customer.subscription.updated':
-            sub = event['data']['object']
+            sub = _plain(event['data']['object'])
             customer_id = sub.get('customer')
             stripe_status = sub.get('status')  # active, trialing, past_due, unpaid, canceled, etc.
             # Only 'active' and 'trialing' should grant Pro access
@@ -1920,7 +1953,7 @@ def webhook():
             print(f"[Webhook] subscription.updated: {customer_id} stripe={stripe_status} -> local={local_status}")
 
         elif etype == 'customer.subscription.deleted':
-            sub = event['data']['object']
+            sub = _plain(event['data']['object'])
             customer_id = sub.get('customer')
             existing = get_subscriptions().get(customer_id, {})
             plan = existing.get('plan', 'monthly')
@@ -1929,7 +1962,7 @@ def webhook():
             print(f"[Webhook] subscription.deleted: {customer_id} -> cancelled")
 
         elif etype == 'invoice.payment_succeeded':
-            inv = event['data']['object']
+            inv = _plain(event['data']['object'])
             customer_id = inv.get('customer')
             if customer_id and get_subscriptions().get(customer_id):
                 existing = get_subscriptions()[customer_id]
@@ -1943,7 +1976,7 @@ def webhook():
                 print(f"[Webhook] invoice.payment_succeeded: {customer_id} renewed (period_end={period_end})")
 
         elif etype == 'invoice.payment_failed':
-            inv = event['data']['object']
+            inv = _plain(event['data']['object'])
             customer_id = inv.get('customer')
             if customer_id and get_subscriptions().get(customer_id):
                 existing = get_subscriptions()[customer_id]
@@ -1957,15 +1990,15 @@ def webhook():
                 print(f"[Webhook] invoice.payment_failed: {customer_id} -> past_due")
 
         elif etype == 'checkout.session.async_payment_succeeded':
-            obj = event['data']['object']
+            obj = _plain(event['data']['object'])
             customer_id = obj.get('customer')
-            plan = obj.get('metadata', {}).get('plan', 'monthly')
+            plan = (obj.get('metadata') or {}).get('plan', 'monthly')
             email = (obj.get('customer_details') or {}).get('email', '')
             sub_id = obj.get('subscription')
             period_end = None
             if sub_id and stripe.api_key:
                 try:
-                    sub = stripe.Subscription.retrieve(sub_id)
+                    sub = _plain(stripe.Subscription.retrieve(sub_id))
                     period_end = sub.get('current_period_end')
                 except Exception:
                     pass
