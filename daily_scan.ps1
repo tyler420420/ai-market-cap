@@ -104,8 +104,18 @@ try {
             } finally {
                 $ErrorActionPreference = $prevEap0
             }
-            $discarded = (& $git log --oneline origin/master..@{u} 2>$null)
-            if ($discarded) { Log "[GIT] Discarded divergent commits: $($discarded.Count)" }
+            # Count what we are about to discard. This used to read
+            # `origin/master..@{u}`, which is wrong in PowerShell: `@{u}` is
+            # parsed as a hashtable literal, not git's upstream shorthand, so it
+            # expanded to garbage ('dQA=') and threw "fatal: ambiguous argument"
+            # - which the outer catch turned into [FATAL] and exit 1, aborting
+            # the whole scan immediately after a successful reset. This path had
+            # therefore never run successfully. Use an explicit ref instead.
+            $discarded = @(& $git log --oneline 'origin/master..HEAD' 2>$null)
+            if ($discarded.Count -gt 0) {
+                Log "[GIT] Discarded divergent commits: $($discarded.Count)"
+                foreach ($d in $discarded) { Log "[GIT]   was: $d" }
+            }
         }
     } else {
         Log "[GIT] Local already in sync with origin/master"
