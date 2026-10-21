@@ -302,6 +302,62 @@ try {
         Log "[VISITORS] WARN - sync_visitor_baseline.py missing (non-fatal)"
     }
 
+    # ---- 3d. LIVE PAYMENT-PATH GUARD --------------------------------------
+    # This one hits the deployed site over HTTP rather than the local file.
+    # On 2026-10-21 the StripeObject/paying-customer fix was committed and
+    # every local suite was green (41/41, 4/4 mutations) while the LIVE build
+    # was still old enough to tell an unpaid customer "Payment received but
+    # there was a problem". No source-level check can see that: the source is
+    # correct, the artifact is stale. Only an HTTP check against the domain can.
+    #
+    # It is a WARNING, not a hard exit, on purpose. During a provider outage
+    # the live site is legitimately behind master, and failing the whole scan
+    # would skip the data refresh that keeps the scanner current. The staleness
+    # still gets logged loudly here and surfaced in the ops dashboard via the
+    # marker file below. A broken PAY path on an otherwise current deploy is
+    # worth noticing immediately - it is reported, not silently tolerated.
+    $payGuard = Join-Path $repo 'verify_payment_live.py'
+    if (-not (Test-Path $payGuard)) {
+        Log "[PAY] WARN - verify_payment_live.py is missing (non-fatal)"
+    } else {
+        $pOut = & $python $payGuard 2>&1
+        $pCode = $LASTEXITCODE
+        foreach ($line in ($pOut | Select-Object -Last 10)) { Log "[PAY] $line" }
+        if ($pCode -ne 0) {
+            Log "[PAY] LIVE PAYMENT PATH IS STALE OR BROKEN."
+            Log "[PAY]       The deployed site does not match the source. Most"
+            Log "[PAY]       likely cause: Railway has not built the latest"
+            Log "[PAY]       commit yet (provider outage, or builds paused)."
+            Log "[PAY]       Customer-facing impact: /success may tell an unpaid"
+            Log "[PAY]       visitor their payment was received."
+
+            # One-line marker so the ops dashboard can surface a stale deploy
+            # without parsing this log. Overwritten on each run.
+            try {
+                $pm = Join-Path $repo 'live_stale_deploy.txt'
+                $pstamp = Get-Date -Format 'yyyy-MM-dd HH:mm:ss'
+                $pbody = @(
+                    "live_deploy_stale"
+                    "detected_at=$pstamp"
+                    "reason=verify_payment_live.py failed against the live site"
+                    "local=$((& $git -C $repo rev-parse --short HEAD).Trim())"
+                    "remote=$((& $git -C $repo rev-parse --short origin/master).Trim())"
+                ) + (($pOut | Select-Object -Last 4) | ForEach-Object { "detail=$_" })
+                Set-Content -Path $pm -Value $pbody -Encoding UTF8
+                Log "[PAY] marker written: $pm"
+            } catch {
+                Log "[PAY] WARN - could not write marker: $_"
+            }
+        } else {
+            Log "[PAY] Live payment path is current and correct"
+            $pmClear = Join-Path $repo 'live_stale_deploy.txt'
+            if (Test-Path $pmClear) {
+                Remove-Item $pmClear -Force -ErrorAction SilentlyContinue
+                Log "[PAY] cleared stale marker (deploy is current)"
+            }
+        }
+    }
+
     # ---- 4. desktop copy ---------------------------------------------------
     try {
         Copy-Item $html $desktop -Force
@@ -325,8 +381,12 @@ try {
         # and is written by the web app on Railway - not by this scan. Staging
         # it here risks committing a half-written file. Password changes reach
         # git through a normal explicit commit.
+        # fetch_ipo_etf.py IS staged: it is the generator for ipo_etf_data.json.
+        # Leaving it out is the same bug that stranded scanner_web.py - the
+        # scanner would render TRENDING METAL / UTILITY as "No data" forever,
+        # because the consumer shipped while the producer stayed on this disk.
         & $git add ai_earnings_today.html scanner_data.json ai_earnings_scanner.py `
-                    ipo_etf_data.json pick_tracker.json daily_scan.ps1 `
+                    fetch_ipo_etf.py ipo_etf_data.json pick_tracker.json daily_scan.ps1 `
                     scanner_web.py visitor_baseline.json 2>&1 | Out-Null
 
         $staged = $false

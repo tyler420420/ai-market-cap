@@ -2,6 +2,8 @@
 
 - IPOs: scraped from stockanalysis.com IPO calendar
 - Trending ETF: ranked by 5-day momentum from a curated AI/tech ETF list
+- Trending METAL / UTILITY: same 5-day momentum ranking over metal and
+  energy/utility universes, so the header row can show one card per category.
 Saves to ipo_etf_data.json — consumed by ai_earnings_scanner.py.
 """
 import json, re, time, logging, sys
@@ -158,6 +160,99 @@ AI_TECH_ETFS = [
     ('HERO',    'Global X Video Games & Tech ETF'),
 ]
 
+# Tyler 2026-10-21: header row needs a METAL and a UTILITY card too. These are
+# the tradable proxies people actually quote for those themes.
+METAL_ETFS = [
+    ('GLD',  'SPDR Gold Shares'),
+    ('SLV',  'iShares Silver Trust'),
+    ('PPLT', 'abrdn Physical Platinum Shares'),
+    ('PALL', 'abrdn Physical Palladium Shares'),
+    ('CPER', 'United States Copper Index Fund'),
+    ('XME',  'SPDR Metals & Mining ETF'),
+    ('NEM',  'Newmont Corp'),
+    ('GOLD', 'Barrick Mining Corp'),
+    ('AEM',  'Agnico Eagle Mines'),
+    ('KGC',  'Kinross Gold Corp'),
+    ('FNV',  'Franco-Nevada Corp'),
+    ('WPM',  'Wheaton Precious Metals'),
+    ('PAAS', 'Pan American Silver'),
+    ('AG',   'First Majestic Silver'),
+]
+
+# "Utility like oil gas etc" - energy + regulated utilities. XLE/OIH/VDE cover
+# producers and midstream; XLU/SO/DUK/NEE are the regulated-utility names.
+UTILITY_ETFS = [
+    ('XLE',  'Energy Select Sector SPDR'),
+    ('VDE',  'Vanguard Energy ETF'),
+    ('OIH',  'United States Oil Fund'),
+    ('USO',  'United States Oil Fund'),
+    ('UNG',  'United States Natural Gas Fund'),
+    ('XLU',  'Utilities Select Sector SPDR'),
+    ('SO',   'Southern Co'),
+    ('DUK',  'Duke Energy'),
+    ('NEE',  'NextEra Energy'),
+    ('AEP',  'American Electric Power'),
+    ('SLB',  'SLB'),
+    ('HAL',  'Halliburton'),
+    ('COP',  'ConocoPhillips'),
+    ('OXY',  'Occidental Petroleum'),
+]
+
+
+def _top_by_momentum(universe, label):
+    """Return the best 5-day performer from `universe`, or None.
+
+    Same ranking rule for every category so the four cards are comparable:
+    highest % return over 7 calendar days (~5 trading days) wins. One batch
+    yfinance call per universe. A category that fails returns None so the
+    caller can render an honest placeholder instead of inventing a number.
+    """
+    results = []
+    tickers = [t for t, _ in universe]
+
+    try:
+        data = yf.download(tickers, period='7d', progress=False, threads=True,
+                           group_by='ticker')
+    except Exception as e:
+        log.warning(f'{label} batch download failed: {e}')
+        return None
+
+    for ticker, name in universe:
+        try:
+            tu = ticker.upper()
+            if tu in data.columns.get_level_values(0):
+                closes = data[tu]['Close'].dropna()
+            else:
+                closes = yf.Ticker(ticker).history(period='7d')['Close']
+
+            if closes.empty or len(closes) < 2:
+                continue
+
+            price = round(float(closes.iloc[-1]), 2)
+            change_5d = round(((closes.iloc[-1] - closes.iloc[0]) / closes.iloc[0]) * 100, 2)
+
+            results.append({
+                'ticker': tu,
+                'name': name,
+                'price': price,
+                'change_5d': change_5d,
+            })
+        except Exception as e:
+            log.debug(f'{label} {ticker} skipped: {e}')
+            continue
+
+    if not results:
+        log.warning(f'No {label} data fetched')
+        return None
+
+    results.sort(key=lambda x: x['change_5d'], reverse=True)
+    winner = results[0]
+    log.info(f'Trending {label}: {winner["ticker"]} {winner["name"]} '
+             f'${winner["price"]} ({winner["change_5d"]:+.2f}% 5d)')
+    for r in results[:3]:
+        log.info(f'  {label} {r["ticker"]}: {r["change_5d"]:+.2f}% 5d @ ${r["price"]}')
+    return winner
+
 def fetch_trending_etf() -> dict:
     """Return the top AI/tech ETF by 5-day price momentum.
 
@@ -234,23 +329,36 @@ def fallback_trending_etf() -> dict:
 # ─── MAIN ────────────────────────────────────────────────────────────────────
 
 def run() -> dict:
-    """Fetch IPOs and trending ETF. Saves to ipo_etf_data.json. Returns the data dict."""
+    """Fetch IPOs + the four trending cards. Saves ipo_etf_data.json. Returns data."""
     log.info('Fetching IPO calendar...')
     ipos = scrape_ipos()
 
     log.info('Fetching trending ETF...')
     trending_etf = fetch_trending_etf()
 
+    log.info('Fetching trending metal...')
+    top_metal = _top_by_momentum(METAL_ETFS, 'METAL')
+
+    log.info('Fetching trending utility...')
+    top_utility = _top_by_momentum(UTILITY_ETFS, 'UTILITY')
+
     data = {
         'fetched_at': datetime.now().isoformat(),
         'ipos': ipos,
         'trending_etf': trending_etf,
+        'top_metal': top_metal,
+        'top_utility': top_utility,
     }
 
     with open(OUTPUT_FILE, 'w', encoding='utf-8') as f:
         json.dump(data, f, indent=2, default=str)
 
-    log.info(f'Saved to {OUTPUT_FILE} — {len(ipos)} IPOs, trending ETF: {trending_etf["ticker"]}')
+    log.info(
+        f'Saved to {OUTPUT_FILE} - {len(ipos)} IPOs, '
+        f'ETF: {trending_etf.get("ticker")}, '
+        f'METAL: {(top_metal or {}).get("ticker")}, '
+        f'UTILITY: {(top_utility or {}).get("ticker")}'
+    )
     return data
 
 

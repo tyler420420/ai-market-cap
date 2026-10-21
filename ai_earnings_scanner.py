@@ -625,10 +625,15 @@ def generate_html_report(stocks: list, output_path: str):
         ipo_etf_data = fetch_ipo_etf_run()
     except Exception as e:
         print(f"[WARN] IPO/ETF fetch failed ({e}), falling back to empty data")
-        ipo_etf_data = {'ipos': [], 'trending_etf': None}
+        ipo_etf_data = {'ipos': [], 'trending_etf': None,
+                        'top_metal': None, 'top_utility': None}
 
     real_ipos = ipo_etf_data.get('ipos', [])[:3]
     trending = ipo_etf_data.get('trending_etf') or {}
+    # .get() not [] on purpose: a ipo_etf_data.json written before this change
+    # has no metal/utility keys, and an older cached file must not 500 the scan.
+    top_metal = ipo_etf_data.get('top_metal') or {}
+    top_utility = ipo_etf_data.get('top_utility') or {}
 
     # Buttons row
     buttons_row = (
@@ -646,51 +651,88 @@ def generate_html_report(stocks: list, output_path: str):
         '</div>'
         '</div>'
     )
-    # Build IPO cards from real scraped data
-    ipo_card_html = '<div style="display:flex;gap:6px;align-items:center;justify-content:center;flex-wrap:wrap;max-width:800px;margin:0 auto">'
-    styles = [
-        ('#2ea043', 'SOONEST TOP IPO', 'rgba(46,160,67,0.3)'),
-        ('#1f6feb', 'NEXT TOP IPO', 'rgba(31,111,235,0.3)'),
-        ('#ffd700', 'TOP IPO', 'rgba(255,215,0,0.2)'),
-    ]
-    if real_ipos:
-        for i, ipo in enumerate(real_ipos):
-            lbl_color, lbl_text, glow = styles[i] if i < len(styles) else styles[-1]
-            company = ipo.get('company', '')
-            date_str = ipo.get('date', '')
-            deal = ipo.get('deal', '')
-            link = ipo.get('link', '#')
-            ipo_card_html += (
-                f'<div style="background:#0d1a0d;border:1px solid {lbl_color};border-radius:8px;padding:8px 14px;min-width:140px;box-shadow:0 0 10px {glow}">'
-                f'<div style="color:{lbl_color};font-size:0.65em;font-weight:bold;margin-bottom:2px">&#128293; {lbl_text}</div>'
-                f'<a href="{link}" target="_blank" style="color:#00ff88;font-size:0.95em;font-weight:bold;text-decoration:none">{company}</a>'
-                f'<div style="color:#fff;font-size:0.68em">{date_str} | {deal}</div></div>'
+    # ── TRENDING CARD ROW ───────────────────────────────────────────────────
+    # Tyler 2026-10-21: four cards - TRENDING IPO / TRENDING METAL /
+    # TRENDING UTILITY / TRENDING ETF. All four are the SAME size and the SAME
+    # gold, which is the whole point: previously the cards were green/blue/gold
+    # IPO cards plus a purple ETF card with a margin-left hack to shove it
+    # right, so the row read as unrelated widgets rather than one strip.
+    # Uniform card = one class, no per-card width overrides.
+    #
+    # HONESTY RULE: a category with no data renders an explicit "check back
+    # soon" placeholder. It never invents a ticker or a price.
+    _CARD_CSS = (
+        'flex:1 1 0;min-width:150px;max-width:230px;background:#1a1608;'
+        'border:1px solid #ffd700;border-radius:8px;padding:9px 13px;'
+        'box-shadow:0 0 10px rgba(255,215,0,0.18);'
+        'display:flex;flex-direction:column;justify-content:center'
+    )
+    _LBL = 'color:#ffd700;font-size:0.65em;font-weight:bold;margin-bottom:3px;letter-spacing:.3px'
+    _SYM = 'color:#ffd700;font-size:1em;font-weight:bold;text-decoration:none'
+    _SUB = 'color:#c9d1d9;font-size:0.68em'
+
+    def _trend_card(label, sym, sub, link):
+        if not sym:
+            return (
+                f'<div style="{_CARD_CSS}">'
+                f'<div style="{_LBL}">&#128293; {label}</div>'
+                f'<div style="color:#8b949e;font-size:0.9em">No data</div>'
+                f'<div style="color:#6e7681;font-size:0.68em">Check back soon</div></div>'
             )
-    else:
-        # No IPOs available — show a placeholder card
-        ipo_card_html += (
-            '<div style="background:#0d1a0d;border:1px solid #2ea043;border-radius:8px;padding:8px 14px;min-width:140px">'
-            '<div style="color:#2ea043;font-size:0.65em;font-weight:bold;margin-bottom:2px">&#128293; TOP IPO</div>'
-            '<div style="color:#8b949e;font-size:0.9em">No upcoming IPOs</div>'
-            '<div style="color:#8b949e;font-size:0.68em">Check back soon</div></div>'
+        anchor = (f'<a href="{link}" target="_blank" rel="noopener noreferrer" '
+                  f'style="{_SYM}">{sym}</a>')
+        return (
+            f'<div style="{_CARD_CSS}">'
+            f'<div style="{_LBL}">&#128293; {label}</div>'
+            f'{anchor}'
+            f'<div style="{_SUB}">{sub}</div></div>'
         )
 
-    # Trending ETF card (dynamically selected by 5-day momentum)
-    if trending:
-        ticker = trending.get('ticker', '')
-        name_short = ticker  # keep it tight in the card
-        price = trending.get('price', 0)
-        change = trending.get('change_5d', 0)
-        price_str = f"${price:.2f}" if price else "$--"
-        change_str = f"{change:+.2f}%" if change else "N/A"
-        yahoo_link = f"https://finance.yahoo.com/quote/{ticker}/"
-        ipo_card_html += (
-            f'<div style="background:#0d1428;border:1px solid #5741d9;border-radius:8px;padding:8px 14px;min-width:140px;box-shadow:0 0 10px rgba(87,65,217,0.3);margin-left:48px">'
-            f'<div style="color:#9333ea;font-size:0.65em;font-weight:bold;margin-bottom:2px">&#128293; TRENDING ETF</div>'
-            f'<a href="{yahoo_link}" target="_blank" style="color:#00ff88;font-size:0.95em;font-weight:bold;text-decoration:none">{name_short}</a>'
-            f'<div style="color:#fff;font-size:0.68em">{price_str}</div>'
-            f'<div style="color:#9333ea;font-size:0.62em">{change_str} 5d</div></div>'
-        )
+    def _mover(entry):
+        """'$52.30 | +3.41% 5d' from a momentum dict, or '' if unusable."""
+        if not entry or not entry.get('ticker'):
+            return None
+        px = entry.get('price', 0)
+        ch = entry.get('change_5d', 0)
+        px_s = f'${px:.2f}' if px else '$--'
+        ch_s = f'{ch:+.2f}% 5d' if ch else 'N/A'
+        return f'{px_s} | {ch_s}'
+
+    def _yahoo(sym):
+        return f'https://finance.yahoo.com/quote/{sym}/'
+
+    ipo_card_html = (
+        '<div style="display:flex;gap:8px;align-items:stretch;justify-content:center;'
+        'flex-wrap:wrap;max-width:1000px;margin:0 auto">'
+    )
+
+    # 1. TRENDING IPO - the soonest upcoming IPO is the "trending" one.
+    _ipo = real_ipos[0] if real_ipos else {}
+    ipo_card_html += _trend_card(
+        'TRENDING IPO',
+        _ipo.get('company', ''),
+        f"{_ipo.get('date', '')} | {_ipo.get('deal', '')}".strip(' |') if _ipo else '',
+        _ipo.get('link', '#') or '#',
+    )
+
+    # 2. TRENDING METAL - gold/silver/platinum/copper/miners by 5d momentum.
+    ipo_card_html += _trend_card('TRENDING METAL',
+                                 (top_metal.get('ticker') if top_metal else ''),
+                                 _mover(top_metal),
+                                 _yahoo(top_metal.get('ticker', '')) if top_metal else '#')
+
+    # 3. TRENDING UTILITY - oil/gas/energy + regulated utilities by 5d momentum.
+    ipo_card_html += _trend_card('TRENDING UTILITY',
+                                 (top_utility.get('ticker') if top_utility else ''),
+                                 _mover(top_utility),
+                                 _yahoo(top_utility.get('ticker', '')) if top_utility else '#')
+
+    # 4. TRENDING ETF - AI/tech ETF by 5d momentum (existing behaviour).
+    ipo_card_html += _trend_card('TRENDING ETF',
+                                 (trending.get('ticker') if trending else ''),
+                                 _mover(trending),
+                                 _yahoo(trending.get('ticker', '')) if trending else '#')
+
     ipo_card_html += '</div>'
     html += '<div class=header><div class=hdr-row>'
     html += '<div><a href="https://aismarketcap.com" style="color:#fff;text-decoration:none"><h1>AI Market Cap</h1></a><div style="color:#fff;font-size:0.95em">Pre-Earnings Tech Stock Scanner</div></div>'

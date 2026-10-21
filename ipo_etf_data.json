@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-10-20T22:14:14.031492",
+  "fetched_at": "2026-10-21T03:49:08.949379",
   "ipos": [
     {
       "company": "Stripe",
@@ -52,5 +52,17 @@
     "name": "Roundhill Video Game Tech ETF",
     "price": 23.41,
     "change_5d": 2.42
+  },
+  "top_metal": {
+    "ticker": "KGC",
+    "name": "Kinross Gold Corp",
+    "price": 23.64,
+    "change_5d": 0.38
+  },
+  "top_utility": {
+    "ticker": "USO",
+    "name": "United States Oil Fund",
+    "price": 160.61,
+    "change_5d": 6.34
   }
 }
