@@ -215,16 +215,21 @@ try {
     # 'Overall Score' + empty sentiment cells shipped twice). Assert on the
     # file users actually receive.
     $verifier = Join-Path $repo 'verify_output.py'
-    if (Test-Path $verifier) {
-        $vOut = & $python $verifier 2>&1
-        $vCode = $LASTEXITCODE
-        foreach ($line in $vOut) { Log "[VERIFY] $line" }
-        if ($vCode -ne 0) {
-            Log "[VERIFY] REGRESSION DETECTED - refusing to deploy broken HTML"
-            exit 1
-        }
-    } else {
-        Log "[VERIFY] WARN - verify_output.py missing, skipping regression guard"
+    # A MISSING guard is a failure, not a warning. If verify_output.py is
+    # deleted, renamed or absent, this used to log a WARN and carry on -
+    # shipping HTML with no regression check at all, which is exactly the
+    # failure this guard exists to prevent. It fails closed now.
+    if (-not (Test-Path $verifier)) {
+        Log "[VERIFY] FATAL - verify_output.py is missing. The regression guard"
+        Log "[VERIFY]        is required; refusing to deploy unverified HTML."
+        exit 1
+    }
+    $vOut = & $python $verifier 2>&1
+    $vCode = $LASTEXITCODE
+    foreach ($line in $vOut) { Log "[VERIFY] $line" }
+    if ($vCode -ne 0) {
+        Log "[VERIFY] REGRESSION DETECTED - refusing to deploy broken HTML"
+        exit 1
     }
 
     # ---- 4. desktop copy ---------------------------------------------------
@@ -294,16 +299,19 @@ try {
 
     # Live feature audit - catches "source is fine but the deploy is stale"
     $auditor = Join-Path $repo 'audit_live.py'
-    if (Test-Path $auditor) {
-        $aOut = & $python $auditor 2>&1
-        $aCode = $LASTEXITCODE
-        foreach ($line in ($aOut | Select-Object -Last 6)) { Log "[AUDIT] $line" }
-        if ($aCode -ne 0) {
-            Log "[AUDIT] FAILURES DETECTED on the live site - see output above"
-        } else {
-            Log "[AUDIT] Live site clean"
-        }
+    if (-not (Test-Path $auditor)) {
+        Log "[AUDIT] FATAL - audit_live.py is missing; the live-deploy check is"
+        Log "[AUDIT]        required. Failing closed rather than silently skipping."
+        exit 1
     }
+    $aOut = & $python $auditor 2>&1
+    $aCode = $LASTEXITCODE
+    foreach ($line in ($aOut | Select-Object -Last 6)) { Log "[AUDIT] $line" }
+    if ($aCode -ne 0) {
+        Log "[AUDIT] FAILURES DETECTED on the live site - see output above"
+        exit 1
+    }
+    Log "[AUDIT] Live site clean"
 
     Log "===== Daily scan complete (pushed=$pushed) ====="
 }

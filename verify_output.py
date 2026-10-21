@@ -111,8 +111,13 @@ def main():
           "missing apple-touch-icon - iOS home screen icon will be blank")
 
     print("\n=== Popup timing ===")
-    check("popup delay is 5 min (300000)", "300000" in c)
-    check("popup cooldown is 1 hour (3600000)", "3600000" in c)
+    # Tied to the JS context, not a bare number. A bare "300000" can match any
+    # price, offset or coordinate anywhere in the file and pass while the popup
+    # timing is wrong entirely. These anchor the number to its function.
+    check("popup delay is 5 min (setTimeout 300000)", "},300000);" in c,
+          "the popup setTimeout no longer fires at 5 minutes")
+    check("popup cooldown is 1 hour (>=3600000)", ">=3600000" in c,
+          "the dismissal cooldown comparison is gone or changed")
 
     print("\n=== Encoding ===")
     check("no UTF-8 mojibake (C3 82 = 'A-circumflex')",

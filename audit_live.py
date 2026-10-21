@@ -146,8 +146,10 @@ def main():
 
     # ---------- 7. subscription popup ----------
     print("\n=== Subscription popup ===")
-    check("popup delay is 5 minutes (300000)", "300000" in home)
-    check("popup cooldown is 1 hour (3600000)", "3600000" in home)
+    check("popup delay is 5 minutes (setTimeout 300000)", "},300000);" in home,
+          "the popup setTimeout no longer fires at 5 minutes")
+    check("popup cooldown is 1 hour (>=3600000)", ">=3600000" in home,
+          "the dismissal cooldown comparison is gone or changed")
     check("dismissal stored in localStorage", "sub_popup_dismissed_at" in home)
     check("popup hidden from subscribers", "__isSubscriber" in home)
 
