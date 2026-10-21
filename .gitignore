@@ -1,10 +1,61 @@
-# Blogger lane runtime artifacts — regenerated daily, not source.
-content_pipeline/_bk_*/
-content_pipeline/article_queue/
-content_pipeline/__pycache__/
-content_pipeline/*.pyc
-content_pipeline/content_briefs.json
-content_pipeline/trending_scan.json
-content_pipeline/ticker_names.json
-content_pipeline/junk_audit.json
+# ===== local runtime state =====
+.cron_state.json
+.scan.lock
+.watch.lock
+
+# ===== uptime monitoring =====
+uptime_log.csv
+uptime_log.csv.1
+SITE_DOWN_ALERT.txt
+daily_scan.log
+
+# ===== historical scan snapshots =====
+# Each run writes ai_earnings_57day_<ts>.{html,csv}. These accumulate ~2 per
+# day and are purely archival - the live page is ai_earnings_today.html.
+# Before this was ignored the repo carried 1000+ untracked files, which made
+# git status unusable and made `git stash -u` catastrophic.
+ai_earnings_57day_*.html
+ai_earnings_57day_*.csv
+
+# ===== scratch / one-off scripts =====
+# Ad-hoc _fix_*.py / _check_*.py / _verify_*.py helpers written during
+# debugging. Not part of the site.
+_*.py
+_*.js
+_*.html
+_*.txt
+_*.json
+
+# ===== python =====
+__pycache__/
+*.pyc
+
+# ===== backups =====
+*.bak
+*.bak2
+*.guardtest
+
+# ===== indexing runtime state =====
+# daily_index.ps1 rewrites these on every run. They are local state, not source.
+#
+# HISTORY: commit 68ba3c7 concatenated two patterns into one bogus line
+# ("*.guardtest.indexnow_state.json"), so this section silently ignored
+# nothing and git status kept showing these files as untracked. Verify any new
+# pattern with `git check-ignore -v <file>` before trusting it.
+.indexnow_state.json
+indexing.log
+indexnow.log
+.index.lock
+
+# ===== ad-hoc repair helpers (no leading underscore) =====
+# One-off scripts that rewrote a single page and were never wired into a task.
+fix_dram_link.py
+fix_ticker_links.py
+verify_fix.py
+
+# ===== build staging / logs =====
+# _build_clean_html.py writes test_scanner.html here, then copies it to the
+# Desktop. The deployed page is ai_earnings_today.html; this is an intermediate.
+test_scanner.html
+# Written by content_pipeline\run_daily.bat (Blogger lane). Log only.
 traffic_publish.log
