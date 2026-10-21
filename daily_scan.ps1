@@ -62,18 +62,51 @@ try {
     $localSha  = (& $git rev-parse HEAD).Trim()
     $remoteSha = (& $git rev-parse origin/master).Trim()
     if ($localSha -ne $remoteSha) {
-        Log "[GIT] Local $localSha != origin $remoteSha - hard reset to origin/master"
-        # EAP=Continue: git emits stderr chatter (line-ending warnings) that
-        # would otherwise abort this script under ErrorActionPreference=Stop.
-        $prevEap0 = $ErrorActionPreference
-        $ErrorActionPreference = 'Continue'
-        try {
-            $null = & $git reset --hard origin/master 2>&1
-        } finally {
-            $ErrorActionPreference = $prevEap0
+        # ---- FAIL SAFE (2026-10-21) ---------------------------------------
+        # The scan now runs twice daily (06:31 open, 13:00 close), so the window
+        # in which an unattended 'reset --hard' silently destroys uncommitted
+        # work has doubled. Only reset when no TRACKED file is modified.
+        #
+        # --untracked-files=no is deliberate: untracked entries are normal
+        # working state for other lanes and must NEVER block a scan.
+        #
+        # When dirty we SKIP the reset and keep going - the scan still runs and
+        # still commits/pushes. We do not abort. The push step further down
+        # already fails loudly on genuine divergence via $LASTEXITCODE, so a
+        # skipped reset surfaces there instead of here.
+        $dirty = @(& $git -C $repo status --porcelain --untracked-files=no)
+        if ($dirty.Count -gt 0) {
+            Log "[GUARD] $($dirty.Count) tracked file(s) have uncommitted changes - hard reset SKIPPED"
+            foreach ($l in $dirty) { Log "[GUARD]   dirty: $l" }
+
+            # One-line marker so the ops dashboard can surface a skipped scan
+            # without parsing the log. Overwritten on each skip.
+            $marker = Join-Path $repo 'scan_guard_skip.txt'
+            $stamp = Get-Date -Format 'yyyy-MM-dd HH:mm:ss'
+            $body = @(
+                "scan_guard_skip"
+                "skipped_at=$stamp"
+                "reason=tracked files have uncommitted changes"
+                "dirty_count=$($dirty.Count)"
+                "local=$localSha"
+                "remote=$remoteSha"
+            ) + ($dirty | ForEach-Object { "dirty=$_" })
+            Set-Content -Path $marker -Value $body -Encoding UTF8
+            Log "[GUARD] marker written: $marker"
+        } else {
+            Log "[GIT] Local $localSha != origin $remoteSha - hard reset to origin/master"
+            # EAP=Continue: git emits stderr chatter (line-ending warnings) that
+            # would otherwise abort this script under ErrorActionPreference=Stop.
+            $prevEap0 = $ErrorActionPreference
+            $ErrorActionPreference = 'Continue'
+            try {
+                $null = & $git reset --hard origin/master 2>&1
+            } finally {
+                $ErrorActionPreference = $prevEap0
+            }
+            $discarded = (& $git log --oneline origin/master..@{u} 2>$null)
+            if ($discarded) { Log "[GIT] Discarded divergent commits: $($discarded.Count)" }
         }
-        $discarded = (& $git log --oneline origin/master..@{u} 2>$null)
-        if ($discarded) { Log "[GIT] Discarded divergent commits: $($discarded.Count)" }
     } else {
         Log "[GIT] Local already in sync with origin/master"
     }
