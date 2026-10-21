@@ -47,6 +47,13 @@ indexing.log
 indexnow.log
 .index.lock
 
+# ===== visitor counter runtime state =====
+# Written by the live Flask app on every page view, flushed every 20s.
+# Runtime state, never source. The all-time total that must survive a redeploy
+# lives in the git-tracked visitor_baseline.json instead.
+visitor_counts.json
+visitor_counts.json.tmp
+
 # ===== ad-hoc repair helpers (no leading underscore) =====
 # One-off scripts that rewrote a single page and were never wired into a task.
 fix_dram_link.py

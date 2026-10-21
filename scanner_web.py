@@ -551,6 +551,164 @@ SUBS_FILE = Path(__file__).parent / "subscriptions.json"
 SCAN_COUNTS_FILE = Path(__file__).parent / "scan_counts.json"
 MAX_SCANS_PER_DAY = 2
 
+# ===== VISITOR COUNTER =====================================================
+# Tyler 2026-10-21 00:10 PT: wanted a real "Website visitors" number on the CEO
+# dashboard. There is no analytics on this site, so this counts it ourselves.
+#
+# PRIVACY: no raw IPs are ever stored or exposed. Each visitor is reduced to a
+# salted SHA-256 prefix for that day only, used solely to de-duplicate. Rotate
+# the salt and every historical hash becomes useless.
+#
+# Robustness: this MUST never be able to break the site, so every operation is
+# wrapped and failures are swallowed. Analytics failing silently is fine; the
+# storefront going down is not.
+VISITOR_FILE = Path(__file__).parent / "visitor_counts.json"
+# Railway wipes the container filesystem on every redeploy, so the live counter
+# alone would reset to ~0 each time CTO pushes. visitor_baseline.json is
+# committed to git and survives redeploys; all_time = baseline + live since boot.
+VISITOR_BASELINE_FILE = Path(__file__).parent / "visitor_baseline.json"
+VISITOR_SALT = os.environ.get("VISITOR_SALT", "aismarketcap-visit-v1")
+VISITOR_KEEP_DAYS = 30
+VISITOR_FLUSH_SEC = 20
+# Never count these - they are not humans and would inflate the number.
+VISITOR_SKIP = ('static', 'favicon', 'robots.txt', 'sitemap', '.png', '.jpg',
+                '.jpeg', '.gif', '.svg', '.ico', '.css', '.js', '.woff', '.map',
+                '/api/', '/health', '/webhook', '/verify_auth')
+
+# Unfiltered "hits" would be meaningless here: IndexNow alone pings ~237 URLs a
+# day and every search crawler sweeps the site hourly. Those hits are excluded,
+# so the number reflects people, not machines. No UA string means a script.
+_BOT_RE = re.compile(
+    r"bot\b|bot/|crawl|spider|slurp|scrapy|curl|wget|python-requests|httpclient|"
+    r"libwww|java/|go-http|okhttp|axios|node-fetch|headless|phantomjs|pingdom|"
+    r"uptimerobot|monitoring|indexnow|ahrefs|semrush|mj12|dotbot|petal|"
+    r"facebookexternalhit|whatsapp|telegrambot|slackbot|discordbot|preview|"
+    r"lighthouse|gtmetrix|pagespeed|chrome-lighthouse|screaming frog",
+    re.I)
+_EMPTY_UA_RE = re.compile(r"^\s*(-|python-requests)\s*$", re.I)
+
+# In-memory state, flushed to disk on a timer. Writing JSON on every request
+# would put a disk write in front of every page view and race across threads.
+_vlock = threading.Lock()
+_vdirty = False
+_vstate = {"hits": 0, "days": {}}
+
+
+def _visitor_bucket(remote_addr):
+    raw = f"{VISITOR_SALT}|{remote_addr}".encode("utf-8")
+    return hashlib.sha256(raw).hexdigest()[:16]
+
+
+def _load_visitor_state():
+    global _vdirty
+    try:
+        if VISITOR_FILE.exists():
+            data = json.loads(VISITOR_FILE.read_text(encoding="utf-8"))
+            if isinstance(data, dict):
+                with _vlock:
+                    _vstate["hits"] = int(data.get("hits", 0) or 0)
+                    days = data.get("days")
+                    if isinstance(days, dict):
+                        _vstate["days"] = {k: dict(v) for k, v in days.items()}
+    except Exception:
+        pass
+
+
+def _flush_visitor_state():
+    """Atomic write: a crash mid-write must not corrupt the counter."""
+    global _vdirty
+    try:
+        with _vlock:
+            _vdirty = False
+            cutoff = (datetime.now(PT) - timedelta(days=VISITOR_KEEP_DAYS)).strftime("%Y-%m-%d")
+            days = {k: v for k, v in _vstate["days"].items() if k >= cutoff}
+            payload = {"hits": _vstate["hits"], "days": days,
+                       "saved": datetime.now(PT).strftime("%Y-%m-%d %H:%M:%S")}
+        tmp = VISITOR_FILE.with_suffix(".json.tmp")
+        tmp.write_text(json.dumps(payload), encoding="utf-8")
+        os.replace(tmp, VISITOR_FILE)
+    except Exception:
+        pass
+
+
+def _visitor_flusher():
+    while True:
+        time.sleep(VISITOR_FLUSH_SEC)
+        with _vlock:
+            dirty = _vdirty
+        if dirty:
+            _flush_visitor_state()
+
+
+def _record_visit(remote_addr):
+    global _vdirty
+    today = datetime.now(PT).strftime("%Y-%m-%d")
+    try:
+        h = _visitor_bucket(remote_addr)
+        with _vlock:
+            _vdirty = True
+            _vstate["hits"] += 1
+            day = _vstate["days"].setdefault(today, {"u": [], "h": 0})
+            if h not in day["u"]:
+                day["u"].append(h)
+            day["h"] += 1
+    except Exception:
+        pass
+
+
+def _visitor_baseline():
+    """All-time floor carried across redeploys via a git-tracked file."""
+    try:
+        if VISITOR_BASELINE_FILE.exists():
+            data = json.loads(VISITOR_BASELINE_FILE.read_text(encoding="utf-8"))
+            return max(0, int(data.get("all_time", 0) or 0))
+    except Exception:
+        pass
+    return 0
+
+
+@app.before_request
+def _count_visit():
+    if request.method != "GET":
+        return
+    path = request.path.lower()
+    if any(s in path for s in VISITOR_SKIP):
+        return
+    # IndexNow pings arrive as ?url=... - never count them as a visitor.
+    if request.args.get("url"):
+        return
+    ua = request.headers.get("User-Agent", "")
+    if not ua or _BOT_RE.search(ua) or _EMPTY_UA_RE.search(ua):
+        return
+    _record_visit(request.remote_addr or "0.0.0.0")
+
+
+@app.route("/api/visitors")
+def api_visitors():
+    """Aggregate-only visitor counts. Hashed per day, no raw IPs, no PII."""
+    try:
+        with _vlock:
+            hits = _vstate["hits"]
+            days = {k: dict(v) for k, v in _vstate["days"].items()}
+        baseline = _visitor_baseline()
+        today = datetime.now(PT).strftime("%Y-%m-%d")
+        last7 = (datetime.now(PT) - timedelta(days=6)).strftime("%Y-%m-%d")
+        return jsonify({
+            "all_time": baseline + hits,
+            "baseline": baseline,
+            "since_boot": hits,
+            "today": len(days.get(today, {}).get("u", [])),
+            "today_hits": days.get(today, {}).get("h", 0),
+            "last7": sum(len(d.get("u", [])) for k, d in days.items() if k >= last7),
+            "note": "human page views; crawlers, IndexNow and uptime monitors excluded",
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+_load_visitor_state()
+threading.Thread(target=_visitor_flusher, daemon=True).start()
+
 def get_subscriptions():
     if SUBS_FILE.exists():
         try:

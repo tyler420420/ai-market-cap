@@ -1,0 +1,5 @@
+{
+  "all_time": 0,
+  "updated": "2026-10-21",
+  "note": "All-time page-view floor. Railway wipes its filesystem on redeploy, so live visitor_counts.json resets each deploy. daily_scan.ps1 writes the running total here so all-time survives. Privacy: aggregates only, no IPs."
+}
