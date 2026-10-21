@@ -15,9 +15,25 @@ against a deployed posting route would attempt a real post.
 
 Run:  python verify_routes.py
 """
+import os
 import sys
 
+HERE = os.path.dirname(os.path.abspath(__file__))
+if HERE not in sys.path:
+    sys.path.insert(0, HERE)
+
+# Resolve scanner_web.py relative to THIS SCRIPT, never to the current working
+# directory. A stale copy of scanner_web.py lives in the CTO session workspace
+# and still contains the old X route; importing by bare name picked that up and
+# produced a pass/fail verdict about a file that is not the one being deployed.
+sys.path.insert(0, HERE)
+for _stale in list(sys.modules):
+    if _stale == "scanner_web":
+        del sys.modules[_stale]
+
 from scanner_web import app
+
+SCANNER_WEB = os.path.join(HERE, "scanner_web.py")
 
 client = app.test_client()
 
@@ -63,7 +79,7 @@ for path, why in REQUIRED_ROUTES.items():
         failed = True
 
 print("\n=== no X code surface in scanner_web.py ===")
-with open("scanner_web.py", encoding="utf-8") as fh:
+with open(SCANNER_WEB, encoding="utf-8") as fh:
     lines = fh.read().splitlines()
 
 for token in FORBIDDEN_TOKENS:
