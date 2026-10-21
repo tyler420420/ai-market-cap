@@ -254,7 +254,33 @@ try {
     }
     Log "[AUTH] Auth invariants hold"
 
-    # ---- 3d. visitor baseline sync ----------------------------------------
+    # ---- 3d. payment activation guard -----------------------------------
+    # A real payment failed to activate the account: stripe-python >= 7 returns
+    # StripeObject, not dict, and the handlers called .get() on it. The buyer
+    # was charged, save_subscription() never ran, and because the handler
+    # swallowed the exception and returned 200, Stripe never retried. Money in,
+    # access denied, silently.
+    #
+    # This is money-affecting, so like the auth guard it runs here as well as
+    # at pre-commit, and it fails CLOSED - deploying a known payment break is
+    # worse than a missed scan.
+    $payGuard = Join-Path $repo 'verify_stripe_activation.py'
+    if (-not (Test-Path $payGuard)) {
+        Log "[PAY] FATAL - verify_stripe_activation.py is missing. The payment"
+        Log "[PAY]        guard is required; refusing to deploy unverified"
+        Log "[PAY]        payment code."
+        exit 1
+    }
+    $pgOut = & $python $payGuard 2>&1
+    $pgCode = $LASTEXITCODE
+    foreach ($line in ($pgOut | Select-Object -Last 6)) { Log "[PAY] $line" }
+    if ($pgCode -ne 0) {
+        Log "[PAY] PAYMENT ACTIVATION BROKEN - refusing to deploy"
+        exit 1
+    }
+    Log "[PAY] Payment activation verified"
+
+# ---- 3e. visitor baseline sync ----------------------------------------
     # Railway wipes its container filesystem on every redeploy, so the live
     # hit counter in scanner_web.py resets each time this script pushes. The
     # all-time total would therefore snap back to ~0 after every deploy.
