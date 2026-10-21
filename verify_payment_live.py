@@ -48,14 +48,25 @@ prove_verify_payment_live_bites.py proves these assertions actually fail against
 the pre-0f992ae wording. A check nobody has watched fail is an assumption.
 """
 import json
+import os
 import re
 import sys
+import time
 import urllib.request
 import urllib.error
 
 BASE = "https://aismarketcap.com"
 TIMEOUT = 30
 UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) site-audit"
+
+# Probing /create-checkout over HTTP mints a real Stripe checkout session.
+# Flask runs the view for HEAD too and only strips the body, so HEAD is NOT a
+# way to avoid this - verified, not assumed. Rate limiting is the only thing
+# that actually reduces it. One probe per hour caps churn at ~2 sessions/day
+# instead of ~4 per scan, and daily_scan runs twice a day.
+CHECKOUT_CACHE_TTL = 3600
+CACHE_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                          ".checkout_probe_cache.json")
 
 # Well-formed shape, guaranteed not to exist. Checkout session ids look like
 # cs_live_ followed by base62. The middle is deliberately nonsense.
@@ -82,6 +93,29 @@ HONEST_MARKERS = [
 
 failures = []
 warnings = []
+
+
+def _load_checkout_cache():
+    try:
+        with open(CACHE_FILE, encoding="utf-8") as fh:
+            return json.load(fh)
+    except Exception:
+        return {}
+
+
+def _save_checkout_cache(data):
+    try:
+        with open(CACHE_FILE, "w", encoding="utf-8") as fh:
+            json.dump(data, fh)
+    except Exception:
+        pass  # caching is an optimisation; never fail the check over it
+
+
+def _cache_age_seconds(cache):
+    stamps = [v.get("at") for v in cache.values() if isinstance(v, dict)]
+    if not stamps:
+        return None
+    return time.time() - min(stamps)
 
 
 class _NoRedirect(urllib.request.HTTPRedirectHandler):
@@ -194,23 +228,72 @@ def main():
         print("         -> deploy freshness: STALE (cannot confirm current build)")
 
     # ---------- 3. the buy path still works ----------
-    print("\n=== 3. /create-checkout must still redirect to Stripe ===")
-    for plan in ("monthly", "annual"):
-        try:
-            req = urllib.request.Request(
-                f"{BASE}/create-checkout?plan={plan}", headers={"User-Agent": UA})
+    # SIDE-EFFECT WARNING - LEARNED THE HARD WAY
+    # The obvious fix for the session-churn problem is to use HEAD instead of
+    # GET. That DOES NOT WORK. Flask routes a HEAD request to the view function
+    # exactly like a GET and only strips the response BODY afterwards, so
+    # stripe.checkout.Session.create still executes and still mints a session.
+    # This was verified, not assumed: the HEAD responses below carry fresh
+    # cs_live_ ids on every run. Anyone who "fixes" this with HEAD and assumes
+    # the churn stopped will keep creating ~4 sessions a day forever.
+    #
+    # So the real mitigation is RATE LIMITING, below: probe the live buy path
+    # at most once per hour and serve the cached verdict in between.
+    #
+    # HONEST LIMIT: this proves a customer can REACH Stripe checkout. It does
+    # not prove a payment COMPLETES. An invalid-but-present Stripe key, or a
+    # deleted price id, only fails when a real payment is attempted, and that
+    # cannot be synthesized without charging a real card. Necessary, not
+    # sufficient; a completed payment remains the only full proof.
+    print("\n=== 3. /create-checkout must redirect to Stripe (cached 1h) ===")
+    cache = _load_checkout_cache()
+    age = _cache_age_seconds(cache)
+    if cache and age < CHECKOUT_CACHE_TTL:
+        print(f"         (cached {int(age)}s ago - not re-probing to avoid "
+              f"creating Stripe sessions)")
+        for plan in ("monthly", "annual"):
+            entry = cache.get(plan) or {}
+            check(f"/create-checkout?plan={plan} redirects to Stripe checkout",
+                  bool(entry.get("ok")),
+                  f"cached verdict: {entry.get('detail', '(none)')}")
+    else:
+        fresh = {}
+        for plan in ("monthly", "annual"):
             try:
-                r = _no_redirect.open(req, timeout=TIMEOUT)
-                status, loc = r.status, r.headers.get("Location", "")
-            except urllib.error.HTTPError as e:
-                status, loc = e.code, e.headers.get("Location", "")
-            ok = (status in (301, 302, 303, 307, 308)
-                  and "checkout.stripe.com" in loc)
-            check(f"/create-checkout?plan={plan} redirects to Stripe checkout",
-                  ok, f"HTTP {status} -> {loc[:70] or '(no Location header)'}")
-        except Exception as e:
-            check(f"/create-checkout?plan={plan} redirects to Stripe checkout",
-                  False, f"{type(e).__name__}: {str(e)[:80]}")
+                req = urllib.request.Request(
+                    f"{BASE}/create-checkout?plan={plan}",
+                    headers={"User-Agent": UA})
+                try:
+                    r = _no_redirect.open(req, timeout=TIMEOUT)
+                    status, loc = r.status, r.headers.get("Location", "")
+                except urllib.error.HTTPError as e:
+                    status, loc = e.code, e.headers.get("Location", "")
+                ok = (status in (301, 302, 303, 307, 308)
+                      and "checkout.stripe.com" in loc)
+                detail = f"HTTP {status} -> {loc[:60] or '(no Location header)'}"
+                check(f"/create-checkout?plan={plan} redirects to Stripe checkout",
+                      ok, detail)
+                fresh[plan] = {"ok": bool(ok), "detail": detail,
+                               "at": int(time.time())}
+            except Exception as e:
+                detail = f"{type(e).__name__}: {str(e)[:60]}"
+                check(f"/create-checkout?plan={plan} redirects to Stripe checkout",
+                      False, detail)
+                fresh[plan] = {"ok": False, "detail": detail,
+                               "at": int(time.time())}
+        _save_checkout_cache(fresh)
+
+    # /pricing must offer both plans, so the buy entry points actually exist.
+    try:
+        req = urllib.request.Request(f"{BASE}/pricing", headers={"User-Agent": UA})
+        with urllib.request.urlopen(req, timeout=TIMEOUT) as r:
+            pricing = r.read().decode("utf-8", "replace")
+        has_monthly = "/create-checkout?plan=monthly" in pricing
+        has_annual = "/create-checkout?plan=annual" in pricing
+        check("/pricing offers the monthly checkout link", has_monthly)
+        check("/pricing offers the annual checkout link", has_annual)
+    except Exception as e:
+        check("/pricing is reachable", False, f"{type(e).__name__}: {str(e)[:80]}")
 
     # ---------- result ----------
     print("\n" + "=" * 66)

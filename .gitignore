@@ -60,11 +60,22 @@ fix_dram_link.py
 fix_ticker_links.py
 verify_fix.py
 
+# ===== checkout probe cache =====
+# verify_payment_live.py caches the /create-checkout verdict for an hour so it
+# does not mint a fresh Stripe checkout session on every scan. Runtime state,
+# never source. Verified with `git check-ignore -v` after adding, per the note
+# in the indexing section below - a pattern that silently matches nothing is
+# worse than no pattern at all.
+.checkout_probe_cache.json
+
 # ===== scan guard marker =====
 # Written by daily_scan.ps1 when it SKIPS the hard reset because tracked files
 # have uncommitted changes. Runtime state for the ops dashboard, never source.
 # It must stay ignored or it would itself count as a tracked change.
 scan_guard_skip.txt
+# Written by daily_scan.ps1 when verify_payment_live.py reports the LIVE site
+# does not match the source (stale Railway build). Same reasoning.
+live_stale_deploy.txt
 
 # ===== build staging / logs =====
 # _build_clean_html.py writes test_scanner.html here, then copies it to the

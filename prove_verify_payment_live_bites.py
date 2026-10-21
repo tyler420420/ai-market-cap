@@ -14,6 +14,8 @@ It does NOT hit the live site. Everything is local.
 """
 import sys
 import os
+import re as _re
+import ast as _ast
 import importlib.util
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -86,6 +88,70 @@ check("the probe session id is well-formed",
 check("the probe session id is obviously fake",
       "NONEXISTENTPROBE" in vpl.BOGUS_SESSION,
       "cannot collide with a real customer's session")
+
+print("\n=== checkout probe must not mint real Stripe sessions every run ===")
+# This guard runs twice a day from daily_scan.ps1. Probing /create-checkout
+# over HTTP really does call Session.create.
+#
+# The obvious fix is HEAD instead of GET. THAT DOES NOT WORK - Flask runs the
+# view function for HEAD and only strips the body, so the session is still
+# created. This was verified against the live site: HEAD responses carried fresh
+# cs_live_ ids on every run. So the assertion below requires CACHING, and
+# separately pins the fact that the file does NOT claim HEAD is sufficient.
+src = open(os.path.join(HERE, "verify_payment_live.py"), encoding="utf-8").read()
+src_flat = " ".join(_re.sub(r"#", " ", src.lower()).split())
+
+check("checkout probe is rate limited (cache TTL declared)",
+      "CHECKOUT_CACHE_TTL" in src,
+      "HTTP-probing /create-checkout mints a real Stripe session every time")
+check("cache is consulted before re-probing",
+      "_load_checkout_cache" in src and "if cache and age < CHECKOUT_CACHE_TTL" in src)
+
+# STRUCTURAL, not substring. An earlier version of this check merely asserted
+# the phrase 'cached verdict' appeared somewhere in the file - which stays true
+# if the cached value is accepted without being checked, and also matches an
+# unrelated comment. A guard that passes on the defect it exists to catch is
+# worse than no guard. Parse the file and confirm a check(...) call actually
+# inspects the cached entry.
+try:
+    tree = _ast.parse(src)
+    cached_asserted = False
+    for node in _ast.walk(tree):
+        if not isinstance(node, _ast.Call):
+            continue
+        fn = node
+        name = getattr(getattr(fn, "func", None), "id", None)
+        if name != "check":
+            continue
+        blob = " ".join(_ast.dump(a) for a in node.args)
+        # a check() whose arguments reference the cached entry's "ok" value
+        if "entry" in blob and "ok" in blob:
+            cached_asserted = True
+            break
+except Exception as e:
+    cached_asserted = False
+    print(f"         (AST parse failed: {e})")
+check("cached verdict is ASSERTED, not silently trusted",
+      cached_asserted,
+      "must be a real check() call reading the cached ok value, so a stale "
+      "pass cannot hide")
+
+print("\n=== the HEAD trap is documented, not repeated ===")
+# If someone later 'optimises' this back to HEAD believing it avoids the
+# session, the file should already explain why that is wrong. Require the
+# specific correction, not a vague gesture at the topic.
+# Require the SPECIFIC mechanism, not a generic "does not work". A loose
+# 'or' fallback matched a phrase that survived the mutation - deleting the
+# first half of the note left enough behind to still satisfy it, and the
+# regression slipped through. Pin the claim that makes the trap unambiguous.
+head_trap = "head request to the view function" in src_flat
+check("guard explains that HEAD does NOT avoid session creation",
+      head_trap,
+      "must name the mechanism (Flask runs the view for HEAD and only strips "
+      "the body), not just assert that HEAD fails somehow")
+check("guard is explicit that the buy path cannot be fully proven",
+      "cannot be proven" in src_flat or "cannot be synthesized" in src_flat,
+      "necessary but not sufficient must be stated plainly")
 
 print("\n=== result ===")
 failed = [n for n, ok, _ in results if not ok]
