@@ -84,7 +84,7 @@
     "sector": "Technology",
     "sentiment": "Positive",
     "news": {
-      "title": "Zelensky says US intelligence sharing 'works now' after...",
+      "title": "US envoy to meet Putin in Russia as Zelensky says...",
       "url": "https://news.google.com/rss/articles/CBMiW0FVX3lxTE9OcXdwQnZ5LWxrMElfTGl2Z1MtRnhOVzBmdTZaYms5cVdPXzlQekFlYVdrUzFqMlc3RVBvWG00aE1ibTF2cTJZSUhyMVpaY2ppTkRCYXpQVjhvMmM?oc=5"
     },
     "price_change_pct": 2.88
@@ -115,7 +115,7 @@
     "sentiment": "Positive",
     "news": {
       "title": "First Solar (FSLR) Draws Mixed Valuation Attention, Is It...",
-      "url": "https://news.google.com/rss/articles/CBMi1wFBVV95cUxNdG1rcGRxcGt6eUt6ejdjYnNodl9tNFpJQTQwRk9FU1ZNNlFycHJZRUg2YnhEQWJveFJ0aUVQay0tcEYyWmI0UzA2TVhlR2hQMGtFLW1aa3dUVU9SNVBmQVNtUE5OaUJjeF91LS0yT2NFRUE3UERRaDhnN29oMVY2eFBybTN0YlRvN2dkdldnQV9qUzN2aVZaeTFpeUh4ZjkyX1pLMUN4UG9MU3Z0NmFZUjdfdzlJOVU4U2ItYUsxTkxLN1Vzd1ZiLWM0S0s3R0puVE5QWFl5TdIB1wFBVV95cUxNdG1rcGRxcGt6eUt6ejdjYnNodl9tNFpJQTQwRk9FU1ZNNlFycHJZRUg2YnhEQWJveFJ0aUVQay0tcEYyWmI0UzA2TVhlR2hQMGtFLW1aa3dUVU9SNVBmQVNtUE5OaUJjeF91LS0yT2NFRUE3UERRaDhnN29oMVY2eFBybTN0YlRvN2dkdldnQV9qUzN2aVZaeTFpeUh4ZjkyX1pLMUN4UG9MU3Z0NmFZUjdfdzlJOVU4U2ItYUsxTkxLN1Vzd1ZiLWM0S0s3R0puVE5QWFl5TQ?oc=5"
+      "url": "https://news.google.com/rss/articles/CBMi0gFBVV95cUxPbDBYbTRqVW11b21kdHlYVFdPeGxVWl93VmVYNzRGR202YWx1enh5UXRBcEF2OHFGcGI4eTAyemxHRjJ3Q3VaWUVCd0dzaUNlQzVWalozOENZOS01OEFVM3Q5a1VRQVREMElfcTVndlFpZDdzWERlRUxVQXRlc0Q2dmlZalJaZVVCX1pmX3VPVGxza0Q3ZmpNXzhOWW5NOE9HV3lfTG9SN0tZejdkVjZraFdwTEJxeDVfcVUzZlVtVHZtWGNLc2xNRUtYb2x6R0phbFHSAdcBQVVfeXFMTXRta3BkcXBrenlLeno3Y2JzaHZfbTRaSUE0MEZPRVNWTTZRcnByWUVINmJ4REFib3hSdGlFUGstLXBGMlpiNFMwNk1YZUdoUDBrRS1tWmt3VFVPUjVQZkFTbVBOTmlCY3hfdS0tMk9jRUVBN1BEUWg4ZzdvaDFWNnhQcm0zdGJUbzdnZHZXZ0FfalMzdmlWWnkxaXlIeGY5Ml9aSzFDeFBvTFN2dDZhWVI3X3c5STlVOFNiLWFLMU5MSzdVc3dWYi1jNEtLN0dKblROUFhZeU0?oc=5"
     },
     "price_change_pct": 1.53
   },
@@ -354,8 +354,8 @@
     "sector": "Technology",
     "sentiment": "Positive",
     "news": {
-      "title": "Microsoft Cost Cuts: What a 20% Reduction at Azure Could...",
-      "url": "https://news.google.com/rss/articles/CBMingFBVV95cUxQYUwyVi1YdHY0cE90Zzg0NmhUZ2pIMHRsS0IybFFwazZKNFNsT3FnRnNaZUd1bC1ucHVUVWlmd05DUEl0M3NUU25fN0VUQXV1T1dfQm1VNUduNGUzODd2VERaVi1lbjdPcU14emZZNC1RcThieFJxQS1xeG94THI0LTRQZ1A5dHJCcjJqalJscXBOSlVyQ21tUUE1cHpxdw?oc=5"
+      "title": "AMD Stock Rises on an Upscaling Partnership with...",
+      "url": "https://news.google.com/rss/articles/CBMioAFBVV95cUxOZEd0R0ROY0t1a0U1eFJvWU9jcTRKTjhSVmFwazYzcGVNT1puc3FVNGgydHpJWUx6WlBnVWN0X2F6cHlNakRQa2NPYkRQem1nTXV4SWlwc09HQ3ZOQjdZUnRjLVUxNlRhdVlRMk9wTEVuRVl4QVc0eHFJMGpzb1BZZnJ0MUtWcVBKdFpSN0JyVkZScjJqMlR2TTc5dDJqeXMy?oc=5"
     },
     "price_change_pct": -0.31
   },
@@ -493,9 +493,9 @@
     "3d_up": 13.8,
     "5d": 120.81,
     "5d_up": 23.0,
-    "analysts": 31,
+    "analysts": 32,
     "sb": 6,
-    "buy": 19,
+    "buy": 20,
     "hold": 4,
     "sell": 2,
     "mktcap": 0.0,
@@ -834,8 +834,8 @@
     "sector": "Communication Services",
     "sentiment": "Positive",
     "news": {
-      "title": "DIS Stock Quote Price and Forecast - CNN",
-      "url": "https://news.google.com/rss/articles/CBMiT0FVX3lxTE5DcVFEeFNVVDJxcjFqb0VhYlQ3d2VjZVg2SWU1cGFCMUVnUDN5dEdfaGZEMXlmbDJhSTh2T1ItTlpUVl8yb1BoXzNsMnFEeDA?oc=5"
+      "title": "Disney (DIS): Should It Invest More in Cruise Ships or...",
+      "url": "https://news.google.com/rss/articles/CBMimgFBVV95cUxPdDZsRTMyNjdybTktZEVTZ3JIaGxjeEVhd3VSVGUyc3hZNnlOcm14NWZxcDJuWGtGTFlFeU43WWJnSnNzSDd2ZW1QMWRIR3NPa0RNVlZBTlJWVGRoRXZDM3F0OW1wWEFLbzlZX3dDR0UzNWlHZ19SYWl4ejZLMWxEczR1QXdUaHpFTmlPOENfRHlJMDVrRGJLMkNn?oc=5"
     },
     "price_change_pct": 1.9
   },
@@ -1284,8 +1284,8 @@
     "sector": "Technology",
     "sentiment": "Positive",
     "news": {
-      "title": "MCHP Oct 2026 59.000 put (MCHP261023P00059000) interactive...",
-      "url": "https://news.google.com/rss/articles/CBMibkFVX3lxTE40YkNzVTZRSDBMSWpPUjhJQUVsSGx6dWFyajNOM2dsSnp0WVhnbTVnQ3MwLUw0a2NXcjQwOUNJOGRBVTgxZi0tOFdCUXJUV1diYUpQRHQ1Mi1VNjB1cmp4UTJ2QVR6TXA5N01ham9B?oc=5"
+      "title": "Microchip Technology (MCHP) Tests Its Valuation As The...",
+      "url": "https://news.google.com/rss/articles/CBMiqgFBVV95cUxNX3gxLVNmUWZ2R2I0RzFtc3JraEZ3Wl9nbl9QYjROZ0JGdkRLTnBxVGhMTnU4ZlUwRHFvbmdFU0FMMnlrQ2I4RWpnX1l1TXpjQzVkZ1VNTXpfN3hWcHlrRk9nVEpTUzlqN2xrcnpQSXRXY2lXV2c4OXh0XzZ3em43cWtXR2pQeHBsNElyRm4zYm1xWnMtYmtPNjV1am5hUHIzUzRGcHVnUWlHUQ?oc=5"
     },
     "price_change_pct": 1.92
   },
@@ -1374,8 +1374,8 @@
     "sector": "Communication Services",
     "sentiment": "Negative",
     "news": {
-      "title": "Inside Prometheus: Meta\u2019s Journey to a Gigawatt-Scale...",
-      "url": "https://news.google.com/rss/articles/CBMiswFBVV95cUxQb0hwbjRNOXVvZy1iZGc5S0RZaHE5dXZIWEcwY0o4WEJyTTM2OTkxRjN4RHNweXJ5enluSVJBMnNvM1V1WW45XzFId3VWSVV3V3pyS0pFcExDOWJyOEFaaXVXTm02THEwR3dNZ0pOQm9zLTRpUGpIMDN5T0FncDlacTJGVDNvekxaOWUzRm54Ml9SaXJoTGxCVEFTeEhzbTN6OVlINkRLMGkyNmNEZk92SnlhMA?oc=5"
+      "title": "Exclusive: Joel Kaplan leaving Meta after 15 years as...",
+      "url": "https://news.google.com/rss/articles/CBMiXkFVX3lxTE9NOTNZTUNnOTFEcTNMZGdDNzh0cmRub3d4Yzd0b0N3bHJXa3JfRXdMNVhYc3V4NktqSWxXcTgxOG8zZDRJYzBadjFiOEJEdE9COFpxc0JUUHNUajBCaHc?oc=5"
     },
     "price_change_pct": -1.59
   },
@@ -1434,8 +1434,8 @@
     "sector": "Healthcare",
     "sentiment": "Positive",
     "news": {
-      "title": "Trading the Move, Not the Narrative: (REGN) Edition - Stock...",
-      "url": "https://news.google.com/rss/articles/CBMiygFBVV95cUxQb0NrLVJGalgzZjhuTHpBMmllNGI2MU1fcm94ZldhaGt4ODJUYW9DTm5Oc25VYlI1R2xRTkJMOXgtWnBqMFR5ZUdLb0JRRV9lU2U2VzlmdGxPWHI2YTEyQzVxWG5XVHRuWGRZQl8zdE5uRmRTMGJrQUY0dWVSbEt1VS1neHZ2LUw3OUhIa2pnNkpLNzI2SlZQeGpUZ194SzZqNDJtSkhSUWhEQll0YTBlaF82MTY5TXgyNlFUN3ZETkVFUVVGUk1UNVRB?oc=5"
+      "title": "REGN Feb 2027 880.000 call (REGN270219C00880000) stock...",
+      "url": "https://news.google.com/rss/articles/CBMiZkFVX3lxTE5sM2FENURoX1JRZHVrWHpaY0F2S0poVm9rc2JZekl1cC1hdldaSy10N0k4Z0ZMekpiVTg1YnY0UXlNcGczY1AtQzlqOWJNOUFGeDh1MXR3QW5OVEg0WEh5a2I1UllWQQ?oc=5"
     },
     "price_change_pct": 3.25
   },
@@ -1674,8 +1674,8 @@
     "sector": "Financial Services",
     "sentiment": "Positive",
     "news": {
-      "title": "America Is Now an Ally of Russia - The Atlantic",
-      "url": "https://news.google.com/rss/articles/CBMifkFVX3lxTE9aYnhjcy1tYlNpTHhjTWRvR3VuQ1FEM1N4eGZxaTRfRDRWY1htZTFvbW5ON2VjTXZYZEdQV2F3dnUyRWtGZ1QtUVdQUUJKUXJxOG1UNzIzYXR2QWh4X0d1WWJmYWZwd192NE9rQ05YaVdwbWhHYlBtOWk0Q2FQQQ?oc=5"
+      "title": "Ally Financial (ALLY) Q3 Earnings Lift Margins As Credit...",
+      "url": "https://news.google.com/rss/articles/CBMinAFBVV95cUxQNU5HeHZBNHBJRm5aaDlBamlJSFY1UjgwbUI2TFBzd3F4RGpjQmowcDczR0NRWVBZdDVCUWpKcFJaTDR2aHJzc1k2WlJRSzNpaE5UOGJuXzdVazNWTENjeWZpNjVjamx4bEZHUzl4UXlGaHI1Wm8tNnpCaklmMVJBdUF6dEFrbzA1dkhjZzlKY3NBUTNOV0RnRU9qb0E?oc=5"
     },
     "price_change_pct": 1.01
   },
@@ -1884,8 +1884,8 @@
     "sector": "Consumer Cyclical",
     "sentiment": "Mixed",
     "news": {
-      "title": "MELI Jan 2028 2640.000 put (MELI280121P02640000) stock...",
-      "url": "https://news.google.com/rss/articles/CBMicEFVX3lxTFBOUTFyVEVyMXJQZmM5MmRlcG5IU1NPQ2QxNW5ObHpObEJjMmlxRHEtZFYteWM4b1lCWmpkWUtKSk1IT3BsRjVSSlg4UHdBc2cxZ0FTSUxGeXdEOExJY2xENmtGUEd4b0tGTnQ0T2R6VDc?oc=5"
+      "title": "How One Hour Delivery At MercadoLibre (MELI) Has Changed...",
+      "url": "https://news.google.com/rss/articles/CBMiyAFBVV95cUxNY0d5TGgya3Z4TkZZMlY5eDlLRVEyd1FtVld6cGxpbFdkZk9hblRfdU40ZkcxdU1uNzBPMy1SRlByYnNZRVVNMmd6Q0ZGeWowdUZLS3J2TlBMbWRQXzFVbGU1SmRLTG9ZS3RScUd5ZkNRRHVWOXFqOUg1YTdvWEk2bENBZ1ZUaGFTeTFmZFJqLUtYV3FoZXA2a3EwZVNCUjZJWEc5UW5aRjdtT1hzeU5hdGZraFlVLVBwWFpZOGppLVhBYnZiY3hYWtIBzgFBVV95cUxQRVQ2VWxJQXJUT01RTDE3eWdoNTdvRHo1QUVxc3FyTW9xVEVUamJQMi0wbVlYZEVWMGFxWnVRN1pOWEgwVWhIT2pCeWRCMW9jVnppMFc2QTYzeUJ4M0lsY0hPNW1TOUg4VVFHdjY5bWZDQ2gtVVhlMzdTaFJKVk9HMk1FdHFMblV6Y3UydkNxUWJmaVpGSHRIcThmZkE3R0pBMFJtMzZCMERJdWhlM0ZzZ05rem0tUnR5MWFHN3I1RUwyVmFsaFB5LW03UDE1UQ?oc=5"
     },
     "price_change_pct": 2.16
   },
@@ -2394,8 +2394,8 @@
     "sector": "Utilities",
     "sentiment": "Positive",
     "news": {
-      "title": "Duke Energy (DUK) Laps the Stock Market: Here's Why - Yahoo...",
-      "url": "https://news.google.com/rss/articles/CBMilgFBVV95cUxQaUNKeGhrZjdMajZvNnNtTTU3LWY0X3Q4SG1kRzJEUlloZFZXRGQ0SnZWSUZFS0o3OUZGNThTUjczeEdJSk5WRkxlUFFXb1VPSy10VExvRFAyMjJxcVY3d0hwT1hVZjhYR3ZDcGhSNnFWVFRlRzdrOW9YOWVuOExySmg5b3YtVHh6eVByRGpQUjRxcFFEY0E?oc=5"
+      "title": "Duke Energy Corporation (DUK) Stock Price, News, Quote &...",
+      "url": "https://news.google.com/rss/articles/CBMiUEFVX3lxTE0yUlUzUDZxTnpCQTBSajFxTGx0SklEN3pNSl8xcVkzQVlvVWV2Z0tYTHpkalVXNVNBTkFTcjFwZUI2WlFCU1BTNF9aMTF4WkVN?oc=5"
     },
     "price_change_pct": 1.73
   },
@@ -2484,8 +2484,8 @@
     "sector": "Financial Services",
     "sentiment": "Mixed",
     "news": {
-      "title": "Things to do at NU: Oct. 21 to 27 - Northwestern Now News",
-      "url": "https://news.google.com/rss/articles/CBMigwFBVV95cUxQYVkxNDVWYW94QVFJaHdPSzRMWjRpWTlUWUloVHozdEMyM21PUFZhc1dlR0ZXSlFnZDFaZmpMMXJJRTNVU2pYTG9vVmJicmNaMWd5bXRDLXNsenZ5cHc4cVl0RkZabGlyN0VEQl9MU0lJRFVQcVJmakNBOExEMjJ2N1dYRQ?oc=5"
+      "title": "Why Nubank (NU) Stock Is Up Today - Yahoo Finance",
+      "url": "https://news.google.com/rss/articles/CBMilAFBVV95cUxPb25WdGw0NUV4VXZfUkJ5Z3dzYWlnOU1tNXBoVVFodzRIbEFwZ253OU5DVmZ4UzV6VTMyUmxvZEFIVm1UVjNQdGpoZzJldFhIX01oM0lzakdOUjZnSVlXbGxKRk9ndG0xOVR1MjB3YzlwX1p3V3BTYjV5TkFOZWVjTElYR1VVSkNRZjlfNHFieEZXZ1Fp?oc=5"
     },
     "price_change_pct": 4.0
   },
@@ -2694,8 +2694,8 @@
     "sector": "Technology",
     "sentiment": "Positive",
     "news": {
-      "title": "ICE looks to boost staffing at intelligence hubs in Vermont...",
-      "url": "https://news.google.com/rss/articles/CBMilwFBVV95cUxPaHFmRUthSEFzczJzUVhuSXNJazdaQlJ6b00tT3NCNDR4VGRuQzFka29BZkZ0aUMyb3JmSXhMX2ZDbXE1Ri1VeHA3WGtTZF93bHJzazNNRkQwNGFMZzJhXzdEYk9Gc3cwaEZ6RThtVkVBSmFHeGhnTi03RW90ZUYxN3VoamVpMmlhendyVk1OTk9pWjU4a0RZ?oc=5"
+      "title": "HHS Expands Sickle Cell Care Nationwide with Seven New...",
+      "url": "https://news.google.com/rss/articles/CBMijAFBVV95cUxQV011amFBMjM4M3BuOFQxOGY3S2dBXzhsejZmbUh2T29ydVBfaTQ5aThCVjdZNVVuNDFHQkM5RDc4MkNrNng3NzA5NHE0VEFzYi1jUENCTDExRFVqZHRDWjdHZzBpaEU3TzBwYmx4V0pDb3lkejdxa2hXajM1d0xIZEcwSTlxWW5hQVdhRw?oc=5"
     },
     "price_change_pct": 6.87
   },
