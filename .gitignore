@@ -33,4 +33,5 @@ __pycache__/
 # ===== backups =====
 *.bak
 *.bak2
-*.guardtest
+*.guardtest.indexnow_state.json
+indexnow.log

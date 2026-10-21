@@ -117,22 +117,41 @@ def submit(key, urls, dry_run=False):
         INDEXNOW_URL, data=body, method="POST",
         headers={"Content-Type": "application/json; charset=utf-8",
                  "User-Agent": "AIScannerBot/1.0"})
-    try:
-        with urllib.request.urlopen(req, timeout=30) as r:
-            code = r.status
-        # 200/202 both mean accepted. 403 = key rejected, 422 = bad payload.
-        ok = code in (200, 201, 202)
-        print(f"INDEXNOW: HTTP {code} - {'submitted' if ok else 'REJECTED'} "
-              f"({len(payload['urlList'])} urls)")
-        return ok
-    except urllib.error.HTTPError as e:
-        # 400/403/422 are "your submission was not accepted" - log, never raise.
-        print(f"INDEXNOW: HTTP {e.code} {e.reason} - not submitted "
-              f"(check key file is served at /indexnow_key.txt)")
-        return False
-    except Exception as e:
-        print(f"INDEXNOW: endpoint unreachable ({e}) - continuing")
-        return False
+
+    # IndexNow fetches and caches the key file the first time it is seen. A
+    # submission made moments after a deploy can come back 403 while that
+    # cache warms up. One short retry clears it.
+    attempts = 2 if not dry_run else 1
+    for attempt in range(1, attempts + 1):
+        try:
+            with urllib.request.urlopen(req, timeout=30) as r:
+                code = r.status
+            # 200/202 both mean accepted. 403 = key rejected, 422 = bad payload.
+            ok = code in (200, 201, 202)
+            print(f"INDEXNOW: HTTP {code} - {'submitted' if ok else 'REJECTED'} "
+                  f"({len(payload['urlList'])} urls)")
+            return ok
+        except urllib.error.HTTPError as e:
+            detail = ""
+            try:
+                detail = e.read().decode("utf-8", "replace").strip()[:200]
+            except Exception:
+                pass
+            if e.code == 403 and attempt < attempts:
+                print(f"INDEXNOW: HTTP 403 - key file may still be propagating, "
+                      f"retrying in 20s... {detail}")
+                import time
+                time.sleep(20)
+                continue
+            # 400/403/422 are "your submission was not accepted" - log, never raise.
+            print(f"INDEXNOW: HTTP {e.code} {e.reason} - not submitted"
+                  + (f" | {detail}" if detail else "")
+                  + " (check the key is served at /indexnow_key.txt)")
+            return False
+        except Exception as e:
+            print(f"INDEXNOW: endpoint unreachable ({e}) - continuing")
+            return False
+    return False
 
 
 def main():
