@@ -41,19 +41,39 @@ if ((Test-Path $log) -and ((Get-Item $log).Length -gt 2MB)) {
     Move-Item -Force $log "$log.1"
 }
 
-# ---- single-writer lock ---------------------------------------------------
-if (Test-Path $lockFile) {
-    $age = (Get-Date) - (Get-Item $lockFile).CreationTime
-    if ($age.TotalMinutes -lt 30) {
-        Log "[SKIP] Another scan already running (lock $age.TotalMinutes min old)"
-        exit 0
-    }
-    Log "[WARN] Stale lock from $age.TotalMinutes min ago - removing"
-    Remove-Item $lockFile -Force
-}
-New-Item -ItemType File -Path $lockFile -Force | Out-Null
+# ---- single-writer lock ------------------------------------------------------
+# LIVENESS is the primary signal, staleness only a backstop.
+#
+# Previously the only test was "is the lock younger than 30 minutes", so an
+# interrupted scan left .scan.lock behind and every scheduled run skipped until
+# that timeout expired. One crashed scan therefore cost a 30-minute blind
+# window. Now: if the lock exists but no scan process is actually alive, the
+# lock is dead and is cleared immediately, so an interrupted scan costs exactly
+# one run instead of half an hour.
+$me = $PID
+$alive = @(Get-CimInstance Win32_Process -ErrorAction SilentlyContinue |
+    Where-Object { $_.ProcessId -ne $me -and
+                   $_.CommandLine -match 'daily_scan\.ps1|ai_earnings_scanner\.py' })
+
+# Only the run that CREATED the lock may remove it. Without this, a run that
+# skips because someone else is scanning would fall into `finally` and delete
+# the live lock out from under the process that owns it.
+$ownsLock = $false
 
 try {
+    if (Test-Path $lockFile) {
+        if ($alive.Count -gt 0) {
+            Log "[LOCK] a scan is genuinely running (PID $($alive.ProcessId -join ',')) - skipping this run"
+            exit 0
+        }
+        $lockAge = (Get-Date) - (Get-Item $lockFile).CreationTime
+        Log ("[LOCK] stale lock ({0} min old) but no scan process alive - clearing and continuing" -f [math]::Round($lockAge.TotalMinutes, 1))
+        Remove-Item $lockFile -Force -ErrorAction SilentlyContinue
+    }
+    New-Item -ItemType File -Path $lockFile -Force | Out-Null
+    $ownsLock = $true
+    Log "[LOCK] acquired"
+
     Log "===== Daily scan starting ====="
     Set-Location $repo
 
@@ -94,6 +114,38 @@ try {
             Set-Content -Path $marker -Value $body -Encoding UTF8
             Log "[GUARD] marker written: $marker"
         } else {
+            # ---- PRESERVE BEFORE DISCARDING (2026-10-21) --------------------
+            # The dirty-tree guard above protects UNCOMMITTED work only. A local
+            # COMMIT ahead of origin is still destroyed by reset --hard, and that
+            # actually happened during testing: a fix of mine was eaten by the
+            # reset because I had committed it. So preserve those commits on a
+            # dated branch first, every time, before anything is thrown away.
+            #
+            # Count BEFORE the reset. After it these commits are unreachable and
+            # 'origin/master..HEAD' always returns nothing - which is why the
+            # earlier "Discarded divergent commits" line never printed.
+            $ahead = @(& $git -C $repo log --oneline 'origin/master..HEAD' 2>$null)
+            if ($ahead.Count -gt 0) {
+                $stamp  = Get-Date -Format 'yyyyMMdd-HHmmss'
+                $branch = "auto-save/$stamp"
+                & $git -C $repo branch $branch 2>&1 | Out-Null
+                Log "[GUARD] $($ahead.Count) local commit(s) PRESERVED on branch: $branch"
+                foreach ($c in $ahead) { Log "[GUARD]   preserved: $c" }
+                Log "[GUARD] recover with: git reset --hard $branch"
+
+                # Keep only the N most recent so these do not pile up forever.
+                # Sorted by refname descending: the branch name is yyyyMMdd-HHmmss,
+                # so lexicographic order IS chronological order.
+                $keep = 10
+                $autoBranches = @(& $git -C $repo for-each-ref --sort=-refname --format='%(refname:short)' 'refs/heads/auto-save/*' 2>$null)
+                if ($autoBranches.Count -gt $keep) {
+                    foreach ($old in $autoBranches[$keep..($autoBranches.Count - 1)]) {
+                        & $git -C $repo branch -D $old 2>&1 | Out-Null
+                        Log "[GUARD] pruned old auto-save branch: $old"
+                    }
+                }
+            }
+
             Log "[GIT] Local $localSha != origin $remoteSha - hard reset to origin/master"
             # EAP=Continue: git emits stderr chatter (line-ending warnings) that
             # would otherwise abort this script under ErrorActionPreference=Stop.
@@ -104,17 +156,8 @@ try {
             } finally {
                 $ErrorActionPreference = $prevEap0
             }
-            # Count what we are about to discard. This used to read
-            # `origin/master..@{u}`, which is wrong in PowerShell: `@{u}` is
-            # parsed as a hashtable literal, not git's upstream shorthand, so it
-            # expanded to garbage ('dQA=') and threw "fatal: ambiguous argument"
-            # - which the outer catch turned into [FATAL] and exit 1, aborting
-            # the whole scan immediately after a successful reset. This path had
-            # therefore never run successfully. Use an explicit ref instead.
-            $discarded = @(& $git log --oneline 'origin/master..HEAD' 2>$null)
-            if ($discarded.Count -gt 0) {
-                Log "[GIT] Discarded divergent commits: $($discarded.Count)"
-                foreach ($d in $discarded) { Log "[GIT]   was: $d" }
+            if ($ahead.Count -gt 0) {
+                Log "[GIT] Reset discarded $($ahead.Count) commit(s) - recoverable from $branch"
             }
         }
     } else {
@@ -269,5 +312,8 @@ catch {
     exit 1
 }
 finally {
-    if (Test-Path $lockFile) { Remove-Item $lockFile -Force -ErrorAction SilentlyContinue }
+    if ($ownsLock -and (Test-Path $lockFile)) {
+        Remove-Item $lockFile -Force -ErrorAction SilentlyContinue
+        Log "[LOCK] released on exit"
+    }
 }
