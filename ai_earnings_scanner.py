@@ -640,7 +640,7 @@ def generate_html_report(stocks: list, output_path: str):
         '<button class=btn id=scanBtn style="background:#00ff88;color:#000;font-weight:bold;border:1px solid #fff;cursor:pointer" onmouseover="this.style.background=\'#79ffc6\'" onmouseout="this.style.background=\'#00ff88\'" onclick=runScan()>PRO SCAN</button>'
         '</div>'
         '<div style="display:flex;gap:6px;align-items:center">'
-        '<a href="https://x.com/AIMoneyMach" target="_blank" style="background:#5741d9;color:#fff;padding:3px 10px;border-radius:5px;border:1px solid #fff;font-size:0.82em;font-weight:bold;text-decoration:none" onmouseover="this.style.background=\'#6e55e0\'" onmouseout="this.style.background=\'#5741d9\'">Follow Us On X</a>'
+        '<a href="https://bsky.app/profile/aistock.bsky.social" target="_blank" rel="noopener noreferrer" style="background:#5741d9;color:#fff;padding:3px 10px;border-radius:5px;border:1px solid #fff;font-size:0.82em;font-weight:bold;text-decoration:none" onmouseover="this.style.background=\'#6e55e0\'" onmouseout="this.style.background=\'#5741d9\'">Follow Us</a>'
         '<span style="background:#161b22;border:1px solid #2ea043;border-radius:5px;padding:3px 10px;font-size:0.82em"><span style="font-weight:bold;color:#2ea043">' + str(strong_count) + '</span> <span style="color:#8b949e">S-Buy</span></span>'
         '<span style="background:#161b22;border:1px solid #1f6feb;border-radius:5px;padding:3px 10px;font-size:0.82em"><span style="font-weight:bold;color:#58a6ff">' + str(sum(1 for s in stocks if 50 <= round(s.composite_score) < 75)) + '</span> <span style="color:#8b949e">Watch</span></span>'
         '</div>'
