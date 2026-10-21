@@ -808,118 +808,27 @@ def auto_scan_loop():
         except Exception as e:
             print('[Auto-Scan] Error during scheduled scan:', e)
 
-# ===== CRON STATE PERSISTENCE (survives Railway container restarts) =====
-_CRON_STATE_FILE = Path(__file__).parent / ".cron_state.json"
+# RETIRED 2026-10-20: /cron and /cron-afternoon were removed, along with the
+# _CRON_STATE_FILE / _load_cron_state / _save_cron_state helpers they used.
+#
+# Those routes never scanned. Their own docstrings said "Scanning happens
+# locally" - they only read ai_earnings_today.html and returned a freshness
+# string, which made them look like scans while doing no work. With Tyler's
+# cron-job.org account deleted nothing external calls the service any more,
+# so they were unreachable dead weight.
+#
+# .cron_state.json was the only remaining reader/writer of that file and has
+# been removed too. Scanning is driven by the Windows tasks AIScannerDaily1
+# (06:31) and AIScannerDaily (13:00) running daily_scan.ps1 locally.
 
-def _load_cron_state():
-    """Load cron run state from disk so it survives container restarts."""
-    try:
-        if _CRON_STATE_FILE.exists():
-            with open(_CRON_STATE_FILE, 'r') as f:
-                return json.load(f)
-    except Exception:
-        pass
-    return {"morning": None, "afternoon": None, "price_alerts": None}
-
-def _save_cron_state(state):
-    """Persist cron state to disk."""
-    try:
-        with open(_CRON_STATE_FILE, 'w') as f:
-            json.dump(state, f)
-    except Exception as e:
-        print(f"[CronState] Failed to save: {e}")
-
-# ===== AUTO SCAN CRON =====
-
-@app.route("/cron")
-def cron():
-    """Triggered by Railway cron job at 6:30 AM PT daily"""
-    now = datetime.now(PT)
-    today = now.date()
-    force = request.args.get('force') == '1'
-    state = _load_cron_state()
-    if not force and state.get("morning") == str(today):
-        return "Already ran today", 200
-    state["morning"] = str(today)
-    _save_cron_state(state)
-
-    def do_scan(label=""):
-        """Railway cron: NEVER run the scanner (Railway can't do Finviz reliably).
-        Only check freshness and serve existing data. Scanning happens locally."""
-        today_path = Path(__file__).parent / "ai_earnings_today.html"
-        if not today_path.exists():
-            print(f"[Cron{label}] No data file — needs manual scan push")
-            return False
-        try:
-            content = today_path.read_text(encoding='utf-8')
-            stock_count = content.count('"ticker":')
-            import re as _re
-            data_date_match = _re.search(r'"ticker":\s*"([A-Z]+)".*?"earnings_date":\s*"([^"]+)".*?"days_left":\s*(\d+)', content, _re.DOTALL)
-            if data_date_match:
-                earn_str = data_date_match.group(2)
-                days_left = int(data_date_match.group(3))
-                try:
-                    earn_dt = datetime.strptime(earn_str, '%B %d, %Y')
-                    data_date = (earn_dt - timedelta(days=days_left)).date()
-                    today_pt = datetime.now(PT).date()
-                    if data_date == today_pt and stock_count >= 50:
-                        print(f"[Cron{label}] Data FRESH — {data_date} == today {today_pt} ({stock_count} stocks)")
-                        return True
-                    else:
-                        print(f"[Cron{label}] Data STALE — data date {data_date}, today {today_pt} ({stock_count} stocks). Needs manual scan.")
-                        return False
-                except Exception:
-                    pass
-            mtime = datetime.fromtimestamp(today_path.stat().st_mtime, tz=PT).date()
-            if mtime == datetime.now(PT).date() and stock_count >= 50:
-                print(f"[Cron{label}] Data FRESH (mtime {mtime}, {stock_count} stocks)")
-                return True
-            else:
-                print(f"[Cron{label}] Data STALE — mtime {mtime}, {stock_count} stocks. Needs manual scan.")
-                return False
-        except Exception as e:
-            print(f"[Cron{label}] Freshness check error: {e}")
-            return False
-
-    # Railway cron: never run scanner, just check freshness
-    fresh = do_scan(label="[Morning]")
-    if fresh:
-        return f"Data fresh — {datetime.now(PT).date()} (auto-disabled scanner run)", 200
-    else:
-        return f"Data stale — run scanner locally and push. Cron scanner disabled.", 200
+# RETIRED 2026-10-20: the /cron route was removed. See the note above.
+# It never scanned - it only checked whether ai_earnings_today.html was
+# fresh and returned a string. Do not reintroduce it as a scan trigger.
 
 
-@app.route("/cron-afternoon")
-def cron_afternoon():
-    """Railway afternoon cron: only check freshness. Scanner runs locally."""
-    now = datetime.now(PT)
-    today = now.date()
-    force = request.args.get('force') == '1'
-    state = _load_cron_state()
-    if not force and state.get("afternoon") == str(today):
-        return "Already ran today", 200
-    state["afternoon"] = str(today)
-    _save_cron_state(state)
-
-    today_path = Path(__file__).parent / "ai_earnings_today.html"
-    if not today_path.exists():
-        return "No data file — needs manual scan push", 200
-    try:
-        content = today_path.read_text(encoding='utf-8')
-        stock_count = content.count('"ticker":')
-        import re as _re
-        m = _re.search(r'"ticker":\s*"([A-Z]+)".*?"earnings_date":\s*"([^"]+)".*?"days_left":\s*(\d+)', content, _re.DOTALL)
-        if m:
-            earn_dt = datetime.strptime(m.group(2), '%B %d, %Y')
-            data_date = (earn_dt - timedelta(days=int(m.group(3)))).date()
-            if data_date == today and stock_count >= 50:
-                return f"Data fresh — afternoon check OK ({stock_count} stocks)", 200
-        mtime = datetime.fromtimestamp(today_path.stat().st_mtime, tz=PT).date()
-        if mtime == today and stock_count >= 50:
-            return f"Data fresh — afternoon check OK ({stock_count} stocks)", 200
-        return f"Data stale — run scanner locally and push", 200
-    except Exception as e:
-        return f"Check error: {e}", 200
+# RETIRED 2026-10-20: the /cron-afternoon route was removed. Like /cron it
+# never scanned - it only read ai_earnings_today.html and returned a
+# freshness string. It also wrote .cron_state.json on every call.
 
 
 # RETIRED 2026-10-20: the /cron-twitter route was removed.
