@@ -1812,7 +1812,7 @@ def blog_index():
         # Build from manifest
         articles = load_blog_index()
         cards_html = ""
-        for a in articles[:6]:  # Latest 6
+        for a in articles:  # newest first — show every published article
             # Escape all interpolated fields. index.json stores PLAIN TEXT excerpts;
             # emitting them raw is what previously leaked a literal "<p>" into every card.
             s_title = _esc(str(a.get("title", "")))
