@@ -301,6 +301,63 @@ with tempfile.TemporaryDirectory() as td:
         if saved_subs:
             subs_path.write_text(json.dumps(saved_subs), encoding="utf-8")
 
+    print("\n=== 10. subscriber actually gets UNLOCKED content (the whole point) ===")
+    # The business only works if paying gets access. Verify the pay -> success ->
+    # unlocked-content chain, not just that a row appeared in a JSON file.
+    CID3 = "cus_unlock_1"
+    mod.save_subscription(CID3, "monthly", "active",
+                          email="unlock@example.com", sub_id="sub_u1",
+                          period_end=1800000000)
+    real_key2 = mod.stripe.api_key
+    try:
+        # Logged in / paid: Pro content must NOT redirect to /pricing.
+        with mod.app.test_request_context("/", headers={"Cookie": f"stripe_customer={CID3}"}):
+            check("is_subscriber() true for paid customer", mod.is_subscriber() is True)
+
+        # Unpaid visitor: must be blocked.
+        with mod.app.test_request_context("/", headers={"Cookie": "stripe_customer=cus_nobody"}):
+            paid = mod.is_subscriber()
+        check("non-subscriber blocked", paid is False, f"returned {paid}")
+
+        r_pro = client.get("/pro", headers={"Cookie": f"stripe_customer={CID3}"},
+                           environ_overrides={"REMOTE_ADDR": "203.0.113.9"},
+                           follow_redirects=False)
+        check("/pro does NOT redirect a paying subscriber to /pricing",
+              r_pro.status_code == 200, f"HTTP {r_pro.status_code} (302 would mean locked out)")
+
+        # /api/pro_pick returns 404 when no pick has been published today - that
+        # is correct, not a lockout. What matters is that it is NOT a redirect
+        # to /pricing, which is what a blocked subscriber would get.
+        r_api = client.get("/api/pro_pick", headers={"Cookie": f"stripe_customer={CID3}"},
+                           environ_overrides={"REMOTE_ADDR": "203.0.113.9"},
+                           follow_redirects=False)
+        check("/api/pro_pick is not gated for a subscriber",
+              r_api.status_code != 302, f"HTTP {r_api.status_code}")
+
+        # Non-subscriber must be redirected to /pricing. follow_redirects must
+        # be OFF: the Flask test client follows 302s by default, which made a
+        # correctly-gated page look like an open one (200 after landing on
+        # /pricing) - a false alarm in the test, not a leak in the product.
+        # A brand-new client is required: the Flask test client keeps a cookie jar, so
+        # cookies set by the subscriber requests above would still be attached
+        # here and the "logged out" visitor would silently inherit a paid
+        # identity. Use a separate client so the visitor is genuinely anonymous.
+        anon = mod.app.test_client()
+        r_locked = anon.get("/pro", follow_redirects=False)
+        check("non-subscriber redirected away from /pro",
+              r_locked.status_code in (301, 302),
+              f"HTTP {r_locked.status_code}")
+        check("non-subscriber lands on /pricing",
+              r_locked.status_code == 302 and "/pricing" in r_locked.headers.get("Location", ""),
+              f"{r_locked.status_code} -> {r_locked.headers.get('Location')}")
+
+        r_api_locked = anon.get("/api/pro_pick", follow_redirects=False)
+        check("/api/pro_pick gated for anonymous visitor",
+              r_api_locked.status_code in (301, 302),
+              f"HTTP {r_api_locked.status_code}")
+    finally:
+        mod.stripe.api_key = real_key2
+
 print("\n" + "=" * 62)
 failed = [r for r in results if not r[1]]
 print(f"{len(results) - len(failed)}/{len(results)} checks passed")

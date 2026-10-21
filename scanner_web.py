@@ -863,15 +863,26 @@ def _stripe_validate_active(customer_id: str) -> bool:
         for s in subs.data:
             if s.status in ('active', 'trialing'):
                 is_active = True
-                # Refresh local cache so we don't keep hitting API
+                # Rebuild the local record whenever Stripe says active.
+                #
+                # This used to refresh ONLY when a record already existed, so a
+                # customer whose record was lost (redeploy wipes the container
+                # disk) stayed broken forever: Stripe knew they paid, we asked
+                # Stripe, Stripe said yes - and then we saved nothing and every
+                # later call re-asked. Now a missing record is reconstructed
+                # from the live subscription, so access self-heals.
                 subs_local = get_subscriptions()
-                if customer_id in subs_local:
-                    plan = subs_local[customer_id].get('plan', 'monthly')
-                    period_end = s.current_period_end if hasattr(s, 'current_period_end') else None
-                    save_subscription(
-                        customer_id, plan, 'active',
-                        email=subs_local[customer_id].get('email'),
-                        sub_id=s.id,
+                existing = subs_local.get(customer_id) or {}
+                plan = existing.get('plan')
+                if not plan:
+                    m = (getattr(s, 'metadata', None) or {}) if not isinstance(s, dict) \
+                        else (s.get('metadata') or {})
+                    plan = (m or {}).get('plan', 'monthly')
+                period_end = _plain(s).get('current_period_end')
+                save_subscription(
+                    customer_id, plan, 'active',
+                    email=existing.get('email'),
+                    sub_id=_plain(s).get('id'),
                         period_end=period_end,
                     )
                 break
@@ -1405,7 +1416,59 @@ a.secondary {{ color: #58a6ff; text-decoration: none; font-size: 0.9em; display:
         resp.set_cookie("stripe_customer", customer_id, max_age=86400*30, httponly=True, samesite='Lax')
         return resp
     except Exception as e:
-        return f"<h1>Payment received but there was a problem activating your account</h1><p>Please email support@aismarketcap.com with your receipt. Error: {e}</p>", 200
+        # A paying customer must never dead-end here. Money is already taken,
+        # so this screen has to offer a real way forward, not just an apology.
+        # Two things went wrong for real customers at once:
+        #   1. the StripeObject .get() crash (fixed in _plain)
+        #   2. Railway wiping subscriptions.json on redeploy, which left a paid
+        #      customer with no record and no cookie
+        # We now still grant the cookie when we know WHO paid, and point them
+        # to /account, which re-checks Stripe live and can re-create the record.
+        print(f"[Success] ACTIVATION FAILED for session={session_id}: {e}")
+        import traceback
+        traceback.print_exc()
+
+        body = f"""<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><title>Almost there - AI Market Cap</title>
+<style>
+body {{ font-family: Segoe UI, sans-serif; background: #0d1117; color: #fff; display: flex;
+       align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 24px;
+       text-align: center; }}
+.box {{ max-width: 560px; }}
+h1 {{ color: #f0883e; font-size: 1.7em; margin: 0 0 8px; }}
+p {{ color: #8b949e; font-size: 1.03em; line-height: 1.55; margin: 14px 0; }}
+a.btn {{ background: #2ea043; color: #fff; padding: 14px 32px; border-radius: 8px;
+         text-decoration: none; font-weight: bold; display: inline-block; margin: 10px 6px 0; }}
+a.btn2 {{ background: #1f6feb; color: #fff; padding: 13px 28px; border-radius: 8px;
+          text-decoration: none; font-weight: bold; display: inline-block; margin: 10px 6px 0; }}
+.note {{ background: #161b22; border: 1px solid #30363d; border-radius: 10px;
+         padding: 14px; margin-top: 26px; font-size: 0.88em; color: #c9d9d0; }}
+.err {{ color: #6e7681; font-size: 0.8em; margin-top: 14px; word-break: break-word; }}
+</style></head><body><div class="box">
+<h1>Your payment went through</h1>
+<p>We hit a problem finishing the last step of your activation. <strong>Your payment
+is safe and your subscription is active in Stripe</strong> - this is our bug, not yours,
+and we're on it.</p>
+<p>Use the button below and your access will be confirmed from Stripe and repaired
+automatically.</p>
+<a class=btn href="/account?repair=1">Restore My Access →</a>
+<a class=btn2 href="/">Back to Home</a>
+<div class=note>Nothing was charged twice. If the button does not work, email
+support@aismarketcap.com with your receipt and we'll fix it by hand.</div>
+<div class=err>Reference: {session_id or 'unknown'} &middot; {e}</div>
+</div></body></html>"""
+
+        resp = make_response(body, 200, {"Content-Type": "text/html; charset=utf-8"})
+        # If we identified the payer before failing, hand them the cookie
+        # anyway: /account then revalidates against Stripe and rebuilds the
+        # missing local record. Far better than stranding a paying customer.
+        try:
+            if customer_id:
+                resp.set_cookie("stripe_customer", customer_id,
+                                max_age=86400 * 30, httponly=True, samesite='Lax')
+        except Exception:
+            pass
+        return resp
 
 
 # ===== PASSWORD AUTH =====================================================
