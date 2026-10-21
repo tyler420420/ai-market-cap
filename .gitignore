@@ -65,3 +65,14 @@ scan_guard_skip.txt
 test_scanner.html
 # Written by content_pipeline\run_daily.bat (Blogger lane). Log only.
 traffic_publish.log
+
+# ===== Blogger lane backups (Blogger lane) =====
+# content_pipeline\_bk_20261020\ holds pre-scrub copies of scanner_web.py and
+# blog_to_railway.py. scanner_web.py is the live Flask app name, so any bare
+# `import scanner_web` resolving into this directory would load a stale copy
+# containing retired X routes — the exact failure class of the stale-import
+# bug found in verify_routes.py. Untracked and unreferenced, but kept ignored
+# so it can never be committed and become a real import target.
+content_pipeline/_bk_*/
+# Blogger lane verifier output written by run_daily.bat. Log only.
+verify_blogger_lane.out
