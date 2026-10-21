@@ -671,7 +671,38 @@ def generate_html_report(stocks: list, output_path: str):
     _SYM = 'color:#ffd700;font-size:1em;font-weight:bold;text-decoration:none'
     _SUB = 'color:#c9d1d9;font-size:0.68em'
 
-    def _trend_card(label, sym, sub, link):
+    # Tyler 2026-10-21: "these should be +- on the percents", with the target
+    # layout he pasted:
+    #     TRENDING METAL    KGC  $23.64  · +0.38% 5d
+    #     TRENDING UTILITY  USO  $160.61 · +6.34% 5d
+    #     TRENDING ETF      NERD $23.41  · +2.42% 5d
+    # So: ONE line under the ticker - price, a middot, then the signed
+    # 5-day percent. The sign is always printed (+/-), and it is tinted using
+    # the ticker strip's existing palette (.ticker-up #00ff88 / .ticker-dn
+    # #ff6b6b) so direction is readable at a glance. An earlier pass tried a
+    # bare unsigned ± band instead; Tyler corrected that - he wants the sign,
+    # because the sign IS the direction information.
+    _UP, _DOWN = '#00ff88', '#ff6b6b'
+
+    def _quote_line(entry):
+        """'$23.64 · +0.38% 5d' with the percent tinted by direction.
+
+        Returns '' when there is no usable data, so the card degrades to the
+        label alone rather than printing a fabricated 0.00%.
+        """
+        if not entry or not entry.get('ticker'):
+            return None
+        px = entry.get('price', 0)
+        ch = entry.get('change_5d')
+        px_s = f'${px:.2f}' if px else '$--'
+        if ch is None:
+            return f'<span style="color:#c9d1d9">{px_s}</span>'
+        col = _UP if ch >= 0 else _DOWN
+        return (f'<span style="color:#c9d1d9">{px_s}</span>'
+                f'<span style="color:#6e7681"> &middot; </span>'
+                f'<span style="color:{col};font-weight:bold">{ch:+.2f}% 5d</span>')
+
+    def _trend_card(label, sym, sub, link, quote=''):
         if not sym:
             return (
                 f'<div style="{_CARD_CSS}">'
@@ -681,22 +712,20 @@ def generate_html_report(stocks: list, output_path: str):
             )
         anchor = (f'<a href="{link}" target="_blank" rel="noopener noreferrer" '
                   f'style="{_SYM}">{sym}</a>')
+        sub_html = f'<div style="{_SUB}">{sub}</div>' if sub else ''
+        # An IPO has no market price and no 5-day history yet, so it gets no
+        # quote line. Emit nothing rather than an empty div, or the card row
+        # picks up four elements for three lines of text.
+        quote_html = (f'<div style="{_SUB};margin-top:2px">{quote}</div>'
+                      if quote else '')
         return (
             f'<div style="{_CARD_CSS}">'
             f'<div style="{_LBL}">&#128293; {label}</div>'
             f'{anchor}'
-            f'<div style="{_SUB}">{sub}</div></div>'
+            f'{sub_html}'
+            f'{quote_html}'
+            f'</div>'
         )
-
-    def _mover(entry):
-        """'$52.30 | +3.41% 5d' from a momentum dict, or '' if unusable."""
-        if not entry or not entry.get('ticker'):
-            return None
-        px = entry.get('price', 0)
-        ch = entry.get('change_5d', 0)
-        px_s = f'${px:.2f}' if px else '$--'
-        ch_s = f'{ch:+.2f}% 5d' if ch else 'N/A'
-        return f'{px_s} | {ch_s}'
 
     def _yahoo(sym):
         return f'https://finance.yahoo.com/quote/{sym}/'
@@ -706,7 +735,8 @@ def generate_html_report(stocks: list, output_path: str):
         'flex-wrap:wrap;max-width:1000px;margin:0 auto">'
     )
 
-    # 1. TRENDING IPO - the soonest upcoming IPO is the "trending" one.
+    # 1. TRENDING IPO - the soonest upcoming IPO is the "trending" one. An IPO
+    #    has no market price yet, so it carries no change figure by design.
     _ipo = real_ipos[0] if real_ipos else {}
     ipo_card_html += _trend_card(
         'TRENDING IPO',
@@ -718,20 +748,23 @@ def generate_html_report(stocks: list, output_path: str):
     # 2. TRENDING METAL - gold/silver/platinum/copper/miners by 5d momentum.
     ipo_card_html += _trend_card('TRENDING METAL',
                                  (top_metal.get('ticker') if top_metal else ''),
-                                 _mover(top_metal),
-                                 _yahoo(top_metal.get('ticker', '')) if top_metal else '#')
+                                 None,
+                                 _yahoo(top_metal.get('ticker', '')) if top_metal else '#',
+                                 _quote_line(top_metal))
 
     # 3. TRENDING UTILITY - oil/gas/energy + regulated utilities by 5d momentum.
     ipo_card_html += _trend_card('TRENDING UTILITY',
                                  (top_utility.get('ticker') if top_utility else ''),
-                                 _mover(top_utility),
-                                 _yahoo(top_utility.get('ticker', '')) if top_utility else '#')
+                                 None,
+                                 _yahoo(top_utility.get('ticker', '')) if top_utility else '#',
+                                 _quote_line(top_utility))
 
     # 4. TRENDING ETF - AI/tech ETF by 5d momentum (existing behaviour).
     ipo_card_html += _trend_card('TRENDING ETF',
                                  (trending.get('ticker') if trending else ''),
-                                 _mover(trending),
-                                 _yahoo(trending.get('ticker', '')) if trending else '#')
+                                 None,
+                                 _yahoo(trending.get('ticker', '')) if trending else '#',
+                                 _quote_line(trending))
 
     ipo_card_html += '</div>'
     html += '<div class=header><div class=hdr-row>'
