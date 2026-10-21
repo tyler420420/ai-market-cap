@@ -922,23 +922,19 @@ def cron_afternoon():
         return f"Check error: {e}", 200
 
 
-@app.route("/cron-twitter")
-def cron_twitter():
-    """Post top 6 picks to Twitter. Hit by cron-job.org after morning scan."""
-    def do_twitter():
-        try:
-            sys.path.insert(0, str(Path(__file__).parent))
-            from x_poster import post_daily_scan_to_twitter
-            post_daily_scan_to_twitter()
-        except Exception as e:
-            print(f"[Cron-Twitter] Error: {e}")
-    threading.Thread(target=do_twitter, daemon=True).start()
-    return "Twitter post triggered", 200
+# RETIRED 2026-10-20: the /cron-twitter route was removed.
+#
+# It was a public GET endpoint on the DEPLOYED site that spawned a thread and
+# called x_poster.post_daily_scan_to_twitter(), posting the day's picks to X.
+# It was hit by cron-job.org after the morning scan, which meant any external
+# GET - not just the intended caller - could trigger a post. Tyler retired the
+# X channel entirely, so the route is gone rather than merely disabled.
+# Do not reintroduce an X/Twitter posting path in this app.
 
 
 @app.route("/cron-price-alerts")
 def cron_price_alerts():
-    """Disabled - alerts consume too many Twitter API credits."""
+    """Disabled - alerts consume too many social API credits."""
     return "Alerts disabled", 200
 
 # ===== WEB ROUTES =====
