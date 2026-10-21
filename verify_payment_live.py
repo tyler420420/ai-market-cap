@@ -68,9 +68,21 @@ CHECKOUT_CACHE_TTL = 3600
 CACHE_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                           ".checkout_probe_cache.json")
 
-# Well-formed shape, guaranteed not to exist. Checkout session ids look like
-# cs_live_ followed by base62. The middle is deliberately nonsense.
-BOGUS_SESSION = "cs_live_00000000000000000000000000NONEXISTENTPROBE000000000000000000000000000000"
+# Well-formed shape, guaranteed not to exist, and within Stripe's 66-char limit.
+#
+# LENGTH MATTERS, learned the hard way. An earlier probe id ran past 66 chars,
+# so stripe.checkout.Session.retrieve rejected it outright ("Invalid string:
+# must be at most 66 characters"). The old build's except branch then rendered
+# the same "Payment received but there was a problem" apology - so the probe
+# still saw the lie, but for a reason that had nothing to do with the defect it
+# was meant to expose. One run also briefly showed that check PASSING, which
+# was just that transient path, not progress.
+#
+# A probe that triggers a validation error is testing Stripe's input validation
+# instead of our code. This one is well-formed and nonexistent, so every build
+# takes its real path: the old build tries to activate a session that does not
+# exist and says so, the fixed build verifies and reports honestly.
+BOGUS_SESSION = "cs_live_" + "0" * 30 + "NONEXISTENTPROBE000000"
 
 # The sentence that must NEVER appear on an unpaid session. This is the exact
 # wording of the old build. Substring match, case-insensitive, so a cosmetic

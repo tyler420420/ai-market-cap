@@ -88,6 +88,16 @@ check("the probe session id is well-formed",
 check("the probe session id is obviously fake",
       "NONEXISTENTPROBE" in vpl.BOGUS_SESSION,
       "cannot collide with a real customer's session")
+# Stripe rejects checkout session ids longer than 66 characters. An earlier
+# probe id ran to 110 chars, so Session.retrieve threw a validation error and
+# the OLD build rendered its apology through that error path - the probe was
+# exercising Stripe's input validation, not the code it meant to test. It even
+# produced one run where the lie check spuriously PASSED, which is how a probe
+# bug can masquerade as a deployment.
+check("probe session id is within Stripe's 66-char limit",
+      len(vpl.BOGUS_SESSION) <= 66,
+      f"len={len(vpl.BOGUS_SESSION)}; over-length ids fail validation before "
+      f"reaching our code")
 
 print("\n=== checkout probe must not mint real Stripe sessions every run ===")
 # This guard runs twice a day from daily_scan.ps1. Probing /create-checkout
