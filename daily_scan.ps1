@@ -254,6 +254,28 @@ try {
     }
     Log "[AUTH] Auth invariants hold"
 
+    # ---- 3d. visitor baseline sync ----------------------------------------
+    # Railway wipes its container filesystem on every redeploy, so the live
+    # hit counter in scanner_web.py resets each time this script pushes. The
+    # all-time total would therefore snap back to ~0 after every deploy.
+    # visitor_baseline.json is committed and carries the total forward.
+    #
+    # The sync only ever moves the number UP, so a bad read cannot roll the
+    # total back. It is deliberately NON-FATAL: if the live endpoint is down
+    # the scan must still deploy its HTML. Failing closed here would take the
+    # whole site offline over an analytics counter.
+    $visSync = Join-Path $repo 'sync_visitor_baseline.py'
+    if (Test-Path $visSync) {
+        $vsOut = & $python $visSync 2>&1
+        $vsCode = $LASTEXITCODE
+        foreach ($line in ($vsOut | Select-Object -Last 3)) { Log "[VISITORS] $line" }
+        if ($vsCode -ne 0) {
+            Log "[VISITORS] WARN - baseline sync did not run (non-fatal)"
+        }
+    } else {
+        Log "[VISITORS] WARN - sync_visitor_baseline.py missing (non-fatal)"
+    }
+
     # ---- 4. desktop copy ---------------------------------------------------
     try {
         Copy-Item $html $desktop -Force
@@ -279,7 +301,7 @@ try {
         # git through a normal explicit commit.
         & $git add ai_earnings_today.html scanner_data.json ai_earnings_scanner.py `
                     ipo_etf_data.json pick_tracker.json daily_scan.ps1 `
-                    scanner_web.py 2>&1 | Out-Null
+                    scanner_web.py visitor_baseline.json 2>&1 | Out-Null
 
         $staged = $false
         & $git diff --cached --quiet
