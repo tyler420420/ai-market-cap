@@ -339,6 +339,22 @@ def favicon_png():
 def apple_touch_icon():
     return _serve_icon('favicon.png', 'image/png')
 
+# ===== INDEXNOW =====
+# IndexNow (https://www.indexnow.org) is the supported replacement for the
+# retired anonymous sitemap pings - google.com/ping now returns 404 and
+# bing.com/ping returns 410. Bing and its partners fetch the verification key
+# from this URL before trusting any submission, so it must be publicly
+# readable and must stay identical to indexnow_key.txt.
+@app.route('/indexnow_key.txt')
+def indexnow_key():
+    key_file = Path(__file__).parent / "indexnow_key.txt"
+    if not key_file.exists():
+        return ("indexnow key not configured", 404)
+    resp = make_response(key_file.read_text(encoding="utf-8").strip())
+    resp.headers['Content-Type'] = 'text/plain; charset=utf-8'
+    resp.headers['Cache-Control'] = 'public, max-age=3600'
+    return resp
+
 # ===== STOCK PAGES — aismarketcap.com/stock/TICKER =====
 STOCK_PAGES_DIR = Path(__file__).parent / "stock_pages"
 
