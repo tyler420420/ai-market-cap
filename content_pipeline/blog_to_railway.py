@@ -74,7 +74,6 @@ def build_article_html(article, slug):
 <meta property="og:title" content="{title}">
 <meta property="og:description" content="{meta_desc}">
 <meta property="og:type" content="article">
-<meta name="twitter:card" content="summary_large_image">
 <style>
 * {{ margin: 0; padding: 0; box-sizing: border-box; }}
 body {{
