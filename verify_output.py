@@ -21,6 +21,59 @@ HTML = os.path.join(os.path.dirname(os.path.abspath(__file__)),
 failures = []
 notes = []
 
+# The four trending cards, in render order. One shared style string, so they
+# are adjacent and can be sliced apart without parsing HTML.
+CARD_LABELS = ("TRENDING IPO", "TRENDING METAL", "TRENDING UTILITY", "TRENDING ETF")
+
+# A card is at most ~400 chars of markup from its label onward. Bounding the
+# window keeps the last card (TRENDING ETF, followed by the rest of the page)
+# from sweeping up an unrelated <a> from the scanner table below it.
+CARD_WINDOW = 600
+
+
+def card_block(html, label):
+    """Markup belonging to one trend card: from its label to the next label.
+
+    Cards are emitted adjacently with one shared style string, so slicing from
+    one label to the next isolates a single card. Capped at CARD_WINDOW so the
+    final card cannot run on into the scanner table and borrow its anchor.
+    """
+    i = html.find(label)
+    if i < 0:
+        return ""
+    rest = html[i + len(label):]
+    stops = [p for p in (rest.find(l) for l in CARD_LABELS) if p >= 0]
+    nxt = min(stops) if stops else CARD_WINDOW
+    return rest[:min(nxt, CARD_WINDOW)]
+
+
+def card_populated(block):
+    """True when a card renders a real company/symbol link.
+
+    WHY THIS REPLACED A NAME LIST. The guard used to assert that one of
+    "Stripe", "Databricks", "Canva" appeared in the page. Those are FALLBACK
+    companies, used only when stockanalysis.com returns an empty calendar. So
+    the check passed on the fallback path and FAILED whenever the real scrape
+    succeeded and rendered a real company - which is the good outcome. That
+    inverted the guard: on 2026-10-21 both daily scans refused to deploy
+    perfectly good HTML because the IPO scrape started working.
+
+    The real invariant is structural: a populated card has an anchor with
+    non-empty text and a real href. An unpopulated card renders the literal
+    string "No data" with no anchor at all (see _trend_card in
+    ai_earnings_scanner.py). This catches that without caring whether the
+    company came from the scrape or the fallback.
+    """
+    m = re.search(r'<a\s[^>]*href="([^"]*)"[^>]*>([^<]*)</a>', block)
+    if not m:
+        return False, "no anchor rendered (card rendered its empty state)"
+    href, text = m.group(1).strip(), m.group(2).strip()
+    if not text or text.lower() in ("no data", "n/a", "-", "tbd"):
+        return False, f"anchor text is {text!r}"
+    if not href or href.startswith("#") or href.lower().startswith("javascript"):
+        return False, f"anchor href is {href!r}"
+    return True, f"{text} -> {href}"
+
 
 def check(name, condition, detail=""):
     if condition:
@@ -85,15 +138,26 @@ def main():
           td_count > 0 and dl_count == td_count,
           f"{td_count - dl_count} td(s) missing data-label -> mobile cards break")
 
-    print("\n=== IPO cards ===")
-    # These regressed when a scan ran while stockanalysis.com returned an
-    # empty calendar AND the fallback list failed to apply. The section
-    # rendered its "No upcoming IPOs" placeholder instead of real companies.
-    ipo_names = ["Stripe", "Databricks", "Canva"]
-    present = [n for n in ipo_names if n in c]
-    check(f"IPO cards populated ({len(present)}/3: {', '.join(present)})",
-          len(present) >= 1,
-          "no IPO companies rendered - fetch returned empty and fallback failed")
+    print("\n=== Trending cards ===")
+    # Each of the four cards must render a real link. The old check asserted a
+    # hardcoded list of FALLBACK company names, so it passed on the fallback
+    # path and failed the moment the live scrape worked - blocking good
+    # deploys. See card_populated() for the full account.
+    empty_cards = []
+    for label in CARD_LABELS:
+        blk = card_block(c, label)
+        if not blk:
+            check(f"{label} card present", False, "card label not found at all")
+            empty_cards.append(label)
+            continue
+        ok, why = card_populated(blk)
+        check(f"{label} card populated", ok, why)
+        if not ok:
+            empty_cards.append(label)
+    check("all four trending cards populated", not empty_cards,
+          f"empty or missing: {', '.join(empty_cards)}")
+    # The historical regression this guard exists for: an empty scrape AND a
+    # failed fallback used to render a placeholder instead of real companies.
     check("no 'No upcoming IPOs' placeholder", "No upcoming IPOs" not in c,
           "the empty-state placeholder shipped instead of real IPOs")
 
