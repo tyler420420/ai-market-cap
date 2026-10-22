@@ -1,52 +1,52 @@
 [
   {
-    "date": "2026-10-21",
+    "date": "2026-10-22",
     "ticker": "PANW",
-    "price": 347.25,
+    "price": 364.24,
     "score": 94,
-    "days_left": 29,
-    "company": "Palo Alto Networks, Inc.",
-    "pe_target": 360.15,
-    "5d_target": 411.75
-  },
-  {
-    "date": "2026-10-21",
-    "ticker": "INTU",
-    "price": 335.61,
-    "score": 79,
-    "days_left": 29,
-    "company": "Intuit Inc.",
-    "pe_target": 345.4,
-    "5d_target": 384.56
-  },
-  {
-    "date": "2026-10-21",
-    "ticker": "BIDU",
-    "price": 78.82,
-    "score": 86,
     "days_left": 28,
+    "company": "Palo Alto Networks, Inc.",
+    "pe_target": 380.48,
+    "5d_target": 445.44
+  },
+  {
+    "date": "2026-10-22",
+    "ticker": "INTU",
+    "price": 340.25,
+    "score": 80,
+    "days_left": 28,
+    "company": "Intuit Inc.",
+    "pe_target": 352.39,
+    "5d_target": 400.95
+  },
+  {
+    "date": "2026-10-22",
+    "ticker": "BIDU",
+    "price": 78.13,
+    "score": 86,
+    "days_left": 27,
     "company": "Baidu, Inc.",
-    "pe_target": 80.98,
-    "5d_target": 89.62
+    "pe_target": 80.29,
+    "5d_target": 88.93
   },
   {
-    "date": "2026-10-21",
+    "date": "2026-10-22",
     "ticker": "NVDA",
-    "price": 221.97,
-    "score": 95,
-    "days_left": 27,
+    "price": 218.22,
+    "score": 98,
+    "days_left": 26,
     "company": "NVIDIA Corporation",
-    "pe_target": 226.89,
-    "5d_target": 246.57
+    "pe_target": 224.57,
+    "5d_target": 249.97
   },
   {
-    "date": "2026-10-21",
+    "date": "2026-10-22",
     "ticker": "DIS",
-    "price": 111.83,
+    "price": 111.95,
     "score": 84,
-    "days_left": 27,
+    "days_left": 26,
     "company": "The Walt Disney Company",
-    "pe_target": 114.11,
-    "5d_target": 123.23
+    "pe_target": 114.23,
+    "5d_target": 123.35
   }
 ]

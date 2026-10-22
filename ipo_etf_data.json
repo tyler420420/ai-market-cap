@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-10-21T23:38:11.766932",
+  "fetched_at": "2026-10-22T06:34:45.192733",
   "ipos": [
     {
       "company": "Lycia Therapeutics, Inc.",
@@ -14,19 +14,19 @@
   "trending_etf": {
     "ticker": "WCLD",
     "name": "Citigroup US Cloud Leaders ETF",
-    "price": 44.73,
-    "change_5d": 3.85
+    "price": 45.21,
+    "change_5d": 7.43
   },
   "top_metal": {
     "ticker": "KGC",
     "name": "Kinross Gold Corp",
-    "price": 23.82,
-    "change_5d": 1.62
+    "price": 22.92,
+    "change_5d": 3.04
   },
   "top_utility": {
-    "ticker": "SLB",
-    "name": "SLB",
-    "price": 51.1,
-    "change_5d": 4.78
+    "ticker": "USO",
+    "name": "United States Oil Fund",
+    "price": 163.45,
+    "change_5d": 6.44
   }
 }
