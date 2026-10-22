@@ -159,24 +159,32 @@ def main():
           ("\\u25b2" in home or "\u25b2" in home or "\\u25bc" in home or "\u25bc" in home),
           "triangle sort arrows missing/mojibake")
 
-    # ---------- 5. IPO + ETF ----------
+    # ---------- 5. trending cards ----------
     print("\n=== Trending cards ===")
     # Structural check, not a fallback-name list. See card_populated().
-    empty_cards = []
+    #
+    # NOTE ON REPORTING. This audits the LIVE site, so when the deployed build
+    # predates the four gold cards every label is missing at once. That is one
+    # root cause, not four bugs, so it is reported as a single failure. The
+    # per-card lines are diagnostic detail printed underneath, not extra
+    # failures - otherwise one stale build buries real problems in noise.
+    missing, unpopulated = [], []
     for label in CARD_LABELS:
         blk = card_block(home, label)
         if not blk:
-            check(f"{label} card present", False, "card label not found at all")
-            empty_cards.append(label)
+            print(f"        {label}: label not present in the live HTML")
+            missing.append(label)
             continue
         ok, why = card_populated(blk)
-        check(f"{label} card populated", ok, why)
+        print(f"        {label}: {why}")
         if not ok:
-            empty_cards.append(label)
-    check("all four trending cards populated", not empty_cards,
-          f"empty or missing: {', '.join(empty_cards)}")
+            unpopulated.append(label)
+    all_bad = missing + unpopulated
+    check("four trending cards rendered and populated", not all_bad,
+          ("live build predates the trending cards (missing: "
+           + ", ".join(missing) + ")" if missing else
+           "card rendered its empty state (empty: " + ", ".join(unpopulated) + ")"))
     check("no 'No upcoming IPOs' placeholder", "No upcoming IPOs" not in home)
-    check("trending ETF card rendered", "TRENDING ETF" in home)
 
     # ---------- 6. favicon ----------
     print("\n=== Favicon ===")
