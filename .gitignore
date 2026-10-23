@@ -132,3 +132,6 @@ alert.env
 # Snapshots daily_scan.ps1 takes before any git command runs. Real
 # copies of uncommitted work, kept only in case a rebase discards it.
 pre_scan_backup_*
+# Capture of an unattended scan run (stdout+stderr). Written by
+# run_scan_task.ps1. Evidence for a failure that used to be silent.
+scheduled_run.log

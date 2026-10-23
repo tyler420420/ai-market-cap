@@ -14,6 +14,40 @@
 #   5. No visibility when things broke.
 #      -> daily_scan.log, last 30 runs kept.
 
+# ---- unattended-failure evidence --------------------------------------------
+# Both AIScannerDaily (13:00) and AIScannerDaily1 (06:31) invoke this script and
+# both were reporting LastTaskResult = 1 while writing ZERO lines to
+# daily_scan.log. An unattended failure therefore left no trace at all, and
+# nothing noticed because the site keeps serving the previous day's HTML until
+# someone runs the scan by hand.
+#
+# Whatever killed those runs happened BEFORE the first Log call, so the evidence
+# has to be established before anything else. This block records entry, and the
+# trap below records any terminating error with its line number and stack trace.
+#
+# It lives inside the script rather than in a wrapper because Set-ScheduledTask
+# requires administrator rights (this account gets HRESULT 0x80070005), so a
+# capturing wrapper could not be pointed at the task.
+$__scanLog = 'C:\Users\Tyler_AI\ai-market-cap\daily_scan.log'
+$__runTag  = (Get-Date -Format 'yyyy-MM-dd HH:mm:ss')
+try {
+    Add-Content -Path $__scanLog -Value "[$__runTag] [BOOT] daily_scan.ps1 entered (pid $PID)"
+} catch {
+    # Never let the evidence block itself become the reason a scan dies.
+}
+trap {
+    $__err  = $_.Exception.Message
+    $__line = $_.InvocationInfo.ScriptLineNumber
+    $__at   = $_.InvocationInfo.Line.Trim()
+    try {
+        Add-Content -Path $__scanLog -Value "[$__runTag] [FATAL] unhandled error at line ${__line}: $__err"
+        Add-Content -Path $__scanLog -Value "           source: $__at"
+        Add-Content -Path $__scanLog -Value ($_.ScriptStackTrace)
+    } catch { }
+    Write-Host "[FATAL] daily_scan.ps1 line ${__line}: $__err"
+    exit 1
+}
+
 $ErrorActionPreference = 'Stop'
 
 $repo      = 'C:\Users\Tyler_AI\ai-market-cap'
