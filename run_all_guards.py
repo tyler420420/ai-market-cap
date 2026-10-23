@@ -24,7 +24,7 @@ NAMES = [
     'verify_growth', 'verify_labels', 'verify_trending_cards',
     'verify_sentiment', 'verify_routes', 'verify_support_path',
     'verify_cwd_independence', 'verify_subscriber_gate',
-    'verify_signup_counter', 'verify_signup_copy',
+    'verify_signup_counter', 'verify_signup_copy', 'verify_signup_durability',
 ]
 
 ok = 0

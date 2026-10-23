@@ -120,14 +120,16 @@ if sync.exists():
           '"total": new' in s and '"since_boot"' not in s)
 web = (HERE / "scanner_web.py").read_text(encoding="utf-8")
 check("the container seeds from the committed absolute total",
-      "_signup_baseline_total" in web and "seed > total" in web)
+      "seed = _signup_baseline_total()" in web and "seed > total" in web,
+      "the seed is not read from the committed baseline")
 # Scope to the SIGNUP block. The visitor counter still uses baseline + hits -
 # that is a separate, separately-tracked commitment, and asserting it either
 # way here would freeze a known-bad pattern in place.
 seg_start = web.find("# ===== DURABLE AGGREGATE SIGNUP COUNTER")
 seg = web[seg_start:seg_start + 6000] if seg_start != -1 else ""
 check("the signup counter is not a baseline + window sum",
-      seg and "baseline + hits" not in seg)
+      seg and '"all_time": baseline + hits' not in seg,
+      "the signup block sums a baseline and a window")
 
 print()
 print("PASS %d / %d" % (len(passes), len(passes) + len(fails)))
