@@ -51,32 +51,64 @@ Nobody transcribes a whole transcript.
 
 ---
 
-## The funnel as measured on 2026-10-23 (baseline)
+## The funnel as measured on 2026-10-23 08:10 PT (baseline)
 
 | link | value | note |
 |---|---|---|
-| followers | 114 | Bluesky, 6 days old, ~19/day average, decelerating to ~12/day |
-| views | 121 | all-time page views |
+| followers | 114 | Bluesky, 6 days old, ~19/day average, decelerating to ~12/day. Flat. |
+| views | 382 | **not a trustworthy number** — see "the counter counts our own tooling" below |
 | users | **UNKNOWN** | blind spot: export is 403, no EMAIL_EXPORT_TOKEN on Railway |
-| subscribers | 1 | one paying person; he holds 2 subscriptions on 1 email |
-| mrr | $10 | |
+| subscribers | 1 | one paying person; he holds 2 subscriptions on 1 email. Flat. |
+| mrr | $10 | Flat. |
+
+Two numbers in that table are worse than they look, and a meeting that trusts
+them will chase the wrong thing.
+
+**The views counter counts our own tooling.** Measured 2026-10-23: one browser-UA
+GET of the homepage adds **7 hits** to the "human page views" number. 76 scripts
+in this repo hit the live domain and 31 of them send a real Chrome User-Agent,
+so our own audits are the largest single source of views. The +261 views on
+2026-10-23 (121 -> 382) is mostly us. The honest read of that day is 22 unique
+visitor buckets, and our own machine is one of them.
+
+**The views counter also double-counts.** `all_time = baseline + since_boot`,
+and `sync_visitor_baseline.py` writes the live `all_time` straight back into
+the baseline without resetting `since_boot`, so every sync folds the live
+counter into the floor a second time. The true all-time is lower than reported.
+
+**Signups are captured and then destroyed.** `email_list.json` is gitignored
+(PII rule), so it lives only on the container and dies with every Railway
+deploy. The hourly `pull_email_list.py` has never succeeded because
+`EMAIL_EXPORT_TOKEN` is not set on the service. The free-alert drip is wired
+and gated on that same token, so it has never sent anything. The pipeline from
+"a human signs up" to "a reachable, emailable, convertible lead" is built and
+switched off at exactly one variable.
 
 ### What this baseline already says
 
-**The chain is severed at link 1 → link 2.** 114 followers and 121 all-time
-views is not a funnel, it is a coincidence — and the reason is structural: the
-Bluesky account posts zero links, by standing safety policy. An audience with no
-doorway cannot become traffic. That is a policy decision, not a bug, and it
-belongs to Tyler.
+**The chain is severed at link 1 → link 2.** 114 followers and a views number
+that is mostly our own tooling is not a funnel, it is a coincidence — and the
+reason is structural: the Bluesky account posts zero links, by standing safety
+policy. An audience with no doorway cannot become traffic. That is a policy
+decision, not a bug, and it belongs to Tyler.
 
 **Second: replies earn zero replies back.** CMO measured 73 consecutive posts
 with 0 replies received. The account broadcasts and nobody talks back, so
 nothing compounds.
 
-**Third: the middle of the funnel is unmeasured.** Signups are being captured
-into an ephemeral container disk and destroyed on every deploy. We cannot say
-whether it is 0 people or 900 people. That is the highest-priority *unknown*,
-because growth work upstream of a blind middle is guessing.
+**Third, and this is the constraint as of 2026-10-23: the middle of the funnel
+is unmeasured.** Signups are captured into a gitignored file and destroyed on
+every deploy. We cannot say whether it is 0 people or 900 people. That is the
+highest-priority *unknown*, because growth work upstream of a blind middle is
+guessing: "no traffic" and "traffic that does not convert" need opposite fixes
+in opposite lanes, and the funnel table cannot tell them apart.
+
+The unblock for the blind middle is small and mostly sits with Tyler: one
+`EMAIL_EXPORT_TOKEN` value, already in `alert.env`, pasted into the Railway
+service. That opens the export (403 → 200), lets the hourly pull write the
+durable local list, and satisfies the one-click-unsubscribe gate that is
+currently holding the drip closed. The part that is *not* Tyler's is making
+the count survive a deploy, which is the current commitment (2026-10-23-b).
 
 ---
 

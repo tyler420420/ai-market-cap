@@ -12,7 +12,26 @@
       "measurable_by": "/api/visitors returns a per-source breakdown with non-zero counts that can be attributed to a known referrer. 'Unknown source' for 100% of views means the hook did not fire and that is itself the finding.",
       "due": "2026-10-24",
       "status": "open",
-      "note": "Do NOT add tracking pixels or third-party analytics. This is first-party referrer grouping on data we already collect. No new vendor, no cookie, nothing that needs consent."
+      "note": "Do NOT add tracking pixels or third-party analytics. This is first-party referrer grouping on data we already collect. No new vendor, no cookie, nothing that needs consent.",
+      "landing_check": {
+        "checked": "2026-10-23T15:10:04+00:00",
+        "landed": false,
+        "measurable": false,
+        "finding": "NOT LANDED. Live /api/visitors returns {all_time, baseline, since_boot, today, today_hits, last7, note} - no source field. grep for referrer in scanner_web.py returns nothing. Due 2026-10-24, so not yet late; CTO names it as his next measurable number. ESCALATED, not replaced: a source breakdown on today's counter would describe our own tooling, because one browser-UA GET of the homepage adds 7 hits to the 'human page views' number. The honest-counter fix is now a prerequisite for this one."
+      }
+    },
+    {
+      "id": "2026-10-23-b",
+      "meeting": "2026-10-23",
+      "owner": "CTO",
+      "owner_session": "mvs_41a119d03ae849d59a2cdecd57e77d10",
+      "constraint": "The users link is a black hole. Free signups are captured into email_list.json, which .gitignore excludes, so every captured signup is destroyed on the next Railway redeploy, and the hourly pull has never succeeded because EMAIL_EXPORT_TOKEN is not set on the service (live export is HTTP 403). We cannot tell whether 0 people or 900 people have ever signed up. Meanwhile the one number that looks like traffic - 382 views, +261 today - is mostly our own audit tooling: one browser-UA GET of the homepage adds 7 hits to the human-view counter.",
+      "deliverable": "Make the users link measurable and deploy-durable: at signup time maintain a PII-free aggregate signup counter that survives a Railway redeploy (same pattern as the git-tracked visitor_baseline.json), and have measure_funnel.py report that integer instead of UNKNOWN.",
+      "why": "The blind middle collapses two opposite diagnoses into one guess - no traffic, or traffic that does not convert - and they need opposite fixes in different lanes. Three of four lanes reported the same thing today: they cannot see. This also proves or disproves a live leak: signups captured right now may be destroyed by the next deploy, and we would never know.",
+      "measurable_by": "python measure_funnel.py prints an integer for users, not UNKNOWN, and that integer is identical before and after a redeploy. If it prints 0, that is a measured fact rather than an unknown, and the round table can attack traffic instead of guessing. A counter that reads UNKNOWN after this work has landed was not finished.",
+      "due": "2026-10-24",
+      "status": "open",
+      "note": "Aggregate counts only - no addresses, and no hashes of addresses (a salted SHA-256 of an email is still brute-forceable, so it counts as PII and stays out of the repo). Do not send any email. Do not set EMAIL_EXPORT_TOKEN on Railway yourself - that paste is Tyler's, and it flips the signup form to promise delivery, so it must land after a durable counter exists. Do not read users from /api/email-list-export for the table: that endpoint reads the container's ephemeral copy and would report near-zero even when real signups exist on Tyler's machine."
     }
   ]
 }
