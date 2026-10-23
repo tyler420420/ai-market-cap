@@ -466,6 +466,43 @@ def analyze_ticker(ticker: str, earnings_date, retries: int = 2) -> Optional[Ear
     return None
 
 
+def _metric_box(caption, value, sub, col):
+    """One labelled figure: caption, price, and a signed sub-note."""
+    return ('<div style="background:#0d1117;border:1px solid #30363d;border-radius:6px;'
+            'padding:6px 12px;text-align:center;min-width:70px">'
+            '<div style="font-size:0.68em;color:#8b949e;margin-bottom:2px">' + caption + '</div>'
+            '<div style="font-size:1em;color:' + col + ';font-weight:bold">$'
+            + '{:,.0f}'.format(value) + '</div>'
+            '<div style="font-size:0.68em;color:' + col + '">' + sub + '</div>'
+            '</div>')
+
+
+def _direction_row(side, col, entry, ups, stop, stop_note):
+    """One trade direction: ENTRY, 3-DAY, 7-DAY, 14-DAY, STOP.
+
+    `ups` is the signed implied move for each horizon. Positive renders with a
+    leading +, negative renders as a plain minus, so a SHORT row never shows a
+    "+" on a number that is actually a loss.
+
+    A horizon with no data is omitted rather than rendered as $0. Options
+    chains fail for individual tickers, and a $0 target reads as a real price.
+    """
+    out = ('<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;'
+           'width:100%;margin-top:8px">')
+    out += ('<span style="font-size:0.82em;font-weight:bold;color:' + col +
+            ';min-width:52px">' + side + '</span>')
+    out += _metric_box('ENTRY', entry, '@ now', '#e6edf3')
+    for caption, up in (('3D TGT', ups[0]), ('7D TGT', ups[1]), ('14D TGT', ups[2])):
+        if not up:
+            continue
+        out += _metric_box(caption, entry * (1 + up / 100),
+                           ('+' if up > 0 else '') + str(round(up, 1)) + '%', col)
+    if stop:
+        out += _metric_box('STOP', stop, stop_note, '#ff6b6b')
+    out += '</div>'
+    return out
+
+
 def generate_html_report(stocks: list, output_path: str):
     import math
     timestamp = datetime.now(PT).strftime('%B %d, %Y at %I:%M %p PT')
@@ -492,14 +529,10 @@ def generate_html_report(stocks: list, output_path: str):
         # Compute pick2 derived values
         p2_entry = round(pick2.current_price, 2) if pick2.current_price else 0
         p2_upside = round(pick2.post_earnings_upside_pct, 1) if pick2.post_earnings_upside_pct else 0
-        p2_target = round(p2_entry * (1 + p2_upside / 100), 2) if p2_entry and p2_upside else 0
-        p2_3d_target = round(pick2.post_earnings_3d_target, 2) if pick2.post_earnings_3d_target else 0
         p2_3d_upside = round(pick2.post_earnings_3d_upside_pct, 1) if pick2.post_earnings_3d_upside_pct else 0
-        p2_5d_target = round(pick2.post_earnings_5d_target, 2) if pick2.post_earnings_5d_target else 0
         p2_5d_upside = round(pick2.post_earnings_5d_upside_pct, 1) if pick2.post_earnings_5d_upside_pct else 0
         p2_stop = round(p2_entry * 0.90, 2) if p2_entry else 0
         p2_earn_label = 'Today' if pick2.days_to_earnings == 0 else str(pick2.days_to_earnings)
-        p2_upside_str = f"+{p2_upside}%" if p2_upside else "N/A"
 
     # Build rows first
     rows_html = []
@@ -787,14 +820,12 @@ def generate_html_report(stocks: list, output_path: str):
     if pick:
         entry_price = round(pick.current_price, 2) if pick.current_price else 0
         target_upside = round(pick.post_earnings_upside_pct, 1) if pick.post_earnings_upside_pct else 0
-        target_price = round(entry_price * (1 + target_upside / 100), 2) if entry_price and target_upside else 0
-        stop_loss = round(entry_price * 0.90, 2) if entry_price else 0
-        upside_pct_str = f"+{target_upside}%" if target_upside else "N/A"
         pick_earn_label = 'Today' if pick.days_to_earnings == 0 else str(pick.days_to_earnings)
 
         # Compute extra targets
-        target_3d = round(pick.post_earnings_3d_target, 2) if pick.post_earnings_3d_target else 0
-        target_5d = round(pick.post_earnings_5d_target, 2) if pick.post_earnings_5d_target else 0
+        # post_earnings_upside_pct is the straddle x1 move, which the table
+        # and the methodology note both call the 3-DAY target.
+        upside_1d = target_upside
         upside_3d = round(pick.post_earnings_3d_upside_pct, 1) if pick.post_earnings_3d_upside_pct else 0
         upside_5d = round(pick.post_earnings_5d_upside_pct, 1) if pick.post_earnings_5d_upside_pct else 0
 
@@ -833,35 +864,30 @@ def generate_html_report(stocks: list, output_path: str):
         # with the values outside it would strip nothing and leak everything.
         html += '<!--PROVALUES-->'
         html += '<span style="font-size:0.78em;color:#8b949e;font-weight:bold;margin-right:4px">PRO:</span>'
-        if target_upside:
-            html += '<div style="background:#0d1117;border:1px solid #30363d;border-radius:6px;padding:6px 12px;text-align:center;min-width:70px">'
-            html += '<div style="font-size:0.68em;color:#8b949e;margin-bottom:2px">TARGET</div>'
-            html += '<div style="font-size:1em;color:#00ff88;font-weight:bold">$' + str(int(target_price)) + '</div>'
-            html += '<div style="font-size:0.68em;color:#00ff88">' + upside_pct_str + '</div>'
-            html += '</div>'
-        if upside_3d:
-            html += '<div style="background:#0d1117;border:1px solid #30363d;border-radius:6px;padding:6px 12px;text-align:center;min-width:70px">'
-            html += '<div style="font-size:0.68em;color:#8b949e;margin-bottom:2px">3D TARGET</div>'
-            html += '<div style="font-size:1em;color:#58a6ff;font-weight:bold">$' + str(int(target_3d)) + '</div>'
-            html += '<div style="font-size:0.68em;color:#58a6ff">+' + str(upside_3d) + '%</div>'
-            html += '</div>'
-        if upside_5d:
-            html += '<div style="background:#0d1117;border:1px solid #30363d;border-radius:6px;padding:6px 12px;text-align:center;min-width:70px">'
-            html += '<div style="font-size:0.68em;color:#8b949e;margin-bottom:2px">5D TARGET</div>'
-            html += '<div style="font-size:1em;color:#bf8fff;font-weight:bold">$' + str(int(target_5d)) + '</div>'
-            html += '<div style="font-size:0.68em;color:#bf8fff">+' + str(upside_5d) + '%</div>'
-            html += '</div>'
-        if stop_loss:
-            html += '<div style="background:#0d1117;border:1px solid #30363d;border-radius:6px;padding:6px 12px;text-align:center;min-width:70px">'
-            html += '<div style="font-size:0.68em;color:#8b949e;margin-bottom:2px">STOP</div>'
-            html += '<div style="font-size:1em;color:#ff6b6b;font-weight:bold">$' + str(int(stop_loss)) + '</div>'
-            html += '<div style="font-size:0.68em;color:#ff6b6b">-10%</div>'
-            html += '</div>'
+        # ── LONG and SHORT, same entry ────────────────────────────────────
+        # Tyler 2026-10-22: "for the pro section on todays pick and runner up
+        # pick it should show long targets 3 day 7 day and 14 day and the stop
+        # and the short targets as well. with entry for both at current price.
+        # since we dont know if price is going up or down."
+        #
+        # This also fixes a label bug. The banner used to print TARGET / 3D
+        # TARGET / 5D TARGET, but the table headers and the methodology note
+        # at the bottom of this same page both say 3-Day = straddle x1,
+        # 7-Day = x3, 14-Day = x5. So the banner's "3D TARGET" was really the
+        # 7-day target and its "5D TARGET" was really the 14-day. Three places
+        # on one page disagreed about what the same number was.
+        html += _direction_row('LONG', '#00ff88', entry_price,
+                               (upside_1d, upside_3d, upside_5d),
+                               round(entry_price * 0.90, 2) if entry_price else 0,
+                               '-10%')
+        # The short side mirrors the long: identical entry, the same implied
+        # move taken the other way, and a stop ABOVE entry because a short
+        # loses when the price rises.
+        html += _direction_row('SHORT', '#ff6b6b', entry_price,
+                               (-upside_1d, -upside_3d, -upside_5d),
+                               round(entry_price * 1.10, 2) if entry_price else 0,
+                               '+10%')
         html += '<!--/PROVALUES-->'
-        # Subscribe blur overlay — MUCH stronger conversion messaging
-        upside_amt = int(target_price) - int(entry_price) if target_price and entry_price else 0
-        upside_str = f"+{upside_amt}/share" if upside_amt > 0 else ""
-        gate_upside_display = upside_str if upside_str else f"+{target_upside}%"
         html += '</div>'
         # ── CTA MARKER ──────────────────────────────────────────────────
         # For subscribers this button must be REMOVED, not hidden: they have
@@ -898,34 +924,15 @@ def generate_html_report(stocks: list, output_path: str):
         # the last one, or the strip removes nothing and leaks everything.
         html += '<!--PROVALUES-->'
         html += '<span style="font-size:0.78em;color:#8b949e;font-weight:bold;margin-right:4px">PRO:</span>'
-        if p2_upside:
-            html += '<div style="background:#0d1117;border:1px solid #30363d;border-radius:6px;padding:6px 12px;text-align:center;min-width:70px">'
-            html += '<div style="font-size:0.68em;color:#8b949e;margin-bottom:2px">TARGET</div>'
-            html += '<div style="font-size:1em;color:#00ff88;font-weight:bold">$' + str(int(p2_target)) + '</div>'
-            html += '<div style="font-size:0.68em;color:#00ff88">' + p2_upside_str + '</div>'
-            html += '</div>'
-        if p2_3d_upside:
-            html += '<div style="background:#0d1117;border:1px solid #30363d;border-radius:6px;padding:6px 12px;text-align:center;min-width:70px">'
-            html += '<div style="font-size:0.68em;color:#8b949e;margin-bottom:2px">3D TARGET</div>'
-            html += '<div style="font-size:1em;color:#58a6ff;font-weight:bold">$' + str(int(p2_3d_target)) + '</div>'
-            html += '<div style="font-size:0.68em;color:#58a6ff">±' + str(p2_3d_upside) + '%</div>'
-            html += '</div>'
-        if p2_5d_upside:
-            html += '<div style="background:#0d1117;border:1px solid #30363d;border-radius:6px;padding:6px 12px;text-align:center;min-width:70px">'
-            html += '<div style="font-size:0.68em;color:#8b949e;margin-bottom:2px">5D TARGET</div>'
-            html += '<div style="font-size:1em;color:#bf8fff;font-weight:bold">$' + str(int(p2_5d_target)) + '</div>'
-            html += '<div style="font-size:0.68em;color:#bf8fff">±' + str(p2_5d_upside) + '%</div>'
-            html += '</div>'
-        if p2_stop:
-            html += '<div style="background:#0d1117;border:1px solid #30363d;border-radius:6px;padding:6px 12px;text-align:center;min-width:70px">'
-            html += '<div style="font-size:0.68em;color:#8b949e;margin-bottom:2px">STOP</div>'
-            html += '<div style="font-size:1em;color:#ff6b6b;font-weight:bold">$' + str(int(p2_stop)) + '</div>'
-            html += '<div style="font-size:0.68em;color:#ff6b6b">-10%</div>'
-            html += '</div>'
+        # Same LONG / SHORT plan as Today's Pick, from the same builder.
+        html += _direction_row('LONG', '#00ff88', p2_entry,
+                               (p2_upside, p2_3d_upside, p2_5d_upside),
+                               p2_stop, '-10%')
+        html += _direction_row('SHORT', '#ff6b6b', p2_entry,
+                               (-p2_upside, -p2_3d_upside, -p2_5d_upside),
+                               round(p2_entry * 1.10, 2) if p2_entry else 0,
+                               '+10%')
         html += '<!--/PROVALUES-->'
-        # Subscribe blur overlay for Runner Up — strong conversion messaging
-        p2_upside_amt = int(p2_target) - int(p2_entry) if p2_target and p2_entry else 0
-        p2_gate_upside = f"+{p2_upside_amt}/share" if p2_upside_amt > 0 else p2_upside_str
         html += '<!--PROCTA-->'
         html += '<div class="ru-pro-gate" style="position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.72);backdrop-filter:blur(4px);border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:10;padding:16px;text-align:center">'
         html += '<a href="/pricing" style="background:#ffd700;color:#000;padding:12px 24px;border-radius:6px;font-weight:bold;text-decoration:none;font-size:0.95em;box-shadow:0 0 12px rgba(255,215,0,0.5)">See Entry, Targets &amp; Stops &#8594;</a>'
