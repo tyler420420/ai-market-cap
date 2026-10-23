@@ -73,10 +73,29 @@ def main():
                 D.body_for(_step, real)
             except Exception:
                 pass
+        # Exercise a full main() run so the audit hook sees the real code
+        # path. D.main() is given a POSTAL_ADDRESS and reaches the send loop -
+        # but `send` is replaced with a recorder first, so the run is
+        # structurally incapable of delivering anything.
+        #
+        # This used to call D.main() with the transport intact. It was safe
+        # only by luck: the gates happened to be failing, so nothing went out.
+        # The moment Tyler supplies the postal address and sets the Railway
+        # token, both gates pass, and RUNNING THE GUARD WOULD HAVE EMAILED
+        # REAL PEOPLE. A verification suite that can send is not a guard.
+        sends_attempted = []
+        _real_send = D.send
+        D.send = lambda *a, **k: sends_attempted.append((a[1], a[2])) or 200
         try:
             D.main()
         except SystemExit:
             pass
+        except Exception:
+            pass
+        finally:
+            D.send = _real_send
+        check("the guard's full run sent nothing",
+              not sends_attempted, sends_attempted[:3])
     finally:
         # audit hooks cannot be removed; that is fine, this process exits next.
         pass
