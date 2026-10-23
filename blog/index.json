@@ -1,5 +1,85 @@
 [
   {
+    "slug": "anet-pre-earnings-networking-someone-elses-news",
+    "title": "ANET Pre-Earnings: Networking, Someone Else's News",
+    "keyword": "ANET pre-earnings setup",
+    "date": "2026-10-23",
+    "meta_description": "Arista reports Nov 3 with a 93 score and 76.5 implied vol, down 16% in a month on Lam Research supply-chain news. Reading the setup.",
+    "excerpt": "Arista Networks has the joint-second-highest score in the live scanner universe at 93, reports on a listed November 3 date with 11 days to go, and is down about 16.4% over roughly the past month. The..."
+  },
+  {
+    "slug": "klac-earnings-into-an-equipment-write-down-week",
+    "title": "KLAC Earnings Into an Equipment-Write Down Week",
+    "keyword": "KLAC pre-earnings setup",
+    "date": "2026-10-23",
+    "meta_description": "KLA reports Oct 28 with an 82.8 implied-vol reading, days after Lam Research flagged supply constraints. What KLAC's setup actually prices in.",
+    "excerpt": "KLA Corporation reports on a listed October 28 date with 5 days to go, carrying a scanner score of 74 and a price of $148.10 against a market cap of $193.27B. Its setup is unusual in a way that is..."
+  },
+  {
+    "slug": "wdc-fell-23-without-reporting-reading-the-storage-result",
+    "title": "WDC Fell 23% Without Reporting: Reading the Storage Result",
+    "keyword": "why is WDC stock moving today",
+    "date": "2026-10-23",
+    "meta_description": "Western Digital is down 23% in a month with no print of its own. What the storage selloff actually was, read as a result not a setup.",
+    "excerpt": "Western Digital was the fourth-most-trending symbol in the country today, and the reason is that it fell. It is down about 23.5% over roughly the past month and about 1.35% intraday on October 23..."
+  },
+  {
+    "slug": "stx-pre-earnings-a-30-month-into-a-4-day-window",
+    "title": "STX Pre-Earnings: A 30% Month Into a 4-Day Window",
+    "keyword": "STX earnings date October 2026",
+    "date": "2026-10-23",
+    "meta_description": "Seagate reports in 4 days with a 96.3 implied-vol reading after falling 30% in a month. Reading STX's pre-earnings setup off the highs.",
+    "excerpt": "Seagate Technology carries a scanner score of 85, a listed October 27 earnings date with 4 days to go, and a price of $630.34 against a market cap of $143.33B. It is also down about 30% over roughly..."
+  },
+  {
+    "slug": "nvda-vs-the-ai-complex-25-days-is-a-different-trade",
+    "title": "NVDA vs the AI Complex: 25 Days Is a Different Trade",
+    "keyword": "NVDA pre-earnings setup",
+    "date": "2026-10-23",
+    "meta_description": "NVIDIA is 25 days from its print with 43.6 implied vol. How NVDA's setup differs from the 5-day names reporting alongside it.",
+    "excerpt": "NVIDIA reports on a listed November 17 date, 25 days out. Almost everything else in the mega-cap AI complex that people are trading this month reports within five or six days: Microsoft and Alphabet..."
+  },
+  {
+    "slug": "ddog-pre-earnings-score-98-and-a-23-implied-range",
+    "title": "DDOG Pre-Earnings: Score 98 and a 23% Implied Range",
+    "keyword": "DDOG pre-earnings",
+    "date": "2026-10-23",
+    "meta_description": "Datadog tops the scanner at 98 with a 23% implied range into Nov 4. The pre-earnings setup, targets and analyst split.",
+    "excerpt": "Datadog scores 98, the highest reading in a 100-name scanner universe, with 12 days to a listed November 4 earnings date. It is also, right now, the most volatile setup on the board: an..."
+  },
+  {
+    "slug": "now-stock-the-one-ai-adjacent-name-that-kept-rising",
+    "title": "NOW Stock: The One AI-Adjacent Name That Kept Rising",
+    "keyword": "NOW stock pre-earnings",
+    "date": "2026-10-23",
+    "meta_description": "ServiceNow rose 15% in a month while the AI complex fell. NOW's score, targets and the pre-earnings setup 5 days out.",
+    "excerpt": "On October 22 the iShares Semiconductor ETF fell 6.79%, the Philadelphia Semiconductor Index lost 6.72%, and roughly $200B of market value came out of thirty companies. ServiceNow closed that day at..."
+  },
+  {
+    "slug": "msft-vs-goog-same-print-date-half-the-volatility",
+    "title": "MSFT vs GOOG: Same Print Date, Half the Volatility",
+    "keyword": "MSFT vs GOOG earnings",
+    "date": "2026-10-23",
+    "meta_description": "Microsoft and Alphabet both report Oct 28. MSFT's implied-vol reading is less than half GOOG's - here is what that gap means for the setup.",
+    "excerpt": "Microsoft and Alphabet report on the same day, are within $25B of each other on market cap, and carry the same scanner score of 90. The options market prices one of them at 25.6 implied volatility..."
+  },
+  {
+    "slug": "goog-earnings-a-fed-meeting-lands-on-the-print",
+    "title": "GOOG Earnings: A Fed Meeting Lands on the Print",
+    "keyword": "GOOG earnings date",
+    "date": "2026-10-23",
+    "meta_description": "Alphabet reports Oct 28 as the Fed meets the same week. GOOG's score, volatility reading and the pre-earnings setup that results.",
+    "excerpt": "Alphabet reports in 5 days, and the Federal Reserve meets the day before. That collision is the most important fact about Alphabet's pre-earnings setup this week, and it is not the fact most..."
+  },
+  {
+    "slug": "amzn-pre-earnings-the-tape-moved-the-print-hasnt",
+    "title": "AMZN Pre-Earnings: The Tape Moved, the Print Hasn't",
+    "keyword": "AMZN pre-earnings setup",
+    "date": "2026-10-23",
+    "meta_description": "Amazon reports Oct 29 with 6 days left. AMZN's score, analyst split and the pre-earnings levels worth watching into the print.",
+    "excerpt": "Amazon lost $11.99 a share on October 22, closing at $250.38 after trading at $262.37 the day before. That is a 4.57% decline in a name that had not reported, had not guided, and had not announced..."
+  },
+  {
     "slug": "tsla-pre-earnings-setup-how-the-q3-print-resolved",
     "title": "TSLA Q3: A Beat That Sold on a $20B Capex Cut",
     "keyword": "pre-earnings",
@@ -21,7 +101,7 @@
     "keyword": "pre-earnings",
     "date": "2026-10-22",
     "meta_description": "Lam Research set records on October 21, then said supply was constrained. That single caveat cost the semiconductor sector $200 billion.",
-    "excerpt": "Lam Research just delivered the cleanest quarter in its history, and the market sold it off by roughly six and a half percent after hours. That combination — a record on every operating line, a beat..."
+    "excerpt": "Lam Research just delivered the cleanest quarter in its history, and the market sold it off by roughly six and a half percent after hours. That combination \u2014 a record on every operating line, a beat..."
   },
   {
     "slug": "nbis-pre-earnings-setup-a-pure-play-ai-compute-read",
@@ -44,7 +124,7 @@
     "title": "META Reported: Unchanged Capex Was the Bad News",
     "keyword": "pre-earnings",
     "date": "2026-10-21",
-    "meta_description": "Meta beat on Oct 21 and left capex guidance unchanged. The stock still closed 6.98% lower — and the tape did most of the rest.",
+    "meta_description": "Meta beat on Oct 21 and left capex guidance unchanged. The stock still closed 6.98% lower \u2014 and the tape did most of the rest.",
     "excerpt": "Meta was trending on Yahoo Finance this week, which puts META back into the bucket of AI names traders are actively positioning ahead of its next print. That is the right framing for the stock right..."
   },
   {
@@ -69,7 +149,7 @@
     "keyword": "pre-earnings",
     "date": "2026-10-20",
     "meta_description": "Micron has no confirmed earnings date. Why memory pricing, not AI demand, is what the Oct 22 sector selloff hit first.",
-    "excerpt": "Micron was the 21st most-searched ticker on Yahoo Finance today, which puts MU in the group of AI names people are actively researching into earnings. That search interest is not decorative — memory..."
+    "excerpt": "Micron was the 21st most-searched ticker on Yahoo Finance today, which puts MU in the group of AI names people are actively researching into earnings. That search interest is not decorative \u2014 memory..."
   },
   {
     "slug": "crdo-pre-earnings-setup-reading-the-ai-connectors-cycle",
@@ -109,7 +189,7 @@
     "keyword": "pre-earnings",
     "date": "2026-10-08",
     "meta_description": "Microsoft and Alphabet on Oct 28, Amazon Oct 29, then KLAC, VRT, AMAT and NVDA. Every pre-earnings date with score, price and days left.",
-    "excerpt": "The artificial intelligence sector continues to produce some of the most explosive stock moves in the market — and the window before earnings reports is often where the biggest opportunities emerge..."
+    "excerpt": "The artificial intelligence sector continues to produce some of the most explosive stock moves in the market \u2014 and the window before earnings reports is often where the biggest opportunities emerge..."
   },
   {
     "slug": "ai-infrastructure-stocks-the-pre-earnings-play-nobody-is-tal",
@@ -125,6 +205,6 @@
     "keyword": "pre-earnings",
     "date": "2026-10-08",
     "meta_description": "The pre-earnings momentum trade broke in a single session. The month-long ledger, the control group, and what a sector repricing teaches.",
-    "excerpt": "Small cap AI stocks offer the highest reward potential in the pre-earnings window — but only if you know where to look. Here's the data on the best setups right now."
+    "excerpt": "Small cap AI stocks offer the highest reward potential in the pre-earnings window \u2014 but only if you know where to look. Here's the data on the best setups right now."
   }
 ]
