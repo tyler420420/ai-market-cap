@@ -286,6 +286,48 @@ def body_for(step, env):
 
 # ------------------------------------------------------------------ send ---
 
+def refresh_inputs():
+    """Re-derive the queue immediately before selecting recipients.
+
+    A queue built once per cycle is wrong twice over. A free reader who
+    subscribes to Pro two hours later is still in it, so tomorrow they get
+    email 4 - "What Pro adds: entry, target, stop-loss" - from the company
+    they just paid. That is the paid/free leak arriving a day late and
+    looking worse, not better.
+
+    And an unsubscribe that lands between build and send must still win.
+
+    So the paid set is re-read from Stripe live first (reconcile_subscriptions
+    asks Stripe what is actually active, rather than trusting a file that may
+    be a day old), then the queue is rebuilt. Both steps are NON-FATAL: if
+    either fails we say so and continue on the last known data, because a
+    stale exclusion is bad but refusing to send over it is worse. The reason
+    is logged either way so it is never silent.
+    """
+    import subprocess
+    notes = []
+    recon = SITE / "reconcile_subscriptions.py"
+    if recon.exists():
+        p = subprocess.run([sys.executable, "-X", "utf8", str(recon)],
+                           capture_output=True, text=True, cwd=str(SITE))
+        if p.returncode != 0:
+            notes.append("paid set may be stale: reconcile exited %s" % p.returncode)
+    builder = SITE / "drip_queue.py"
+    p = subprocess.run([sys.executable, "-X", "utf8", str(builder)],
+                       capture_output=True, text=True, cwd=str(SITE))
+    if p.returncode != 0:
+        notes.append("queue rebuild exited %s: %s"
+                     % (p.returncode, (p.stdout or "")[-160:]))
+    return notes
+
+
+def load_queue():
+    try:
+        return json.loads(QUEUE.read_text(encoding="utf-8"))
+    except Exception:
+        return None
+
+
 def recipients_due(queue):
     """Which (email, step) pairs are due now. Idempotent by construction.
 
@@ -365,6 +407,10 @@ def main():
         print("[Drip] BLOCKED - ALERT_API_KEY missing")
         return 1
 
+    # Re-derive the paid set and the queue IMMEDIATELY before selecting, not
+    # once per cycle. See refresh_inputs() for why a cached queue is wrong.
+    stale_notes = refresh_inputs()
+
     try:
         queue = json.loads(QUEUE.read_text(encoding="utf-8"))
     except Exception as e:
@@ -378,6 +424,8 @@ def main():
 
     print("[Drip] queue=%d  due_now=%d" % (len(queue or []), len(due)))
     print("[Drip] gates passed: opt-out verified live, postal address present")
+    for n in stale_notes:
+        print("[Drip] WARNING - " + n)
 
     sent = failed = 0
     for email, step in due:

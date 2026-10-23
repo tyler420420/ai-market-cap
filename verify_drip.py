@@ -168,6 +168,70 @@ def main():
         # source scan. Re-checking it here by grepping text would only
         # re-introduce the false positive on the docstring.
 
+    section("Someone who converts mid-sequence is removed before it can be sent to")
+    # The queue used to be built once per cycle. A free reader who subscribes
+    # two hours later was still in it, so tomorrow they would receive email 4,
+    # "What Pro adds", from the company they just paid - the paid/free leak
+    # arriving a day later and looking worse, not better.
+    #
+    # Backed up and restored in a finally block: this writes real files in the
+    # repo, and a verification suite that can leave subscriptions.json holding
+    # fixture data is itself a data incident.
+    import shutil as _sh
+    import tempfile as _tf
+    free_p = SITE / "email_list.json"
+    subs_p = SITE / "subscriptions.json"
+    q_p = SITE / "drip_queue.json"
+    bak = Path(_tf.mkdtemp())
+    saved = {}
+    for p in (free_p, subs_p, q_p):
+        if p.exists():
+            saved[p] = p.read_bytes()
+            _sh.copy2(p, bak / p.name)
+    try:
+        free_p.write_text(json.dumps({
+            "stillfree@example.com": {"added": "2026-10-20", "seen_count": 1},
+            "converted@example.com": {"added": "2026-10-20", "seen_count": 1},
+            "optedout@example.com": {"added": "2026-10-20",
+                                     "unsubscribed": "2026-10-22"},
+        }), encoding="utf-8")
+        subs_p.write_text(json.dumps({
+            "cus_live": {"status": "active", "email": "converted@example.com"},
+            "cus_old": {"status": "cancelled", "email": "stillfree@example.com"},
+        }), encoding="utf-8")
+        if q_p.exists():
+            q_p.unlink()
+        p = subprocess.run([PY, "-X", "utf8", str(QUEUE_BUILDER)],
+                           capture_output=True, text=True, cwd=str(SITE))
+        check("the queue builder runs", p.returncode == 0, p.stdout[-200:])
+        built = json.loads(q_p.read_text(encoding="utf-8")) if q_p.exists() else []
+        mails = {r["email"] for r in built}
+        check("a still-free reader IS queued", "stillfree@example.com" in mails,
+              mails)
+        check("a reader who converted to Pro is NOT queued",
+              "converted@example.com" not in mails, mails)
+        check("an unsubscribed address is NOT queued",
+              "optedout@example.com" not in mails, mails)
+        check("a CANCELLED subscriber is still free and stays queued",
+              "stillfree@example.com" in mails, mails)
+        check("only the genuinely free address remains", len(mails) == 1, mails)
+    finally:
+        for p in (free_p, subs_p, q_p):
+            if p in saved:
+                p.write_bytes(saved[p])
+            elif p.exists():
+                p.unlink()
+
+    section("The queue is rebuilt immediately before each send")
+    check("drip_send refreshes inputs before selecting",
+          "refresh_inputs()" in src
+          and src.index("refresh_inputs()") < src.index("recipients_due(queue)"),
+          "refresh must happen before due-selection")
+    check("the paid set is re-read from Stripe live, not read from a stale file",
+          "reconcile_subscriptions.py" in src)
+    check("a failed refresh is reported rather than silently tolerated",
+          "stale_notes" in src and "WARNING" in src)
+
     print("\n=== %s ===" % ("ALL PASS" if not FAILURES
                            else str(len(FAILURES)) + " FAILURE(S)"))
     for f in FAILURES:
