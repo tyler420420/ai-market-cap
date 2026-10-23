@@ -69,7 +69,27 @@ def load_env():
 
 
 def fetch(env, timeout=30):
-    """Return (list, None) or (None, reason). Never prints an address."""
+    """Return (list, None) or (None, reason). Never prints an address.
+
+    CLOUDFLARE SITS IN FRONT OF THIS AND THE DIFFERENCE MATTERS
+    Cloudflare error 1010 ("browser integrity check") refuses any request
+    whose User-Agent does not look like a browser. Python's default
+    Python-urllib/3.x is refused - on EVERY path, including the homepage. The
+    response is an HTML page with the text "error code: 1010", served with
+    HTTP 403.
+
+    That is indistinguishable from a 403 by status code alone, and treating
+    them the same is how you get a confident wrong diagnosis. A previous
+    probe concluded "the secret is rejected" from a 403 that Cloudflare had
+    produced before the app ever saw the request - the same class of error
+    as reading a cached file and calling it the source of truth.
+
+    So this distinguishes them explicitly. It does NOT try to slip past the
+    check with a spoofed browser User-Agent: that control exists to stop
+    exactly that, and evading it would be both fragile and dishonest. The
+    real fix belongs in Cloudflare - skip the browser-integrity check for
+    /api/* or allow this client - and only Tyler can set that.
+    """
     token = (env.get("EMAIL_EXPORT_TOKEN") or "").strip()
     if not token:
         return None, "EMAIL_EXPORT_TOKEN is not set in alert.env"
@@ -81,9 +101,21 @@ def fetch(env, timeout=30):
         with urllib.request.urlopen(req, timeout=timeout) as r:
             payload = json.loads(r.read().decode("utf-8", "ignore"))
     except urllib.error.HTTPError as e:
+        body = ""
+        try:
+            body = e.read().decode("utf-8", "ignore")
+        except Exception:
+            pass
+        if "1010" in body:
+            return None, (
+                "Cloudflare blocked this client BEFORE it reached the app "
+                "(browser integrity check, error 1010). This is NOT a token "
+                "problem and no amount of re-pasting the token will change "
+                "it. Cloudflare must skip that check for /api/* - only Tyler "
+                "can set that.")
         if e.code == 403:
-            return None, ("Railway returned 403 - EMAIL_EXPORT_TOKEN is not "
-                          "set on the service, or does not match alert.env")
+            return None, ("the app returned 403 - EMAIL_EXPORT_TOKEN is not "
+                          "set on Railway, or does not match alert.env")
         return None, "HTTP %s from the export endpoint" % e.code
     except Exception as e:
         return None, "%s: %s" % (type(e).__name__, e)
