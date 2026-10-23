@@ -115,6 +115,45 @@ try {
     & $git fetch origin --prune 2>&1 | Out-Null
     $localSha  = (& $git rev-parse HEAD).Trim()
     $remoteSha = (& $git rev-parse origin/master).Trim()
+
+    # ---- 1a. LOCAL IS AHEAD - PUBLISH IT, DO NOT RESET IT ----------------
+    # A lane (CTO, CMO, SEO, EMO) that commits without pushing leaves master
+    # ahead of origin. The old code treated "local != remote" as one case and
+    # ran `reset --hard origin/master` on all of it - which discarded exactly
+    # that work from master. It survived only on an auto-save/ branch, and
+    # Railway deploys from master, so the work silently vanished from
+    # production while every log line still read like a successful scan.
+    #
+    # That is the worst possible shape: a lane's verified commit, reported as
+    # done, quietly undeployed by an unattended job. It has happened three
+    # times in one night (ce6f322, 92ab0bb, 9b2997d).
+    #
+    # Being AHEAD is not divergence. Nothing has been rejected. So push.
+    $aheadCount  = [int]((& $git rev-list --count 'origin/master..HEAD' 2>$null) -as [int])
+    $behindCount = [int]((& $git rev-list --count 'HEAD..origin/master' 2>$null) -as [int])
+    if ($aheadCount -gt 0 -and $behindCount -eq 0) {
+        $unpushed = @(& $git log --oneline 'origin/master..HEAD')
+        Log "[GIT] Local is AHEAD of origin by $aheadCount commit(s) - a lane committed without pushing"
+        foreach ($c in $unpushed) { Log "[GIT]   unpushed: $c" }
+        $prevEapPub = $ErrorActionPreference
+        $ErrorActionPreference = 'Continue'
+        $pubOut = & $git push origin master 2>&1
+        $pubCode = $LASTEXITCODE
+        $ErrorActionPreference = $prevEapPub
+        if ($pubCode -eq 0) {
+            Log "[GIT] Published the unpushed work. Nothing was discarded."
+        } else {
+            # Publishing failed. Falling through to a reset would destroy the
+            # very commits we just failed to publish, so stop instead.
+            Log "[GIT] FATAL - could not publish $aheadCount unpushed commit(s): $(($pubOut | Select-Object -Last 2) -join ' ')"
+            Log "[GIT]        Refusing to reset; a reset would discard the work."
+            Log "[GIT]        Re-run once the remote is reachable."
+            exit 1
+        }
+        $localSha  = (& $git rev-parse HEAD).Trim()
+        $remoteSha = (& $git rev-parse origin/master).Trim()
+    }
+
     if ($localSha -ne $remoteSha) {
         # ---- FAIL SAFE (2026-10-21) ---------------------------------------
         # The scan now runs twice daily (06:31 open, 13:00 close), so the window
