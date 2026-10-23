@@ -1,5 +1,6 @@
 """AI Earnings Scanner -- Web + Background Scanner Server (Railway Deploy) v2"""
 import os, hashlib, secrets, time, subprocess, threading, sys, json, re
+import urllib.request, urllib.error
 from pathlib import Path
 from datetime import datetime, time as dtime, timedelta, date
 from zoneinfo import ZoneInfo
@@ -2116,17 +2117,41 @@ def api_status():
 
 @app.route("/api/chat", methods=["POST"])
 def api_chat():
-    """Chat - requires active subscription"""
-    customer_id = request.cookies.get("stripe_customer", "")
-    subs = get_subscriptions()
-    is_active = subs.get(customer_id, {}).get('status') == 'active'
+    """Chat - requires active subscription.
 
-    if not is_active:
-        return redirect("/pricing")
+    Three bugs fixed here 2026-10-22 (Tyler: "wire up the Ask AI button to
+    actually work for Pro subscribers").
+
+    BUG 1 - it returned a 302 redirect to /pricing. This is a JSON endpoint
+    called by fetch(); a 302 makes the browser transparently follow it and
+    hand back the PRICING PAGE HTML with status 200, so r.json() threw and the
+    user saw "Error: Unexpected token '<'" instead of being told to subscribe.
+    The JS already knows how to handle this case (it checks r.redirected and
+    r.url), so it must stay a redirect. Now it carries an explicit
+    ?from=chat marker, and the chat JS checks for that marker specifically
+    rather than pattern-matching any URL containing "/pricing" - a legitimate
+    future redirect elsewhere can no longer be mistaken for a paywall.
+
+    BUG 2 - it hand-rolled its own subscriber check and looked ONLY at the
+    stripe_customer cookie. is_subscriber() also checks the session cookie and,
+    critically, falls back to asking Stripe when the local record is missing.
+    subscriptions.json lives on Railway's ephemeral disk and comes back empty
+    after a redeploy, which is exactly what happened - so the one endpoint a
+    paying customer was most likely to hit after paying was the one that
+    denied them. It now calls the same helper every other gated route uses, so
+    there is one definition of "is a subscriber" instead of three that drift.
+
+    BUG 3 - it re-parsed the body AFTER the auth check, so an unauthenticated
+    oversized request could never be rejected on length. Order fixed.
+    """
+    if not is_subscriber():
+        return redirect("/pricing?from=chat")
 
     try:
         body = request.get_json(force=True)
     except Exception:
+        body = {}
+    if not isinstance(body, dict):
         body = {}
     user_msg = (body.get("message") or "").strip()
     if not user_msg:
@@ -2142,25 +2167,71 @@ def api_chat():
 GROQ_API_KEY = os.environ.get("GROQ_API_KEY", "")
 
 def call_llm(user_msg):
+    """Answer a chat question via Groq.
+
+    The old version swallowed every failure into one generic string:
+    "I'm having trouble connecting right now." That hid the single most likely
+    cause - GROQ_API_KEY simply not being set on the Railway service. The user
+    is told to "try again shortly" for a misconfiguration that will never fix
+    itself, and the server logs nothing, so nobody can diagnose it.
+
+    Now each failure mode is distinguished in the log, and the user-facing text
+    says what actually happened rather than implying a transient outage. The
+    API key is never printed - only whether one is present.
+    """
     if not GROQ_API_KEY:
-        return "AI chat is warming up. Please try again in a moment."
+        msg = "AI chat is not configured on this server yet. Please try again later."
+        print(f"[Chat] GROQ_API_KEY is not set - cannot answer. Asked: {user_msg[:80]!r}")
+        return msg
+
+    system = (
+        "You are the assistant for AI Market Cap, a scanner for US stocks in "
+        "pre-earnings momentum setups. Answer briefly and concretely (2-4 "
+        "sentences). Ground answers in the scanner's own concepts: score, "
+        "sentiment, days to earnings, and the /stocks table. If you do not know "
+        "something, say so rather than guessing."
+    )
+
     try:
-        import urllib.request
         payload = json.dumps({
             "model": "llama-3.3-70b-versatile",
-            "messages": [{"role": "user", "content": f"You are an AI stock trading assistant for AI Market Cap scanner. The user asked: {user_msg}. Provide a helpful, concise response about pre-earnings momentum trading, stock analysis, or how to use the scanner."}]
+            "messages": [
+                {"role": "system", "content": system},
+                {"role": "user", "content": user_msg},
+            ],
+            "temperature": 0.4,
+            "max_tokens": 400,
         }).encode()
         req = urllib.request.Request(
             "https://api.groq.com/openai/v1/chat/completions",
             data=payload,
-            headers={"Authorization": f"Bearer {GROQ_API_KEY}", "Content-Type": "application/json"},
+            headers={"Authorization": f"Bearer {GROQ_API_KEY}",
+                     "Content-Type": "application/json"},
             method="POST"
         )
-        with urllib.request.urlopen(req, timeout=15) as resp:
+        with urllib.request.urlopen(req, timeout=20) as resp:
             data = json.loads(resp.read())
-            return data["choices"][0]["message"]["content"]
+        answer = (data["choices"][0]["message"]["content"] or "").strip()
+        if not answer:
+            print("[Chat] Groq returned an empty completion")
+            return "I wasn't able to answer that one. Could you rephrase?"
+        return answer
+    except urllib.error.HTTPError as e:
+        # 401/403 = bad or missing key. 429 = rate limited. Both are very
+        # different problems and must not collapse into one message.
+        try:
+            detail = e.read()[:300].decode("utf-8", "replace")
+        except Exception:
+            detail = ""
+        print(f"[Chat] Groq HTTP {e.code}: {detail}")
+        if e.code in (401, 403):
+            return "AI chat is not authorised on this server yet. Please try again later."
+        if e.code == 429:
+            return "AI chat is busy right now. Please try again in a minute."
+        return "AI chat is having trouble right now. Please try again shortly."
     except Exception as e:
-        return "I'm having trouble connecting right now. Please try again shortly."
+        print(f"[Chat] Groq call failed: {type(e).__name__}: {e}")
+        return "AI chat is having trouble connecting right now. Please try again shortly."
 
 @app.route("/logout")
 def logout():

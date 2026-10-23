@@ -797,7 +797,7 @@ def generate_html_report(stocks: list, output_path: str):
         html += '<span style="font-size:1.1em;font-weight:bold;color:#fff">' + pick.ticker + '</span>'
         html += '<span style="font-size:0.88em;color:#c9d1d9">' + pick.company_name[:14] + '</span>'
         html += '<span style="font-size:0.88em;color:#c9d1d9">Score <strong style="color:' + pick_color + '">' + str(round(pick.composite_score)) + '</strong></span>'
-        html += '<span style="font-size:0.88em;color:#c9d1d9">Entry <strong style="color:#00ff88">$' + str(int(entry_price)) + '</strong></span>'
+        html += '<span style="font-size:0.88em;color:#c9d1d9">Price <strong style="color:#00ff88">$' + str(int(entry_price)) + '</strong></span>'
         html += '<span style="font-size:0.88em;color:#00ff88;font-weight:bold">' + pick_earn_label + 'd to earnings</span>'
         html += f'<a href="/pricing" style="margin-left:auto;background:#ffd700;color:#000;padding:8px 18px;border-radius:6px;font-weight:bold;text-decoration:none;font-size:0.88em;white-space:nowrap">Unlock PRO Targets &#8594;</a>'
         html += '</div>'
@@ -848,7 +848,7 @@ def generate_html_report(stocks: list, output_path: str):
         html += '<span style="font-size:1.1em;font-weight:bold;color:#fff">' + pick2.ticker + '</span>'
         html += '<span style="font-size:0.88em;color:#c9d1d9">' + pick2.company_name[:14] + '</span>'
         html += '<span style="font-size:0.88em;color:#c9d1d9">Score <strong style="color:' + pick2_color + '">' + str(round(pick2.composite_score)) + '</strong></span>'
-        html += '<span style="font-size:0.88em;color:#c9d1d9">Entry <strong style="color:#00ff88">$' + str(int(p2_entry)) + '</strong></span>'
+        html += '<span style="font-size:0.88em;color:#c9d1d9">Price <strong style="color:#00ff88">$' + str(int(p2_entry)) + '</strong></span>'
         html += '<span style="font-size:0.88em;color:#00ff88;font-weight:bold">' + p2_earn_label + 'd to earnings</span>'
         html += '<a href="/pricing" style="margin-left:auto;background:#ffd700;color:#000;padding:8px 18px;border-radius:6px;font-weight:bold;text-decoration:none;font-size:0.88em;white-space:nowrap">Unlock PRO Targets &#8594;</a>'
         html += '</div>'
@@ -1042,7 +1042,7 @@ def generate_html_report(stocks: list, output_path: str):
     html += 'loadingDiv.textContent="Thinking...";'
     html += 'ms.appendChild(loadingDiv);'
     html += 'ms.scrollTop=ms.scrollHeight;'
-    html += "fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:m})}).then(function(r){if(r.redirected||r.url.includes('/pricing')){window.location.href='/pricing';return Promise.reject('redirect');}return r.json();}).then(function(d){"
+    html += "fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:m})}).then(function(r){if(r.redirected){var u=r.url||'';if(u.indexOf('/pricing')>=0){window.location.href='/pricing?from=chat';return Promise.reject('redirect');}return Promise.reject('Unexpected redirect to '+u);}return r.json();}).then(function(d){"
     html += 'loadingDiv.remove();'
     html += 'var botDiv=document.createElement("div");'
     html += 'botDiv.className="msg msg-bot";'
