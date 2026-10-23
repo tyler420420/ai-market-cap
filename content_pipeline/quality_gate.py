@@ -21,7 +21,11 @@ Usage:
 
 import re
 
-MIN_WORDS = 600
+# Standard articles must clear the 1200-word editorial standard. This was
+# 600 until 2026-10-23, which meant the 1200 floor lived only as a prompt
+# instruction to the writing agent - nothing enforced it, so a 700-word
+# article passed the gate and shipped. The floor is now enforced here.
+MIN_WORDS = 1200
 MIN_H2 = 3
 MIN_PARAGRAPHS = 4
 
