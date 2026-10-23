@@ -64,6 +64,8 @@ import urllib.error
 from datetime import datetime, timedelta
 from pathlib import Path
 
+import email_unsubscribe as _eu
+
 SITE = Path(__file__).parent
 # Which addresses already received today's alert. Written locally, never
 # committed - it holds subscriber email addresses.
@@ -169,6 +171,11 @@ def build_email(paid: bool = False):
 
     # A subscriber does not need to be upsold, and their targets are already
     # in the message above, so the call to action differs by tier too.
+    #
+    # BOTH tiers get a CAN-SPAM one-click unsubscribe. The free list is
+    # non-payers on the same Resend domain as the paid Pro alert, so a spam
+    # event on the free list takes paying customers' mail down with it. There
+    # is no "subscribers are exempt" carve-out that a mail provider honours.
     if paid:
         cta_href = "https://aismarketcap.com"
         cta_label = "Open today&rsquo;s full table &rarr;"
@@ -180,6 +187,17 @@ def build_email(paid: bool = False):
         footer = "Entry, targets and stop for every Pro subscriber at " \
                  '<a href="https://aismarketcap.com" style="color:#58a6ff">aismarketcap.com</a>. ' \
                  "Not financial advice. Do your own research."
+
+    # Rendered per recipient at send time, because the token identifies WHO
+    # is unsubscribing. A placeholder rather than per-recipient bodies keeps
+    # the tier-keyed variant structure that stops the paid message reaching
+    # the free list - two safety properties that would otherwise fight.
+    unsub_block = (
+        '<div style="margin-top:14px;padding-top:12px;'
+        'border-top:1px solid #21262d;font-size:.72em;color:#6e7681">'
+        'You are receiving this because you asked for the daily pick. '
+        '<a href="{{UNSUB_LINK}}" style="color:#58a6ff">Unsubscribe</a>'
+        '</div>')
 
     html = f"""<!DOCTYPE html><html><body style="margin:0;background:#0d1117;
 color:#c9d1d9;font-family:Segoe UI,Arial,sans-serif">
@@ -213,8 +231,49 @@ padding:11px 18px;border-radius:8px;font-weight:bold;text-decoration:none;displa
 
   <div style="color:#6e7681;font-size:.75em;line-height:1.5">
     {footer}</div>
+  {unsub_block}
 </div></body></html>"""
     return html, f"{ticker} is today's pick - score {score}"
+
+
+UNSUB_PLACEHOLDER = "{{UNSUB_LINK}}"
+_UNSUB_WARNED = {"done": False}
+
+
+def unsubscribe_url(email, env):
+    """Per-recipient one-click link, or the site fallback if unconfigured.
+
+    The fallback is a real warning path, not a silent one. Without
+    EMAIL_EXPORT_TOKEN there is no way to sign an address-specific link, but
+    refusing to send would take the PAID alert down with it - and the paid
+    alert is the thing customers pay for. So the message goes out with a
+    visible link to the site and this says so out loud, once per run.
+    """
+    link = _eu.unsubscribe_link(email, env.get("EMAIL_EXPORT_TOKEN"))
+    if link:
+        return link
+    if not _UNSUB_WARNED["done"]:
+        _UNSUB_WARNED["done"] = True
+        print("[Alert] WARN - EMAIL_EXPORT_TOKEN is not set, so no signed "
+              "one-click link can be built.")
+        print("[Alert]         Messages will carry a site link instead. "
+              "Until that variable exists on")
+        print("[Alert]         Railway the unsubscribe is NOT compliant, and "
+              "the free list cannot be pulled.")
+    return "https://aismarketcap.com"
+
+
+def render_unsub(html, email, env):
+    """Substitute the per-recipient unsubscribe link.
+
+    Raises if the placeholder somehow survived: an email going out with a
+    literal {{UNSUB_LINK}} in the footer is worse than no footer at all,
+    because it looks delivered.
+    """
+    out = html.replace(UNSUB_PLACEHOLDER, unsubscribe_url(email, env))
+    if UNSUB_PLACEHOLDER in out:
+        raise ValueError("unsub placeholder survived substitution")
+    return out
 
 
 def days_label(s):
@@ -229,12 +288,30 @@ def days_label(s):
 def recipients():
     out = []
     lst = load_json("email_list.json", {})
+    # An explicit one-click unsubscribe suppresses the daily email for
+    # EVERYONE, subscriber or not. It is stored in email_list.json because
+    # that is where the unsubscribe route writes it, so it has to be
+    # consulted for paid addresses too - a paying customer who opts out of
+    # the email must actually stop receiving mail, not just the free list.
+    # Cancelling the PAID plan is a separate action and stays with Stripe.
+    #
+    # Absence from the list is NOT an unsubscribe. The container holding
+    # these records is destroyed on every deploy, so a missing address means
+    # "signed up before the last restart", which is the normal state.
+    suppressed = {e.lower().strip() for e, r in lst.items()
+                  if isinstance(r, dict) and r.get("unsubscribed")}
+
     for email, rec in lst.items():
+        if email.lower().strip() in suppressed:
+            continue
         out.append((email, False))
     subs = load_json("subscriptions.json", {})
     for cid, rec in (subs.items() if isinstance(subs, dict) else []):
         if rec.get("status") == "active" and rec.get("email"):
-            out.append((rec["email"], True))
+            e = rec["email"]
+            if e.lower().strip() in suppressed:
+                continue
+            out.append((e, True))
     seen, uniq = set(), []
     for e, paid in out:
         k = e.lower().strip()
@@ -244,7 +321,23 @@ def recipients():
     return uniq
 
 
-def send_via_api(env, to, subject, html):
+def list_stats():
+    """Counts for the status file, so the channel cannot look healthy
+    while it is actually switched off.
+
+    free_list_total is addresses ever captured; free_list_active excludes
+    unsubscribes. A free page advertising signup while active is zero is the
+    exact failure this whole lane existed to fix, so it is published rather
+    than inferred from a total that only ever counted the paying customer.
+    """
+    lst = load_json("email_list.json", {})
+    total = len(lst)
+    dead = sum(1 for r in lst.values()
+               if isinstance(r, dict) and r.get("unsubscribed"))
+    return total, total - dead, dead
+
+
+def send_via_api(env, to, subject, html, unsub_url=None):
     key = env.get("ALERT_API_KEY")
     if not key:
         return None
@@ -253,16 +346,25 @@ def send_via_api(env, to, subject, html):
         "from": env.get("ALERT_FROM", "alerts@aismarketcap.com"),
         "to": [to], "subject": subject, "html": html,
     }).encode()
-    req = urllib.request.Request(url, data=payload, method="POST", headers={
+    hdrs = {
         "Authorization": f"Bearer {key}",
         "Content-Type": "application/json",
         "User-Agent": "AI-Market-Cap/1.0",
-    })
+    }
+    # List-Unsubscribe-Post is what makes it ONE-CLICK: Gmail and Apple Mail
+    # POST to this URL directly and never show the user the page. Without the
+    # pair, the header is decorative and the recipient still has to find it.
+    # Both tiers get it - the free list is non-payers on the same domain as
+    # the paid alert, and a spam event on one takes the other down.
+    if unsub_url:
+        hdrs["List-Unsubscribe"] = "<%s>" % unsub_url
+        hdrs["List-Unsubscribe-Post"] = "List-Unsubscribe=One-Click"
+    req = urllib.request.Request(url, data=payload, method="POST", headers=hdrs)
     with urllib.request.urlopen(req, timeout=30) as r:
         return r.status
 
 
-def send_via_smtp(env, to, subject, html):
+def send_via_smtp(env, to, subject, html, unsub_url=None):
     host = env.get("ALERT_SMTP_HOST")
     if not host:
         return None
@@ -272,6 +374,9 @@ def send_via_smtp(env, to, subject, html):
     msg["From"] = env.get("ALERT_FROM", "alerts@aismarketcap.com")
     msg["To"] = to
     msg["Subject"] = subject
+    if unsub_url:
+        msg["List-Unsubscribe"] = "<%s>" % unsub_url
+        msg["List-Unsubscribe-Post"] = "List-Unsubscribe=One-Click"
     msg.set_content("Your daily AI Market Cap pick. View in browser: "
                     "https://aismarketcap.com")
     msg.add_alternative(html, subtype="html")
@@ -293,8 +398,16 @@ def load_sent_log():
 
 
 def write_status(name, sent, failed, total, ok):
-    """Publish a secret-free, address-free record of what just happened."""
+    """Publish a secret-free, address-free record of what just happened.
+
+    The free-list counts are in here for a specific reason. "recipients: 1,
+    sent: 1, failed: 0, last_ok: true" is what a healthy PAID alert looks
+    like AND what a completely dead free acquisition channel looked like for
+    months. Both rendered as a green total. free_list_active is the number
+    that tells those two apart, so it is published rather than inferred.
+    """
     try:
+        free_total, free_active, free_dead = list_stats()
         payload = {
             "last_run": datetime.now().isoformat(timespec="seconds"),
             "last_ok": bool(ok),
@@ -302,6 +415,9 @@ def write_status(name, sent, failed, total, ok):
             "failed": failed,
             "recipients": total,
             "transport": name,
+            "free_list_total": free_total,
+            "free_list_active": free_active,
+            "free_list_unsubscribed": free_dead,
         }
         STATUS_FILE.write_text(json.dumps(payload, indent=2), encoding="utf-8")
     except Exception as e:
@@ -401,7 +517,11 @@ def main():
             continue
         html, subj = variants.get(bool(paid)) or variants[False]
         try:
-            _send(env, email, subj, html)
+            # Render per recipient here, not in build_variants(), so the
+            # variant map stays keyed by tier and can never hand the paid
+            # body to the free list.
+            link = unsubscribe_url(email, env)
+            _send(env, email, subj, render_unsub(html, email, env), link)
             sent += 1
             sent_to.append(email)
         except Exception as e:

@@ -8,6 +8,7 @@ from flask import Flask, request, redirect, send_from_directory, abort, make_res
 
 # ===== STRIPE CONFIG =====
 import stripe
+import email_unsubscribe as _eu
 stripe.api_key = os.environ.get("STRIPE_SECRET_KEY", "")
 STRIPE_PUBLISHABLE_KEY = os.environ.get("STRIPE_PUBLISHABLE_KEY", "")
 STRIPE_WEBHOOK_SECRET = os.environ.get("STRIPE_WEBHOOK_SECRET", "")
@@ -1543,6 +1544,123 @@ def api_email_signup():
 
 def _now_iso():
     return datetime.now(PT).isoformat(timespec="seconds")
+
+
+# ===== EMAIL LIST TRANSPORT (the only path off this container) ===========
+# The signup above writes to EMAIL_LIST_FILE, which lives on Railway's
+# container disk and is destroyed on every deploy. The sender runs on
+# Tyler's machine. Until this block existed the two never met: a free-page
+# signup was captured, answered with "Check your inbox tomorrow morning",
+# and then silently lost - the site advertising a channel that could not
+# deliver a single message.
+#
+# EMAIL_EXPORT_TOKEN is the one shared secret for this lane and it does two
+# jobs: the local machine presents it to pull the list home, and it keys the
+# HMAC behind the one-click unsubscribe link. Two jobs, one Railway
+# variable, because two secrets would have to be kept in sync by hand.
+#
+# It fails CLOSED. An unset token denies every request, and an empty list is
+# not an error - but "zero signups" and "not configured" must never render
+# the same, or the pull reports a healthy empty list forever while the
+# channel is in fact switched off.
+EMAIL_EXPORT_TOKEN = os.environ.get("EMAIL_EXPORT_TOKEN", "")
+UNSUBSCRIBE_URL = "https://aismarketcap.com/api/email-unsubscribe"
+
+
+def _email_token_ok():
+    """True when the caller presents the export token."""
+    if not EMAIL_EXPORT_TOKEN:
+        return False
+    sent = (request.headers.get("X-Email-Token") or "").strip()
+    return bool(sent) and secrets.compare_digest(sent, EMAIL_EXPORT_TOKEN)
+
+
+def unsubscribe_link(email):
+    """One-click unsubscribe URL, built by the shared canonical module.
+
+    Imported rather than reimplemented: send_daily_alert.py builds these on
+    the other machine, and two copies of an HMAC would drift silently.
+    """
+    return _eu.unsubscribe_link(email, EMAIL_EXPORT_TOKEN)
+
+
+def _parse_unsubscribe(raw):
+    """The address behind a one-click token, or None if forged."""
+    email = _eu.parse_unsubscribe(raw, EMAIL_EXPORT_TOKEN)
+    return email if email and EMAIL_RE.match(email) else None
+
+
+@app.route("/api/email-list-export", methods=["GET"])
+def api_email_list_export():
+    """Hand the captured list to Tyler's machine, which is what sends it.
+
+    The only route on the site that ever emits addresses, so it is the one
+    that has to be right: token required, and no caching at any hop.
+    """
+    if not _email_token_ok():
+        return jsonify({"ok": False, "error": "forbidden"}), 403
+    lst = _read_email_list()
+    resp = make_response(jsonify({
+        "ok": True,
+        "generated_at": _now_iso(),
+        "count": len(lst),
+        "list": lst,
+    }))
+    resp.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, private"
+    resp.headers["Pragma"] = "no-cache"
+    return resp
+
+
+_UNSUB_PAGE = """<!DOCTYPE html><html><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Unsubscribed</title></head>
+<body style="margin:0;background:#0d1117;color:#c9d1d9;
+ font-family:Segoe UI,Arial,sans-serif">
+<div style="max-width:560px;margin:0 auto;padding:60px 20px;text-align:center">
+  <div style="color:#00ff88;font-size:2.2em;font-weight:bold">Done</div>
+  <p style="color:#8b949e;line-height:1.6;margin-top:14px">
+    You have been unsubscribed and will not receive the daily pick.</p>
+  <p style="color:#8b949e;line-height:1.6">
+    The scanner itself stays free at
+    <a href="https://aismarketcap.com" style="color:#58a6ff">aismarketcap.com</a>.</p>
+</div></body></html>"""
+
+
+@app.route("/api/email-unsubscribe", methods=["POST", "GET"])
+def api_email_unsubscribe():
+    """RFC 8058 one-click unsubscribe.
+
+    The suppression is written into the same container-side list that the
+    export pulls, so it survives a deploy by travelling the identical path a
+    signup does. No second channel and no second secret.
+
+    A subscriber cancelling their PAID plan is a different action and stays
+    with Stripe; this only stops the daily email.
+    """
+    if not EMAIL_EXPORT_TOKEN:
+        return jsonify({"ok": False, "error": "not_configured"}), 503
+    raw = (request.form.get("t") or request.args.get("t") or "").strip()
+    email = _parse_unsubscribe(raw)
+    if not email:
+        return jsonify({"ok": False, "error": "bad_token"}), 400
+
+    lst = _read_email_list()
+    rec = dict(lst.get(email) or {"added": _now_iso(), "seen_count": 1})
+    rec["unsubscribed"] = _now_iso()
+    rec["last_seen"] = rec["unsubscribed"]
+    lst[email] = rec
+    try:
+        _write_email_list(lst)
+    except Exception as e:
+        print("[Email] unsubscribe write failed: %s" % e)
+        return jsonify({"ok": False, "error": "write_failed"}), 500
+
+    # Deliberately no address in the log line - this file is the one place
+    # addresses are persisted and the logs are not it.
+    print("[Email] unsubscribe recorded")
+    if request.method == "POST":
+        return jsonify({"ok": True}), 200
+    return _UNSUB_PAGE, 200, {"Content-Type": "text/html; charset=utf-8"}
 
 
 # ===== EMAIL CAPTURE (non-subscribers only) ==============================

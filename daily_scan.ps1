@@ -275,6 +275,32 @@ try {
         Log "[RECONCILE] WARN - reconcile_subscriptions.py missing (non-fatal)"
     }
 
+# ---- 3z. pull the free signup list off Railway ----------------------------
+    # Signups are captured by scanner_web.py INSIDE the Railway container,
+    # whose disk is destroyed on every deploy. Until this ran there was no
+    # path at all between the capture and the send, so the free page answered
+    # "Check your inbox tomorrow morning" and lost every signup on the next
+    # deploy. It sits immediately BEFORE 3a so the send uses a fresh list.
+    #
+    # NON-FATAL for the same reason 3a is: a failed pull must never take the
+    # scan down. It does mean today's free recipients are whatever the last
+    # successful pull left behind, so the exit code is logged as a warning
+    # rather than swallowed - "no free recipients" and "could not fetch the
+    # list" are very different facts and must not look the same.
+    $pullScript = Join-Path $repo 'pull_email_list.py'
+    if (Test-Path $pullScript) {
+        $pOut = & $python $pullScript 2>&1
+        $pCode = $LASTEXITCODE
+        foreach ($line in ($pOut | Select-Object -Last 4)) { Log "[EMAILPULL] $line" }
+        if ($pCode -ne 0) {
+            Log "[EMAILPULL] WARN - pull exited $pCode (non-fatal, scan continues)."
+            Log "[EMAILPULL]        If this says EMAIL_EXPORT_TOKEN is not set on"
+            Log "[EMAILPULL]        Railway, free signups are being captured and lost."
+        }
+    } else {
+        Log "[EMAILPULL] WARN - pull_email_list.py missing (non-fatal)"
+    }
+
 # ---- 3a. daily alert email -------------------------------------------
     # The pricing page sells "real-time earnings alerts". Until this existed,
     # send_daily_alert.py was a script nobody ever invoked - no cron, no task,
@@ -501,7 +527,8 @@ try {
                     scanner_web.py visitor_baseline.json `
                     alert_status.json target_hits.json tracked_picks.jsonl `
                     evaluate_targets.py send_daily_alert.py `
-                    reconcile_subscriptions.py reconcile_status.json 2>&1 | Out-Null
+                    reconcile_subscriptions.py reconcile_status.json `
+                    pull_email_list.py email_unsubscribe.py 2>&1 | Out-Null
 
         $staged = $false
         & $git diff --cached --quiet

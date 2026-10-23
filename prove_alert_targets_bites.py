@@ -63,9 +63,16 @@ def m_paid_columns_dead(s):
 
 def m_both_transports(s):
     """Every recipient gets two copies of the same email."""
-    return s.replace("        try:\n            _send(env, email, subj, html)\n",
-                     "        try:\n            send_via_api(env, email, subj, html)\n"
-                     "            send_via_smtp(env, email, subj, html)\n            _send(env, email, subj, html)\n")
+    # Tracks the per-recipient render call. When send_daily_alert.py passed
+    # the variant straight through this replacement matched nothing and the
+    # suite aborted on "mutant changed nothing - it tests nothing" - which
+    # reads like a crash but actually means this mutant stopped biting, so
+    # the double-send regression it guards against became uncaught.
+    return s.replace(
+        "            _send(env, email, subj, render_unsub(html, email, env), link)\n",
+        "            send_via_api(env, email, subj, render_unsub(html, email, env), link)\n"
+        "            send_via_smtp(env, email, subj, render_unsub(html, email, env), link)\n"
+        "            _send(env, email, subj, render_unsub(html, email, env), link)\n")
 
 
 def m_upsell_swapped(s):
