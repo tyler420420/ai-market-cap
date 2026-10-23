@@ -16,10 +16,26 @@ Recipients:
   * everyone on email_list.json (opted in from the free page)
   * every active subscriber in subscriptions.json
 
-The Pro values are included for subscribers and BLURRED-OMITTED for the free
-list. The free list gets the pick, the score and the days-to-earnings, and a
-link - that is the honest product split: the alert is free, the curated plan
-is Pro.
+The Pro values are included for subscribers and omitted for the free list.
+
+    THIS WAS NOT TRUE UNTIL 2026-10-22.
+
+    build_email() took no recipient argument. It built ONE email containing
+    the 3d / 7d / 14d targets and main() sent that identical email to
+    everyone on both lists. PAID_COLUMNS was defined at module scope,
+    documented in the docstring as the split, and then never referenced
+    again - the free-list redaction was designed and never wired up.
+
+    The consequence: every free-page email signup would have received the
+    paid targets in writing, in an inbox, where they cannot be taken back.
+    Same defect class as the CSS-blur paywall leak, moved into email.
+
+    build_email() now takes `paid` and the target column is built from
+    PAID_COLUMNS behind that flag. verify_alert_targets.py asserts it
+    behaviourally against the real scanner data - it builds both variants and
+    requires the free one to carry no targets - and
+    prove_alert_targets_bites.py requires the guard to reject a reverted
+    implementation.
 
 CONFIGURATION (nothing secret lives in this file)
 ------------------------------------------------
@@ -56,7 +72,14 @@ try:
 except Exception:
     pass
 
+# The Pro-only columns, in the order they are displayed. These key names are
+# historical and do not match their meaning: pe_target is the 3-DAY target,
+# "3d" is the 7-DAY target and "5d" is the 14-DAY target. PAID_LABELS is what
+# a subscriber actually reads, so the two are zipped rather than the keys
+# being printed raw.
 PAID_COLUMNS = ("pe_target", "3d", "5d")
+PAID_LABELS = ("3d", "7d", "14d")
+FREE_TARGETS_CELL = "Available in Pro"
 
 
 def load_env():
@@ -85,8 +108,12 @@ def today_str():
     return now.strftime("%Y-%m-%d")
 
 
-def build_email():
-    """Compose the daily email from the live scanner data. Returns (html, subject)."""
+def build_email(paid: bool = False):
+    """Compose the daily email. Returns (html, subject).
+
+    paid=True  -> a subscriber: real 3d/7d/14d targets, no upsell.
+    paid=False -> the free list: no target values anywhere in the message.
+    """
     data = load_json("scanner_data.json", [])
     if not data:
         return None, "no data"
@@ -111,13 +138,11 @@ def build_email():
     rows = []
     for s in picks:
         d = []
-        if s.get("pe_target"):
-            d.append(f"3d {money(s['pe_target'])}")
-        if s.get("3d"):
-            d.append(f"7d {money(s['3d'])}")
-        if s.get("5d"):
-            d.append(f"14d {money(s['5d'])}")
-        targets = " &middot; ".join(d) if d else "targets available in Pro"
+        if paid:
+            for key, label in zip(PAID_COLUMNS, PAID_LABELS):
+                if s.get(key):
+                    d.append(f"{label} {money(s[key])}")
+        targets = " &middot; ".join(d) if d else FREE_TARGETS_CELL
         rows.append(
             f'<tr><td style="padding:8px 10px;border-bottom:1px solid #21262d;'
             f'font-weight:bold;color:#58a6ff">{s.get("ticker")}</td>'
@@ -131,6 +156,20 @@ def build_email():
             f'color:#c9d1d9">{days_label(s)}</td>'
             f'<td style="padding:8px 10px;border-bottom:1px solid #21262d;'
             f'color:#8b949e;font-size:12px">{targets}</td></tr>')
+
+    # A subscriber does not need to be upsold, and their targets are already
+    # in the message above, so the call to action differs by tier too.
+    if paid:
+        cta_href = "https://aismarketcap.com"
+        cta_label = "Open today&rsquo;s full table &rarr;"
+        footer = "Your curated Pro pick, sent before the report. " \
+                 "Not financial advice. Do your own research."
+    else:
+        cta_href = "https://aismarketcap.com/pricing"
+        cta_label = "See entry, targets &amp; stop &rarr;"
+        footer = "Entry, targets and stop for every Pro subscriber at " \
+                 '<a href="https://aismarketcap.com" style="color:#58a6ff">aismarketcap.com</a>. ' \
+                 "Not financial advice. Do your own research."
 
     html = f"""<!DOCTYPE html><html><body style="margin:0;background:#0d1117;
 color:#c9d1d9;font-family:Segoe UI,Arial,sans-serif">
@@ -150,9 +189,9 @@ border:2px solid #2ea043;border-radius:12px;padding:18px;margin-bottom:18px">
       Score <b style="color:#00ff88">{score}</b> &middot; Price <b>${price}</b>
       &middot; {days_label(top)}</div>
     <div style="margin-top:14px">
-      <a href="https://aismarketcap.com/pricing" style="background:#00ff88;color:#000;
+      <a href="{cta_href}" style="background:#00ff88;color:#000;
 padding:11px 18px;border-radius:8px;font-weight:bold;text-decoration:none;display:inline-block">
-        See entry, targets &amp; stop &rarr;</a></div>
+        {cta_label}</a></div>
   </div>
 
   <table style="width:100%;border-collapse:collapse;font-size:.86em;margin-bottom:18px">
@@ -163,9 +202,7 @@ padding:11px 18px;border-radius:8px;font-weight:bold;text-decoration:none;displa
   </table>
 
   <div style="color:#6e7681;font-size:.75em;line-height:1.5">
-    Targets and stops for every Pro subscriber at
-    <a href="https://aismarketcap.com" style="color:#58a6ff">aismarketcap.com</a>.
-    Not financial advice. Do your own research.</div>
+    {footer}</div>
 </div></body></html>"""
     return html, f"{ticker} is today's pick - score {score}"
 
@@ -238,22 +275,56 @@ def send_via_smtp(env, to, subject, html):
     return 250
 
 
+def build_variants():
+    """Build both message variants once.
+
+    Two variants, not one per recipient: the free list and the subscribers
+    each get a single identical message. Returning a dict keyed by tier is
+    what stops a caller from ever handing the free variant to a subscriber
+    or the paid variant to the free list.
+    """
+    out = {}
+    for paid in (False, True):
+        html, subject = build_email(paid=paid)
+        if html:
+            out[paid] = (html, subject)
+    return out
+
+
+def pick_transport(env):
+    """Return exactly one transport.
+
+    The original called send_via_api AND send_via_smtp for every recipient.
+    Each returns None when its own env var is missing, so it looked correct -
+    but configuring both sent every subscriber two copies of the same email.
+    """
+    if env.get("ALERT_API_KEY"):
+        return "api", send_via_api
+    if env.get("ALERT_SMTP_HOST"):
+        return "smtp", send_via_smtp
+    return None, None
+
+
 def main():
     dry = "--dry-run" in sys.argv
     env = load_env()
-    configured = bool(env.get("ALERT_API_KEY") or env.get("ALERT_SMTP_HOST"))
+    name, _send = pick_transport(env)
+    configured = name is not None
 
-    html, subject = build_email()
-    if not html:
-        print(f"[Alert] cannot build: {subject}")
+    variants = build_variants()
+    if not variants:
+        print("[Alert] cannot build an email from scanner_data.json")
         return 1
+    subject = next(iter(variants.values()))[1]
 
     rcpt = recipients()
     print(f"[Alert] {today_str()}  subject: {subject}")
     print(f"[Alert] recipients: {len(rcpt)} "
           f"({sum(1 for _, p in rcpt if p)} subscribers, "
           f"{sum(1 for _, p in rcpt if not p)} free list)")
-    print(f"[Alert] transport: {'configured' if configured else 'NOT CONFIGURED'}")
+    print(f"[Alert] transport: {name if configured else 'NOT CONFIGURED'}")
+    print(f"[Alert] targets: included for subscribers, "
+          f"'{FREE_TARGETS_CELL}' for the free list")
     if not configured:
         print("[Alert] Put ALERT_API_KEY or ALERT_SMTP_* in alert.env to send.")
         print("[Alert] Everything else works - this run was not sent.")
@@ -262,10 +333,10 @@ def main():
         return 0
 
     sent = failed = 0
-    for email, _paid in rcpt:
+    for email, paid in rcpt:
+        html, subj = variants.get(bool(paid)) or variants[False]
         try:
-            send_via_api(env, email, subject, html)
-            send_via_smtp(env, email, subject, html)
+            _send(env, email, subj, html)
             sent += 1
         except Exception as e:
             failed += 1
