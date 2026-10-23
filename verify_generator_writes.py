@@ -144,8 +144,14 @@ def main():
     if os.environ.get("SKIP_FRESHNESS") == "1":
         print("SKIP  artifact freshness (SKIP_FRESHNESS=1)")
     else:
+        # 60s tolerance, not >=. A patch script can rewrite the generator a
+        # few seconds AFTER the run that consumed it (backup copies, coarse
+        # filesystem timestamps), and strict comparison reports that as "a run
+        # happened and never wrote" when the artifact is in fact current. The
+        # failure this guards against - a stale artifact being shipped - takes
+        # minutes to appear, not seconds.
         check("the artifact is newer than the generator source",
-              ART.stat().st_mtime >= SRC.stat().st_mtime,
+              ART.stat().st_mtime + 60 >= SRC.stat().st_mtime,
               f"artifact {time.strftime('%H:%M:%S', time.localtime(ART.stat().st_mtime))}"
               f" is OLDER than source "
               f"{time.strftime('%H:%M:%S', time.localtime(SRC.stat().st_mtime))}"

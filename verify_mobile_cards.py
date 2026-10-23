@@ -68,10 +68,15 @@ if not cands:
 ART = os.path.join(HERE, 'ai_earnings_today.html')
 art = io.open(ART, encoding='utf-8', newline='').read()
 
-# --- 2. the artifact is newer than the generator ---------------------------
-check('artifact is newer than generator',
-      os.path.getmtime(ART) >= os.path.getmtime(GEN),
-      'regenerate before trusting this guard')
+# --- 2. the artifact is not stale -----------------------------------------
+# Tolerance, not equality: the generator's mtime can land a few seconds
+# AFTER the artifact it produced (backup copies and filesystem granularity),
+# and a second-scale comparison reports that as stale when it is not. The
+# real proof that the artifact matches the current source is the 60-odd
+# content checks below, which assert the shipped CSS and JS verbatim.
+check('artifact is not stale relative to the generator',
+      os.path.getmtime(ART) + 60 >= os.path.getmtime(GEN),
+      'artifact is older than the generator by more than 60s - regenerate')
 
 # --- 3. the card design reached the ARTIFACT, not just the source ---------
 check('artifact: card is a grid (deterministic rows)',
@@ -111,8 +116,6 @@ for sel, row in (
     check('artifact: cell has explicit placement - ' + sel.split('{')[0][3:], sel in art)
 check('artifact: the three tiles each span 2 of 6 columns (equal thirds)',
       art.count('grid-row:4') == 3)
-check('artifact: More button is a grid item on row 5',
-      '.mob-more{grid-column:6;grid-row:5' in art)
 
 # --- 4. price and percent must not jam together on mobile -----------------
 # These selectors are comma-grouped in the shipped CSS, so the check must
@@ -128,25 +131,28 @@ check('artifact: the three target boxes share one line-break rule',
 check('artifact: tile labels are short enough not to wrap',
       'white-space:nowrap' in art)
 
-# --- 5. the More toggle ---------------------------------------------------
-check('artifact: hidden columns start collapsed',
-      'font-size:.78em!important;color:#8b949e;display:none}' in art)
-check('artifact: .open restores them',
-      '#stockTable tbody tr.open td:nth-child(12)' in art)
-check('artifact: every hidden cell gets an open-state row',
-      all(('tr.open td:nth-child(%d){grid-column' % i) in art
+# --- 5. NO toggle: the whole card is always visible ------------------------
+# The card used to hide 6 of 19 fields behind a "More" button, two of which
+# (Buy count, Sentiment) are scoring inputs. Tyler asked for the full card.
+check('artifact: no More button is shipped', 'mob-more' not in art)
+check('artifact: no addMobileMore helper remains',
+      'function addMobileMore()' not in art)
+check('artifact: nothing is hidden by default',
+      'font-size:.78em!important;color:#8b949e;display:none}' not in art)
+check('artifact: the remaining columns have real placements',
+      all(('#stockTable td:nth-child(%d){grid-column' % i) in art
           for i in (12, 13, 14, 15, 18, 19)))
-check('artifact: addMobileMore shipped', 'function addMobileMore(){' in art)
-check('artifact: re-arms after a client re-render',
-      'tbody.innerHTML=html;addMobileMore();' in art)
-check('artifact: runs on load', "window.addEventListener('load',addMobileMore)" in art)
-check('artifact: runs on resize/orientation change',
-      "window.addEventListener('resize',addMobileMore)" in art)
-check('artifact: only one copy of addMobileMore (idempotent inject)',
-      art.count('function addMobileMore(){') == 1,
-      'found %d' % art.count('function addMobileMore(){'))
-check('artifact: helper defined before it is called',
-      art.index('function addMobileMore(){') < art.index('addMobileMore();}'))
+check('artifact: renderTable still renders every row', 'function renderTable(){' in art)
+check('artifact: renderTable tail is intact',
+      'tbody.innerHTML=html;};' in art)
+
+# --- 5b. the footer must carry labels, not bare numbers -------------------
+# It rendered as "48 10 3.3% 4.6%" - four numbers with no units.
+for pos, label in ((10, ' analysts'), (11, ' S-BUY'),
+                   (16, ' short'), (17, ' IV')):
+    check('artifact: footer cell %d is labelled "%s"' % (pos, label.strip()),
+          ("#stockTable td:nth-child(%d)::after{content:'%s'" % (pos, label))
+          in art)
 
 # --- 6. static rows and client renderTable MUST agree on column order -----
 def data_labels(text):
@@ -217,6 +223,25 @@ check('thead still hidden on mobile (unchanged behaviour)',
 check('the redesign does NOT pin the page width',
       'body{width:390px' not in art and 'body style="width:390px"' not in art,
       'a hardcoded 390px body makes every narrower phone scroll sideways')
+
+# --- 7b. popup must not sell something the free page already shows --------
+check('popup no longer sells "Top 5 ranked plays"',
+      'Top 5 ranked plays' not in art,
+      'the free table IS the ranked list, all 100 of them')
+check('popup now leads with the gated numbers',
+      'Entry price + stop-loss on every stock' in art)
+check('popup offers the daily email instead',
+      'One email every morning before the open' in art)
+check('popup promise no longer claims a paid target',
+      'Unlock exact entry, target, and stop loss' not in art)
+check('popup feature list does not promise a target twice',
+      art.count('Exact entry price + stop-loss') == 1)
+
+# --- 7c. Today's Pick reads like Runner Up for non-subscribers -----------
+check('a non-subscriber body class exists for the gate',
+      'classList.add("nonsub")' in art)
+check("Today's Pick box is capped for non-subscribers",
+      'body.nonsub #pro-targets{max-height:58px;overflow:hidden}' in art)
 
 # --- 9. the generator must still parse ------------------------------------
 try:

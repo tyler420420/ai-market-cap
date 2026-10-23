@@ -99,6 +99,27 @@ try {
             Log "[GUARD] $($dirty.Count) tracked file(s) have uncommitted changes - hard reset SKIPPED"
             foreach ($l in $dirty) { Log "[GUARD]   dirty: $l" }
 
+            # Take a real copy of every dirty tracked file BEFORE any git
+            # command in this script runs. The hard reset is already skipped
+            # and local commits are preserved by sha, but the retry path uses
+            # `git pull --rebase --autostash`, and a rebase that moves the
+            # same file can leave local edits silently discarded. A directory
+            # of untouched copies costs nothing and makes that recoverable.
+            try {
+                $snap = Join-Path $repo ("pre_scan_backup_" + (Get-Date -Format 'yyyyMMdd_HHmmss'))
+                New-Item -ItemType Directory -Path $snap -Force | Out-Null
+                foreach ($l in $dirty) {
+                    $p = ($l -replace '^.\s+', '') -replace '\s.*$', ''
+                    if ($p -and (Test-Path (Join-Path $repo $p))) {
+                        Copy-Item -Path (Join-Path $repo $p) -Destination (Join-Path $snap (Split-Path $p -Leaf)) -Force
+                    }
+                }
+                $script:backupDir = $snap
+                Log "[GUARD] pre-scan snapshot saved to $snap"
+            } catch {
+                Log "[GUARD] WARN - could not snapshot dirty files: $($_.Exception.Message)"
+            }
+
             # One-line marker so the ops dashboard can surface a skipped scan
             # without parsing the log. Overwritten on each skip.
             $marker = Join-Path $repo 'scan_guard_skip.txt'
@@ -500,7 +521,22 @@ try {
             if ($LASTEXITCODE -eq 0) { $pushed = $true; Log "[GIT] Push OK (attempt $try)"; break }
             Log "[GIT] Push FAILED (attempt $try): $(($pushOut | Select-Object -Last 2) -join ' ')"
             Start-Sleep -Seconds 10
+            # NOTE: --autostash is the risky flag in this whole script. It
+            # stashes local work, rebases, then re-applies. When the rebase
+            # moves the same file the re-apply can conflict, and the result
+            # is not always an obvious failure - a mobile redesign made at
+            # 01:31 was silently gone from the generator by 01:32, with the
+            # guard log saying nothing. Recovery here is a real copy of every
+            # dirty tracked file, taken before any git command runs.
             $null = & $git pull --rebase --autostash origin master 2>&1
+            $stillDirty = @(& $git -C $repo status --porcelain --untracked-files=no)
+            if ($stillDirty.Count -eq 0 -and $backupDir) {
+                Log "[GUARD] WARNING - local changes disappeared during the rebase. Restoring from $backupDir"
+                foreach ($f in (Get-ChildItem -Path $backupDir -File -ErrorAction SilentlyContinue)) {
+                    Copy-Item -Path $f.FullName -Destination (Join-Path $repo $f.Name) -Force
+                }
+                Log "[GUARD] restored $($backupDir)"
+            }
         }
 
         # ---- 6. VERIFY the push actually landed ---------------------------
