@@ -118,3 +118,5 @@ alert.env
 alert_sent_log.json
 # ad-hoc probe, not part of the pipeline
 test_send_to_tyler.py
+# holds a Stripe API key - never commit
+stripe_reconcile.env

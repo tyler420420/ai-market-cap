@@ -231,7 +231,30 @@ try {
         Log "[TARGETS] WARN - evaluate_targets.py missing (non-fatal)"
     }
 
-    # ---- 3a. daily alert email -------------------------------------------
+    # ---- 3ab. subscription reconcile ------------------------------------
+    # STRIPE_WEBHOOK_SECRET is not set, and /webhook fails closed without it -
+    # correct, since an unsigned body must never revoke a paying customer.
+    # But it means cancellations and failed renewals never reach the site at
+    # all, and is_subscriber() short-circuits on a local 'active', so nothing
+    # catches them either.
+    #
+    # This asks Stripe once a day what each active subscription really is, and
+    # downgrades only on a positive "not active". Every error path leaves
+    # access untouched: missing a cancellation is cheap, denying a paying
+    # customer is not.
+    $reconScript = Join-Path $repo 'reconcile_subscriptions.py'
+    if (Test-Path $reconScript) {
+        $rOut = & $python $reconScript 2>&1
+        $rCode = $LASTEXITCODE
+        foreach ($line in ($rOut | Select-Object -Last 6)) { Log "[RECONCILE] $line" }
+        if ($rCode -ne 0) {
+            Log "[RECONCILE] WARN - reconciler exited $rCode (non-fatal, scan continues)"
+        }
+    } else {
+        Log "[RECONCILE] WARN - reconcile_subscriptions.py missing (non-fatal)"
+    }
+
+# ---- 3a. daily alert email -------------------------------------------
     # The pricing page sells "real-time earnings alerts". Until this existed,
     # send_daily_alert.py was a script nobody ever invoked - no cron, no task,
     # no hook - so the promise had no delivery mechanism at all.
