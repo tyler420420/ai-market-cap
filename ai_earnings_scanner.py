@@ -1224,7 +1224,11 @@ def generate_html_report(stocks: list, output_path: str):
 
     # ── Email capture + gated display JS ────────────────────────────────────────
     html += '<script>'
-    html += '// Gate: remove pro-gate overlay if subscriber'
+    # A // comment ends at a newline. Emitted with none, it swallowed the
+    # entire gate below - the class, the overlay removal and the button
+    # swap were all dead code in production. Block comment plus an
+    # explicit newline so it cannot silently run away again.
+    html += '/* Gate: remove pro-gate overlay if subscriber */\n'
     html += 'if(window.__isSubscriber){'
     html += '  var g=document.getElementById("pro-gate");'
     html += '  if(g){g.style.display="none";}'
