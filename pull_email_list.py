@@ -71,12 +71,12 @@ def load_env():
 def fetch(env, timeout=30):
     """Return (list, None) or (None, reason). Never prints an address.
 
-    CLOUDFLARE SITS IN FRONT OF THIS AND THE DIFFERENCE MATTERS
+    A 403 CAN COME FROM TWO PLACES, AND THE DIFFERENCE MATTERS
     Cloudflare error 1010 ("browser integrity check") refuses any request
     whose User-Agent does not look like a browser. Python's default
     Python-urllib/3.x is refused - on EVERY path, including the homepage. The
-    response is an HTML page with the text "error code: 1010", served with
-    HTTP 403.
+    response is a text/plain page with the text "error code: 1010", served
+    with HTTP 403.
 
     That is indistinguishable from a 403 by status code alone, and treating
     them the same is how you get a confident wrong diagnosis. A previous
@@ -84,11 +84,26 @@ def fetch(env, timeout=30):
     produced before the app ever saw the request - the same class of error
     as reading a cached file and calling it the source of truth.
 
-    So this distinguishes them explicitly. It does NOT try to slip past the
-    check with a spoofed browser User-Agent: that control exists to stop
-    exactly that, and evading it would be both fragile and dishonest. The
-    real fix belongs in Cloudflare - skip the browser-integrity check for
-    /api/* or allow this client - and only Tyler can set that.
+    So this distinguishes them explicitly, by what the body actually is:
+    Cloudflare's block is text/plain "error code: 1010", and the app's own
+    refusal is JSON {"error":"forbidden","ok":false}.
+
+    It does NOT spoof a browser User-Agent: the control exists to stop
+    exactly that, and evading it would be both fragile and dishonest. It does
+    not need to - this client's own User-Agent passes the integrity check.
+
+    MEASURED 2026-10-23, AND THIS IS THE PART THAT MATTERS
+    With the EmailPull User-Agent and the correct token,
+    /api/email-list-export answers HTTP 403 with Content-Type:
+    application/json and the app's own {"error":"forbidden","ok":false} -
+    CF-RAY present, no cf-mitigated header. The request REACHED the app and
+    the app refused the token. Only the default urllib User-Agent gets the
+    1010 block.
+
+    So Cloudflare is NOT challenging /api/*, there is no WAF rule to change,
+    and no Cloudflare work would move this forward. The one and only blocker
+    is EMAIL_EXPORT_TOKEN not being set on the Railway service, and that is
+    one variable, pasted by Tyler. Do not send anyone to the WAF for this.
     """
     token = (env.get("EMAIL_EXPORT_TOKEN") or "").strip()
     if not token:
@@ -111,11 +126,22 @@ def fetch(env, timeout=30):
                 "Cloudflare blocked this client BEFORE it reached the app "
                 "(browser integrity check, error 1010). This is NOT a token "
                 "problem and no amount of re-pasting the token will change "
-                "it. Cloudflare must skip that check for /api/* - only Tyler "
-                "can set that.")
+                "it. It has not been observed with this client's User-Agent; "
+                "if it ever fires, Cloudflare must skip that check for "
+                "/api/*, and only Tyler can set that.")
         if e.code == 403:
-            return None, ("the app returned 403 - EMAIL_EXPORT_TOKEN is not "
-                          "set on Railway, or does not match alert.env")
+            if '"forbidden"' in body or '"ok"' in body:
+                # The app's own JSON. It SAW the request and refused the
+                # token - which is the one thing this pull cannot work
+                # around. Cloudflare is not involved.
+                return None, ("the app returned 403 - EMAIL_EXPORT_TOKEN is "
+                              "not set on Railway, or does not match "
+                              "alert.env")
+            return None, ("403 with no app JSON in the body - Cloudflare "
+                          "answered before the app saw the request. Not the "
+                          "current blocker: measured 2026-10-23, this client "
+                          "reaches the app and the only thing missing is "
+                          "EMAIL_EXPORT_TOKEN on Railway.")
         return None, "HTTP %s from the export endpoint" % e.code
     except Exception as e:
         return None, "%s: %s" % (type(e).__name__, e)
