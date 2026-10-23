@@ -125,6 +125,78 @@ def main():
               not (body.get("list") or {}).get(b, {}).get("unsubscribed"),
               (body.get("list") or {}).get(b))
 
+        # ---- a pasted secret must not fail silently ---------------------
+        # A token pasted into a dashboard can arrive with a trailing newline
+        # or a stray CRLF. The presented header is stripped but the STORED
+        # value used to be compared unstripped, so the export compared
+        # unequal while every other check still looked healthy: the homepage
+        # promise said "delivery ready", the unsubscribe route answered 200,
+        # and only the export 403ed - so the free list could never be pulled
+        # home and nothing anywhere reported it.
+        section("A token pasted with a stray newline still works")
+        W.EMAIL_EXPORT_TOKEN = TOKEN + "\n"
+        r = client.get("/api/email-list-export",
+                       headers={"X-Email-Token": TOKEN})
+        check("a stored token with a trailing newline still exports",
+              r.status_code == 200, r.status_code)
+        r = client.get("/api/email-list-export",
+                       headers={"X-Email-Token": "  " + TOKEN + "  "})
+        check("a presented token with surrounding spaces also exports",
+              r.status_code == 200, r.status_code)
+        r = client.get("/api/email-list-export",
+                       headers={"X-Email-Token": "wrong-token"})
+        check("normalizing does not weaken it - a wrong token is still 403",
+              r.status_code == 403, r.status_code)
+        W.EMAIL_EXPORT_TOKEN = "\t" + TOKEN + "  \r\n"
+        r = client.get("/api/email-list-export",
+                       headers={"X-Email-Token": TOKEN})
+        check("surrounding whitespace and CRLF still export",
+              r.status_code == 200, r.status_code)
+        check("and delivery still reads ready",
+              W._delivery_ready() is True)
+        W.EMAIL_EXPORT_TOKEN = '"' + TOKEN + '"'
+        r = client.get("/api/email-list-export",
+                       headers={"X-Email-Token": TOKEN})
+        check("a stored token pasted inside quotes still exports",
+              r.status_code == 200, r.status_code)
+        W.EMAIL_EXPORT_TOKEN = TOKEN + '"'
+        r = client.get("/api/email-list-export",
+                       headers={"X-Email-Token": TOKEN})
+        check("a lone trailing quote is CONTENT, not whitespace - still 403",
+              r.status_code == 403, r.status_code)
+
+        # A whitespace-only token is a paste accident, not a configuration.
+        # It must read as NOT configured everywhere, or the route answers 400
+        # ("bad token"), which every health check mistakes for "working".
+        W.EMAIL_EXPORT_TOKEN = "   \n"
+        check("a whitespace-only token is not delivery-ready",
+              W._delivery_ready() is False)
+        r = client.get("/api/email-list-export",
+                       headers={"X-Email-Token": "   "})
+        check("a whitespace-only token denies the export",
+              r.status_code == 403, r.status_code)
+        r = client.post("/api/email-unsubscribe?t=anything.x")
+        check("a whitespace-only token is not configured for unsubscribe",
+              r.status_code == 503, r.status_code)
+
+        # The HMAC half. The link is minted on THIS machine with the clean
+        # secret and verified on the service. If the service stores the same
+        # secret with a newline and does not normalize it, every recipient's
+        # unsubscribe click 400s - the mail sends fine and the failure is
+        # invisible until a customer complains.
+        W.EMAIL_EXPORT_TOKEN = TOKEN + "\n"
+        clean = EU.unsubscribe_token("newline@example.com", TOKEN)
+        check("a link minted with the clean secret verifies against a "
+              "newline-stored secret",
+              EU.parse_unsubscribe(clean, TOKEN + "\n") == "newline@example.com",
+              EU.parse_unsubscribe(clean, TOKEN + "\n"))
+        r = client.post("/api/email-unsubscribe?t=" + clean)
+        check("and the live route accepts that link (200)",
+              r.status_code == 200, r.status_code)
+        check("a whitespace-only key mints no link at all",
+              EU.unsubscribe_link("x@example.com", "   ") is None)
+        W.EMAIL_EXPORT_TOKEN = TOKEN
+
         section("GET renders a page, POST answers the mail client")
         r = client.get("/api/email-unsubscribe?t=" + raw)
         check("GET returns HTML for a human",

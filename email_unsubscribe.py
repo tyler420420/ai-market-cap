@@ -29,18 +29,40 @@ UNSUBSCRIBE_PATH = "/api/email-unsubscribe"
 SITE_URL = "https://aismarketcap.com"
 
 
+def normalize_token(value):
+    """Normalize a token so both ends of the HMAC agree on the same key.
+
+    A secret pasted into a dashboard can arrive with a trailing newline, a
+    stray quote, or a CRLF, and a key that differs by one invisible character
+    is a key that silently does not match. That failure is invisible: the
+    homepage promise still reads healthy, the unsubscribe route still answers
+    200, and only the export route returns 403 - so the free list can never
+    be pulled home and nothing anywhere reports it.
+
+    Both the signer and the verifier run the value through here, so they
+    cannot disagree about what the key IS. Normalizing is not weakening the
+    check: the comparison still requires the exact secret, minus whitespace
+    that no secret legitimately contains.
+    """
+    tok = (value or "").strip()
+    if len(tok) >= 2 and tok[0] == tok[-1] and tok[0] in ("'", '"'):
+        tok = tok[1:-1].strip()
+    return tok
+
+
 def _sig(payload, token):
-    return hmac.new((token or "").encode(), payload.encode(),
+    return hmac.new(normalize_token(token).encode(), payload.encode(),
                     hashlib.sha256).hexdigest()[:32]
 
 
 def unsubscribe_token(email, token):
     """Return the opaque token for an address, or None if no token is set."""
-    if not token:
+    key = normalize_token(token)
+    if not key:
         return None
     payload = base64.urlsafe_b64encode(
         email.strip().lower().encode()).decode().rstrip("=")
-    return "%s.%s" % (payload, _sig(payload, token))
+    return "%s.%s" % (payload, _sig(payload, key))
 
 
 def unsubscribe_link(email, token, site_url=SITE_URL):
@@ -62,11 +84,21 @@ def parse_unsubscribe(raw, token):
 
     compare_digest on both the signature and the presence of a key, so a
     caller with no token configured verifies nothing rather than everything.
+    The key is normalized first, so a key that arrived with a trailing newline
+    still verifies the links minted with the clean secret.
     """
-    if not token or not raw or "." not in raw:
+    key = normalize_token(token)
+    if not key or not raw or "." not in raw:
         return None
     payload, _, sig = raw.rpartition(".")
-    if not hmac.compare_digest(sig, _sig(payload, token)):
+    try:
+        ok = hmac.compare_digest(sig, _sig(payload, key))
+    except TypeError:
+        # compare_digest refuses non-ASCII strings. A query parameter is
+        # attacker-controlled, so this must fail CLOSED (400) instead of
+        # raising a 500 out of a public endpoint.
+        return None
+    if not ok:
         return None
     try:
         email = base64.urlsafe_b64decode(

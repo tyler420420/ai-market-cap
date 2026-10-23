@@ -1713,7 +1713,14 @@ def _now_iso():
 # not an error - but "zero signups" and "not configured" must never render
 # the same, or the pull reports a healthy empty list forever while the
 # channel is in fact switched off.
-EMAIL_EXPORT_TOKEN = os.environ.get("EMAIL_EXPORT_TOKEN", "")
+#
+# The value is NORMALIZED here, because a secret pasted into a dashboard can
+# arrive with a trailing newline. Unnormalized, that one invisible character
+# makes the export compare unequal while every other check still looks
+# healthy - the silent failure where the list can never be pulled home and
+# nothing reports it. The same normalization runs on both sides of every
+# comparison, so it cannot weaken the check.
+EMAIL_EXPORT_TOKEN = _eu.normalize_token(os.environ.get("EMAIL_EXPORT_TOKEN", ""))
 UNSUBSCRIBE_URL = "https://aismarketcap.com/api/email-unsubscribe"
 
 # What the signup form says, depending on whether delivery is actually
@@ -1732,15 +1739,31 @@ def _delivery_ready():
     DNS-verified sending domain is not enough - Resend verified aismarketcap.com
     and the paid alert works, while the free list still cannot move.
     """
-    return bool((EMAIL_EXPORT_TOKEN or "").strip())
+    return bool(_eu.normalize_token(EMAIL_EXPORT_TOKEN))
 
 
 def _email_token_ok():
-    """True when the caller presents the export token."""
-    if not EMAIL_EXPORT_TOKEN:
+    """True when the caller presents the export token.
+
+    BOTH sides are normalized before compare_digest: the presented header is
+    stripped, and the stored token is normalized the same way. Stripping only
+    the presented side is a silent-failure factory - a stored token that
+    arrived with a trailing newline can never match, so the export 403s
+    forever while the homepage promise and the unsubscribe route both still
+    look healthy.
+    """
+    stored = _eu.normalize_token(EMAIL_EXPORT_TOKEN)
+    if not stored:
         return False
     sent = (request.headers.get("X-Email-Token") or "").strip()
-    return bool(sent) and secrets.compare_digest(sent, EMAIL_EXPORT_TOKEN)
+    if not sent:
+        return False
+    try:
+        return secrets.compare_digest(sent, stored)
+    except TypeError:
+        # compare_digest refuses non-ASCII strings and the header is
+        # caller-controlled. Fail CLOSED (403), never a 500.
+        return False
 
 
 def unsubscribe_link(email):
@@ -1805,7 +1828,12 @@ def api_email_unsubscribe():
     A subscriber cancelling their PAID plan is a different action and stays
     with Stripe; this only stops the daily email.
     """
-    if not EMAIL_EXPORT_TOKEN:
+    if not _eu.normalize_token(EMAIL_EXPORT_TOKEN):
+        # Normalized, not merely truthy: a token that is nothing but
+        # whitespace is a paste accident, and answering 503 ("not configured")
+        # is the honest answer. Answering 400 ("bad token") instead would
+        # read as "the route works" to every health check, while every
+        # recipient's unsubscribe link would fail to verify.
         return jsonify({"ok": False, "error": "not_configured"}), 503
     raw = (request.form.get("t") or request.args.get("t") or "").strip()
     email = _parse_unsubscribe(raw)

@@ -25,6 +25,11 @@ NAMES = [
     'verify_sentiment', 'verify_routes', 'verify_support_path',
     'verify_cwd_independence', 'verify_subscriber_gate',
     'verify_signup_counter', 'verify_signup_copy', 'verify_signup_durability',
+    # The email lane's guards used to run only when someone remembered to
+    # run them, which made "the guard covers it" a claim with nothing behind
+    # it. Every guard here now runs on every suite run.
+    'verify_email_list', 'prove_email_token_bites',
+    'prove_tier_precedence_bites', 'verify_drip',
 ]
 
 ok = 0
