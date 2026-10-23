@@ -41,15 +41,41 @@ bad = [c for c in earn if not re.fullmatch(r"[A-Z][a-z]{2} \d{1,2}", c.strip())]
 check("live earnings dates are short form", not bad, "offenders: %s" % sorted(set(bad))[:5])
 
 headers = re.findall(r'<th[^>]*data-col="([^"]+)"', html)
-static = re.findall(r'<td data-label="([^"]+)"', html.split("<tbody")[1].split("</tbody>")[0]) \
-    if "<tbody" in html else []
-check("live static rows and headers agree in count", len(headers) == len(static),
-      "%d headers vs %d static cells" % (len(headers), len(static)))
-check("live removed columns are gone from rowsData consumers too",
-      "Day Range" not in html)
+tbody = html.split("<tbody")[1].split("</tbody>")[0] if "<tbody" in html else ""
+rows = tbody.split("<tr")[1:]
+# One row against one header row. Counting every row's cells against the
+# headers is meaningless with 100 rows and reports a failure that is not real.
+first = re.findall(r'<td data-label="([^"]+)"', rows[0]) if rows else []
+check("live static rows and headers agree in count", len(headers) == len(first),
+      "%d headers vs %d cells in the first row" % (len(headers), len(first)))
+
+
+def js_body(text, header):
+    i = text.find(header)
+    if i < 0:
+        return ""
+    start, depth = text.index("{", i), 0
+    for j in range(start, len(text)):
+        if text[j] == "{":
+            depth += 1
+        elif text[j] == "}":
+            depth -= 1
+            if depth == 0:
+                return text[start + 1:j]
+    return ""
+
+
+client = re.findall(r'data-label=\\?"([^"\\]+)\\?"', js_body(html, "function renderTable()"))
+check("live client re-render emits cells", bool(client),
+      "could not extract client labels - the parity check below would pass on nothing")
+check("live static and client render the SAME columns in the SAME order",
+      first == client, "static=%s client=%s" % (first, client))
+ragged = [i for i, r in enumerate(rows) if re.findall(r'<td data-label="([^"]+)"', r) != first]
+check("live every row has the same columns as the first", not ragged,
+      "%d ragged rows" % len(ragged))
 
 print()
 if fails:
     print("RESULT: %d FAILED -> %s" % (len(fails), ", ".join(fails)))
     sys.exit(1)
-print("RESULT: ALL PASS (%d checks)" % (5 + 2 + 4))
+print("RESULT: ALL PASS (%d checks)" % 12)
