@@ -29,7 +29,14 @@ print("fetched %d bytes from %s\n" % (len(html), URL))
 check("page actually loaded", len(html) > 20000, "only %d bytes" % len(html))
 
 for label in ("3 Day Range", "7 Day Range", "14 Day Range"):
-    check('live page has no "%s" column' % label, label not in html)
+    check('live page renders the "%s" column' % label, label in html)
+
+for label in ("3 Day Range", "7 Day Range", "14 Day Range"):
+    seg = html.split('data-label="%s"' % label)
+    cell = seg[1].split("</td>")[0] if len(seg) > 1 else ""
+    check('live "%s" is price then percent, no pipe' % label,
+          "<br>" in cell and "$" in cell and "%" in cell and "|" not in cell,
+          "cell: %r" % cell[:90])
 
 pipe_cells = re.findall(r"\$[\d,.]+\s*\|", html)
 check("live page has no '|' price/percent separator", not pipe_cells,
@@ -78,4 +85,4 @@ print()
 if fails:
     print("RESULT: %d FAILED -> %s" % (len(fails), ", ".join(fails)))
     sys.exit(1)
-print("RESULT: ALL PASS (%d checks)" % 12)
+print("RESULT: ALL PASS (%d checks)" % 15)

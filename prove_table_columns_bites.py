@@ -1,9 +1,14 @@
 """Mutation proof for verify_table_columns.py.
 
-A guard nobody has seen fail is not evidence. This reintroduces each defect
-the guard claims to catch, one at a time, into throwaway copies of the
-artifact and source, and requires the guard to reject every one of them
-while still passing the untouched control.
+CORRECTION 2026-10-22: the original version of this harness reintroduced the
+three target columns as defects. That was built on a misread of the request
+- the columns stay and only the '|' separator goes - so those mutants are now
+the CONTROL, and what counts as a defect is a column that disappears or a
+pipe that comes back.
+
+A guard written from a misread request enforces the misread, and the
+mutation harness is what made that visible: it happily proved the guard
+could catch a change that should never have been made.
 
 Nothing here touches the real files.
 """
@@ -24,30 +29,40 @@ src = PY_SRC.read_text(encoding="utf-8")
 
 import re as _re
 
-assert 'data-label="3 Day Range"' not in art, "control artifact already has the defect"
+assert 'data-label="3 Day Range"' in art, "control artifact is missing the 3-day column"
+assert 'data-label="14 Day Range"' in art, "control artifact is missing the 14-day column"
 # Same scope as the guard: a pipe joining a price to a percent. Other pipes
 # exist legitimately (news card "Oct 23 | $318M", a headline, the methodology
 # note) and must not make this control look dirty.
 assert not _re.search(r"\$[\d,.]+\s*\|", art), "control artifact already has a price/percent pipe"
 
 
-def m_readd_static_3day(a, s):
-    """Reintroduce the 3-day column in the static rows only."""
-    return a.replace('<td data-label="Price"', '<td data-label="3 Day Range">$1<br>\\u00b1 2%</td><td data-label="Price"', 1), s
+def m_drop_static_3day(a, s):
+    """A target column silently disappears from the static rows."""
+    out, n = _re.subn(r'<td data-label="3 Day Range">.*?</td>', "", a, count=1)
+    assert n == 1, "no static 3 Day cell to remove"
+    return out, s
 
 
-def m_readd_client_3day(a, s):
-    """Reintroduce it in the client re-render only -> parity drift."""
-    old = """html+='<td data-label="Days" """
-    new = """html+='<td data-label="3 Day Range">$1 | ±2%</td>';""" + old
-    assert a.count(old) == 1
-    return a.replace(old, new, 1), s
+def m_drop_client_3day(a, s):
+    """...and from the client re-render too, so both agree while the column is gone."""
+    out, n = _re.subn(r"""html\+='<td data-label="3 Day Range">.*?</td>';""", "", a, count=1)
+    assert n == 1, "no client 3 Day cell to remove"
+    return out, s
 
 
 def m_readd_pipe(a, s):
-    """A single price+percent cell joined by '|'."""
-    return a.replace('<td data-label="Price" style="font-weight:bold">$',
-                     '<td data-label="Price" style="font-weight:bold">$1 | 3%<span>', 1), s
+    """A target cell reverts to the old ' | ' separator instead of a break."""
+    old = '<br><span style="color:#00ff88">'
+    assert a.count(old) >= 1, "no price-then-percent break to replace"
+    return a.replace(old, "' | ", 1), s
+
+
+def m_drop_header(a, s):
+    """Header for a target column removed while the cells stay."""
+    out, n = _re.subn(r"<th[^>]*data-col=\"3d\"[^>]*>.*?</th>", "", a, count=1)
+    assert n == 1, "no 3d header to remove"
+    return out, s
 
 
 def m_long_date(a, s):
@@ -87,8 +102,9 @@ def m_months_long(a, s):
 
 
 MUTANTS = [
-    ("static 3-day column reappears", m_readd_static_3day),
-    ("client 3-day column reappears", m_readd_client_3day),
+    ("static 3-day column disappears", m_drop_static_3day),
+    ("client 3-day column disappears", m_drop_client_3day),
+    ("3-day header disappears", m_drop_header),
     ("pipe separator returns", m_readd_pipe),
     ("earnings date back to long form", m_long_date),
     ("client renderer drops a cell (parity)", m_drop_client_cell),

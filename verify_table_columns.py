@@ -28,7 +28,8 @@ SITE = Path(r"C:\Users\Tyler_AI\ai-market-cap")
 ART = Path(os.environ.get("TABLE_ART") or (SITE / "ai_earnings_today.html"))
 SRC = Path(os.environ.get("TABLE_SRC") or (SITE / "ai_earnings_scanner.py"))
 
-REMOVED = ("3 Day Range", "7 Day Range", "14 Day Range")
+REMOVED = ()
+TARGETS = ("3 Day Range", "7 Day Range", "14 Day Range")
 
 fails = []
 ran = []
@@ -61,9 +62,9 @@ def js_body(text, header):
     return ""
 
 
-# ---------------------------------------------------------------- 1. removed
+# ------------------------------------------------------- column set extraction
 # Compare ONE row against the client renderer, not every row against one
-# header. Counting all 100 rows' cells against 16 headers is meaningless and
+# header. Counting all 100 rows' cells against 19 headers is meaningless and
 # reports a failure that does not exist.
 tbody = art.split("<tbody")[1].split("</tbody>")[0] if "<tbody" in art else ""
 first_row = tbody.split("<tr")[1] if "<tr" in tbody else ""
@@ -73,10 +74,30 @@ client_labels = re.findall(r'data-label=\\?"([^"\\]+)\\?"', js_body(art, "functi
 check("static renderTable() found in artifact", bool(client_labels),
       "could not extract client cell labels - a check matching nothing is not a pass")
 
-for label in REMOVED:
-    check('static rows have no "%s" column' % label, label not in static_labels)
-    check('client re-render has no "%s" column' % label, label not in client_labels)
-    check('no "%s" header' % label, label not in art)
+# ---------------------------------------------------------------- 1. targets
+for label in TARGETS:
+    check("static rows render the %r column" % label, label in static_labels)
+    check("client re-render renders the %r column" % label, label in client_labels)
+    check("a header exists for %r" % label, label in art)
+
+# CORRECTION 2026-10-22: the first version of this guard asserted these three
+# columns were ABSENT, because the request was read as "remove the columns".
+# The columns stay; what goes is the '|' separator - a target cell is the
+# price on one line and the percent on the next. A guard written from a
+# misread request actively enforces the misread.
+check("headers list carries the three target columns",
+      all(("'%s Day<br>Target'" % n) in src for n in ("3", "7", "14")),
+      "a target header entry is missing from the headers list")
+check("col_labels map carries the three target keys",
+      "'pe_target': '3 Day'" in src and "'3d': '7 Day'" in src and "'5d': '14 Day'" in src)
+
+for label in TARGETS:
+    seg = art.split('data-label="%s"' % label)
+    cell = seg[1].split("</td>")[0] if len(seg) > 1 else ""
+    check("%r is price then percent on the next line" % label,
+          "<br>" in cell and "$" in cell and "%" in cell,
+          "cell does not use a line break: %r" % cell[:90])
+    check("%r carries no pipe" % label, "|" not in cell, "cell: %r" % cell[:90])
 
 # ------------------------------------------------------------------ 2. pipes
 pipe_cells = re.findall(r'\$[\d,.]+\s*\|', art)
@@ -112,8 +133,10 @@ check("earnings dates are short form (Nov 4)", not bad_dates,
       "offenders: %s" % sorted(set(bad_dates))[:5])
 
 # ------------------------------------------------------- 5. source of truth
-check("headers list drops the removed columns",
-      not re.search(r"\('[^']*(?:3|7|14)\s*Day[^']*',", src))
+check("headers list keeps all three target columns",
+      len(re.findall(r"\('(?:3|7|14)\s*Day<br>Target',", src)) == 3,
+      "found %d target header entries, expected 3"
+      % len(re.findall(r"\('(?:3|7|14)\s*Day<br>Target',", src)))
 check("no client cell still uses a pipe", " | " not in js_body(src, "function renderTable()"))
 check("no static cell still uses a pipe", not re.search(r"static_rows \+= '<td[^']*' \| ", src))
 
