@@ -16,6 +16,7 @@ Exit codes: 0 = all passed, 1 = at least one FAILED
 import json
 import re
 import sys
+import time
 import urllib.request
 from pathlib import Path
 
@@ -68,12 +69,25 @@ def test_excerpt_builder():
 # ── 2. SERVED PAGE — the actual deployed artifact ──
 def test_served_page():
     print("\n[2] Live served page — checks what Railway actually deploys")
+    expected = json.loads(INDEX_JSON.read_text(encoding="utf-8"))
+
+    # Railway redeploy is not instant. If the served page disagrees with
+    # index.json, re-check after a settle window before calling it a failure —
+    # otherwise every publish reports a false FAIL purely from deploy lag.
     status, html = fetch(LIVE_BLOG)
+    served = len(re.findall(r'<div class="t"[^>]*>(.*?)</div>', html, re.S))
+
+    if served != len(expected) and served < len(expected):
+        print(f"     ...served {served} < index {len(expected)}; "
+              f"waiting 180s for Railway redeploy, then re-checking")
+        time.sleep(180)
+        status, html = fetch(LIVE_BLOG)
+        served = len(re.findall(r'<div class="t"[^>]*>(.*?)</div>', html, re.S))
+
     check("blog page HTTP 200", status == 200, f"got {status}")
     check("blog page non-empty", len(html) > 5000, f"{len(html)} bytes")
 
     cards = re.findall(r'<div class="t"[^>]*>(.*?)</div>', html, re.S)
-    expected = json.loads(INDEX_JSON.read_text(encoding="utf-8"))
     check("card count == index.json count",
           len(cards) == len(expected),
           f"served {len(cards)} vs index {len(expected)}")
