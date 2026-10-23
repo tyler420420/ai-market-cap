@@ -469,7 +469,7 @@ def analyze_ticker(ticker: str, earnings_date, retries: int = 2) -> Optional[Ear
 def _metric_box(caption, value, sub, col):
     """One labelled figure: caption, price, and a signed sub-note."""
     return ('<div style="background:#0d1117;border:1px solid #30363d;border-radius:6px;'
-            'padding:6px 12px;text-align:center;min-width:70px">'
+            'padding:6px 10px;text-align:center;min-width:78px">'
             '<div style="font-size:0.68em;color:#8b949e;margin-bottom:2px">' + caption + '</div>'
             '<div style="font-size:1em;color:' + col + ';font-weight:bold">$'
             + '{:,.0f}'.format(value) + '</div>'
@@ -486,13 +486,19 @@ def _direction_row(side, col, entry, ups, stop, stop_note):
 
     A horizon with no data is omitted rather than rendered as $0. Options
     chains fail for individual tickers, and a $0 target reads as a real price.
+
+    Laid out as a flex ITEM, not a full-width row, so LONG and SHORT sit side
+    by side and the banner is half the height it was. flex-basis 380px is the
+    point at which five boxes plus the label stop wrapping; below it (phones)
+    the pair wraps and stacks anyway.
     """
-    out = ('<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;'
-           'width:100%;margin-top:8px">')
-    out += ('<span style="font-size:0.82em;font-weight:bold;color:' + col +
-            ';min-width:52px">' + side + '</span>')
+    out = ('<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;'
+           'flex:1 1 380px;min-width:0;padding:6px 8px;border-radius:8px;'
+           'border:1px solid ' + col + '33;background:' + col + '0d">')
+    out += ('<span style="font-size:0.8em;font-weight:bold;color:' + col +
+            ';min-width:44px">' + side + '</span>')
     out += _metric_box('ENTRY', entry, '@ now', '#e6edf3')
-    for caption, up in (('3D TGT', ups[0]), ('7D TGT', ups[1]), ('14D TGT', ups[2])):
+    for caption, up in (('3D TARGET', ups[0]), ('7D TARGET', ups[1]), ('14D TARGET', ups[2])):
         if not up:
             continue
         out += _metric_box(caption, entry * (1 + up / 100),
@@ -501,6 +507,20 @@ def _direction_row(side, col, entry, ups, stop, stop_note):
         out += _metric_box('STOP', stop, stop_note, '#ff6b6b')
     out += '</div>'
     return out
+
+
+def _direction_pair(*rows):
+    """Lay the LONG and SHORT rows out side by side.
+
+    Tyler 2026-10-22: "i want the long data and the short data side by side
+    so the todays pick and runner up pick section is so tall."
+
+    Stacked, each banner was two full-width rows plus margins, which made the
+    block that little controls the decision on. Side by side it is one row on
+    desktop and wraps to two on a phone, where it has to anyway.
+    """
+    return ('<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:stretch;'
+            'width:100%;margin-top:8px">' + ''.join(rows) + '</div>')
 
 
 def generate_html_report(stocks: list, output_path: str):
@@ -876,17 +896,18 @@ def generate_html_report(stocks: list, output_path: str):
         # 7-Day = x3, 14-Day = x5. So the banner's "3D TARGET" was really the
         # 7-day target and its "5D TARGET" was really the 14-day. Three places
         # on one page disagreed about what the same number was.
-        html += _direction_row('LONG', '#00ff88', entry_price,
-                               (upside_1d, upside_3d, upside_5d),
-                               round(entry_price * 0.90, 2) if entry_price else 0,
-                               '-10%')
-        # The short side mirrors the long: identical entry, the same implied
-        # move taken the other way, and a stop ABOVE entry because a short
-        # loses when the price rises.
-        html += _direction_row('SHORT', '#ff6b6b', entry_price,
-                               (-upside_1d, -upside_3d, -upside_5d),
-                               round(entry_price * 1.10, 2) if entry_price else 0,
-                               '+10%')
+        html += _direction_pair(
+            _direction_row('LONG', '#00ff88', entry_price,
+                           (upside_1d, upside_3d, upside_5d),
+                           round(entry_price * 0.90, 2) if entry_price else 0,
+                           '-10%'),
+            # The short side mirrors the long: identical entry, the same implied
+            # move taken the other way, and a stop ABOVE entry because a short
+            # loses when the price rises.
+            _direction_row('SHORT', '#ff6b6b', entry_price,
+                           (-upside_1d, -upside_3d, -upside_5d),
+                           round(entry_price * 1.10, 2) if entry_price else 0,
+                           '+10%'))
         html += '<!--/PROVALUES-->'
         html += '</div>'
         # ── CTA MARKER ──────────────────────────────────────────────────
@@ -961,7 +982,17 @@ def generate_html_report(stocks: list, output_path: str):
     }
     for h, col in headers:
         label = col_labels.get(col, col)
-        ths += '<th onclick="location.href=\'https://aismarketcap.com/pricing\'" data-col="' + col + '" data-label="' + label + '">' + h + '</th>'
+        # Tyler 2026-10-22: "when subscribers click any header on the stock
+        # data table it still sends them to pricing page instead of working.
+        # thats a premium feature that should work and allow users to sort the
+        # data table once subscribed".
+        #
+        # Every header was hardcoded to `location.href = '/pricing'`.
+        # sortBy() existed, worked, and was never called from anywhere - so the
+        # sort feature was built and simply not wired to the one thing that
+        # could trigger it. It was not a paywall decision; it was a dead
+        # handler, and it charged every subscriber for it.
+        ths += '<th onclick="onHeaderClick(\'' + col + '\')" data-col="' + col + '" data-label="' + label + '">' + h + '</th>'
     html += '<table id="stockTable"><thead><tr>' + ths + '</tr></thead><tbody id="stockTableBody">'
 
     rows_data = []
@@ -1059,7 +1090,7 @@ def generate_html_report(stocks: list, output_path: str):
 
     html += static_rows + '</tbody></table>'
     html += '<script>var rowsData=' + json.dumps(rows_data) + ';\n'
-    html += "var sortCol='ticker';var sortAsc=false;function getVal(r,col){var m={'ticker':r.ticker,'company_name':r.company_name,'score':r.score,'earnings_date':r.earnings_date,'days_left':r.days_left,'price':r.price,'pe_target':r.pe_target,'3d':r['3d'],'5d':r['5d'],'analysts':r.analysts,'sb':r.sb,'buy':r.buy,'hold':r.hold,'sell':r.sell,'mktcap':r.mktcap,'short_int':r.short_int,'iv':r.iv,'sentiment':r.sentiment};return m[col]||r[col]||0;}function updateArrows(){document.querySelectorAll('th[data-col]').forEach(function(th){th.classList.remove('sorted-asc','sorted-desc');});var th=document.querySelector('th[data-col=\"'+sortCol+'\"]');if(th){th.classList.add(sortAsc?'sorted-asc':'sorted-desc');}}function sortBy(col){if(sortCol===col){sortAsc=!sortAsc;}else{sortCol=col;sortAsc=col==='score'||col==='analysts'||col==='sb'||col==='buy'||col==='hold'||col==='sell'||col==='price'||col==='pe_target'||col==='3d'||col==='5d'||col==='mktcap'||col==='short_int'||col==='iv';}var dirs={'ticker':1,'company_name':1};var asc=dirs[col]?sortAsc:!sortAsc;rowsData.sort(function(a,b){var va=getVal(a,col),vb=getVal(b,col);if(typeof va==='number')return asc?va-vb:vb-va;return asc?String(va).localeCompare(String(vb)):String(vb).localeCompare(String(va));});renderTable();updateArrows();}function fmtMktcap(v){if(v>=1000)return Math.round(v/1000)+' T';if(v>=1)return Math.round(v)+' B';return Math.round(v*1000)+' M';}function scoreColor(s){return s>=80?'#00ff88':'#58a6ff';}function newsHtml(n){if(!n)return'';var u=n.url||'';var t=n.title||'';if(t.length>45){var sp=t.lastIndexOf(' ',45);var rm=sp>0?t.substring(sp+1,sp+16):'';t=sp>20?t.substring(0,sp)+' '+rm:t.substring(0,45);t+='...';}return u?'<a href=\"'+u+'\" target=\"_blank\" style=\"color:#fff;text-decoration:none\">'+t+'</a>':'<span style=\"color:#fff\">'+t+'</span>';}function renderTable(){var tbody=document.getElementById('stockTableBody');if(!tbody)return;var html='';rowsData.forEach(function(r){if(r.score<50)return;var c=scoreColor(r.score);var bg=r.score>=80?'rgba(0,255,136,0.12)':'rgba(31,111,235,0.12)';html+='<tr style=\"background:'+bg+'\"><td data-label=\"Ticker\"><strong><a href=\"/stock/'+r.ticker+'\" target=\"_blank\" style=\"color:#66b2ff\">'+r.ticker+'</a></strong></td>';html+='<td data-label=\"Company\">'+r.company_name.substring(0,35)+(r.company_name.length>35?'...':'')+'</td>';html+='<td data-label=\"Score\"><strong style=\"color:'+c+';font-size:1.3em\">'+r.score+'</strong></td>';html+='<td data-label=\"Earnings\" class=earn-cell>'+r.earnings_date.replace(String.fromCharCode(10),'<br>')+'</td>';html+='<td data-label=\"Days\" style=\"color:'+(r.days_left==0?'#ff4444':(r.days_left<=9?'#ffcc00':(r.days_left<=19?'#58a6ff':'#00ff88')))+';font-weight:bold\">'+(r.days_left==0?'Today':r.days_left+'d')+'</td>';html+='<td data-label=\"Price\">$'+Math.floor(r.price)+'</td>';html+='<td data-label=\"3 Day Range\">$'+Math.floor(r.pe_target)+' | ±'+r.pe_upside+'%</td>';html+='<td data-label=\"7 Day Range\">$'+Math.floor(r['3d'])+' | ±'+r['3d_up']+'%</td>';html+='<td data-label=\"14 Day Range\">$'+Math.floor(r['5d'])+' | ±'+r['5d_up']+'%</td>';html+='<td data-label=\"Analysts\">'+r.analysts+'</td>';html+='<td data-label=\"Strong Buy\" style=\"color:#00ff88\">'+r.sb+'</td>';html+='<td data-label=\"Buy\" style=\"color:#58a6ff\">'+r.buy+'</td>';html+='<td data-label=\"Hold\" style=\"color:#ffcc00\">'+r.hold+'</td>';html+='<td data-label=\"Sell\" style=\"color:#ff6b6b\">'+r.sell+'</td>';html+='<td data-label=\"Mkt Cap\">'+fmtMktcap(r.mktcap)+'</td>';html+='<td data-label=\"Shorts\" style=\"color:#fff\">'+r.short_int+'%</td>';html+='<td data-label=\"IV\" style=\"color:#fff\">'+r.iv+'%</td>';html+='<td data-label=\"Sentiment\">'+(r.sentiment||'Mixed')+'</td>';html+='<td data-label=\"News\">'+newsHtml(r.news)+'</td></tr>';});tbody.innerHTML=html;};sortBy('score');"
+    html += "var sortCol='ticker';var sortAsc=false;function getVal(r,col){var m={'ticker':r.ticker,'company_name':r.company_name,'score':r.score,'earnings_date':r.earnings_date,'days_left':r.days_left,'price':r.price,'pe_target':r.pe_target,'3d':r['3d'],'5d':r['5d'],'analysts':r.analysts,'sb':r.sb,'buy':r.buy,'hold':r.hold,'sell':r.sell,'mktcap':r.mktcap,'short_int':r.short_int,'iv':r.iv,'sentiment':r.sentiment};return m[col]||r[col]||0;}function updateArrows(){document.querySelectorAll('th[data-col]').forEach(function(th){th.classList.remove('sorted-asc','sorted-desc');});var th=document.querySelector('th[data-col=\"'+sortCol+'\"]');if(th){th.classList.add(sortAsc?'sorted-asc':'sorted-desc');}}function sortBy(col){if(sortCol===col){sortAsc=!sortAsc;}else{sortCol=col;sortAsc=col==='score'||col==='analysts'||col==='sb'||col==='buy'||col==='hold'||col==='sell'||col==='price'||col==='pe_target'||col==='3d'||col==='5d'||col==='mktcap'||col==='short_int'||col==='iv';}var dirs={'ticker':1,'company_name':1};var asc=dirs[col]?sortAsc:!sortAsc;rowsData.sort(function(a,b){var va=getVal(a,col),vb=getVal(b,col);if(typeof va==='number')return asc?va-vb:vb-va;return asc?String(va).localeCompare(String(vb)):String(vb).localeCompare(String(va));});renderTable();updateArrows();}function onHeaderClick(col){if(window.__isSubscriber){sortBy(col);}else{window.location.href='/pricing';}}function fmtMktcap(v){if(v>=1000)return Math.round(v/1000)+' T';if(v>=1)return Math.round(v)+' B';return Math.round(v*1000)+' M';}function scoreColor(s){return s>=80?'#00ff88':'#58a6ff';}function newsHtml(n){if(!n)return'';var u=n.url||'';var t=n.title||'';if(t.length>45){var sp=t.lastIndexOf(' ',45);var rm=sp>0?t.substring(sp+1,sp+16):'';t=sp>20?t.substring(0,sp)+' '+rm:t.substring(0,45);t+='...';}return u?'<a href=\"'+u+'\" target=\"_blank\" style=\"color:#fff;text-decoration:none\">'+t+'</a>':'<span style=\"color:#fff\">'+t+'</span>';}function renderTable(){var tbody=document.getElementById('stockTableBody');if(!tbody)return;var html='';rowsData.forEach(function(r){if(r.score<50)return;var c=scoreColor(r.score);var bg=r.score>=80?'rgba(0,255,136,0.12)':'rgba(31,111,235,0.12)';html+='<tr style=\"background:'+bg+'\"><td data-label=\"Ticker\"><strong><a href=\"/stock/'+r.ticker+'\" target=\"_blank\" style=\"color:#66b2ff\">'+r.ticker+'</a></strong></td>';html+='<td data-label=\"Company\">'+r.company_name.substring(0,35)+(r.company_name.length>35?'...':'')+'</td>';html+='<td data-label=\"Score\"><strong style=\"color:'+c+';font-size:1.3em\">'+r.score+'</strong></td>';html+='<td data-label=\"Earnings\" class=earn-cell>'+r.earnings_date.replace(String.fromCharCode(10),'<br>')+'</td>';html+='<td data-label=\"Days\" style=\"color:'+(r.days_left==0?'#ff4444':(r.days_left<=9?'#ffcc00':(r.days_left<=19?'#58a6ff':'#00ff88')))+';font-weight:bold\">'+(r.days_left==0?'Today':r.days_left+'d')+'</td>';html+='<td data-label=\"Price\">$'+Math.floor(r.price)+'</td>';html+='<td data-label=\"3 Day Range\">$'+Math.floor(r.pe_target)+' | ±'+r.pe_upside+'%</td>';html+='<td data-label=\"7 Day Range\">$'+Math.floor(r['3d'])+' | ±'+r['3d_up']+'%</td>';html+='<td data-label=\"14 Day Range\">$'+Math.floor(r['5d'])+' | ±'+r['5d_up']+'%</td>';html+='<td data-label=\"Analysts\">'+r.analysts+'</td>';html+='<td data-label=\"Strong Buy\" style=\"color:#00ff88\">'+r.sb+'</td>';html+='<td data-label=\"Buy\" style=\"color:#58a6ff\">'+r.buy+'</td>';html+='<td data-label=\"Hold\" style=\"color:#ffcc00\">'+r.hold+'</td>';html+='<td data-label=\"Sell\" style=\"color:#ff6b6b\">'+r.sell+'</td>';html+='<td data-label=\"Mkt Cap\">'+fmtMktcap(r.mktcap)+'</td>';html+='<td data-label=\"Shorts\" style=\"color:#fff\">'+r.short_int+'%</td>';html+='<td data-label=\"IV\" style=\"color:#fff\">'+r.iv+'%</td>';html+='<td data-label=\"Sentiment\">'+(r.sentiment||'Mixed')+'</td>';html+='<td data-label=\"News\">'+newsHtml(r.news)+'</td></tr>';});tbody.innerHTML=html;};sortBy('score');"
 
     html += '</script>'
     html += '<div class=note><b>Scoring:</b> Analyst Coverage (25pts linear) + Buy% Conviction (25pts) + Strong Buy Count (2pts each, max 20) + 5D Upside (max 15pts) + Earnings Sentiment (max 15pts) | 3-Day Target: straddle x1 (Conservative Target) | 7-Day Target: straddle x3 (Mid Target) | 14-Day Target: straddle x5 (High Target) | <b>Entry:</b> 1-35 days pre-earnings | <b>Exit:</b> 1-5 days after earnings beat</div>'

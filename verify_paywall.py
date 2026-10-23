@@ -43,12 +43,13 @@ SUB = "cus_VTsULOjOP83NeP"
 
 # Label -> value, as rendered in each metric box.
 # The banners moved from TARGET/3D TARGET/5D TARGET to a LONG and SHORT row
-# each carrying ENTRY / 3D TGT / 7D TGT / 14D TGT / STOP. This is the leak
-# detector, so it must match EVERY caption that can hold a paid number -
-# a caption added to the banner and not added here reads as "no leak" while
-# shipping the whole product.
+# each carrying ENTRY / 3D TARGET / 7D TARGET / 14D TARGET / STOP. "TGT" was
+# rejected by Tyler as jargon nobody would decode. This is the leak detector,
+# so it must match EVERY caption that can hold a paid number - a caption added
+# to the banner and not added here reads as "no leak" while shipping the
+# whole product.
 METRIC = re.compile(
-    r">(ENTRY|3D TGT|7D TGT|14D TGT|STOP|TARGET|3D TARGET|5D TARGET)</div>\s*"
+    r">(ENTRY|3D TARGET|7D TARGET|14D TARGET|STOP|TARGET|3D TARGET|5D TARGET)</div>\s*"
     r"<div[^>]*>\$([0-9,]+)")
 
 
