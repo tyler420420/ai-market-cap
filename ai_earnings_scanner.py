@@ -420,12 +420,72 @@ def analyze_ticker(ticker: str, earnings_date, retries: int = 2) -> Optional[Ear
                     puts['abs_ITM'] = abs(puts['strike'] - current_price)
                     atm_call = calls.loc[calls['abs_ITM'].idxmin()]
                     atm_put = puts.loc[puts['abs_ITM'].idxmin()]
-                    call_price = atm_call.get('lastPrice', 0) or atm_call.get('bid', 0) or 0
-                    put_price = atm_put.get('lastPrice', 0) or atm_put.get('bid', 0) or 0
+
+                    def _leg_price(leg):
+                        # Mid is the best estimate. lastPrice is often 0 on a
+                        # thin chain, and bid alone systematically understates
+                        # the straddle, which understates both the targets and
+                        # the volatility below.
+                        bid = leg.get('bid', 0) or 0
+                        ask = leg.get('ask', 0) or 0
+                        if bid > 0 and ask > 0:
+                            return (bid + ask) / 2.0
+                        last = leg.get('lastPrice', 0) or 0
+                        return last if last > 0 else bid
+
+                    call_price = _leg_price(atm_call)
+                    put_price = _leg_price(atm_put)
                     straddle_cost = call_price + put_price
-                    iv_from_straddle = (straddle_cost / current_price) * 100
-                    if iv_from_straddle > 0:
-                        implied_volatility = round(iv_from_straddle, 1)
+
+                    # ---- REAL IMPLIED VOLATILITY -------------------------
+                    # This used to be set to the straddle premium as a
+                    # percent of price - which is the EXPECTED MOVE, and is
+                    # literally the same expression as
+                    # post_earnings_upside_pct below. That is why the IV
+                    # column matched the 3-day upside for 100 of 100 stocks:
+                    # it was never a fallback, it was the same number twice.
+                    #
+                    # yfinance's own impliedVolatility column is unusable - it
+                    # returns ~1e-05 or ~3% for names whose real pre-earnings
+                    # IV is 40-60%. So compute it from the straddle instead,
+                    # using the standard ATM approximation:
+                    #
+                    #   straddle ~ S * sigma * sqrt(T) * sqrt(2/pi)
+                    #   =>  sigma ~ (straddle / S) / (sqrt(T) * sqrt(2/pi))
+                    #
+                    # This is the same chain, strike and premium the 3/7/14
+                    # targets are built from, so the volatility shown and the
+                    # targets quoted describe one consistent market view.
+                    #
+                    # Left at 0 when it cannot be computed - never filled in
+                    # with a different quantity, and never shown as a number
+                    # the chain did not support.
+                    try:
+                        today = datetime.now(PT).date()
+                        future = [d for d in (stock.options or [])
+                                  if datetime.strptime(str(d), '%Y-%m-%d').date() >= today]
+                        if future:
+                            pick = min(future, key=lambda d: abs(
+                                (datetime.strptime(str(d), '%Y-%m-%d').date() - earnings_date).days))
+                            days_to_exp = (datetime.strptime(str(pick), '%Y-%m-%d').date() - today).days
+                            if days_to_exp > 0:
+                                eo = stock.option_chain(pick)
+                                ec, ep = eo.calls.copy(), eo.puts.copy()
+                                if ec.shape[0] > 0 and ep.shape[0] > 0:
+                                    ec['abs_ITM'] = abs(ec['strike'] - current_price)
+                                    ep['abs_ITM'] = abs(ep['strike'] - current_price)
+                                    earn_strad = _leg_price(ec.loc[ec['abs_ITM'].idxmin()]) + \
+                                                _leg_price(ep.loc[ep['abs_ITM'].idxmin()])
+                                    if earn_strad > 0:
+                                        t_years = days_to_exp / 365.0
+                                        sigma = (earn_strad / current_price) / (
+                                            (t_years ** 0.5) * (2.0 / 3.141592653589793) ** 0.5)
+                                        if sigma > 0:
+                                            implied_volatility = round(sigma * 100, 1)
+                    except Exception:
+                        implied_volatility = 0
+
+                    if straddle_cost > 0:
                         # PE target = current + straddle x1 (conservative sell)
                         post_earnings_target = round(current_price + straddle_cost, 2)
                         post_earnings_upside_pct = round((straddle_cost / current_price) * 100, 1)
@@ -435,12 +495,8 @@ def analyze_ticker(ticker: str, earnings_date, retries: int = 2) -> Optional[Ear
                         # 5D target = current + straddle x5 (max upside rotation trade)
                         post_earnings_5d_target = round(current_price + straddle_cost * 5, 2)
                         post_earnings_5d_upside_pct = round((straddle_cost * 5 / current_price) * 100, 1)
-                    else:
-                        atm_calls = opt.calls[opt.calls['inTheMoney'] == False]
-                        if len(atm_calls) > 0:
-                            iv = atm_calls.iloc[0].get('impliedVolatility', 0)
-                            implied_volatility = iv * 100 if iv else 0
-            except: pass
+            except Exception:
+                pass
 
             # Fallback: if options failed, scale 12-month target down to post-earnings estimate
             if post_earnings_upside_pct == 0 and price_target > 0 and current_price > 0:
@@ -1085,7 +1141,8 @@ def generate_html_report(stocks: list, output_path: str):
         static_rows += '<td data-label="Sell" style="color:#ff6b6b">' + str(r['sell']) + '</td>'
         static_rows += '<td data-label="Mkt Cap">' + fmt_mktcap(r['mktcap']) + '</td>'
         static_rows += '<td data-label="Shorts" style=\"color:#fff\">' + str(r['short_int']) + '%</td>'
-        static_rows += '<td data-label="IV" style=\"color:#fff\">' + str(r['iv']) + '%</td>'
+        iv_txt = (str(r['iv']) + '%') if r.get('iv') else 'n/a'
+        static_rows += '<td data-label="IV" style=\"color:#fff\">' + iv_txt + '</td>'
         sent = r.get('sentiment', '')
         if sent == 'Positive':
             sent_badge = '<span style="background:#1a2a1a;border:1px solid #2ea043;border-radius:5px;padding:2px 8px;font-size:0.75em;font-weight:bold;color:#00ff88">' + sent + '</span>'
@@ -1101,7 +1158,7 @@ def generate_html_report(stocks: list, output_path: str):
 
     html += static_rows + '</tbody></table>'
     html += '<script>var rowsData=' + json.dumps(rows_data) + ';\n'
-    html += "var sortCol='ticker';var sortAsc=false;function getVal(r,col){var m={'ticker':r.ticker,'company_name':r.company_name,'score':r.score,'earnings_date':r.earnings_date,'days_left':r.days_left,'price':r.price,'pe_target':r.pe_target,'3d':r['3d'],'5d':r['5d'],'analysts':r.analysts,'sb':r.sb,'buy':r.buy,'hold':r.hold,'sell':r.sell,'mktcap':r.mktcap,'short_int':r.short_int,'iv':r.iv,'sentiment':r.sentiment};return m[col]||r[col]||0;}function updateArrows(){document.querySelectorAll('th[data-col]').forEach(function(th){th.classList.remove('sorted-asc','sorted-desc');});var th=document.querySelector('th[data-col=\"'+sortCol+'\"]');if(th){th.classList.add(sortAsc?'sorted-asc':'sorted-desc');}}function sortBy(col){if(sortCol===col){sortAsc=!sortAsc;}else{sortCol=col;sortAsc=col==='score'||col==='analysts'||col==='sb'||col==='buy'||col==='hold'||col==='sell'||col==='price'||col==='pe_target'||col==='3d'||col==='5d'||col==='mktcap'||col==='short_int'||col==='iv';}var dirs={'ticker':1,'company_name':1};var asc=dirs[col]?sortAsc:!sortAsc;rowsData.sort(function(a,b){var va=getVal(a,col),vb=getVal(b,col);if(typeof va==='number')return asc?va-vb:vb-va;return asc?String(va).localeCompare(String(vb)):String(vb).localeCompare(String(va));});renderTable();updateArrows();}function onHeaderClick(col){if(window.__isSubscriber){sortBy(col);}else{window.location.href='/pricing';}}function fmtMktcap(v){if(v>=1000)return Math.round(v/1000)+' T';if(v>=1)return Math.round(v)+' B';return Math.round(v*1000)+' M';}function scoreColor(s){return s>=80?'#00ff88':'#58a6ff';}function newsHtml(n){if(!n)return'';var u=n.url||'';var t=n.title||'';if(t.length>45){var sp=t.lastIndexOf(' ',45);var rm=sp>0?t.substring(sp+1,sp+16):'';t=sp>20?t.substring(0,sp)+' '+rm:t.substring(0,45);t+='...';}return u?'<a href=\"'+u+'\" target=\"_blank\" style=\"color:#fff;text-decoration:none\">'+t+'</a>':'<span style=\"color:#fff\">'+t+'</span>';}function addMobileMore(){  if(window.innerWidth>768)return;  document.querySelectorAll('#stockTable tbody tr').forEach(function(tr){    if(tr.querySelector('.mob-more'))return;    var btn=document.createElement('button');    btn.className='mob-more';btn.type='button';btn.textContent='More';    btn.addEventListener('click',function(){      tr.classList.toggle('open');      btn.textContent=tr.classList.contains('open')?'Less':'More';});    tr.appendChild(btn);});}function renderTable(){var tbody=document.getElementById('stockTableBody');if(!tbody)return;var html='';rowsData.forEach(function(r){if(r.score<50)return;var c=scoreColor(r.score);var bg=r.score>=80?'rgba(0,255,136,0.12)':'rgba(31,111,235,0.12)';html+='<tr style=\"background:'+bg+'\"><td data-label=\"Ticker\"><strong><a href=\"/stock/'+r.ticker+'\" target=\"_blank\" style=\"color:#66b2ff\">'+r.ticker+'</a></strong></td>';html+='<td data-label=\"Company\">'+r.company_name.substring(0,35)+(r.company_name.length>35?'...':'')+'</td>';html+='<td data-label=\"Score\"><strong style=\"color:'+c+';font-size:1.3em\">'+r.score+'</strong></td>';html+='<td data-label=\"Earnings\" class=earn-cell>'+r.earnings_date.replace(String.fromCharCode(10),'<br>')+'</td>';html+='<td data-label=\"Days\" style=\"color:'+(r.days_left==0?'#ff4444':(r.days_left<=9?'#ffcc00':(r.days_left<=19?'#58a6ff':'#00ff88')))+';font-weight:bold\">'+(r.days_left==0?'Today':r.days_left+'d')+'</td>';html+='<td data-label=\"Price\">$'+Math.floor(r.price)+'</td>';html+='<td data-label=\"3 Day Range\">$'+Math.floor(r.pe_target)+'<br><span style=\"color:#00ff88\">±'+r.pe_upside+'%</span></td>';html+='<td data-label=\"7 Day Range\">$'+Math.floor(r['3d'])+'<br><span style=\"color:#00ff88\">±'+r['3d_up']+'%</span></td>';html+='<td data-label=\"14 Day Range\">$'+Math.floor(r['5d'])+'<br><span style=\"color:#00ff88\">±'+r['5d_up']+'%</span></td>';html+='<td data-label=\"Analysts\">'+r.analysts+'</td>';html+='<td data-label=\"Strong Buy\" style=\"color:#00ff88\">'+r.sb+'</td>';html+='<td data-label=\"Buy\" style=\"color:#58a6ff\">'+r.buy+'</td>';html+='<td data-label=\"Hold\" style=\"color:#ffcc00\">'+r.hold+'</td>';html+='<td data-label=\"Sell\" style=\"color:#ff6b6b\">'+r.sell+'</td>';html+='<td data-label=\"Mkt Cap\">'+fmtMktcap(r.mktcap)+'</td>';html+='<td data-label=\"Shorts\" style=\"color:#fff\">'+r.short_int+'%</td>';html+='<td data-label=\"IV\" style=\"color:#fff\">'+r.iv+'%</td>';html+='<td data-label=\"Sentiment\">'+(r.sentiment||'Mixed')+'</td>';html+='<td data-label=\"News\">'+newsHtml(r.news)+'</td></tr>';});tbody.innerHTML=html;addMobileMore();};sortBy('score');window.addEventListener('load',addMobileMore);window.addEventListener('resize',addMobileMore);"
+    html += "var sortCol='ticker';var sortAsc=false;function getVal(r,col){var m={'ticker':r.ticker,'company_name':r.company_name,'score':r.score,'earnings_date':r.earnings_date,'days_left':r.days_left,'price':r.price,'pe_target':r.pe_target,'3d':r['3d'],'5d':r['5d'],'analysts':r.analysts,'sb':r.sb,'buy':r.buy,'hold':r.hold,'sell':r.sell,'mktcap':r.mktcap,'short_int':r.short_int,'iv':r.iv,'sentiment':r.sentiment};return m[col]||r[col]||0;}function updateArrows(){document.querySelectorAll('th[data-col]').forEach(function(th){th.classList.remove('sorted-asc','sorted-desc');});var th=document.querySelector('th[data-col=\"'+sortCol+'\"]');if(th){th.classList.add(sortAsc?'sorted-asc':'sorted-desc');}}function sortBy(col){if(sortCol===col){sortAsc=!sortAsc;}else{sortCol=col;sortAsc=col==='score'||col==='analysts'||col==='sb'||col==='buy'||col==='hold'||col==='sell'||col==='price'||col==='pe_target'||col==='3d'||col==='5d'||col==='mktcap'||col==='short_int'||col==='iv';}var dirs={'ticker':1,'company_name':1};var asc=dirs[col]?sortAsc:!sortAsc;rowsData.sort(function(a,b){var va=getVal(a,col),vb=getVal(b,col);if(typeof va==='number')return asc?va-vb:vb-va;return asc?String(va).localeCompare(String(vb)):String(vb).localeCompare(String(va));});renderTable();updateArrows();}function onHeaderClick(col){if(window.__isSubscriber){sortBy(col);}else{window.location.href='/pricing';}}function fmtMktcap(v){if(v>=1000)return Math.round(v/1000)+' T';if(v>=1)return Math.round(v)+' B';return Math.round(v*1000)+' M';}function scoreColor(s){return s>=80?'#00ff88':'#58a6ff';}function newsHtml(n){if(!n)return'';var u=n.url||'';var t=n.title||'';if(t.length>45){var sp=t.lastIndexOf(' ',45);var rm=sp>0?t.substring(sp+1,sp+16):'';t=sp>20?t.substring(0,sp)+' '+rm:t.substring(0,45);t+='...';}return u?'<a href=\"'+u+'\" target=\"_blank\" style=\"color:#fff;text-decoration:none\">'+t+'</a>':'<span style=\"color:#fff\">'+t+'</span>';}function addMobileMore(){  if(window.innerWidth>768)return;  document.querySelectorAll('#stockTable tbody tr').forEach(function(tr){    if(tr.querySelector('.mob-more'))return;    var btn=document.createElement('button');    btn.className='mob-more';btn.type='button';btn.textContent='More';    btn.addEventListener('click',function(){      tr.classList.toggle('open');      btn.textContent=tr.classList.contains('open')?'Less':'More';});    tr.appendChild(btn);});}function renderTable(){var tbody=document.getElementById('stockTableBody');if(!tbody)return;var html='';rowsData.forEach(function(r){if(r.score<50)return;var c=scoreColor(r.score);var bg=r.score>=80?'rgba(0,255,136,0.12)':'rgba(31,111,235,0.12)';html+='<tr style=\"background:'+bg+'\"><td data-label=\"Ticker\"><strong><a href=\"/stock/'+r.ticker+'\" target=\"_blank\" style=\"color:#66b2ff\">'+r.ticker+'</a></strong></td>';html+='<td data-label=\"Company\">'+r.company_name.substring(0,35)+(r.company_name.length>35?'...':'')+'</td>';html+='<td data-label=\"Score\"><strong style=\"color:'+c+';font-size:1.3em\">'+r.score+'</strong></td>';html+='<td data-label=\"Earnings\" class=earn-cell>'+r.earnings_date.replace(String.fromCharCode(10),'<br>')+'</td>';html+='<td data-label=\"Days\" style=\"color:'+(r.days_left==0?'#ff4444':(r.days_left<=9?'#ffcc00':(r.days_left<=19?'#58a6ff':'#00ff88')))+';font-weight:bold\">'+(r.days_left==0?'Today':r.days_left+'d')+'</td>';html+='<td data-label=\"Price\">$'+Math.floor(r.price)+'</td>';html+='<td data-label=\"3 Day Range\">$'+Math.floor(r.pe_target)+'<br><span style=\"color:#00ff88\">±'+r.pe_upside+'%</span></td>';html+='<td data-label=\"7 Day Range\">$'+Math.floor(r['3d'])+'<br><span style=\"color:#00ff88\">±'+r['3d_up']+'%</span></td>';html+='<td data-label=\"14 Day Range\">$'+Math.floor(r['5d'])+'<br><span style=\"color:#00ff88\">±'+r['5d_up']+'%</span></td>';html+='<td data-label=\"Analysts\">'+r.analysts+'</td>';html+='<td data-label=\"Strong Buy\" style=\"color:#00ff88\">'+r.sb+'</td>';html+='<td data-label=\"Buy\" style=\"color:#58a6ff\">'+r.buy+'</td>';html+='<td data-label=\"Hold\" style=\"color:#ffcc00\">'+r.hold+'</td>';html+='<td data-label=\"Sell\" style=\"color:#ff6b6b\">'+r.sell+'</td>';html+='<td data-label=\"Mkt Cap\">'+fmtMktcap(r.mktcap)+'</td>';html+='<td data-label=\"Shorts\" style=\"color:#fff\">'+r.short_int+'%</td>';html+='<td data-label=\"IV\" style=\"color:#fff\">'+(r.iv?r.iv+'%':'n/a')+'</td>';html+='<td data-label=\"Sentiment\">'+(r.sentiment||'Mixed')+'</td>';html+='<td data-label=\"News\">'+newsHtml(r.news)+'</td></tr>';});tbody.innerHTML=html;addMobileMore();};sortBy('score');window.addEventListener('load',addMobileMore);window.addEventListener('resize',addMobileMore);"
 
     html += '</script>'
     html += '<div class=note><b>Scoring:</b> Analyst Coverage (25pts linear) + Buy% Conviction (25pts) + Strong Buy Count (2pts each, max 20) + 5D Upside (max 15pts) + Earnings Sentiment (max 15pts) | 3-Day Target: straddle x1 (Conservative Target) | 7-Day Target: straddle x3 (Mid Target) | 14-Day Target: straddle x5 (High Target) | <b>Entry:</b> 1-35 days pre-earnings | <b>Exit:</b> 1-5 days after earnings beat</div>'
