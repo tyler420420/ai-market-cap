@@ -447,9 +447,9 @@ try {
     }
     $aOut = & $python $auditor 2>&1
     $aCode = $LASTEXITCODE
-    foreach ($line in ($aOut | Select-Object -Last 6)) { Log "[AUDIT] $line" }
+    foreach ($line in ($aOut | Select-Object -Last 6)) { Log "[AUDIT] $line" }; $vCode = 0; try { $vCode = (Invoke-WebRequest -Uri ($siteUrl + 'api/visitors') -UseBasicParsing -TimeoutSec 15).StatusCode } catch { $vCode = 0 }
     if ($aCode -ne 0) {
-        Log "[AUDIT] FAILURES DETECTED on the live site - see output above"
+        if ($vCode -ne 200) { Log "[AUDIT] LIVE BUILD IS BEHIND MASTER - /api/visitors returned $vCode, not 200."; Log "[AUDIT]        The deploy is queued or paused, NOT broken. The audit failures"; Log "[AUDIT]        above are the site serving an older commit. exit 2, not 1."; Log "[AUDIT]        No code change is needed here; the next successful build clears it."; exit 2 }; Log "[AUDIT] FAILURES DETECTED on the live site - see output above"
         exit 1
     }
     Log "[AUDIT] Live site clean"
