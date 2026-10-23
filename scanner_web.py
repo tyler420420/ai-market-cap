@@ -73,6 +73,43 @@ if not ALLOW_IN_CONTAINER_SCAN:
 
 app = Flask(__name__, static_folder='static', static_url_path='/static')
 
+# ===== TRAILING-SLASH TOLERANCE ==========================================
+# Every page on this site returned 404 the moment a trailing slash was added.
+# /blog/, /pricing/, /wins/ and /stocks/ were all unreachable, because their
+# Flask rules are declared without one and Flask 404s rather than redirecting
+# in that direction.
+#
+# That matters more than it looks. Search engines, social-preview unfurls
+# (Slack, Discord, iMessage, LinkedIn) and humans typing a URL overwhelmingly
+# use the trailing slash, so the canonical pages were unreachable in the exact
+# shape crawlers and visitors actually request them. The sitemap was generated
+# from the same rule table, so it listed them correctly and looked perfectly
+# healthy - the sitemap check would pass forever while the pages stayed dark.
+#
+# This resolves the un-slashed path against the REAL url_map and only
+# redirects when that path is genuinely a route. So it cannot invent a page,
+# cannot mask a legitimate 404, and cannot loop. 308 preserves the method, but
+# it is limited to GET/HEAD so a form POST is never silently replayed to a
+# different URL.
+@app.before_request
+def _redirect_trailing_slash():
+    if request.method not in ("GET", "HEAD"):
+        return None
+    path = request.path
+    if not path.endswith("/") or path == "/":
+        return None
+    candidate = path.rstrip("/")
+    if not candidate:
+        return None
+    try:
+        adapter = app.url_map.bind("localhost")
+        if adapter.match(candidate) is None:
+            return None
+    except Exception:
+        return None
+    qs = request.query_string.decode("utf-8", "replace")
+    return redirect(candidate + ("?" + qs if qs else ""), code=308)
+
 # ===== HOME / SCANNER =====
 # ===== PRO PICK CONFIG =====
 PRO_PICK_FILE = Path(__file__).parent / "pro_pick.json"
