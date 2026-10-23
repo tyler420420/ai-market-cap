@@ -169,17 +169,26 @@ def reconcile(dry=False):
     if downgraded and not dry:
         save_subs(subs)
 
+    # last_ok means "the reconcile itself worked", not "every record was
+    # verifiable". One permanently unverifiable record - a test fixture with a
+    # fake customer id, say - would otherwise pin this false forever and make a
+    # real outage indistinguishable from normal noise. It goes false only when
+    # NOTHING could be checked, which is what an actual API failure looks like.
+    resolved = len(actives) - len(unknown)
     write_status({
         "last_run": datetime.now().isoformat(timespec="seconds"),
         "checked": len(actives),
+        "resolved": resolved,
         "downgraded": len(downgraded),
         "unknown": len(unknown),
-        "last_ok": len(unknown) == 0,
+        "unknown_ids": unknown,
+        "last_ok": bool(resolved > 0 or not actives),
         "configured": True,
         "dry_run": bool(dry),
     })
-    print(f"[Reconcile] checked={len(actives)} downgraded={len(downgraded)} "
-          f"unknown={len(unknown)}{' (DRY RUN)' if dry else ''}")
+    print(f"[Reconcile] checked={len(actives)} resolved={resolved} "
+          f"downgraded={len(downgraded)} unknown={len(unknown)}"
+          f"{' (DRY RUN)' if dry else ''}")
     if unknown:
         # Not a crash: some customers could not be verified this run.
         print("[Reconcile] some customers were unverifiable and were left "

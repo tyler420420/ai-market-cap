@@ -1,8 +1,13 @@
 {
-  "last_run": "2026-10-22T23:19:46",
-  "checked": 0,
+  "last_run": "2026-10-22T23:29:08",
+  "checked": 2,
+  "resolved": 1,
   "downgraded": 0,
-  "unknown": 0,
+  "unknown": 1,
+  "unknown_ids": [
+    "test123"
+  ],
   "last_ok": true,
-  "configured": false
+  "configured": true,
+  "dry_run": false
 }
