@@ -65,6 +65,16 @@ from datetime import datetime, timedelta
 from pathlib import Path
 
 SITE = Path(__file__).parent
+# Which addresses already received today's alert. Written locally, never
+# committed - it holds subscriber email addresses.
+SENT_LOG = SITE / "alert_sent_log.json"
+# A PREDICATE with no addresses and no secrets, which the daily scan commits
+# so the deployed site can report honestly. /api/alert-status runs on Railway
+# and therefore can never see alert.env or the local log - the sender runs on
+# Tyler's machine. Asking the deployed host whether a LOCAL credential exists
+# is structurally incapable of a true answer; it would have reported false
+# forever even with a working, verified, sending pipeline.
+STATUS_FILE = SITE / "alert_status.json"
 PT_TZ = None
 try:
     from zoneinfo import ZoneInfo
@@ -275,6 +285,29 @@ def send_via_smtp(env, to, subject, html):
     return 250
 
 
+def load_sent_log():
+    try:
+        return json.loads(SENT_LOG.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+
+
+def write_status(name, sent, failed, total, ok):
+    """Publish a secret-free, address-free record of what just happened."""
+    try:
+        payload = {
+            "last_run": datetime.now().isoformat(timespec="seconds"),
+            "last_ok": bool(ok),
+            "sent": sent,
+            "failed": failed,
+            "recipients": total,
+            "transport": name,
+        }
+        STATUS_FILE.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+    except Exception as e:
+        print(f"[Alert] could not write status: {e}")
+
+
 def build_variants():
     """Build both message variants once.
 
@@ -347,17 +380,48 @@ def main():
             print(f"[Alert] DRY RUN - nothing was sent to {len(rcpt)} recipient(s)")
         return 0
 
+    # Idempotency. The scan runs twice daily and exits non-zero on any
+    # failure, so the 13:00 retry must not mail anyone the 06:31 run already
+    # reached. The previous code exited 0 on a PARTIAL failure: one bad
+    # address marked the whole day as sent and was never retried at all,
+    # while a successful retry would have duplicated everyone else.
+    log = load_sent_log()
+    already = set()
+    if log.get("date") == today_str():
+        already = {a.lower() for a in (log.get("sent_to") or [])}
+    if already:
+        print(f"[Alert] {len(already)} recipient(s) already received today's alert")
+
     sent = failed = 0
+    sent_to, failed_to = [], []
     for email, paid in rcpt:
+        if email.lower() in already:
+            sent += 1
+            sent_to.append(email)
+            continue
         html, subj = variants.get(bool(paid)) or variants[False]
         try:
             _send(env, email, subj, html)
             sent += 1
+            sent_to.append(email)
         except Exception as e:
             failed += 1
+            failed_to.append(email)
             print(f"[Alert] FAILED {email}: {type(e).__name__}: {e}")
     print(f"[Alert] sent={sent} failed={failed}")
-    return 1 if failed and not sent else 0
+
+    try:
+        SENT_LOG.write_text(json.dumps({
+            "date": today_str(),
+            "at": datetime.now().isoformat(timespec="seconds"),
+            "sent_to": sent_to,
+            "failed_to": failed_to,
+        }, indent=2), encoding="utf-8")
+    except Exception as e:
+        print(f"[Alert] could not write sent-log: {e}")
+
+    write_status(name, sent, failed, len(rcpt), ok=(failed == 0))
+    return 1 if failed else 0
 
 
 if __name__ == "__main__":

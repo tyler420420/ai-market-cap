@@ -1,24 +1,31 @@
-r"""/api/alert-status must not be able to report green while sending nothing.
+r"""/api/alert-status must report what ACTUALLY HAPPENED, not what it guesses.
 
-THE TWO FALSE-GREEN STATES
----------------------------
-1. Partial credential. The original check matched `ALERT_SMTP_HOST=\S`. That
-   line is present in a file whose `ALERT_SMTP_PASS=` is still BLANK - the
-   exact state Tyler was in - so the endpoint reported "configured" and every
-   send would have failed at authentication.
+THE STRUCTURAL BUG THIS FIXES
+-----------------------------
+The sender does not run on Railway. It runs on Tyler's machine, from
+daily_scan.ps1. /api/alert-status is served BY Railway. alert.env is
+gitignored and never deployed, so the deployed host could never see it.
 
-2. No runner. `send_daily_alert.py` shipped with no caller anywhere: no cron,
-   no Railway service, no scheduled task, no hook. Even a perfect credential
-   would have produced no mail, ever. A status that reports success while
-   delivering nothing is worse than no status, because it ends the question.
+Asking the deployed host "does a local credential file exist?" is therefore
+structurally incapable of a true answer. It reported `false` permanently -
+through a verified domain, a working key, and real delivered mail - because
+it was measuring the wrong machine. That is worse than having no endpoint: it
+looked authoritative and was confidently wrong.
 
-So this drives the real view function against real credential states, and
-asserts daily_scan.ps1 - the scheduled, unattended writer - invokes the
-sender once per day and treats a mail failure as non-fatal, because a mail
-outage must never be allowed to abort the scan.
+So the sender now publishes alert_status.json after every run (when, how many
+sent, how many failed, which transport - no addresses, no credentials), the
+daily scan commits it, and the endpoint reports THAT.
 
-Extraction uses ast, not brace counting: the view contains an f-string, and
-counting braces by hand stops in the middle of `{e}`.
+WHAT THIS ASSERTS
+-----------------
+1. Nothing delivered -> not configured.
+2. A send older than 48h -> not configured (a missed run stays visible).
+3. The runner not invoking the sender -> not configured, whatever the record.
+4. A PARTIAL failure still counts as delivered. One mistyped address must not
+   read as a broken pipeline - but the failure is exposed as `last_failed`
+   rather than hidden behind a boolean.
+5. No address, key, host or user ever appears in the response.
+6. daily_scan.ps1 still invokes the sender, at most once a day, non-fatally.
 """
 import ast
 import json
@@ -26,6 +33,7 @@ import os
 import re
 import sys
 import tempfile
+from datetime import datetime, timedelta
 from pathlib import Path
 
 SITE = Path(r"C:\Users\Tyler_AI\ai-market-cap")
@@ -52,93 +60,114 @@ class _Resp:
 
 
 def extract_view(web_path):
-    """Return (source_of_view, needs_path) for api_alert_status."""
+    """Exact source of api_alert_status via ast - the view contains f-strings,
+    so counting braces by hand stops in the middle of {e}."""
     src = web_path.read_text(encoding="utf-8")
     tree = ast.parse(src)
     for node in ast.walk(tree):
         if isinstance(node, ast.FunctionDef) and node.name == "api_alert_status":
-            return ast.get_source_segment(src, node), src
+            return ast.get_source_segment(src, node)
     raise AssertionError("api_alert_status not found in %s" % web_path)
 
 
-VIEW_SRC, WEB_SRC = extract_view(WEB)
+VIEW_SRC = extract_view(WEB)
 
 
-def status_with(env_text):
-    """Run the real view body against a given alert.env content.
-
-    None simulates the file being absent entirely - which is what Railway
-    sees, because alert.env is gitignored and never deployed.
-    """
-    tmp = None
-    if env_text is not None:
-        tmp = Path(tempfile.gettempdir()) / "alert_probe_env.txt"
-        tmp.write_text(env_text, encoding="utf-8")
-    target = tmp if tmp else Path(r"C:\definitely\not\here\alert.env")
-    ns = {
-        "Path": Path, "re": re, "jsonify": lambda p: _Resp(p),
-        "ALERT_ENV_FILE": target, "print": lambda *a, **k: None,
-    }
-    try:
+def status_with(record, runner_wired=True):
+    """Run the real view against a given alert_status.json, and with or
+    without daily_scan.ps1 next to it."""
+    with tempfile.TemporaryDirectory() as td:
+        td = Path(td)
+        if record is not None:
+            (td / "alert_status.json").write_text(
+                record if isinstance(record, str) else json.dumps(record), encoding="utf-8")
+        if runner_wired:
+            (td / "daily_scan.ps1").write_text(
+                "# calls send_daily_alert.py", encoding="utf-8")
+        ns = {"json": json, "Path": Path, "print": lambda *a, **k: None,
+              "datetime": datetime, "os": os,
+              "jsonify": lambda p: _Resp(p), "timedelta": timedelta}
         exec(compile(VIEW_SRC, "<api_alert_status>", "exec"), ns)
+        # The view resolves both files relative to __file__, which ast
+        # extraction does not provide, so point it at the temp dir.
+        ns["__file__"] = str(td / "scanner_web.py")
         res = ns["api_alert_status"]()
         return res.get_json()
-    finally:
-        if tmp and tmp.exists():
-            tmp.unlink()
 
 
-BLANK = ("ALERT_SMTP_HOST=smtp.gmail.com\nALERT_SMTP_PORT=587\n"
-         "ALERT_SMTP_USER=a@b.com\nALERT_SMTP_PASS=\nALERT_FROM=a@b.com\n")
-COMPLETE = BLANK.replace("ALERT_SMTP_PASS=\n", "ALERT_SMTP_PASS=abcdefghijklmnop\n")
-HOST_ONLY = "ALERT_SMTP_HOST=smtp.gmail.com\n"
+now = datetime.now()
+fresh = now - timedelta(hours=2)
+old = now - timedelta(days=5)
 
-# --- 1. the three states that all used to report green ----------------------
-d_absent = status_with(None)
-check("no credential file at all -> not configured",
-      d_absent.get("alerts_configured") is False,
-      "endpoint claims configured with no file: %s" % d_absent)
+FRESH = {"last_run": fresh.isoformat(timespec="seconds"), "last_ok": False,
+         "sent": 3, "failed": 1, "recipients": 4, "transport": "api"}
+OLD = dict(FRESH, last_run=old.isoformat(timespec="seconds"))
 
-d_host = status_with(HOST_ONLY)
-check("host only, no user, no password -> not configured",
-      d_host.get("alerts_configured") is False,
-      "a bare host line reported ready: %s" % d_host)
+# --- nothing has ever been sent ------------------------------------------
+d = status_with(None)
+check("no delivery record at all -> not configured",
+      d.get("alerts_configured") is False, "claimed configured with no record: %s" % d)
 
-d_blank = status_with(BLANK)
-check("host + user but BLANK password -> not configured",
-      d_blank.get("alerts_configured") is False,
-      "half-filled credential reported ready: %s" % d_blank)
-check("the blank-password case is specifically rejected by the PASSWORD, not by the host",
-      d_blank.get("credential_present") is False,
-      "host+user alone satisfied the credential check: %s" % d_blank)
+# --- an honest recent delivery -------------------------------------------
+d = status_with(FRESH)
+check("a real send in the last 2h -> alerts_configured is true",
+      d.get("alerts_configured") is True, "a delivered alert reported undeliverable: %s" % d)
+check("delivered_recently agrees", d.get("delivered_recently") is True, str(d))
 
-# --- 2. a complete credential ------------------------------------------------
-d_full = status_with(COMPLETE)
-check("complete credential -> credential_present is true",
-      d_full.get("credential_present") is True,
-      "a complete credential was rejected: %s" % d_full)
-check("a credential alone does NOT flip alerts_configured",
-      d_full.get("alerts_configured") is False or d_full.get("runner_wired") is True,
-      "alerts_configured ignored the runner: %s" % d_full)
-check("alerts_configured is gated on the runner, not just the credential",
-      d_full.get("alerts_configured") == bool(d_full.get("runner_wired")),
-      "alerts_configured must equal credential AND runner: %s" % d_full)
+# --- a partial failure is not a broken pipeline, and is not hidden -------
+check("a partial failure still counts as delivered",
+      d.get("alerts_configured") is True,
+      "one bad address must not read as a dead pipeline: %s" % d)
+check("the failed count is exposed, not hidden",
+      d.get("last_failed") == 1 and d.get("last_sent") == 3,
+      "the failure vanished: %s" % d)
 
-check("the endpoint leaks no host, user, password or key",
-      not any(k in json.dumps(d_full).lower()
-              for k in ("smtp.gmail.com", "a@b.com", "abcdefghijklmnop", "alertsmtp")),
-      "response leaked credential detail: %s" % d_full)
+# --- a stale record goes red ---------------------------------------------
+d = status_with(OLD)
+check("a send from 5 days ago -> not configured",
+      d.get("alerts_configured") is False,
+      "a missed run would stay green forever: %s" % d)
 
-# --- 3. the runner must actually invoke the sender --------------------------
-check("daily_scan.ps1 exists", RUNNER.exists(), "the scheduled runner is missing")
+# --- the runner still has to invoke the sender ---------------------------
+d = status_with(FRESH, runner_wired=False)
+check("a fresh send but nothing invokes the sender -> not configured",
+      d.get("alerts_configured") is False,
+      "a credential-shaped record alone flipped it green: %s" % d)
+
+# --- robustness -----------------------------------------------------------
+d = status_with("{ not json")
+check("corrupt alert_status.json -> not configured, no exception",
+      d.get("alerts_configured") is False, str(d))
+
+d = status_with({"last_run": "not-a-date", "sent": 9, "failed": 0})
+check("unparseable timestamp -> not configured",
+      d.get("alerts_configured") is False, str(d))
+
+d = status_with({"last_run": fresh.isoformat(timespec="seconds"), "sent": 0, "failed": 2})
+check("zero sent -> not configured even though the record exists",
+      d.get("alerts_configured") is False, str(d))
+
+# --- nothing sensitive is ever returned -----------------------------------
+body = json.dumps(status_with(FRESH)).lower()
+check("the response leaks no address, key, host or user",
+      not any(k in body for k in ("@", "re_", "smtp.", "password", "api_key")),
+      "response leaked detail: %s" % body)
+
+# --- the sender really does publish it -----------------------------------
+src = (SITE / "send_daily_alert.py").read_text(encoding="utf-8")
+check("the sender writes alert_status.json", "alert_status.json" in src or "STATUS_FILE" in src,
+      "nothing publishes the record this endpoint depends on")
+check("the sender writes no addresses into the status file",
+      "write_status" in src and "sent_to" not in src.split("write_status(")[1][:400],
+      "subscriber addresses are being written to a COMMITTED file")
+
+# --- the runner -----------------------------------------------------------
+check("daily_scan.ps1 exists", RUNNER.exists())
 if RUNNER.exists():
     body = RUNNER.read_text(encoding="utf-8", errors="ignore")
     check("daily_scan.ps1 invokes send_daily_alert.py",
-          "send_daily_alert.py" in body,
-          "nothing in the scheduled runner ever sends the alert")
-    check("the alert sends at most once per day",
-          ".alert_sent_today.txt" in body,
-          "the scan runs twice daily with no once-a-day gate")
+          "send_daily_alert.py" in body)
+    check("the alert sends at most once per day", ".alert_sent_today.txt" in body)
     check("the alert skips cleanly when alert.env is absent",
           "alert.env" in body and "SKIP" in body)
     after = body.split("send_daily_alert.py", 1)[-1][:1200]

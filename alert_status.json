@@ -1,0 +1,8 @@
+{
+  "last_run": "2026-10-22T23:08:55",
+  "last_ok": false,
+  "sent": 1,
+  "failed": 1,
+  "recipients": 2,
+  "transport": "api"
+}

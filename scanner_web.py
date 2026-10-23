@@ -1716,62 +1716,58 @@ ALERT_ENV_FILE = Path(__file__).parent / "alert.env"
 def api_alert_status():
     """Is the daily alert actually able to send?
 
-    Reports booleans and nothing else - no host, no user, no key. The pricing
-    page advertises "real-time earnings alerts"; until `alerts_configured` is
-    true that promise is still unfulfilled.
+    Reports booleans and no secrets - no host, no user, no key, no addresses.
+    The pricing page advertises "real-time earnings alerts".
 
-    THREE things are required, not one. The original check looked only for a
-    credential, which meant two false-green states:
+    WHY THIS READS A FILE INSTEAD OF THE CREDENTIAL
+    -----------------------------------------------
+    The sender does NOT run here. It runs on Tyler's machine, from
+    daily_scan.ps1. This endpoint runs on Railway. alert.env is gitignored, so
+    Railway can never see it - asking the deployed host whether a LOCAL
+    credential exists is structurally incapable of a true answer, and it
+    reported false forever even with a fully working, verified, actually
+    sending pipeline. The test address failing does not change that.
 
-      * ALERT_SMTP_HOST is set but ALERT_SMTP_PASS is blank. The host regex
-        matches the host line alone, so a half-filled file reported ready and
-        every send would have failed at authentication.
-      * A credential exists but nothing ever invokes send_daily_alert.py, so
-        no mail is ever produced. send_daily_alert.py shipped with no caller
-        at all - no cron, no scheduled task, no hook.
+    So the sender publishes alert_status.json after every run: when it last
+    ran, how many went out, how many failed, over which transport. No
+    addresses, no credentials. The daily scan commits it, and this endpoint
+    reports what actually happened.
 
-    A status that can report success while delivering nothing is worse than
-    no status, because it ends the question.
+    `alerts_configured` means "at least one real email has gone out recently".
+    It is deliberately not "zero failures": one mistyped address should not
+    read as a broken pipeline. The partial failure is exposed separately as
+    `last_failed` instead of being hidden.
     """
     configured = False
     runner_wired = False
+    detail = {}
+
     try:
-        # (a) a complete credential, not a partial one
-        if ALERT_ENV_FILE.exists():
-            text = ALERT_ENV_FILE.read_text(encoding="utf-8", errors="ignore")
-
-            def _val(name):
-                # Line-by-line on purpose. A regex of the form
-                # r'^\s*NAME\s*=\s*(.*)$' is wrong here: \s matches newlines,
-                # so a line reading "ALERT_SMTP_PASS=" swallows the newline
-                # and captures the NEXT line's value. That made a blank
-                # password look present - the exact false green this
-                # endpoint exists to prevent.
-                for ln in text.splitlines():
-                    s = ln.strip()
-                    if not s or s.startswith("#") or "=" not in s:
-                        continue
-                    k, v = s.split("=", 1)
-                    if k.strip() == name:
-                        return v.strip().strip('"').strip("'")
-                return ""
-
-            if _val("ALERT_API_KEY"):
-                configured = True
-            elif _val("ALERT_SMTP_HOST") and _val("ALERT_SMTP_USER") and _val("ALERT_SMTP_PASS"):
-                configured = True
-
-        # (b) something actually calls the sender
+        status_file = Path(__file__).parent / "alert_status.json"
+        if status_file.exists():
+            detail = json.loads(status_file.read_text(encoding="utf-8"))
         runner = Path(__file__).parent / "daily_scan.ps1"
         if runner.exists():
             body = runner.read_text(encoding="utf-8", errors="ignore")
             runner_wired = "send_daily_alert.py" in body
+
+        # A send counts as recent for two days, so a missed run is visible
+        # without a send making the site look broken the moment one is late.
+        when = str(detail.get("last_run") or "")
+        if detail.get("sent") and when:
+            try:
+                age = datetime.now() - datetime.fromisoformat(when)
+                configured = age.total_seconds() <= 48 * 3600
+            except Exception:
+                configured = False
     except Exception as e:
         print(f"[Alert] status check failed: {e}")
 
     return jsonify({
         "alerts_configured": bool(configured and runner_wired),
-        "credential_present": bool(configured),
+        "delivered_recently": bool(configured),
+        "last_failed": int(detail.get("failed") or 0),
+        "last_sent": int(detail.get("sent") or 0),
         "runner_wired": bool(runner_wired),
     })
 

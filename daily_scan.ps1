@@ -444,9 +444,19 @@ try {
         # Leaving it out is the same bug that stranded scanner_web.py - the
         # scanner would render TRENDING METAL / UTILITY as "No data" forever,
         # because the consumer shipped while the producer stayed on this disk.
+        # alert_status.json and target_hits.json MUST be staged, and for the
+        # same reason fetch_ipo_etf.py is. They are the PRODUCERS of what the
+        # deployed site reads: /api/alert-status renders alert_status.json, and
+        # the "JUST HIT TARGET" nudge renders target_hits.json. Leaving either
+        # on this disk means the live page shows stale or missing data forever
+        # while the local machine looks perfectly correct.
+        # alert_sent_log.json is deliberately NOT staged - it holds subscriber
+        # addresses.
         & $git add ai_earnings_today.html scanner_data.json ai_earnings_scanner.py `
                     fetch_ipo_etf.py ipo_etf_data.json pick_tracker.json daily_scan.ps1 `
-                    scanner_web.py visitor_baseline.json 2>&1 | Out-Null
+                    scanner_web.py visitor_baseline.json `
+                    alert_status.json target_hits.json tracked_picks.jsonl `
+                    evaluate_targets.py send_daily_alert.py 2>&1 | Out-Null
 
         $staged = $false
         & $git diff --cached --quiet
