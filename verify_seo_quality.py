@@ -30,18 +30,52 @@ def get(path):
 
 
 def one(html):
-    def m(pat, flags=re.I | re.S):
-        r = re.search(pat, html, flags)
-        return r.group(1).strip() if r else ""
+    # An earlier version of this measured 27 characters for a description
+    # containing "this week's". The character class [^"'] stops at the FIRST
+    # apostrophe, so any English description with a contraction was silently
+    # truncated - and the guard then confidently reported "outside the 70-160
+    # window" for perfectly good tags.
+    #
+    # Both attribute styles are now matched with a delimiter-aware pattern, so
+    # an apostrophe inside a double-quoted value is just a character. Verified
+    # against the real pages: BILI and DDOG are 108 and 109 chars, not 27.
+    def attr(name):
+        out = ""
+        m = re.search(r'<meta[^>]*\bname=["\']%s["\'][^>]*\bcontent="([^"]*)"' % name,
+                      html, re.I | re.S)
+        if not m:
+            m = re.search(r"<meta[^>]*\bname=[\"']%s[\"'][^>]*\bcontent='([^']*)'" % name,
+                          html, re.I | re.S)
+        if not m:
+            m = re.search(r'<meta[^>]*\bcontent="([^"]*)"[^>]*\bname=["\']%s["\']' % name,
+                          html, re.I | re.S)
+        if not m:
+            m = re.search(r"<meta[^>]*\bcontent='([^']*)'[^>]*\bname=[\"']%s[\"']" % name,
+                          html, re.I | re.S)
+        return m.group(1).strip() if m else out
 
-    title = m(r"<title[^>]*>(.*?)</title>")
-    desc = m(r'<meta[^>]+name=["\']description["\'][^>]+content=["\']([^"\']*)["\']')
-    if not desc:
-        desc = m(r'<meta[^>]+content=["\']([^"\']*)["\'][^>]+name=["\']description["\']')
-    canon = m(r'<link[^>]+rel=["\']canonical["\'][^>]+href=["\']([^"\']*)["\']')
-    if not canon:
-        canon = m(r'<link[^>]+href=["\']([^"\']*)["\'][^>]+rel=["\']canonical["\']')
-    h1 = m(r"<h1[^>]*>(.*?)</h1>")
+    def linkval(rel):
+        m = re.search(r'<link[^>]*\brel=["\']%s["\'][^>]*\bhref="([^"]*)"' % rel,
+                      html, re.I | re.S)
+        if not m:
+            m = re.search(r"<link[^>]*\brel=[\"']%s[\"'][^>]*\bhref='([^']*)'" % rel,
+                          html, re.I | re.S)
+        if not m:
+            m = re.search(r'<link[^>]*\bhref="([^"]*)"[^>]*\brel=["\']%s["\']' % rel,
+                          html, re.I | re.S)
+        return m.group(1).strip() if m else ""
+
+    title = ""
+    m = re.search(r"<title[^>]*>(.*?)</title>", html, re.I | re.S)
+    if m:
+        title = re.sub(r"<[^>]+>", "", m.group(1)).strip()
+
+    desc = attr("description")
+    canon = linkval("canonical")
+    h1 = ""
+    m = re.search(r"<h1[^>]*>(.*?)</h1>", html, re.I | re.S)
+    if m:
+        h1 = re.sub(r"<[^>]+>", "", m.group(1)).strip()
     ld = len(re.findall(r"application/ld\+json", html))
 
     body = re.sub(r"<script[\s\S]*?</script>", " ", html)
