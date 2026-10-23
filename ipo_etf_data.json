@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-10-23T05:44:43.847812",
+  "fetched_at": "2026-10-23T06:34:44.258167",
   "ipos": [
     {
       "company": "Lycia Therapeutics, Inc.",
@@ -14,19 +14,19 @@
   "trending_etf": {
     "ticker": "WCLD",
     "name": "Citigroup US Cloud Leaders ETF",
-    "price": 45.28,
-    "change_5d": 7.59
+    "price": 45.42,
+    "change_5d": 4.05
   },
   "top_metal": {
-    "ticker": "NEM",
-    "name": "Newmont Corp",
-    "price": 114.11,
-    "change_5d": 2.29
+    "ticker": "CPER",
+    "name": "United States Copper Index Fund",
+    "price": 38.92,
+    "change_5d": -1.36
   },
   "top_utility": {
     "ticker": "USO",
     "name": "United States Oil Fund",
-    "price": 162.51,
-    "change_5d": 5.83
+    "price": 166.86,
+    "change_5d": 6.07
   }
 }
