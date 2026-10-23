@@ -1,5 +1,5 @@
 {
   "total": 0,
-  "updated": "2026-10-23 00:00:00 UTC",
-  "note": "Absolute total of free email signups captured. AGGREGATE ONLY - no addresses, and no hashes of addresses (a salted SHA-256 of an email is still brute-forceable, so it stays out of the repo too). This file is committed and shipped with the code; Railway wipes its container filesystem on every redeploy, so the container-side counter seeds itself from this number at boot. That is what makes the count survive a redeploy. Starts at 0 because signups captured before the counter existed were never counted and cannot be reconstructed."
+  "updated": "2026-10-23 20:41:09 UTC",
+  "note": "Absolute total of free email signups captured. AGGREGATE ONLY - no addresses, and no hashes of addresses (a salted SHA-256 of an email is still brute-forceable, so it stays out of the repo too). This file is committed and shipped with the code; Railway wipes its container filesystem on every redeploy, so the container-side counter seeds itself from this number at boot. That is what makes the count survive a redeploy. Monotonic - it only ever moves up."
 }

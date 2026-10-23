@@ -14,6 +14,36 @@
 
 STAGED=$(git diff --cached --name-only)
 
+# ---- refresh the durable signup counter BEFORE the commit ----------------
+# The free-signup counter lives on Railway's container disk and every
+# redeploy destroys it. The committed signup_baseline.json is what seeds the
+# next boot, so a commit that does not carry a fresh count ships a stale one -
+# and every push is a deploy.
+#
+# It has to happen HERE, before the commit exists. A commit made inside a
+# pre-push hook is NOT pushed: git resolves the ref list before the hook runs,
+# so the new commit stays local and is never deployed. Verified, not assumed.
+#
+# NEVER blocks the commit. A counter that cannot be read must never stop a
+# deploy of real fixes - a missing count is an analytics problem, a blocked
+# commit is an outage.
+ROOT_SYNC=$(git rev-parse --show-toplevel)
+if [ -f "$ROOT_SYNC/sync_signup_counter.py" ]; then
+  PYS=""
+  for c in python python3 py; do
+    if command -v "$c" >/dev/null 2>&1; then PYS="$c"; break; fi
+  done
+  if [ -n "$PYS" ]; then
+    "$PYS" "$ROOT_SYNC/sync_signup_counter.py" >/dev/null 2>&1
+    if git -C "$ROOT_SYNC" diff --quiet -- signup_baseline.json; then
+      :
+    else
+      git -C "$ROOT_SYNC" add signup_baseline.json
+      echo "pre-commit: refreshed signup_baseline.json from the live counter"
+    fi
+  fi
+fi
+
 # ---- gate 1: retired routes must not come back -----------------------------
 case "$STAGED" in
   *scanner_web.py*)
