@@ -20,7 +20,7 @@ RESTORE = ("/success?session_id=cs_live_b1rZmCCttfl2jgWAesa5sOA8SW2cuGhl8wKzwt"
            "UW2m4qClvemxJWEJwQda")
 
 METRIC = re.compile(
-    r">(ENTRY|3D TGT|7D TGT|14D TGT|STOP|TARGET|3D TARGET|5D TARGET)</div>\s*"
+    r">(ENTRY|3D TARGET|7D TARGET|14D TARGET|STOP|TARGET|3D TARGET|5D TARGET)</div>\s*"
     r"<div[^>]*>\$([0-9,]+)")
 
 failures = []
@@ -81,16 +81,20 @@ def main():
     vals = METRIC.findall(sub)
     check("subscriber receives the full plan", len(vals) >= 20,
           f"only {len(vals)} values - expected 2 banners x 2 rows x 5 boxes")
-    for label in ("ENTRY", "3D TGT", "7D TGT", "14D TGT", "STOP"):
+    # Tyler 2026-10-22: "people wont know what TGT means". These are the full
+    # words, and they must match the table headers on the same page.
+    for label in ("ENTRY", "3D TARGET", "7D TARGET", "14D TARGET", "STOP"):
         check(f"  {label} present", label in sub)
+    check("the abbreviated TGT caption is gone", "3D TGT" not in sub,
+          "'TGT' is jargon nobody decodes")
     check("LONG row present", ">LONG</span>" in sub)
     check("SHORT row present", ">SHORT</span>" in sub)
     check("both overlays removed",
           'id="pro-gate"' not in sub and 'class="ru-pro-gate"' not in sub)
     check("both upsell buttons removed",
           "Unlock PRO Targets" not in sub and "See Entry, Targets" not in sub)
-    check("old mislabelled boxes are gone",
-          ">5D TARGET</div>" not in sub and ">TARGET</div>" not in sub)
+    check("long and short render side by side, not stacked",
+          "flex:1 1 380px" in sub and ">LONG</span>" in sub)
     print(f"        first banner values: {vals[:10]}")
 
     print(f"\n=== {'ALL PASS' if not failures else str(len(failures)) + ' FAILURE(S)'} ===")

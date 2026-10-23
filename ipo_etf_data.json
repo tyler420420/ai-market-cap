@@ -1,13 +1,13 @@
 {
-  "fetched_at": "2026-10-22T13:03:33.477319",
+  "fetched_at": "2026-10-22T20:56:21.806406",
   "ipos": [
     {
       "company": "Lycia Therapeutics, Inc.",
       "ticker": "LYCA",
       "date": "Oct 23",
       "date_full": "2026-10-23",
-      "price_range": "$16.00 - $18.00",
-      "deal": "$250M",
+      "price_range": "$18.00",
+      "deal": "$318M",
       "link": "https://stockanalysis.com/stocks/lyca/"
     }
   ],
@@ -20,13 +20,13 @@
   "top_metal": {
     "ticker": "NEM",
     "name": "Newmont Corp",
-    "price": 113.96,
-    "change_5d": 2.15
+    "price": 114.11,
+    "change_5d": 2.29
   },
   "top_utility": {
     "ticker": "USO",
     "name": "United States Oil Fund",
-    "price": 162.49,
-    "change_5d": 5.81
+    "price": 162.51,
+    "change_5d": 5.83
   }
 }
