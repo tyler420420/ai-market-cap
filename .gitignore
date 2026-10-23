@@ -144,3 +144,6 @@ scheduled_run.log
 drip_queue.json
 drip_sent_log.json
 drip_retired.json
+
+# Local funnel measurement history - regenerable, not source
+funnel_history.json

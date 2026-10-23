@@ -1,0 +1,18 @@
+{
+  "_protocol": "See ROUND_TABLE.md. One commitment per meeting. STEP 2 of each round table checks whether the previous one landed AND can be measured. A commitment that cannot be measured was not a commitment.",
+  "commitments": [
+    {
+      "id": "2026-10-23-a",
+      "meeting": "2026-10-23",
+      "owner": "CTO",
+      "owner_session": "mvs_41a119d03ae849d59a2cdecd57e77d10",
+      "constraint": "The chain is severed at followers -> views. We have 114 followers and 121 all-time page views, and we cannot tell whether ANY of those views came from Bluesky, from search, or from a direct link - because the visitor counter counts views but records no referrer.",
+      "deliverable": "Add a referrer-source breakdown to the visitor counter: group page views by source (bluesky / search engine / direct / other) and expose it on /api/visitors and the existing visitor panel.",
+      "why": "This is the cheapest measurement that settles the largest open strategic question. Right now we are arguing about whether 114 followers are worth anything, and we cannot prove either side because we never recorded where a single view came from. Everything upstream - posting harder, more articles, more replies - is a bet until this exists.",
+      "measurable_by": "/api/visitors returns a per-source breakdown with non-zero counts that can be attributed to a known referrer. 'Unknown source' for 100% of views means the hook did not fire and that is itself the finding.",
+      "due": "2026-10-24",
+      "status": "open",
+      "note": "Do NOT add tracking pixels or third-party analytics. This is first-party referrer grouping on data we already collect. No new vendor, no cookie, nothing that needs consent."
+    }
+  ]
+}
