@@ -120,3 +120,15 @@ alert_sent_log.json
 test_send_to_tyler.py
 # holds a Stripe API key - never commit
 stripe_reconcile.env
+
+# ===== Daily-scan alerting (local secrets + daily marker) =====
+# alert.env holds ALERT_API_KEY. It is referenced by daily_scan.ps1 and is
+# correct that it is untracked - verify_scan_deps.py now treats an ignored
+# referenced file as expected rather than pushing someone to commit the key.
+# .alert_sent_today.txt is a once-a-day marker written and cleared by the scan.
+alert.env
+.alert_sent_today.txt
+
+# Snapshots daily_scan.ps1 takes before any git command runs. Real
+# copies of uncommitted work, kept only in case a rebase discards it.
+pre_scan_backup_*

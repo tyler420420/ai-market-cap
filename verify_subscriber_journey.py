@@ -143,7 +143,18 @@ def main():
     section("The button cannot start a scan, and /run stays locked down")
 
     src = Path(SITE / "ai_earnings_scanner.py").read_text(encoding="utf-8")
-    check("button label is exactly 'Refresh'", ">Refresh</button>" in src)
+    # Tyler, 2026-10-23: the label is the upsell. A free visitor must see a
+    # Pro prompt that leads to /pricing; a paying subscriber sees Refresh,
+    # because a reload is all that button is ever allowed to do. Neither can
+    # start a scan - that is the invariant worth protecting here.
+    check("free visitors see the 'Pro Scan' upsell label",
+          ">Pro Scan</button>" in src)
+    check("the label swaps to 'Refresh' only for subscribers",
+          "scanBtn.textContent='Refresh'" in src and "window.__isSubscriber" in src)
+    check("a non-subscriber click routes to /pricing, never to a scan",
+          "scanBtn.onclick=function(){window.location.href='/pricing';}" in src)
+    check("no bare 'Refresh' button is served to everyone",
+          ">Refresh</button>" not in src)
     check("no 'Scan' button label remains", ">Scan</button>" not in src)
     check("the UI never calls /run",
           "'/run'" not in src and '"/run"' not in src,

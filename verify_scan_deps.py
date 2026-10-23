@@ -30,15 +30,30 @@ tracked = set(subprocess.run(
     ["git", "-C", REPO, "ls-files"],
     capture_output=True, text=True).stdout.split("\n"))
 
+# A referenced file that is GITIGNORED is legitimate and expected: that is what
+# ignoring a file means. alert.env holds ALERT_API_KEY and .alert_sent_today.txt
+# is a daily marker - both are local state, and the old rule ("referenced implies
+# tracked") pushed whoever hit it toward `git add alert.env`, i.e. toward
+# committing a credential to satisfy a guard. Ignore is the correct outcome.
+# git check-ignore answers for a pathname whether or not it exists on disk.
+# Enumerating ignored files with `ls-files --others --ignored` cannot: a marker
+# that has not been written yet is simply not there to be listed, and the one
+# file most likely to be correctly absent would read as untracked-and-broken.
+def is_ignored(f):
+    return subprocess.run(["git", "-C", REPO, "check-ignore", "-q", f]).returncode == 0
+
 print(f"=== files daily_scan.ps1 references ({len(refs)}) ===")
 problems = []
 for f in refs:
     is_tracked = f in tracked
+    is_ignored_now = is_ignored(f)
     exists = __import__("os").path.exists(f"{REPO}\\{f}")
     note = ""
-    if not is_tracked and f not in EXPECTED_UNTRACKED:
+    if not is_tracked and not is_ignored and f not in EXPECTED_UNTRACKED:
         problems.append(f)
-        note = "  <-- UNTRACKED but referenced"
+        note = "  <-- UNTRACKED, not ignored, and referenced"
+    elif not is_tracked and is_ignored:
+        note = "  (expected: gitignored - local secrets or runtime state)"
     elif not is_tracked:
         note = "  (expected: runtime scratch)"
     elif not exists:
