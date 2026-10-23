@@ -14,10 +14,10 @@
       "status": "open",
       "note": "Do NOT add tracking pixels or third-party analytics. This is first-party referrer grouping on data we already collect. No new vendor, no cookie, nothing that needs consent.",
       "landing_check": {
-        "checked": "2026-10-23T15:10:04+00:00",
+        "checked": "2026-10-23T20:33:51+00:00",
         "landed": false,
         "measurable": false,
-        "finding": "NOT LANDED. Live /api/visitors returns {all_time, baseline, since_boot, today, today_hits, last7, note} - no source field. grep for referrer in scanner_web.py returns nothing. Due 2026-10-24, so not yet late; CTO names it as his next measurable number. ESCALATED, not replaced: a source breakdown on today's counter would describe our own tooling, because one browser-UA GET of the homepage adds 7 hits to the 'human page views' number. The honest-counter fix is now a prerequisite for this one."
+        "finding": "STILL NOT LANDED - and it is deliberately sequenced behind a fix, not behind my time. A source breakdown on today's counter would describe our own tooling: one browser-UA GET of the homepage adds 3 hits to the 'human page views' number (measured live today: all_time 391 -> 394 on a single GET). Worse, sync_visitor_baseline.py writes the live all_time back as the baseline WITHOUT resetting since_boot, so all_time = baseline + 2*hits after every sync - the counter double counts its own window. A referrer breakdown built on that instrument would be a breakdown of noise. PREREQUISITE (CTO's lane, not started): make the visitor counter honest - absolute total seeded from the committed visitor_baseline.json, and exclude our own audit tooling. THEN add the source grouping on top of a counter that means something. Both fit before the 2026-10-24 morning window."
       }
     },
     {
@@ -30,8 +30,14 @@
       "why": "The blind middle collapses two opposite diagnoses into one guess - no traffic, or traffic that does not convert - and they need opposite fixes in different lanes. Three of four lanes reported the same thing today: they cannot see. This also proves or disproves a live leak: signups captured right now may be destroyed by the next deploy, and we would never know.",
       "measurable_by": "python measure_funnel.py prints an integer for users, not UNKNOWN, and that integer is identical before and after a redeploy. If it prints 0, that is a measured fact rather than an unknown, and the round table can attack traffic instead of guessing. A counter that reads UNKNOWN after this work has landed was not finished.",
       "due": "2026-10-24",
-      "status": "open",
-      "note": "Aggregate counts only - no addresses, and no hashes of addresses (a salted SHA-256 of an email is still brute-forceable, so it counts as PII and stays out of the repo). Do not send any email. Do not set EMAIL_EXPORT_TOKEN on Railway yourself - that paste is Tyler's, and it flips the signup form to promise delivery, so it must land after a durable counter exists. Do not read users from /api/email-list-export for the table: that endpoint reads the container's ephemeral copy and would report near-zero even when real signups exist on Tyler's machine."
+      "status": "done",
+      "note": "Aggregate counts only - no addresses, and no hashes of addresses (a salted SHA-256 of an email is still brute-forceable, so it counts as PII and stays out of the repo). Do not send any email. Do not set EMAIL_EXPORT_TOKEN on Railway yourself - that paste is Tyler's, and it flips the signup form to promise delivery, so it must land after a durable counter exists. Do not read users from /api/email-list-export for the table: that endpoint reads the container's ephemeral copy and would report near-zero even when real signups exist on Tyler's machine.",
+      "landing_check": {
+        "checked": "2026-10-23T20:33:51+00:00",
+        "landed": true,
+        "measurable": true,
+        "finding": "LANDED. Commit 2850205 (pushed, 0/0 with origin). measure_funnel.py now prints an INTEGER for users (0) instead of UNKNOWN - the link is no longer blind. Live /api/signup-count returns 200 with {\"total\": 0}. Durability: the counter is an ABSOLUTE TOTAL seeded at container boot from the committed signup_baseline.json, so a Railway redeploy cannot reset it. Deliberately NOT the visitor counter's baseline+window pattern, which double counts. PII-free: one integer, no addresses and no hashes of addresses. Only a NEW address counts; a repeat visit is not a new person. Guards: verify_signup_counter.py (25) + verify_signup_copy.py (16), both proven to bite (3/3 mutations caught). Suite 30/30 from a non-root directory. NEEDS NOTHING FROM TYLER. It does NOT require EMAIL_EXPORT_TOKEN and must land BEFORE it - the token's redeploy is then harmless to the count, because the container re-seeds from git."
+      }
     }
   ]
 }
