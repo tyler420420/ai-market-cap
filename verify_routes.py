@@ -82,11 +82,32 @@ print("\n=== no X code surface in scanner_web.py ===")
 with open(SCANNER_WEB, encoding="utf-8") as fh:
     lines = fh.read().splitlines()
 
+# Identifier-boundary match, not a bare substring.
+#
+# "X_API_KEY" was previously matched as a substring, which fires on any
+# provider whose name ends in "X" - MINIMAX_API_KEY matched it three times and
+# blocked a legitimate commit with "a retired route or X code path is reachable
+# again". That is the worst kind of guard failure: it reports a security
+# problem that does not exist, and the natural response is to delete the guard.
+#
+# A preceding letter, digit or underscore means the token is part of a longer
+# identifier, not the retired X credential.
+def _is_real_hit(lineno, text, token):
+    idx = text.find(token)
+    while idx != -1:
+        before = text[idx - 1] if idx > 0 else ""
+        if not (before.isalnum() or before == "_"):
+            return True
+        idx = text.find(token, idx + 1)
+    return False
+
+
 for token in FORBIDDEN_TOKENS:
     hits = [
         (i + 1, ln.strip())
         for i, ln in enumerate(lines)
-        if token in ln and not ln.lstrip().startswith("#")
+        if not ln.lstrip().startswith("#")
+        and _is_real_hit(i + 1, ln.strip(), token)
     ]
     print(f"  {'PASS' if not hits else 'FAIL'}  {token}: "
           f"{len(hits)} non-comment reference(s)")

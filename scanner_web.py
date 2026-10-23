@@ -2331,94 +2331,289 @@ def api_chat():
 
 
 # ===== LLM (GROQ) =====
+# ===== AI CHAT =====
+# Provider order is MiniMax first, then Groq. Tyler 2026-10-22: "wire this up
+# to use minimax locally". MINIMAX_API_KEY wins when present.
+#
+# NOTE ON THE SESSION TOKEN. ~/.minimax/config.yaml holds apiKey: sk-xxx, a
+# PLACEHOLDER, and local-runtime.auth.json holds Tyler's account SESSION JWT.
+# Neither is a MiniMax platform key. The session token is never wired into an
+# unattended bot - it is a login artefact, not an API credential, and using it
+# server-side is both broken and a credential-hygiene problem.
+MINIMAX_API_KEY = os.environ.get("MINIMAX_API_KEY", "")
+MINIMAX_BASE_URL = os.environ.get(
+    "MINIMAX_BASE_URL", "https://api.minimax.io/v1").rstrip("/")
+MINIMAX_MODEL = os.environ.get("MINIMAX_MODEL", "MiniMax-Text-01")
 GROQ_API_KEY = os.environ.get("GROQ_API_KEY", "")
 
-def call_llm(user_msg):
-    """Answer a chat question via Groq.
+CHAT_SYSTEM = (
+    "You are the assistant for AI Market Cap, a scanner for US stocks in "
+    "pre-earnings momentum setups. Answer briefly and concretely (2-4 "
+    "sentences). Ground answers in the scanner's own concepts: score, "
+    "sentiment, days to earnings, and the /stocks table. If you do not know "
+    "something, say so rather than guessing."
+)
 
-    The old version swallowed every failure into one generic string:
-    "I'm having trouble connecting right now." That hid the single most likely
-    cause - GROQ_API_KEY simply not being set on the Railway service. The user
-    is told to "try again shortly" for a misconfiguration that will never fix
-    itself, and the server logs nothing, so nobody can diagnose it.
 
-    Now each failure mode is distinguished in the log, and the user-facing text
-    says what actually happened rather than implying a transient outage. The
-    API key is never printed - only whether one is present.
+def _http_post_json(url, headers, payload, timeout=25):
+    """POST JSON and return parsed dict. Raises for caller to classify."""
+    req = urllib.request.Request(
+        url, data=json.dumps(payload).encode(), headers=headers, method="POST")
+    with urllib.request.urlopen(req, timeout=timeout) as resp:
+        return json.loads(resp.read().decode("utf-8", "replace"))
+
+
+# REQUIRED, not cosmetic. urllib sends no User-Agent by default, and both
+# Groq and MiniMax sit behind bot protection that rejects UA-less requests with
+# HTTP 403 "error code: 1010" BEFORE they reach the API. A perfectly valid key
+# therefore looks invalid. Verified live against Groq:
+#     no User-Agent      -> HTTP 403  error code: 1010   (blocked)
+#     browser User-Agent -> HTTP 401  invalid API key    (request arrives)
+_BROWSER_UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+               "AppleWebKit/537.36 (KHTML, like Gecko) "
+               "Chrome/120.0 Safari/537.36")
+
+
+def call_minimax(user_msg):
+    """MiniMax chat completion (OpenAI-compatible /chat/completions)."""
+    data = _http_post_json(
+        MINIMAX_BASE_URL + "/chat/completions",
+        {"Authorization": f"Bearer {MINIMAX_API_KEY}",
+         "Content-Type": "application/json",
+         "User-Agent": _BROWSER_UA},
+        {"model": MINIMAX_MODEL,
+         "messages": [{"role": "system", "content": CHAT_SYSTEM},
+                      {"role": "user", "content": user_msg}],
+         "temperature": 0.4, "max_tokens": 400})
+    return (data["choices"][0]["message"]["content"] or "").strip()
+
+
+def _fmt_money(v):
+    try:
+        v = float(v)
+    except (TypeError, ValueError):
+        return "n/a"
+    return f"${v:,.2f}" if v < 1000 else f"${v:,.0f}"
+
+
+def _load_scanner_rows():
+    try:
+        sf = Path(__file__).parent / "scanner_data.json"
+        if not sf.exists():
+            return []
+        rows = json.loads(sf.read_text(encoding="utf-8"))
+        if isinstance(rows, dict):
+            rows = rows.get("stocks", [])
+        if not isinstance(rows, list):
+            return []
+        return [r for r in rows if isinstance(r, dict) and r.get("ticker")]
+    except Exception:
+        return []
+
+
+def answer_from_data(question):
+    """Answer the questions the scanner can answer from its own numbers.
+
+    WHY THIS EXISTS. Tyler 2026-10-22: "have it actually work right and chat
+    back when paying customer chat with it." The chat is a $5 feature that has
+    never once returned a real answer - no provider key has ever been
+    configured, so it said "warming up" or "trouble connecting" forever.
+
+    Most of what a subscriber asks is not creative writing. It is "what is
+    today's pick", "what does 86 mean", "when do they report". We already hold
+    every one of those answers. Serving them from our own data means the chat is
+    a working product TODAY - no third-party key, no per-request cost, no rate
+    limit, and no way for it to go dark when a provider does.
+
+    This is the floor, not the ceiling. With a provider key configured the LLM
+    handles free-form questions; this handles the factual ones and is the
+    fallback whenever the provider is unreachable, so the customer never sees a
+    dead chat box.
     """
-    if not GROQ_API_KEY:
-        msg = "AI chat is not configured on this server yet. Please try again later."
-        print(f"[Chat] GROQ_API_KEY is not set - cannot answer. Asked: {user_msg[:80]!r}")
-        return msg
-
-    system = (
-        "You are the assistant for AI Market Cap, a scanner for US stocks in "
-        "pre-earnings momentum setups. Answer briefly and concretely (2-4 "
-        "sentences). Ground answers in the scanner's own concepts: score, "
-        "sentiment, days to earnings, and the /stocks table. If you do not know "
-        "something, say so rather than guessing."
-    )
+    q = (question or "").strip()
+    ql = q.lower()
+    rows = _load_scanner_rows()
 
     try:
-        payload = json.dumps({
-            "model": "llama-3.3-70b-versatile",
-            "messages": [
-                {"role": "system", "content": system},
-                {"role": "user", "content": user_msg},
-            ],
-            "temperature": 0.4,
-            "max_tokens": 400,
-        }).encode()
-        req = urllib.request.Request(
-            "https://api.groq.com/openai/v1/chat/completions",
-            data=payload,
-            headers={"Authorization": f"Bearer {GROQ_API_KEY}",
-                     "Content-Type": "application/json",
-                     # REQUIRED. urllib sends no User-Agent by default, and
-                     # Groq sits behind Cloudflare, which rejects UA-less
-                     # requests with HTTP 403 "error code: 1010" BEFORE they
-                     # ever reach the API. A perfectly valid key therefore
-                     # looks invalid and the chat reported "not authorised"
-                     # for hours. Verified against the live endpoint: no UA ->
-                     # 403 error code 1010; browser UA -> 401 invalid key,
-                     # i.e. the request actually arrives.
-                     "User-Agent": ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-                                    "AppleWebKit/537.36 (KHTML, like Gecko) "
-                                    "Chrome/120.0 Safari/537.36")},
-            method="POST"
-        )
-        with urllib.request.urlopen(req, timeout=20) as resp:
-            data = json.loads(resp.read())
-        answer = (data["choices"][0]["message"]["content"] or "").strip()
+        pick = load_pro_pick() or None
+    except Exception:
+        pick = None
+
+    # ---- a specific ticker, e.g. "what about FROG?" --------------------
+    hits = [r for r in rows
+            if isinstance(r.get("ticker"), str)
+            and len(r["ticker"]) >= 3
+            and r["ticker"].lower() in ql]
+    if hits:
+        r = max(hits, key=lambda x: float(x.get("score") or 0))
+        bits = [f"{r['ticker']} ({r.get('company_name') or ''}) scores "
+                f"{round(float(r.get('score') or 0))} out of 100."]
+        if r.get("price"):
+            bits.append(f"Price {_fmt_money(r.get('price'))}.")
+        if r.get("days_left") is not None:
+            bits.append(f"{r.get('days_left')} days to earnings on "
+                        f"{r.get('earnings_date') or 'the report date'}.")
+        if r.get("sentiment"):
+            bits.append(f"Earnings sentiment: {r.get('sentiment')}.")
+        if r.get("iv"):
+            bits.append(f"Implied volatility {r.get('iv')}%.")
+        if r.get("short_int"):
+            bits.append(f"Short interest {r.get('short_int')}% of float.")
+        return " ".join(bits)
+
+    # ---- targets and stops ----------------------------------------------------
+    # BEFORE the pick branch: "what is my target" contains "what is", which is
+    # also a pick trigger. Ordering matters or a question about targets answers
+    # with the pick.
+    if any(w in ql for w in ("target", "stop", "entry", "exit", "risk")):
+        if pick and (pick.get("target_price") or pick.get("stop_loss")):
+            bits = [f"For {pick.get('ticker')}: entry around "
+                    f"{_fmt_money(pick.get('entry_price') or pick.get('price'))}."]
+            if pick.get("target_price"):
+                bits.append(f"Target {_fmt_money(pick['target_price'])}.")
+            if pick.get("stop_loss"):
+                bits.append(f"Stop {_fmt_money(pick['stop_loss'])}.")
+            return " ".join(bits)
+        return ("Entry, target and stop for the pick are in the Pro Pick banner "
+                "at the top of the Scanner, and on your Pro dashboard.")
+
+    # ---- plans ------------------------------------------------------------------
+    # Also before "how", so "how much is it" is a billing question rather than a
+    # question about how the scanner works.
+    if any(w in ql for w in ("how much", "cost", "plan", "cancel", "billing",
+                             "subscri", "worth it", "price per")):
+        return ("Pro is $5/month and covers the AI Pick, the ranked table, "
+                "targets and stops, this AI Chat, and on-demand scans. Cancel "
+                "anytime from your account page.")
+
+    # ---- the picks ----------------------------------------------------------
+    # Deliberately NOT triggered by a bare "what is" - that phrase is far too
+    # generic and made unrelated questions answer with the pick.
+    wants_pick = any(w in ql for w in (
+        "pick", "buy", "trade", "recommend", "should i", "runner", "today",
+        "best stock", "top stock", "top pick"))
+    if wants_pick and pick:
+        name = pick.get("ticker", "?")
+        bits = [f"Today's pick is {name}"
+                + (f" ({pick.get('company_name')})"
+                   if pick.get("company_name") else "") + "."]
+        if pick.get("score"):
+            bits.append(f"Composite score {round(float(pick['score']))}/100.")
+        if pick.get("price"):
+            bits.append(f"Price {_fmt_money(pick['price'])}.")
+        if pick.get("days_to_earnings") not in (None, "", "?"):
+            bits.append(f"{pick['days_to_earnings']} days to earnings.")
+        bits.append("The Scanner header has the full entry, target and stop.")
+        return " ".join(bits)
+    if wants_pick and rows:
+        top = sorted(rows, key=lambda x: float(x.get("score") or 0),
+                     reverse=True)[:3]
+        listing = ", ".join(
+            f"{t['ticker']} (score {round(float(t.get('score') or 0))})"
+            for t in top)
+        return (f"Strongest setups right now: {listing}. Open the Scanner for "
+                f"the full ranked table.")
+
+    # ---- score -------------------------------------------------------------
+    if any(w in ql for w in ("score", "scoring", "rank", "rating")):
+        return ("The score is 0-100 and combines five factors: analyst "
+                "coverage (25pts), buy% conviction (25pts), strong-buy count "
+                "(2pts each, max 20), 5-day upside (max 15pts) and earnings "
+                "sentiment (max 15pts). 80+ is the strong-buy zone. Entries are "
+                "made 1-35 days before earnings, exits 1-5 days after a beat.")
+
+    # ---- earnings timing ----------------------------------------------------
+    if any(w in ql for w in ("earnings", "report", "days", "when")):
+        soon = sorted([r for r in rows if r.get("days_left") is not None],
+                      key=lambda x: float(x.get("days_left") or 999))[:3]
+        if soon:
+            listing = ", ".join(f"{r['ticker']} in {r.get('days_left')}d"
+                                for r in soon)
+            return (f"Closest to reporting: {listing}. Open the Scanner and sort "
+                    f"by days left to see the rest.")
+
+    # ---- how scanning works --------------------------------------------------
+    if any(w in ql for w in ("how", "work", "scan", "update", "refresh", "data")):
+        return ("The scanner runs every market day at 6:30 AM PT. Press Scan for "
+                "a fresh run - subscribers get 3 per day. Prices and options "
+                "come from Yahoo Finance; analyst ratings from Yahoo "
+                "recommendations.")
+
+    if any(w in ql for w in ("hi", "hello", "hey", "thanks", "thank you")):
+        return ("Happy to help. I can tell you today's pick, explain the score "
+                "and the targets, look up any ticker by symbol, or walk you "
+                "through how the scanner works. What do you want to know?")
+
+    return ("I don't have that one yet. I can tell you today's pick, explain "
+            "the score and the targets, look up any ticker by symbol, or walk "
+            "you through how the scanner works. Try one of those, or rephrase.")
+
+
+def call_llm(user_msg):
+    """Answer a chat question. Provider order: MiniMax, then Groq.
+
+    Falls back to answer_from_data() whenever no provider is configured or the
+    provider fails. That fallback is why this feature can be sold at all: a
+    $5 subscriber must never be met with "warming up" for a question we can
+    answer from data we already hold.
+
+    Failure modes are logged distinctly - the API key value is never printed,
+    only whether one is present.
+    """
+    grounded = answer_from_data(user_msg)
+
+    provider = None
+    fn = None
+    if MINIMAX_API_KEY:
+        provider, fn = "minimax", call_minimax
+    elif GROQ_API_KEY:
+        provider, fn = "groq", call_groq
+
+    if not provider:
+        print(f"[Chat] no provider key configured - answering from scanner "
+              f"data. Asked: {user_msg[:70]!r}")
+        return grounded
+
+    try:
+        answer = fn(user_msg)
         if not answer:
-            print("[Chat] Groq returned an empty completion")
-            return "I wasn't able to answer that one. Could you rephrase?"
+            print(f"[Chat] {provider} returned an empty completion")
+            return grounded
         return answer
     except urllib.error.HTTPError as e:
-        # 401/403 = bad or missing key. 429 = rate limited. All very different
-        # problems and they must not collapse into one message.
         try:
             detail = e.read()[:300].decode("utf-8", "replace")
         except Exception:
             detail = ""
-        print(f"[Chat] Groq HTTP {e.code}: {detail}")
-
-        # Cloudflare blocks UA-less requests with 403 "error code: 1010"
-        # before they reach the API, which is indistinguishable from a bad key
-        # by status code alone. Recognise it so a blocked request is never
-        # reported to the user as "not authorised" - which sent the wrong
-        # person to rotate a perfectly good key.
+        print(f"[Chat] {provider} HTTP {e.code}: {detail}")
+        # Cloudflare blocks UA-less requests with 403 "error code: 1010" before
+        # they reach the API, which is indistinguishable from a bad key by
+        # status alone. Never report that as an authorisation problem.
         if "1010" in detail or "cloudflare" in detail.lower():
-            return "AI chat is temporarily unreachable from our server. Please try again shortly."
-
+            return grounded
         if e.code in (401, 403):
-            return "AI chat is not authorised on this server yet. Please try again later."
+            print(f"[Chat] {provider} key rejected - key needs replacing")
+            return grounded
         if e.code == 429:
-            return "AI chat is busy right now. Please try again in a minute."
-        return "AI chat is having trouble right now. Please try again shortly."
+            return grounded
+        return grounded
     except Exception as e:
-        print(f"[Chat] Groq call failed: {type(e).__name__}: {e}")
-        return "AI chat is having trouble connecting right now. Please try again shortly."
+        print(f"[Chat] {provider} failed: {type(e).__name__}: {e}")
+        return grounded
+
+
+def call_groq(user_msg):
+    """Groq chat completion."""
+    data = _http_post_json(
+        "https://api.groq.com/openai/v1/chat/completions",
+        {"Authorization": f"Bearer {GROQ_API_KEY}",
+         "Content-Type": "application/json",
+         "User-Agent": _BROWSER_UA},
+        {"model": "llama-3.3-70b-versatile",
+         "messages": [{"role": "system", "content": CHAT_SYSTEM},
+                      {"role": "user", "content": user_msg}],
+         "temperature": 0.4, "max_tokens": 400})
+    return (data["choices"][0]["message"]["content"] or "").strip()
 
 @app.route("/logout")
 def logout():

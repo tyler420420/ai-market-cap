@@ -112,22 +112,32 @@ def main():
           f"got {r.status_code}")
 
     # ---- 6. call_llm distinguishes failure modes -----------------------
-    # Save/restore the real key so this does not mutate the module for others.
+    # OBSOLETE ASSERTION UPDATED 2026-10-22. This used to require the reply to
+    # say "not configured" when no key is set. That behaviour is exactly what
+    # Tyler was screenshotting: a $5 subscriber asking a question and being
+    # told the server wasn't configured. call_llm now answers from scanner data
+    # and uses the provider only to enrich free-form answers.
     real = scanner_web.GROQ_API_KEY
+    real_mm = scanner_web.MINIMAX_API_KEY
     try:
         scanner_web.GROQ_API_KEY = ""
+        scanner_web.MINIMAX_API_KEY = ""
         out = scanner_web.call_llm("hi")
-        check("missing key says NOT CONFIGURED, not 'try again shortly'",
-              "not configured" in out.lower() and "warming up" not in out.lower(),
-              f"got {out!r}")
+        check("missing key still gives the customer a usable answer",
+              len(out) > 20 and "not configured" not in out.lower()
+              and "warming up" not in out.lower(), f"got {out!r}")
+        check("missing key never blames a temporary outage",
+              "try again shortly" not in out.lower(), f"got {out!r}")
 
-        scanner_web.GROQ_API_KEY = "sk-definitely-not-a-real-key"
+        scanner_web.MINIMAX_API_KEY = "sk-definitely-not-a-real-key"
+        scanner_web.GROQ_API_KEY = ""
         out = scanner_web.call_llm("hi")
-        check("bad key does not claim success",
-              len(out) > 0 and "here you go" not in out.lower(), f"got {out!r}")
-        print(f"        bad-key reply: {out[:120]!r}")
+        check("a bad key does not claim success or dead-end",
+              len(out) > 20 and "here you go" not in out.lower(), f"got {out!r}")
+        print(f"        bad-key reply: {out[:110]!r}")
     finally:
         scanner_web.GROQ_API_KEY = real
+        scanner_web.MINIMAX_API_KEY = real_mm
 
     # ---- 7. the pick banners say Price, not Entry ----------------------
     scanner = (SITE / "ai_earnings_scanner.py").read_text(encoding="utf-8")
