@@ -340,6 +340,11 @@ def main():
         print("[Alert] Everything else works - this run was not sent.")
 
     if dry or not configured:
+        if dry:
+            # A dry run must never be mistakable for a send. Previously it
+            # exited quietly once a credential existed, which is the exact
+            # "silent no-op" the growth guard exists to forbid.
+            print(f"[Alert] DRY RUN - nothing was sent to {len(rcpt)} recipient(s)")
         return 0
 
     sent = failed = 0

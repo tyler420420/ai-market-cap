@@ -134,9 +134,12 @@ def main():
     check("alert builds a real subject from live scanner data",
           "is today's pick" in p.stdout, p.stdout[:200])
     check("alert reports its recipient count", "recipients:" in p.stdout)
-    check("alert refuses to pretend it sent when unconfigured",
-          "NOT CONFIGURED" in p.stdout or "sent=" in p.stdout,
+    check("alert states plainly whether anything was sent",
+          "NOT CONFIGURED" in p.stdout or "sent=" in p.stdout or "DRY RUN" in p.stdout,
           "a silent no-op would recreate the broken-promise defect")
+    check("a dry run never claims to have sent",
+          "DRY RUN" in p.stdout and "[Alert] sent=" not in p.stdout,
+          "a dry-run must not be mistakable for a real send")
     check("alert script never prints a credential",
           not re.search(r'ALERT_API_KEY\s*=\s*\S|pass(word)?=', p.stdout),
           "a dry-run must not echo secrets")

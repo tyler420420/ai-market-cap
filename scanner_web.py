@@ -1636,6 +1636,79 @@ def _gain_num(s):
         return 0.0
 
 
+TARGET_HITS_FILE = Path(__file__).parent / "target_hits.json"
+
+
+def _live_hit_nudge():
+    """Surface a pick that has actually reached its target. Renders nothing otherwise.
+
+    This is the "right now" version of the annual nudge. _annual_nudge() is
+    static: it fires off the count of historical case studies. This one fires
+    off pick_tracker.json picks whose LIVE price has reached the target
+    recorded on the day the pick was made - the actual moment someone buys.
+
+    Everything here is load-bearing honesty:
+
+      * No hits -> empty string. No placeholder, no "targets coming soon", no
+        urgency device standing in for evidence that does not exist.
+      * Stale file -> empty string. If evaluate_targets.py has not run in
+        FRESH_DAYS, the page must not claim anything is current.
+      * Numbers come from target_hits.json, which only records a hit when a
+        real price fetch returned >= the recorded target. Nothing is rounded up
+        or inferred here.
+    """
+    try:
+        if not TARGET_HITS_FILE.exists():
+            return ''
+        data = json.loads(TARGET_HITS_FILE.read_text(encoding="utf-8"))
+    except Exception as e:
+        print(f"[Targets] nudge unavailable: {e}")
+        return ''
+
+    hits = data.get("hits") or []
+    fresh_days = int(data.get("fresh_days") or 14)
+    fresh = [h for h in hits
+             if isinstance(h, dict) and (h.get("days_to_hit") or 999) <= fresh_days]
+    if not fresh:
+        return ''
+
+    top = fresh[0]
+    ticker = top.get("ticker", "")
+    # Prices are formatted to 2 decimals explicitly. Interpolating the raw
+    # float rendered "$372.1" next to a target of "$365.51" on the same line,
+    # which reads as a rendering bug on a page whose entire pitch is that the
+    # numbers are real.
+    def _money(v):
+        try:
+            return f"{float(v):,.2f}"
+        except Exception:
+            return "n/a"
+    target = _money(top.get("target"))
+    current = _money(top.get("current"))
+    over = top.get("vs_target_pct")
+    when = top.get("date")
+    more = (f" and {len(fresh) - 1} more" if len(fresh) > 1 else "")
+
+    return (
+        '<div style="margin-top:22px;padding:18px 20px;border-radius:12px;'
+        'border:2px solid #00ff88;background:#0d2b1a;text-align:center">'
+        f'<div style="color:#00ff88;font-size:.8em;font-weight:bold;letter-spacing:.06em">'
+        f'JUST HIT TARGET{more}</div>'
+        f'<div style="color:#fff;font-size:1.05em;margin:8px 0">'
+        f'<b>{ticker}</b> reached its <b>${target}</b> target at '
+        f'<b>${current}</b> ({over}% above target)</div>'
+        f'<div style="color:#8b949e;font-size:.85em">Flagged by the scanner on '
+        f'{when}, before the earnings report. Every number is from the live '
+        f'tracker &mdash; if it is not listed, it did not happen.</div>'
+        '<div style="color:#c9d1d9;font-size:.95em;margin-top:10px">'
+        'Monthly is $5. The annual plan is $50 &mdash; two months free, locked in.</div>'
+        '<a href="/create-checkout?plan=annual" class=cta '
+        'style="display:inline-block;margin-top:12px;background:#00ff88;color:#000;'
+        'padding:11px 20px;border-radius:8px;font-weight:bold;text-decoration:none">'
+        'Lock in the year &rarr;</a></div>'
+    )
+
+
 ALERT_ENV_FILE = Path(__file__).parent / "alert.env"
 
 
@@ -1798,6 +1871,8 @@ h2 { color: #fff; font-size: 2em; margin-bottom: 8px; }
     # replace below consumes it. Doing these the other way round silently
     # drops the nudge: str.replace() on a marker that is already gone is a
     # no-op that still looks like it worked.
+    pricing_html = pricing_html.replace('    <!--REAL-WINS-STRIP-->',
+                                        _live_hit_nudge() + '    <!--REAL-WINS-STRIP-->')
     pricing_html = pricing_html.replace('    <!--REAL-WINS-STRIP-->',
                                         _annual_nudge() + '    <!--REAL-WINS-STRIP-->')
     # Real wins replace the invented testimonials. Injecting rather than

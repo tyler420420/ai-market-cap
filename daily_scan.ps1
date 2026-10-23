@@ -210,6 +210,27 @@ try {
     if ($rowCount -lt 20)  { Log "[CHECK] FAIL - only $rowCount rows"; exit 1 }
     Log "[CHECK] OK - $size bytes, $rowCount stocks, data-labels=$(([regex]::Matches($content,'data-label=')).Count)"
 
+    # ---- 3aa. target-hit evaluation -------------------------------------
+    # pick_tracker.json is OVERWRITTEN each scan, so nothing tracked its picks
+    # over time and a pick reaching its target could never be detected.
+    # evaluate_targets.py keeps the history and writes target_hits.json, which
+    # is what fires the "JUST HIT TARGET" nudge on /pricing.
+    #
+    # NON-FATAL: a hit evaluator failing must not block a scan, exactly like
+    # the email send below. The nudge simply does not appear, which is the
+    # honest outcome anyway.
+    $evalScript = Join-Path $repo 'evaluate_targets.py'
+    if (Test-Path $evalScript) {
+        $eOut = & $python $evalScript 2>&1
+        $eCode = $LASTEXITCODE
+        foreach ($line in ($eOut | Select-Object -Last 5)) { Log "[TARGETS] $line" }
+        if ($eCode -ne 0) {
+            Log "[TARGETS] WARN - evaluator exited $eCode (non-fatal, scan continues)"
+        }
+    } else {
+        Log "[TARGETS] WARN - evaluate_targets.py missing (non-fatal)"
+    }
+
     # ---- 3a. daily alert email -------------------------------------------
     # The pricing page sells "real-time earnings alerts". Until this existed,
     # send_daily_alert.py was a script nobody ever invoked - no cron, no task,
