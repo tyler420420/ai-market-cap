@@ -94,3 +94,16 @@ traffic_publish.log
 content_pipeline/_bk_*/
 # Blogger lane verifier output written by run_daily.bat. Log only.
 verify_blogger_lane.out
+scan.env
+scan_queue.json
+scan_poller.lock
+scan_poller.log
+
+
+# ===== Manual .bak_* snapshots =====
+# Lane owners take timestamped copies of scanner_web.py / ai_earnings_scanner.py
+# before editing. Ten of these were sitting untracked and UNIGNORED, so any
+# 'git add .' would have committed the pre-paywall copy of scanner_web.py -
+# the version whose PUBLIC HTML leaked the paid target/stop numbers. Ignore
+# them so a stray add can never resurrect that file into the repo.
+*.bak_*
