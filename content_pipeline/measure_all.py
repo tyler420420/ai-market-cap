@@ -42,9 +42,14 @@ for a in idx:
                  if any(c.isalnum() for c in w)])
 
     # meta description AS SERVED
-    mm = re.search(r'<meta\s+name=["\']description["\']\s+content=["\'](.*?)["\']',
-                   html, re.I | re.S)
-    served_meta = (mm.group(1).strip() if mm else "")
+    # Match the DELIMITER, not a character class. A ["'] class makes the lazy
+    # (.*?) stop at the first APOSTROPHE, so "IBM's ..." measures as "IBM"=3c
+    # and manufactures phantom out-of-range findings. Same bug as the one fixed
+    # in verify_seo_quality.py on 2026-10-23. Do not reintroduce it here.
+    mm = re.search(
+        r'<meta\s+name=(["\'])description\1\s+content=(["\'])(.*?)\2',
+        html, re.I | re.S)
+    served_meta = (mm.group(3).strip() if mm else "")
 
     tickers = sorted(set(re.findall(r"\$([A-Z]{2,5})\b", body)))
     primary = tickers[0] if tickers else ""
