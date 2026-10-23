@@ -11,5 +11,11 @@
     "updated": 1792570734,
     "email": "tyler@tribunefunding.com",
     "sub_id": "sub_1USujgQtzL43j3LFRuSLORLg"
+  },
+  "cus_VUVH6sepVrWGET": {
+    "status": "active",
+    "source": "discovered_from_stripe",
+    "discovered_at": "2026-10-23T02:37:46",
+    "email": "tyler@tribunefunding.com"
   }
 }

@@ -23,7 +23,7 @@ NAMES = [
     'prove_auth_guard_bites', 'verify_output', 'prove_verify_output_bites',
     'verify_growth', 'verify_labels', 'verify_trending_cards',
     'verify_sentiment', 'verify_routes', 'verify_support_path',
-    'verify_cwd_independence',
+    'verify_cwd_independence', 'verify_subscriber_gate',
 ]
 
 ok = 0
