@@ -119,6 +119,75 @@ def real_status(stripe_mod, customer_id):
         return None, "%s: %s" % (type(e).__name__, e)
 
 
+def discover(stripe_mod, subs):
+    """Find paying customers Stripe knows about and we have no local record of.
+
+    Returns (additions, error). `additions` maps customer id -> new record.
+    On any failure it returns an empty dict: discovery can only ever ADD
+    evidence that someone is paying, so every failure mode is "add nothing".
+
+    THE BLIND SPOT THIS CLOSES
+    -------------------------
+    This script used to read subscriptions.json as its INPUT and ask Stripe
+    about each key it already held. That is a one-way sync. It can re-verify
+    customers it knows about; it can never notice a new one.
+
+    Two things make that blindness load-bearing:
+      * /webhook fails closed while STRIPE_WEBHOOK_SECRET is unset (correctly -
+        an unsigned body must never be able to revoke a paying customer), so no
+        lifecycle event ever arrives.
+      * The only other local write is /success, and subscriptions.json lives on
+        Railway's EPHEMERAL container disk. A redeploy erases it.
+
+    So the first genuinely new subscriber gets written somewhere that does not
+    survive, never enters this file, and send_daily_alert.py - which reads
+    exactly this file - never emails them the Pro alert they paid for.
+
+    And nothing reports it. is_subscriber() falls back to live Stripe, so the
+    customer can log in and see Pro working perfectly while the paid daily email
+    they are paying for silently never arrives. Both ends look healthy.
+
+    Verified on 2026-10-22: Stripe held 2 active subscriptions, this file held
+    1. Same person on both, so nothing was actually lost yet - which is exactly
+    why it would have gone unnoticed until a real customer arrived.
+
+    SAFETY - unchanged, and deliberately one-directional:
+      * Only ADDS records Stripe positively reports as "active".
+      * Never downgrades, never upgrades, never edits an existing record.
+      * A discovery error adds nothing and never reaches the downgrade path.
+    """
+    try:
+        r = stripe_mod.Subscription.list(status="active", limit=100,
+                                         expand=["data.customer"])
+        items = getattr(r, "data", None) or []
+    except Exception as e:
+        # Includes a stub/module that does not accept expand=. Nothing is added
+        # and the downgrade loop still runs exactly as before.
+        return {}, "%s: %s" % (type(e).__name__, e)
+
+    found = {}
+    for s in items:
+        if getattr(s, "status", None) != "active":
+            continue
+        cust = getattr(s, "customer", None)
+        if isinstance(cust, str):
+            cid, email = cust, None
+        elif isinstance(cust, dict):
+            cid, email = cust.get("id"), cust.get("email")
+        else:
+            cid = getattr(cust, "id", None)
+            email = getattr(cust, "email", None)
+        if not cid or cid in subs:
+            continue
+        rec = {"status": "active",
+               "source": "discovered_from_stripe",
+               "discovered_at": datetime.now().isoformat(timespec="seconds")}
+        if email:
+            rec["email"] = email
+        found[cid] = rec
+    return found, None
+
+
 def reconcile(dry=False):
     subs = load_subs()
     if subs is None:
@@ -127,24 +196,41 @@ def reconcile(dry=False):
     actives = [(cid, rec) for cid, rec in subs.items()
                if isinstance(rec, dict) and rec.get("status") == "active"]
     print(f"[Reconcile] {len(actives)} active subscription(s) to check")
-    if not actives:
-        write_status({"last_run": datetime.now().isoformat(timespec="seconds"),
-                      "checked": 0, "downgraded": 0, "unknown": 0, "last_ok": True})
-        return 0
 
+    # Discovery runs BEFORE the "nothing to check" exit, because having no local
+    # records at all is precisely the state where a new subscriber is invisible.
     key = load_key()
-    if not key:
+    discovered, disc_err = {}, None
+    if key:
+        import stripe as stripe_mod
+        stripe_mod.api_key = key
+        discovered, disc_err = discover(stripe_mod, subs)
+        for cid, rec in discovered.items():
+            print(f"[Reconcile] DISCOVERED {cid} active in Stripe with no local "
+                  f"record -> adding (email={'yes' if rec.get('email') else 'unknown'})")
+        if disc_err:
+            print(f"[Reconcile] discovery skipped, nothing added ({disc_err})")
+    else:
         # NOT CONFIGURED is a normal, honest state - never a crash, and it
         # must not touch a single record.
         print("[Reconcile] NOT CONFIGURED - put a READ-ONLY restricted key in "
               "stripe_reconcile.env. No records were changed.")
+
+    if not actives:
+        if discovered and not dry:
+            subs.update(discovered)
+            save_subs(subs)
         write_status({"last_run": datetime.now().isoformat(timespec="seconds"),
                       "checked": 0, "downgraded": 0, "unknown": 0,
-                      "last_ok": True, "configured": False})
+                      "discovered": len(discovered), "last_ok": True,
+                      "configured": bool(key)})
         return 0
 
-    import stripe as stripe_mod
-    stripe_mod.api_key = key
+    if not key:
+        write_status({"last_run": datetime.now().isoformat(timespec="seconds"),
+                      "checked": 0, "downgraded": 0, "unknown": 0,
+                      "discovered": 0, "last_ok": True, "configured": False})
+        return 0
 
     downgraded, unknown, ok = [], [], True
     for cid, rec in actives:
@@ -166,7 +252,8 @@ def reconcile(dry=False):
             ok = True
             print(f"[Reconcile] ok {cid}: stripe={status}")
 
-    if downgraded and not dry:
+    if (downgraded or discovered) and not dry:
+        subs.update(discovered)
         save_subs(subs)
 
     # last_ok means "the reconcile itself worked", not "every record was
@@ -182,12 +269,14 @@ def reconcile(dry=False):
         "downgraded": len(downgraded),
         "unknown": len(unknown),
         "unknown_ids": unknown,
+        "discovered": len(discovered),
         "last_ok": bool(resolved > 0 or not actives),
         "configured": True,
         "dry_run": bool(dry),
     })
     print(f"[Reconcile] checked={len(actives)} resolved={resolved} "
           f"downgraded={len(downgraded)} unknown={len(unknown)}"
+          f" discovered={len(discovered)}"
           f"{' (DRY RUN)' if dry else ''}")
     if unknown:
         # Not a crash: some customers could not be verified this run.
