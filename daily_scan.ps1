@@ -479,7 +479,8 @@ try {
                     fetch_ipo_etf.py ipo_etf_data.json pick_tracker.json daily_scan.ps1 `
                     scanner_web.py visitor_baseline.json `
                     alert_status.json target_hits.json tracked_picks.jsonl `
-                    evaluate_targets.py send_daily_alert.py 2>&1 | Out-Null
+                    evaluate_targets.py send_daily_alert.py `
+                    reconcile_subscriptions.py reconcile_status.json 2>&1 | Out-Null
 
         $staged = $false
         & $git diff --cached --quiet
