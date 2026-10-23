@@ -169,8 +169,14 @@ def main():
             "kept@example.com": {"seen_count": 1},
             "gone@example.com": {"seen_count": 1, "unsubscribed": "2026-10-22"},
         }
+        # Two ACTIVE subscriptions on ONE email address. This is the live
+        # shape as of 2026-10-23: Stripe holds two active subs, both on
+        # tyler@tribunefunding.com. That is $10 MRR and ONE customer, and a
+        # dedup that keys on anything but the address would mail the owner
+        # two copies of every daily pick with nothing anywhere reporting it.
         FIX_SUBS = {"cus_x": {"status": "active", "email": "paying@example.com"},
-                    "cus_y": {"status": "active", "email": "gone@example.com"}}
+                    "cus_y": {"status": "active", "email": "paying@example.com"},
+                    "cus_z": {"status": "active", "email": "gone@example.com"}}
         real_load = A.load_json
 
         def fake_load(name, default):
@@ -185,6 +191,11 @@ def main():
                   "gone@example.com" not in got, got)
             check("a paying address is still mailed", got.get("paying@example.com") is True,
                   got)
+            rc = A.recipients()
+            dupes = [e for e in rc if [r[0] for r in rc].count(e) > 1]
+            check("two subs on one address produce ONE email, not two",
+                  rc.count(("paying@example.com", True)) == 1 and not dupes,
+                  [(r, rc.count(r)) for r in rc])
             total, active, dead = A.list_stats()
             check("list_stats counts the suppression", (total, active, dead) == (2, 1, 1),
                   (total, active, dead))
