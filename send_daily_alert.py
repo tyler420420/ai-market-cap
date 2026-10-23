@@ -312,13 +312,31 @@ def recipients():
             if e.lower().strip() in suppressed:
                 continue
             out.append((e, True))
-    seen, uniq = set(), []
+    # TIER PRECEDENCE - the paid tier WINS a collision, deliberately.
+    #
+    # The free list is appended first (above) and paid second, so a plain
+    # first-wins dedup silently gives the LEAST valuable tier the address.
+    # A customer who pays $5/month AND happens to have signed up free before
+    # subscribing would then be sent the FREE email: no entry, no targets, no
+    # stop - exactly the thing they are paying for, downgraded with nothing
+    # anywhere reporting it, because the run log counts them under the free
+    # list and a successful run looks completely normal.
+    #
+    # Both tiers can legitimately contain the same address, so the collision
+    # is a NORMAL state to handle, not an edge case to assume away. Note the
+    # key is the normalised address, so the free list's raw casing and padding
+    # do not let a paid subscriber slip through the collision.
+    #
+    # Do not "simplify" this back to first-wins. It looks like a style choice
+    # and is the difference between serving and silently not serving a payer.
+    seen = {}
     for e, paid in out:
         k = e.lower().strip()
-        if k and k not in seen:
-            seen.add(k)
-            uniq.append((k, paid))
-    return uniq
+        if not k:
+            continue
+        if k not in seen or paid:
+            seen[k] = (k, paid)
+    return list(seen.values())
 
 
 def list_stats():

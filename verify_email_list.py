@@ -265,6 +265,65 @@ def main():
               uns3 == 1 and bool(out3["x@example.com"]["unsubscribed"]),
               (uns3, out3["x@example.com"]))
 
+        # ---- tier precedence --------------------------------------------
+        # A DIFFERENT bug from the duplicate one above, and a count-only
+        # check cannot see either of them.
+        #
+        # The free list is appended before the paid list, so a plain
+        # first-wins dedup hands the collision to the FREE tier. A customer
+        # who pays AND once signed up free is then sent the free email: no
+        # entry, no targets, no stop - silently downgraded, and the run log
+        # files them under the free list so a successful run looks normal.
+        #
+        # It fires the moment the free list starts working, because until
+        # then no address was on both lists at once.
+        section("The paid tier wins an address that is on both lists")
+
+        def run_recipients(free, subs):
+            rl = A.load_json
+
+            def fl(name, default):
+                return {"email_list.json": free,
+                        "subscriptions.json": subs}.get(name, default)
+            A.load_json = fl
+            try:
+                return A.recipients()
+            finally:
+                A.load_json = rl
+
+        both = run_recipients(
+            {"buyer@example.com": {"seen_count": 1}},
+            {"cus_1": {"status": "active", "email": "buyer@example.com"}})
+        check("a buyer on both lists is sent the PAID email",
+              both == [("buyer@example.com", True)], both)
+        check("the free tier did not win the collision",
+              not any(p is False for _, p in both), both)
+
+        messy = run_recipients(
+            {"  Buyer@Example.COM  ": {"seen_count": 1}},
+            {"cus_1": {"status": "active", "email": "buyer@example.com"}})
+        check("casing and padding on the free list cannot leak the free tier",
+              messy == [("buyer@example.com", True)], messy)
+
+        check("a free-only address is still sent free",
+              run_recipients({"f@example.com": {"seen_count": 1}}, {})
+              == [("f@example.com", False)])
+        check("a paid-only address is sent paid",
+              run_recipients({}, {"cus_1": {"status": "active",
+                                            "email": "p@example.com"}})
+              == [("p@example.com", True)])
+        check("one address yields exactly ONE send, paid",
+              len(both) == 1 and both[0][1] is True, both)
+
+        # And the end-to-end consequence: the variant actually chosen.
+        rcpt = dict(run_recipients(
+            {"buyer@example.com": {"seen_count": 1}},
+            {"cus_1": {"status": "active", "email": "buyer@example.com"}}))
+        variants = A.build_variants()
+        chosen = variants.get(rcpt["buyer@example.com"])[0]
+        check("the buyer receives the variant WITH targets",
+              "Available in Pro" not in chosen, "got the free variant")
+
     finally:
         W.EMAIL_LIST_FILE = real_file
         W.EMAIL_EXPORT_TOKEN = real_token
