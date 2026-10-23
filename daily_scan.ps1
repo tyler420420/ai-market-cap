@@ -465,7 +465,38 @@ try {
         Log "[VISITORS] WARN - sync_visitor_baseline.py missing (non-fatal)"
     }
 
-    # ---- 3d. LIVE PAYMENT-PATH GUARD --------------------------------------
+    # ---- 3c. free-signup drip -------------------------------------------
+    # Six emails to people who signed up for the free pick themselves. NOT
+    # the purchased lead lists and NOT the paid subscribers - drip_queue.py is
+    # the only file allowed to read both populations, and it writes the result
+    # to a queue drip_send.py alone reads.
+    #
+    # It enforces two CAN-SPAM gates before it will send anything: a working
+    # one-click unsubscribe, and a postal address in every message. Both are
+    # currently unmet, so this logs BLOCKED and sends nothing. That is the
+    # correct outcome and the reason the gates exist - it is logged rather
+    # than skipped so a dormant drip is never mistaken for a working one.
+    #
+    # NON-FATAL, same as everything else email: a blocked or failed drip must
+    # never take the scan down.
+    $dripQueue  = Join-Path $repo 'drip_queue.py'
+    $dripSend   = Join-Path $repo 'drip_send.py'
+    if ((Test-Path $dripQueue) -and (Test-Path $dripSend)) {
+        $dqOut = & $python $dripQueue 2>&1
+        foreach ($line in ($dqOut | Select-Object -Last 2)) { Log "[DRIPQ] $line" }
+        $dsOut = & $python $dripSend 2>&1
+        $dsCode = $LASTEXITCODE
+        foreach ($line in ($dsOut | Select-Object -Last 4)) { Log "[DRIP] $line" }
+        if ($dsCode -ne 0) {
+            Log "[DRIP] Blocked or failed (exit $dsCode) - nothing sent. Gates:"
+            Log "[DRIP]   working one-click unsubscribe (EMAIL_EXPORT_TOKEN on Railway)"
+            Log "[DRIP]   POSTAL_ADDRESS in alert.env"
+        }
+    } else {
+        Log "[DRIP] SKIP - drip_queue.py or drip_send.py missing (non-fatal)"
+    }
+
+# ---- 3d. LIVE PAYMENT-PATH GUARD --------------------------------------
     # This one hits the deployed site over HTTP rather than the local file.
     # On 2026-10-21 the StripeObject/paying-customer fix was committed and
     # every local suite was green (41/41, 4/4 mutations) while the LIVE build

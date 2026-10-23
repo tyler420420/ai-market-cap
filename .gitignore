@@ -135,3 +135,12 @@ pre_scan_backup_*
 # Capture of an unattended scan run (stdout+stderr). Written by
 # run_scan_task.ps1. Evidence for a failure that used to be silent.
 scheduled_run.log
+
+# ===== Free-signup drip (PII) =====
+# drip_queue.json holds free signups queued for the 6-email sequence.
+# drip_sent_log.json holds which step each address has already received.
+# drip_retired.json holds addresses that finished or opted out.
+# All three are email addresses. None may ever be committed.
+drip_queue.json
+drip_sent_log.json
+drip_retired.json
