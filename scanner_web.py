@@ -2242,9 +2242,9 @@ and we're on it.</p>
 automatically.</p>
 <a class=btn href="/account?repair=1">Restore My Access →</a>
 <a class=btn2 href="/">Back to Home</a>
-<div class=note>Nothing was charged twice. If the button does not work, email
-support@aismarketcap.com with your receipt and we'll fix it by hand.</div>
-<div class=err>Reference: {session_id or 'unknown'} &middot; {e}</div>
+<div class=note>Nothing was charged twice. If the button does not work, sign in with the
+same email you paid with - access is confirmed from Stripe and repairs itself.</div>
+<div class=err>Reference: {session_id or 'unknown'}</div>
 </div></body></html>"""
 
         resp = make_response(body, 200, {"Content-Type": "text/html; charset=utf-8"})
@@ -2486,8 +2486,9 @@ def login():
                        "payment link from your receipt (or the page you were "
                        "on when you subscribed) and everything unlocks again "
                        "immediately - then set a password here for next time. "
-                       "If you cannot find that link, email "
-                       "support@aismarketcap.com with your receipt.")
+                       "If you cannot find that link, sign in above with the same "
+                       "email you subscribed with and we confirm your access "
+                       "from Stripe.")
             else:
                 err = "Incorrect email or password."
             return _login_page(email, error=err)
@@ -2534,7 +2535,7 @@ a:hover {{ text-decoration: underline; }}
     <button type=submit>Sign In →</button>
   </form>
   <p class=sub style="margin-top:18px">Never set a password? <a href=/pricing>Subscribe for $5/month →</a><br>
-  Lost access? <a href="mailto:support@aismarketcap.com">Contact support</a></p>
+  Lost access? Sign in above with the same email you subscribed with - we confirm access from Stripe, so nothing is lost.</p>
 </div>
 </body></html>""", 200, {"Content-Type": "text/html; charset=utf-8"})
 

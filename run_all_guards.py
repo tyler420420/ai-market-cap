@@ -19,7 +19,7 @@ NAMES = [
     'prove_target_hits_bites', 'verify_reconcile', 'verify_auth',
     'prove_auth_guard_bites', 'verify_output', 'prove_verify_output_bites',
     'verify_growth', 'verify_labels', 'verify_trending_cards',
-    'verify_sentiment', 'verify_routes',
+    'verify_sentiment', 'verify_routes', 'verify_support_path',
 ]
 
 ok = 0
