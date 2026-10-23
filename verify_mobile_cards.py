@@ -240,8 +240,11 @@ check('popup feature list does not promise a target twice',
 # --- 7c. Today's Pick reads like Runner Up for non-subscribers -----------
 check('a non-subscriber body class exists for the gate',
       'classList.add("nonsub")' in art)
-check("Today's Pick box is capped for non-subscribers",
-      'body.nonsub #pro-targets{max-height:58px;overflow:hidden}' in art)
+check("Today's Pick gated box is hidden for non-subscribers",
+      'body.nonsub #pro-targets{display:none!important}' in art)
+check('the earlier "cap it shorter" attempt is not what shipped',
+      'max-height:58px' not in art,
+      'a 58px strip still leaves a blurred slab; Runner Up has no box at all')
 
 # --- 9. the generator must still parse ------------------------------------
 try:
