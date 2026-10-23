@@ -1566,7 +1566,7 @@ li { color: #c9d1d9; font-size: 0.95em; line-height: 1.7; margin-bottom: 6px; }
     <p class=faq-q>Is this a financial advisor service?</p>
     <p>No. AI Market Cap is a data tool for informational purposes only. We are not licensed financial advisors. Always do your own research.</p>
     <p class=faq-q>How often does the scanner update?</p>
-    <p>The free scan runs automatically every market day at 6:30 AM PT. Subscribers can run up to 3 additional scans per day on demand.</p>
+    <p>The scan runs automatically every market day at 6:30 AM PT, and the Pro Pick and Runner Up Pick update with it. Use the <b>Refresh</b> button on the scanner to pull the latest published data at any time.</p>
     <p class=faq-q>What data sources are used?</p>
     <p>Stock prices and option data come from Yahoo Finance. Analyst ratings are pulled from Yahoo Finance's recommendations endpoint. News is sourced from Yahoo Finance market articles.</p>
     <p class=faq-q>What does "days left" mean?</p>

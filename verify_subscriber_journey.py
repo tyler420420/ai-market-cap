@@ -63,10 +63,19 @@ def main():
     for k, v in promises.items():
         check(f"pricing page promises: {k}", v)
     about = C.get("/about").get_data(as_text=True)
-    check("pricing page scan-count promise matches MAX_SCANS_PER_DAY",
-          f"{scanner_web.MAX_SCANS_PER_DAY} additional scans" in about,
-          f"MAX_SCANS_PER_DAY={scanner_web.MAX_SCANS_PER_DAY} but the FAQ "
-          f"promises a different number")
+
+    # Tyler 2026-10-22 replaced the on-demand Scan button with a Refresh
+    # button. The FAQ used to promise "3 additional scans per day on
+    # demand" - a promise nothing could deliver. The promise is removed, so
+    # the FAQ must not mention on-demand scans at all, and must describe the
+    # automatic scan that actually runs.
+    check("FAQ no longer promises on-demand subscriber scans",
+          "additional scans" not in about.lower(),
+          "the FAQ still sells scans the site does not run")
+    check("FAQ describes the automatic daily scan",
+          "runs automatically every market day" in about)
+    check("FAQ points at the Refresh button",
+          "Refresh" in about)
 
     # ── 2. A STRANGER GETS NOTHING ────────────────────────────────────
     section("Non-subscriber is locked out of everything")
@@ -121,37 +130,55 @@ def main():
               "Mozilla/5.0" in Path(SITE / "scanner_web.py").read_text(encoding="utf-8"),
               "the UA header is required or Cloudflare blocks before auth")
 
-    # ── 4. THE SCAN BUTTON MUST NOT LIE ───────────────────────────────
-    section("Scan button tells the truth")
+    # ── 4. THE BUTTON MUST NOT LIE ────────────────────────────────────
+    # Tyler 2026-10-22: "lets just make the scan button for subscribers
+    # change to refresh button text and just refresh the page. so we dont
+    # have to worry about people running a bunch of scans."
+    #
+    # The old button POSTed to /run and was told the scan had started or was
+    # queued. Nothing could ever claim it, because /api/scan-poll requires a
+    # shared secret that was never set. So the button reported work that
+    # could not happen - the exact "a button that claims success while doing
+    # nothing is worse than no button" defect.
+    section("The button cannot start a scan, and /run stays locked down")
+
+    src = Path(SITE / "ai_earnings_scanner.py").read_text(encoding="utf-8")
+    check("button label is exactly 'Refresh'", ">Refresh</button>" in src)
+    check("no 'Scan' button label remains", ">Scan</button>" not in src)
+    check("the UI never calls /run",
+          "'/run'" not in src and '"/run"' not in src,
+          "the page still has a path that starts a scan")
+    check("runScan() is deleted, not merely unused",
+          "function runScan(" not in src,
+          "the function that POSTed to /run is still sitting in the page")
+    check("Refresh only reloads the page",
+          "function refreshData()" in src and "location.reload" in src)
+    check("no scan-start claims left in the page JS",
+          "queued_locally" not in src and "already_pending" not in src,
+          "the page still promises a queued scan it cannot deliver")
+
+    # /run itself survives, subscriber-gated and capped, so the plumbing is
+    # not lost if on-demand scanning ever comes back.
+    r = S.post("/run", follow_redirects=False)
+    check("/run still redirects a non-subscriber",
+          r.status_code in (301, 302, 303, 307, 308), f"got {r.status_code}")
     r = P.post("/run", follow_redirects=False)
-    check("Scan button responds to a subscriber", r.status_code == 200, f"got {r.status_code}")
+    check("/run still answers a subscriber with structured JSON",
+          r.status_code == 200, f"got {r.status_code}")
     body = r.get_data(as_text=True)
     try:
         d = json.loads(body)
     except Exception:
         d = {}
-    check("Scan returns structured JSON, not a bare 'ok'",
+    check("/run returns a status field, not a bare 'ok'",
           isinstance(d, dict) and "status" in d, f"body={body[:80]!r}")
-    check("Scan reports started OR queued - never a silent fake success",
+    check("/run reports a real outcome, never a silent fake success",
           d.get("status") in ("started", "queued_locally", "already_pending"),
           f"status={d.get('status')!r}")
-    if d.get("status") in ("queued_locally", "already_pending"):
-        msg = (d.get("message") or "").lower()
-        check("Queued-scan message tells the user it will arrive on its own",
-              "within" in msg and ("minute" in msg or "update" in msg), d.get("message", ""))
-    check("Scan does not burn a daily scan when nothing ran",
+    check("/run does not burn a daily scan when nothing ran",
           scanner_web.get_scans_today(SUB) == 0
           or d.get("status") == "started",
           "a no-op scan consumed the subscriber's daily allowance")
-
-    src = Path(SITE / "ai_earnings_scanner.py").read_text(encoding="utf-8")
-    check("button says 'Scan', not 'PRO SCAN'", ">PRO SCAN<" not in src)
-    check("button label is exactly 'Scan'", ">Scan</button>" in src)
-    check("scan JS no longer claims success unconditionally",
-          "'Scan started! Reloading...'" not in src,
-          "the old JS said it started regardless of what /run returned")
-    check("scan JS handles the queued_locally outcome",
-          "queued_locally" in src)
 
     # ── 5. ACCESS SURVIVES A REDEPLOY ─────────────────────────────────
     # The failure Tyler hit. subscriptions.json lives on Railway's ephemeral

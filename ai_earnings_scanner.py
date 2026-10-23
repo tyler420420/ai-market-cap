@@ -642,7 +642,15 @@ def generate_html_report(stocks: list, output_path: str):
         '<a href="/blog" style="background:#e63946;color:#fff;padding:10px 18px;border-radius:6px;font-size:0.9em;text-decoration:none;font-weight:bold;border:1px solid #fff" onmouseover="this.style.background=\'#ff6b6b\'" onmouseout="this.style.background=\'#e63946\'">Blog</a>'
         '<a href="/about" style="background:#ffd700;color:#000;padding:10px 18px;border-radius:6px;font-size:0.9em;text-decoration:none;font-weight:bold;border:1px solid #fff" onmouseover="this.style.background=\'#fff176\'" onmouseout="this.style.background=\'#ffd700\'">FAQ</a>'
         '<a href="/wins" style="background:#58a6ff;color:#000;padding:10px 18px;border-radius:6px;font-size:0.9em;text-decoration:none;font-weight:bold;border:1px solid #fff" onmouseover="this.style.background=\'#79b8ff\'" onmouseout="this.style.background=\'#58a6ff\'">Wins</a>'
-        '<button class=btn id=scanBtn style="background:#00ff88;color:#000;font-weight:bold;border:1px solid #fff;cursor:pointer" onmouseover="this.style.background=\'#79ffc6\'" onmouseout="this.style.background=\'#00ff88\'" onclick=runScan()>Scan</button>'
+        # Tyler 2026-10-22: "lets just make the scan button for subscribers
+        # change to refresh button text and just refresh the page. so we dont
+        # have to worry about people running a bunch of scans."
+        #
+        # This removes the failure where a subscriber clicked Scan, the request
+        # queued, and nothing ever claimed it because /api/scan-poll needs a
+        # shared secret nobody had set. The button reported a success that
+        # could not happen. A refresh cannot lie about work it did not do.
+        '<button class=btn id=scanBtn style="background:#00ff88;color:#000;font-weight:bold;border:1px solid #fff;cursor:pointer" onmouseover="this.style.background=\'#79ffc6\'" onmouseout="this.style.background=\'#00ff88\'" onclick=refreshData()>Refresh</button>'
         '</div>'
         '<div style="display:flex;gap:6px;align-items:center">'
         '<a href="https://bsky.app/profile/aistock.bsky.social" target="_blank" rel="noopener noreferrer" style="background:#5741d9;color:#fff;padding:3px 10px;border-radius:5px;border:1px solid #fff;font-size:0.82em;font-weight:bold;text-decoration:none" onmouseover="this.style.background=\'#6e55e0\'" onmouseout="this.style.background=\'#5741d9\'">Follow Us</a>'
@@ -1049,7 +1057,13 @@ def generate_html_report(stocks: list, output_path: str):
     html += '</script>'
     html += '<div class=note><b>Scoring:</b> Analyst Coverage (25pts linear) + Buy% Conviction (25pts) + Strong Buy Count (2pts each, max 20) + 5D Upside (max 15pts) + Earnings Sentiment (max 15pts) | 3-Day Target: straddle x1 (Conservative Target) | 7-Day Target: straddle x3 (Mid Target) | 14-Day Target: straddle x5 (High Target) | <b>Entry:</b> 1-35 days pre-earnings | <b>Exit:</b> 1-5 days after earnings beat</div>'
     html += '<div class=disclaimer>&#9888; <b>Not a financial advisor.</b> This scanner is for informational purposes only. Options data and targets are estimates based on ATM straddles -- actual results may vary. Stocks carry risk; always do your own research before trading. AisMarketCap.com is not liable for any losses incurred from trades based on this data.</div>'
-    html += "<script>var scanBtn=document.getElementById('scanBtn');var warnMsg=document.getElementById('warnMsg');function runScan(){scanBtn.disabled=true;warnMsg.textContent='Starting scan...';var x=new XMLHttpRequest();x.open('POST','/run',true);x.onload=function(){if(x.responseURL&&x.responseURL.indexOf('/pricing')>=0){scanBtn.disabled=false;window.location.href='/pricing';return;}var d={};try{d=JSON.parse(x.responseText)||{};}catch(e){}if(x.status===429){warnMsg.textContent=d.message||'Daily scan limit reached.';scanBtn.disabled=false;return;}if(d.status==='started'){warnMsg.textContent='Scan started! Refreshing in 15s...';setTimeout(function(){location.reload(true);},15000);return;}if(d.status==='queued_locally'||d.status==='already_pending'){warnMsg.textContent=d.message||'Scan queued - this page updates when fresh data lands.';setTimeout(function(){location.reload(true);},60000);return;}warnMsg.textContent=(d.message||'Scan could not start right now.');scanBtn.disabled=false;};x.onerror=function(){scanBtn.disabled=false;warnMsg.textContent='Error - try again.';setTimeout(function(){warnMsg.style.display='none';},4000);};x.send();}function refreshData(){location.reload(true);}</script>"
+    # Tyler 2026-10-22: the Scan button became Refresh. runScan() is DELETED,
+    # not just unused - it was the function that POSTed to /run and then told
+    # the user the scan had started or was queued. Nothing in the UI calls
+    # /run any more, so the button cannot report work that never happens.
+    # /run itself stays in scanner_web.py, subscriber-gated and capped, so the
+    # queue plumbing is not lost if on-demand scanning comes back.
+    html += "<script>var scanBtn=document.getElementById('scanBtn');var warnMsg=document.getElementById('warnMsg');function refreshData(){if(warnMsg){warnMsg.style.display='';warnMsg.textContent='Reloading the latest scan data...';}location.reload(true);}</script>"
 
     # Chat widget - clean plain JS, no HTML entities
     html += '<button id="chat-btn" onclick="toggleChat()">Ask AI</button>'
