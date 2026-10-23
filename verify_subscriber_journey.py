@@ -133,10 +133,12 @@ def main():
     check("Scan returns structured JSON, not a bare 'ok'",
           isinstance(d, dict) and "status" in d, f"body={body[:80]!r}")
     check("Scan reports started OR queued - never a silent fake success",
-          d.get("status") in ("started", "queued_locally"), f"status={d.get('status')!r}")
-    if d.get("status") == "queued_locally":
-        check("Queued-scan message tells the user when data IS coming",
-              "next scan" in (d.get("message") or "").lower(), d.get("message", ""))
+          d.get("status") in ("started", "queued_locally", "already_pending"),
+          f"status={d.get('status')!r}")
+    if d.get("status") in ("queued_locally", "already_pending"):
+        msg = (d.get("message") or "").lower()
+        check("Queued-scan message tells the user it will arrive on its own",
+              "within" in msg and ("minute" in msg or "update" in msg), d.get("message", ""))
     check("Scan does not burn a daily scan when nothing ran",
           scanner_web.get_scans_today(SUB) == 0
           or d.get("status") == "started",
@@ -237,6 +239,15 @@ def main():
           src_txt.count("def is_subscriber(") == 1,
           f"found {src_txt.count('def is_subscriber(')} - two definitions means "
           f"an edit can land on the wrong one")
+    # trigger_scan was shadowed the same way is_subscriber nearly was: a second
+    # route defined under the same name rebound the name, so /run silently
+    # called the 503 route instead of the real one and queued nothing.
+    check("there is exactly ONE trigger_scan definition",
+          src_txt.count("def trigger_scan(") == 1,
+          f"found {src_txt.count('def trigger_scan(')} - a shadowing definition "
+          f"makes /run call the wrong function entirely")
+    check("/trigger-scan no longer shadows the real trigger_scan",
+          "def manual_scan_trigger(" in src_txt)
     check("/run uses is_subscriber() rather than reading the file directly",
           "get_scans_today(key_id)" in src_txt and
           "subs.get(customer_id, {}).get('status') == 'active' or" not in src_txt,

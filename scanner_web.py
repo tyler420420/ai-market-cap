@@ -582,6 +582,102 @@ SUBS_FILE = Path(__file__).parent / "subscriptions.json"
 SCAN_COUNTS_FILE = Path(__file__).parent / "scan_counts.json"
 MAX_SCANS_PER_DAY = 3
 
+# ===== ON-DEMAND SCAN QUEUE ===========================================
+# Tyler 2026-10-22: "point the scan to my local machine, that is best
+# solution."
+#
+# WHY THIS SHAPE. The scanner cannot run inside the Railway container - it
+# OOM'd the container into a restart loop that 404'd every route, which is
+# why ALLOW_IN_CONTAINER_SCAN is off. But the real scanner runs fine on
+# Tyler's Windows box, where daily_scan.ps1 already scans, commits and pushes
+# so Railway redeploys the fresh HTML. So the button does not run a scan; it
+# leaves a REQUEST, and the local machine picks it up.
+#
+# PULL, NOT PUSH. The local machine sits behind NAT and cannot be reached
+# inbound from the internet without an exposed tunnel - and an unauthenticated
+# public endpoint that can start scans is a denial-of-service lever anyone
+# could pull. So Railway only ever stores a request; the machine polls with a
+# shared secret. Nothing is reachable inbound, and a stranger can neither read
+# nor clear a request.
+#
+# FILE-BASED, HONEST ABOUT IT. The queue is a JSON file on the container's
+# ephemeral disk, so a Railway restart loses a pending request. That is the
+# correct trade for this feature: a scan is a best-effort convenience with a
+# scheduled daily fallback, and losing one is far better than blocking deploys
+# on a database nobody operates.
+SCAN_QUEUE_FILE = Path(__file__).parent / "scan_queue.json"
+SCAN_SECRET = os.environ.get("SCAN_SECRET", "")
+# How long a claimed request stays claimed before another poller may take it.
+# The real scan takes ~4 minutes, so this must comfortably exceed that or two
+# pollers would run the same scan twice.
+SCAN_CLAIM_TTL_S = 900
+
+
+def _read_queue():
+    try:
+        return json.loads(SCAN_QUEUE_FILE.read_text(encoding="utf-8"))
+    except Exception:
+        return {"state": "idle"}
+
+
+def _write_queue(q):
+    try:
+        SCAN_QUEUE_FILE.write_text(json.dumps(q, indent=2), encoding="utf-8")
+    except Exception as e:
+        print(f"[ScanQueue] write failed: {e}")
+
+
+def _poller_ok():
+    """True when the request carries the shared poller secret."""
+    if not SCAN_SECRET:
+        return False
+    sent = (request.headers.get("X-Scan-Secret") or "").strip()
+    return bool(sent) and secrets.compare_digest(sent, SCAN_SECRET)
+
+
+@app.route("/api/scan-poll", methods=["GET"])
+def api_scan_poll():
+    """Claim a pending on-demand scan. Local machine only, secret required.
+
+    Returns the claim and marks it 'running' so a second poller cannot start a
+    duplicate. If a claim is older than SCAN_CLAIM_TTL_S the machine is assumed
+    dead mid-scan and the request is released back to 'pending'."""
+    if not _poller_ok():
+        return jsonify({"error": "forbidden"}), 403
+    q = _read_queue()
+    now = time.time()
+    state = q.get("state", "idle")
+    if state == "running":
+        started = float(q.get("claimed_at") or 0)
+        if now - started < SCAN_CLAIM_TTL_S:
+            return jsonify({"state": "running", "claimed_at": q.get("claimed_at")})
+        # Stale claim - the poller died. Release it.
+        print(f"[ScanQueue] stale claim released after {int(now - started)}s")
+        state = "pending"
+    if state != "pending":
+        return jsonify({"state": state})
+    q.update({"state": "running", "claimed_at": now,
+              "requested_at": q.get("requested_at"), "requested_by": q.get("requested_by")})
+    _write_queue(q)
+    print(f"[ScanQueue] claimed scan requested by {q.get('requested_by')}")
+    return jsonify({"state": "claimed", "requested_at": q.get("requested_at")})
+
+
+@app.route("/api/scan-complete", methods=["POST"])
+def api_scan_complete():
+    """Report the local scan finished (or failed). Local machine only."""
+    if not _poller_ok():
+        return jsonify({"error": "forbidden"}), 403
+    body = request.get_json(silent=True) or {}
+    ok = bool(body.get("ok"))
+    detail = str(body.get("detail") or "")[:300]
+    q = _read_queue()
+    q.update({"state": "idle", "completed_at": time.time(),
+              "last_ok": ok, "last_detail": detail})
+    _write_queue(q)
+    print(f"[ScanQueue] local scan complete ok={ok} {detail}")
+    return jsonify({"state": "idle"})
+
 # ===== VISITOR COUNTER =====================================================
 # Tyler 2026-10-21 00:10 PT: wanted a real "Website visitors" number on the CEO
 # dashboard. There is no analytics on this site, so this counts it ourselves.
@@ -2154,18 +2250,29 @@ def api_run():
         increment_scan_count(key_id)
         return jsonify({
             'status': 'started',
-            'message': 'Fresh scan started. This takes a couple of minutes.',
+            'message': 'Fresh scan started right here. This takes a couple of minutes.',
         })
 
-    # Nothing ran. Say so honestly instead of pretending, and tell the user
-    # when fresh data IS coming rather than leaving them to guess.
-    next_scan = (datetime.now(PT) + timedelta(hours=1)).strftime('%-I:%M %p PT')
+    # Running in the container is disabled (it OOM'd Railway into a restart
+    # loop that 404'd every route). Instead of faking success, queue a real
+    # request that Tyler's machine picks up within a minute. It does the scan,
+    # commits and pushes, and Railway redeploys the fresh page.
+    q = _read_queue()
+    already = q.get("state") in ("pending", "running")
+    q.update({"state": "pending", "requested_at": time.time(),
+              "requested_by": key_id or "anonymous"})
+    _write_queue(q)
+    increment_scan_count(key_id)
+    if already:
+        return jsonify({
+            'status': 'already_pending',
+            'message': ("A fresh scan is already queued and starts within a "
+                        "minute. This page updates itself when it lands."),
+        })
     return jsonify({
         'status': 'queued_locally',
-        'message': ('Fresh data is already on its way - the next scan runs '
-                    f'directly on our machine around {next_scan}. Nothing to '
-                    'click; this page will update itself.'),
-        'next_scan_pt': next_scan,
+        'message': ("Scan queued - it starts within about a minute and this "
+                    "page will update itself when fresh data is pushed."),
     })
 
 @app.route("/status")
@@ -2542,8 +2649,20 @@ def sitemap():
 
 # ===== MANUAL SCAN TRIGGER (for force-updating the site) =====
 @app.route("/trigger-scan")
-def trigger_scan():
-    """Manually run the scanner and update the site. Use ?key=SECRET to authenticate."""
+def manual_scan_trigger():
+    """Manually run the scanner and update the site. Use ?key=SECRET to authenticate.
+
+    RENAMED from trigger_scan 2026-10-22. This route was DEFINED SECOND under
+    the same name, so Python bound the name to THIS function and the real
+    trigger_scan() at line ~1022 became unreachable - /run called this one
+    instead. It returned 503 "disabled_in_container", which /run discarded,
+    so the Scan button claimed success while queueing nothing at all.
+
+    Exactly the failure the earlier duplicate-is_subscriber() note warned about:
+    two definitions of one name means an edit can land on the wrong one and the
+    live one silently stays different. verify_auth.py now asserts this name is
+    defined once.
+    """
     import os
     key = os.environ.get("SCAN_TRIGGER_KEY", "")
     provided = request.args.get("key", "")
