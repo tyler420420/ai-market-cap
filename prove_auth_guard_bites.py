@@ -6,6 +6,7 @@ and asserts the guard rejects it. The real repo file is never modified.
 
 Run:  python prove_auth_guard_bites.py
 """
+import io
 import os
 import re
 import shutil
@@ -16,6 +17,30 @@ import tempfile
 HERE = os.path.dirname(os.path.abspath(__file__))
 SRC = os.path.join(HERE, "scanner_web.py")
 GUARD = os.path.join(HERE, "verify_auth.py")
+
+# scanner_web.py imports sibling modules that live in this repo. The harness
+# runs it in a throwaway directory, so anything it imports must be staged there
+# too - otherwise the baseline dies on ModuleNotFoundError and every mutation
+# result becomes meaningless. Discovered, not hardcoded, so adding another
+# module cannot silently break this harness again.
+_LOCAL_IMPORTS = set()
+try:
+    _body = io.open(SRC, encoding="utf-8").read()
+except Exception:
+    _body = ""
+for _m in re.finditer(r"^\s*(?:import\s+(\w+)|from\s+(\w+)\s+import)", _body, re.M):
+    _mod = _m.group(1) or _m.group(2)
+    if _mod and os.path.exists(os.path.join(HERE, _mod + ".py")):
+        _LOCAL_IMPORTS.add(_mod + ".py")
+
+
+def stage(workdir):
+    """Copy everything the guard needs to import scanner_web.py in isolation."""
+    shutil.copy(SRC, os.path.join(workdir, "scanner_web.py"))
+    shutil.copy(GUARD, os.path.join(workdir, "verify_auth.py"))
+    for dep in sorted(_LOCAL_IMPORTS):
+        shutil.copy(os.path.join(HERE, dep), os.path.join(workdir, dep))
+    return sorted(_LOCAL_IMPORTS)
 
 PY = sys.executable
 
@@ -98,8 +123,8 @@ def main():
 
     # Sanity: the unmutated guard must pass, else a failing mutation proves nothing.
     base_dir = tempfile.mkdtemp(prefix="authbite_base_")
-    shutil.copy(SRC, os.path.join(base_dir, "scanner_web.py"))
-    shutil.copy(GUARD, os.path.join(base_dir, "verify_auth.py"))
+    deps = stage(base_dir)
+    print(f"[baseline] staged local deps: {deps or '(none)'}")
     code, out = run_guard(base_dir)
     print(f"[baseline] unmutated guard exit={code}")
     if code != 0:
@@ -123,9 +148,9 @@ def main():
                       f"stale.")
                 all_caught = False
                 continue
+            deps = stage(workdir)
             open(os.path.join(workdir, "scanner_web.py"), "w",
                  encoding="utf-8").write(mutated)
-            shutil.copy(GUARD, os.path.join(workdir, "verify_auth.py"))
 
             code, out = run_guard(workdir)
             caught = code != 0
