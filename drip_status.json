@@ -1,0 +1,20 @@
+{
+  "last_run": "2026-10-23T04:08:11-07:00",
+  "last_ok": false,
+  "blocked": true,
+  "sent": 0,
+  "gates": {
+    "optout_working": {
+      "ok": false,
+      "detail": "the live site has no EMAIL_EXPORT_TOKEN, so every opt-out a recipient clicks would return 503 and suppress nothing"
+    },
+    "postal_address": {
+      "ok": false,
+      "detail": "no postal address configured - add POSTAL_ADDRESS to alert.env. Not substituting a placeholder."
+    }
+  },
+  "reasons": [
+    "opt-out: the live site has no EMAIL_EXPORT_TOKEN, so every opt-out a recipient clicks would return 503 and suppress nothing",
+    "postal: no postal address configured - add POSTAL_ADDRESS to alert.env. Not substituting a placeholder."
+  ]
+}
