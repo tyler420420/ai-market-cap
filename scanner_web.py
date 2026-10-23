@@ -1505,6 +1505,27 @@ def api_email_signup():
     is the cheapest thing on the site to spam. Only a real-looking address is
     stored, nothing else from the request body is trusted, and the response
     never confirms whether a given address was already on the list.
+
+    THE RESPONSE TELLS THE TRUTH ABOUT DELIVERY
+    This endpoint used to answer "Check your inbox tomorrow morning."
+    unconditionally, which is a promise the pipeline could not keep. EMAIL_LIST_FILE
+    lives on the container's disk and dies with the next deploy, and until
+    EMAIL_EXPORT_TOKEN is set on this service there is no path from here to the
+    machine that actually sends. So the site reported success for something it
+    could not do, and nothing anywhere said otherwise - which is exactly why
+    this went unnoticed long enough to be worth writing down.
+
+    So the message now depends on whether delivery is actually possible:
+      ready     -> "Check your inbox tomorrow morning."
+      not ready -> says plainly that nothing will arrive yet.
+    Both still CAPTURE the address. Refusing to store it would not fix the lie,
+    it would delete the funnel - the free list is the only route to an address
+    for an email product - and the stored addresses are already sitting there
+    ready for the first pull the moment the token is set. Re-enabling delivery
+    is one variable and no redeploy of this code.
+
+    delivery_ready is returned explicitly so the client can stop colouring a
+    "not yet live" message in success green.
     """
     try:
         data = request.get_json(silent=True) or {}
@@ -1512,12 +1533,18 @@ def api_email_signup():
         data = {}
     email = (data.get("email") or "").strip().lower()
     if not email or len(email) > 254 or not EMAIL_RE.match(email):
-        return jsonify({"ok": False,
+        return jsonify({"ok": False, "delivery_ready": False,
                         "message": "That does not look like an email address."}), 400
 
-    # Honeypot: a real person never fills a field they cannot see.
+    ready = _delivery_ready()
+    reply = {"ok": True, "delivery_ready": ready,
+             "message": (SIGNUP_MSG_READY if ready else SIGNUP_MSG_NOT_READY)}
+
+    # Honeypot: a real person never fills a field they cannot see. It returns
+    # the SAME shape as a real signup so a bot cannot use the message to work
+    # out whether the lane is configured.
     if (data.get("website") or "").strip():
-        return jsonify({"ok": True, "message": "Check your inbox tomorrow."}), 200
+        return jsonify(reply), 200
 
     lst = _read_email_list()
     existing = lst.get(email)
@@ -1538,8 +1565,9 @@ def api_email_signup():
         _write_email_list(lst)
     except Exception as e:
         print(f"[Email] write failed: {e}")
-        return jsonify({"ok": False, "message": "Could not save that. Try again."}), 500
-    return jsonify({"ok": True, "message": "Check your inbox tomorrow morning."}), 200
+        return jsonify({"ok": False, "delivery_ready": False,
+                        "message": "Could not save that. Try again."}), 500
+    return jsonify(reply), 200
 
 
 def _now_iso():
@@ -1565,6 +1593,24 @@ def _now_iso():
 # channel is in fact switched off.
 EMAIL_EXPORT_TOKEN = os.environ.get("EMAIL_EXPORT_TOKEN", "")
 UNSUBSCRIBE_URL = "https://aismarketcap.com/api/email-unsubscribe"
+
+# What the signup form says, depending on whether delivery is actually
+# possible. See api_email_signup for why this is conditional.
+SIGNUP_MSG_READY = "Check your inbox tomorrow morning."
+SIGNUP_MSG_NOT_READY = (
+    "Saved - but the free daily email is not switched on yet, so nothing "
+    "will arrive just now. We'll announce it here when it is.")
+
+
+def _delivery_ready():
+    """True when a signup made here could actually reach an inbox today.
+
+    EMAIL_EXPORT_TOKEN is the whole gate: without it on this service the pull
+    cannot run, so a captured address can never become a delivered email. A
+    DNS-verified sending domain is not enough - Resend verified aismarketcap.com
+    and the paid alert works, while the free list still cannot move.
+    """
+    return bool((EMAIL_EXPORT_TOKEN or "").strip())
 
 
 def _email_token_ok():
@@ -1694,10 +1740,11 @@ EMAIL_CAPTURE = """
   var go=document.getElementById('dl-go'), em=document.getElementById('dl-email'),
       msg=document.getElementById('dl-msg'), hp=document.getElementById('dl-hp');
   if(!go) return;
-  function say(t,ok){ msg.textContent=t; msg.style.color = ok ? '#00ff88' : '#ff6b6b'; }
+  function say(t,state){ msg.textContent=t;
+    msg.style.color = state==='ok' ? '#00ff88' : state==='warn' ? '#e3b341' : '#ff6b6b'; }
   go.addEventListener('click', function(){
     var v=(em.value||'').trim();
-    if(!v){ say('Enter your email first.', false); return; }
+    if(!v){ say('Enter your email first.', 'bad'); return; }
     go.disabled=true; go.textContent='Saving...';
     fetch('/api/email-signup',{method:'POST',
       headers:{'Content-Type':'application/json'},
@@ -1705,12 +1752,17 @@ EMAIL_CAPTURE = """
       .then(function(r){return r.json().then(function(d){return {s:r.status,d:d};});})
       .then(function(x){
         go.disabled=false; go.textContent='Send it to me';
-        if(x.s===200){ say(x.d.message||'Check your inbox tomorrow morning.', true);
-                      em.value=''; }
-        else { say(x.d.message||'Could not save that. Try again.', false); }
+        if(x.s===200){
+          // Captured either way, so the field clears. delivery_ready decides
+          // the colour: a saved-but-not-yet-sending message must not be
+          // painted the same success green as a real delivery promise.
+          say(x.d.message||'Saved.', x.d.delivery_ready===false ? 'warn' : 'ok');
+          em.value='';
+        }
+        else { say(x.d.message||'Could not save that. Try again.', 'bad'); }
       })
       .catch(function(){ go.disabled=false; go.textContent='Send it to me';
-                         say('Network error. Try again.', false); });
+                         say('Network error. Try again.', 'bad'); });
   });
   em.addEventListener('keydown', function(e){ if(e.key==='Enter') go.click(); });
 })();

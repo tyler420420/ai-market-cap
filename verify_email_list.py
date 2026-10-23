@@ -324,6 +324,70 @@ def main():
         check("the buyer receives the variant WITH targets",
               "Available in Pro" not in chosen, "got the free variant")
 
+        # ---- the signup response must not lie ---------------------------
+        # This endpoint answered "Check your inbox tomorrow morning."
+        # unconditionally while the list could not move. It is the promise
+        # that made the whole failure invisible, so the message itself is
+        # now part of the contract.
+        section("The signup response tells the truth about delivery")
+
+        ready_tok, was_tok = W.EMAIL_EXPORT_TOKEN, W.EMAIL_LIST_FILE
+        cap_file = Path(tempfile.mkdtemp()) / "capture.json"
+
+        def signup(email, **kw):
+            rl = W.EMAIL_LIST_FILE
+            W.EMAIL_LIST_FILE = cap_file
+            try:
+                r = client.post("/api/email-signup", json={"email": email}, **kw)
+                return r.status_code, (r.get_json() or {})
+            finally:
+                W.EMAIL_LIST_FILE = rl
+
+        try:
+            W.EMAIL_EXPORT_TOKEN = ""
+            code, j = signup("honest@example.com")
+            check("an unconfigured signup returns 200", code == 200, code)
+            check("it reports delivery is NOT ready",
+                  j.get("delivery_ready") is False, j)
+            check("it does NOT promise delivery",
+                  "tomorrow" not in (j.get("message") or "").lower(), j)
+            check("the promise string is absent entirely",
+                  "Check your inbox tomorrow" not in (j.get("message") or ""), j)
+            check("the address is STILL CAPTURED (the funnel survives)",
+                  "honest@example.com" in
+                  json.loads(cap_file.read_text(encoding="utf-8")),
+                  cap_file.read_text(encoding="utf-8")[:120])
+
+            _, honey = signup("bot@example.com", )
+            W2 = client.post("/api/email-signup",
+                             json={"email": "bot2@example.com", "website": "x"})
+            hj = W2.get_json() or {}
+            check("the honeypot returns the SAME shape (no configuration oracle)",
+                  hj.get("delivery_ready") == j.get("delivery_ready")
+                  and hj.get("message") == j.get("message"), (hj, j))
+
+            W.EMAIL_EXPORT_TOKEN = TOKEN
+            code, j2 = signup("ready@example.com")
+            check("a configured signup reports delivery IS ready",
+                  j2.get("delivery_ready") is True, j2)
+            check("and only then promises tomorrow",
+                  "tomorrow" in (j2.get("message") or "").lower(), j2)
+        finally:
+            W.EMAIL_EXPORT_TOKEN = ready_tok
+            W.EMAIL_LIST_FILE = was_tok
+            for p in (cap_file,):
+                try:
+                    p.unlink()
+                    p.parent.rmdir()
+                except Exception:
+                    pass
+
+        js = W.EMAIL_CAPTURE
+        check("the client no longer paints not-ready in success green",
+              "'warn'" in js and "delivery_ready===false" in js)
+        check("the client has no hardcoded delivery promise left",
+              "Check your inbox tomorrow morning.'" not in js)
+
     finally:
         W.EMAIL_LIST_FILE = real_file
         W.EMAIL_EXPORT_TOKEN = real_token
