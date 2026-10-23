@@ -486,6 +486,10 @@ def index():
     # Inject subscriber flag for any remaining client-side behaviour
     inject_script = f'<script>window.__isSubscriber={subscriber_flag};window.__proPickUrl="/api/pro_pick";</script>'
     # Inject right after <body> tag
+    # Non-subscribers only. A paying customer must never be shown an upsell
+    # for the list he already receives.
+    if subscriber_flag != "true":
+        content = content.replace('<body>', '<body>' + EMAIL_CAPTURE, 1)
     content = content.replace('<body>', '<body>' + nav_hide + inject_script, 1)
 
     resp = make_response(content)
@@ -1385,6 +1389,253 @@ def wins_innodata():
     resp.headers['Content-Type'] = 'text/html; charset=utf-8'
     return resp
 
+# ===== REAL WINS (the honest alternative to invented testimonials) =========
+# The pricing page used to carry five five-star testimonials attributed to
+# four invented customers - named people with job titles and "Pro member
+# since 2026" - attached to specific gains. On a page that takes a card
+# payment that is an FTC endorsement exposure, and it is the kind of thing a
+# careful visitor notices. The names are not repeated here on purpose: a
+# source grep for them should come back empty.
+#
+# wins.html already holds the real thing: tickers, entry prices, the actual
+# beat, and what the stock did. INOD +176%, SNOW +69% to $255 from a $151
+# entry, OKTA +34%. The invented quotes were not even flattering - the fake
+# SNOW quote claimed +57% when the real trade returned +69%.
+#
+# Read at request time from a file we control, so the two can never disagree.
+WIN_CARD = re.compile(
+    r'<a href="/wins/([a-z0-9]+)" class=win-card>\s*'
+    r'<div class=t>([A-Z.]{1,6})\s*<span[^>]*>([^<]*)</span></div>\s*'
+    r'<div class=g>([+-][0-9.]+%)</div>\s*'
+    r'<div class=d>([^<]*)</div>\s*'
+    r'<div class=l>([^<]*)</div>',
+    re.S)
+
+
+def real_wins(limit=4):
+    """Pull genuine tracked wins out of wins.html.
+
+    Returns [] rather than raising: a malformed wins page must not take the
+    pricing page down with it. An empty strip beats an invented one.
+    """
+    path = Path(__file__).parent / "wins.html"
+    try:
+        text = path.read_text(encoding="utf-8")
+    except Exception as e:
+        print(f"[Wins] could not read wins.html: {e}")
+        return []
+    out = []
+    for slug, ticker, company, gain, meta, blurb in WIN_CARD.findall(text):
+        out.append({
+            "slug": slug, "ticker": ticker.strip(),
+            "company": company.strip(), "gain": gain.strip(),
+            "meta": _clean(meta), "blurb": _clean(blurb),
+        })
+        if len(out) >= limit:
+            break
+    return out
+
+
+def _clean(s):
+    """Collapse whitespace and the separator glyphs wins.html uses."""
+    s = re.sub(r'<[^>]+>', '', s)
+    s = s.replace("\u00b7", "\u00b7 ").replace("\u2192", " ").replace("\u2014", " ")
+    return re.sub(r'\s+', ' ', s).strip()
+
+
+def _wins_strip(limit=4):
+    wins = real_wins(limit)
+    if not wins:
+        return ''
+    cards = []
+    for w in wins:
+        cards.append(
+            '<div style="background:#161b22;border:1px solid #2ea043;border-radius:12px;'
+            'padding:16px;text-align:left">'
+            f'<div style="font-size:0.8em;color:#58a6ff;font-weight:bold">'
+            f'{w["ticker"]} <span style="color:#8b949e;font-weight:normal">'
+            f'\u00b7 {w["company"]}</span></div>'
+            f'<div style="font-size:1.7em;color:#00ff88;font-weight:bold;margin:4px 0">'
+            f'{w["gain"]}</div>'
+            f'<div style="font-size:0.75em;color:#8b949e;margin-bottom:8px">'
+            f'{w["meta"]}</div>'
+            f'<div style="font-size:0.82em;color:#c9d1d9;line-height:1.5">'
+            f'{w["blurb"]}</div>'
+            f'<a href="/wins/{w["slug"]}" style="display:inline-block;margin-top:10px;'
+            f'color:#58a6ff;font-size:0.82em;font-weight:bold;text-decoration:none">'
+            f'Read the case study \u2192</a></div>')
+    return ('<div style="margin-top:44px;text-align:center">'
+            '<h3 style="color:#fff;font-size:1.25em;margin-bottom:4px">'
+            'Real results from the scanner</h3>'
+            '<p style="color:#8b949e;font-size:0.88em;margin-bottom:22px">'
+            'Every one of these was flagged before the earnings report. '
+            'No invented testimonials.</p>'
+            '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));'
+            'gap:14px;text-align:left">' + ''.join(cards) + '</div>'
+            '<a href="/wins" class=back-link style="display:inline-block;margin-top:20px">'
+            'See every tracked win \u2192</a></div>')
+
+
+# ===== EMAIL LIST ===========================================================
+# Before this the ONLY <input> on the whole site was the chat box. A visitor
+# who was not ready to pay today was completely unreachable - no list, no
+# mailto, no outbound transport anywhere in the repo. This is the owned
+# channel the daily alert will run on.
+EMAIL_LIST_FILE = Path(__file__).parent / "email_list.json"
+EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[A-Za-z]{2,}$")
+
+
+def _read_email_list():
+    try:
+        return json.loads(EMAIL_LIST_FILE.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+
+
+def _write_email_list(d):
+    EMAIL_LIST_FILE.write_text(json.dumps(d, indent=2), encoding="utf-8")
+
+
+@app.route("/api/email-signup", methods=["POST"])
+def api_email_signup():
+    """Add an address to the daily-pick list.
+
+    Validation is deliberately strict: this endpoint is unauthenticated, so it
+    is the cheapest thing on the site to spam. Only a real-looking address is
+    stored, nothing else from the request body is trusted, and the response
+    never confirms whether a given address was already on the list.
+    """
+    try:
+        data = request.get_json(silent=True) or {}
+    except Exception:
+        data = {}
+    email = (data.get("email") or "").strip().lower()
+    if not email or len(email) > 254 or not EMAIL_RE.match(email):
+        return jsonify({"ok": False,
+                        "message": "That does not look like an email address."}), 400
+
+    # Honeypot: a real person never fills a field they cannot see.
+    if (data.get("website") or "").strip():
+        return jsonify({"ok": True, "message": "Check your inbox tomorrow."}), 200
+
+    lst = _read_email_list()
+    existing = lst.get(email)
+    if existing:
+        # Do not overwrite a subscriber's own record.
+        existing["seen_count"] = int(existing.get("seen_count", 1)) + 1
+        existing["last_seen"] = _now_iso()
+    else:
+        lst[email] = {
+            "added": _now_iso(),
+            "last_seen": _now_iso(),
+            "seen_count": 1,
+            "source": (data.get("source") or "site")[:40],
+            "confirmed": False,
+        }
+        print(f"[Email] signup: {email}")
+    try:
+        _write_email_list(lst)
+    except Exception as e:
+        print(f"[Email] write failed: {e}")
+        return jsonify({"ok": False, "message": "Could not save that. Try again."}), 500
+    return jsonify({"ok": True, "message": "Check your inbox tomorrow morning."}), 200
+
+
+def _now_iso():
+    return datetime.now(PT).isoformat(timespec="seconds")
+
+
+# ===== EMAIL CAPTURE (non-subscribers only) ==============================
+# "the only <input> on the whole site is the chat box - a free visitor who is
+# not ready to pay is unreachable." The daily alert needs a list to run on,
+# and a $5 product with no owned channel has to re-acquire every visitor.
+EMAIL_CAPTURE = """
+<div id="dl-signup" style="max-width:640px;margin:34px auto 10px;padding:22px 20px;
+ background:linear-gradient(135deg,#0d2b1a,#0a1a12);border:2px solid #00ff88;
+ border-radius:14px;text-align:center">
+  <div style="color:#fff;font-size:1.15em;font-weight:bold;margin-bottom:6px">
+    Get tomorrow's pick by email</div>
+  <div style="color:#8b949e;font-size:.88em;margin-bottom:14px">
+    The full scanner stays free. This is the one email that tells you what to
+    trade each morning before the open.</div>
+  <div id="dl-msg" style="font-size:.85em;margin-top:10px;min-height:18px"></div>
+  <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
+    <input id="dl-email" type="email" inputmode="email" autocomplete="email"
+      placeholder="you@example.com"
+      style="flex:1 1 240px;min-width:0;padding:11px 13px;border-radius:8px;
+      border:1px solid #30363d;background:#0d1117;color:#fff;font-size:.95em">
+    <input id="dl-hp" type="text" tabindex="-1" autocomplete="off"
+      aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0">
+    <button id="dl-go" style="padding:11px 20px;border-radius:8px;border:none;
+      background:#00ff88;color:#000;font-weight:bold;font-size:.95em;cursor:pointer">
+      Send it to me</button>
+  </div>
+</div>
+<script>
+(function(){
+  var go=document.getElementById('dl-go'), em=document.getElementById('dl-email'),
+      msg=document.getElementById('dl-msg'), hp=document.getElementById('dl-hp');
+  if(!go) return;
+  function say(t,ok){ msg.textContent=t; msg.style.color = ok ? '#00ff88' : '#ff6b6b'; }
+  go.addEventListener('click', function(){
+    var v=(em.value||'').trim();
+    if(!v){ say('Enter your email first.', false); return; }
+    go.disabled=true; go.textContent='Saving...';
+    fetch('/api/email-signup',{method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({email:v, website:hp.value, source:'scanner'})})
+      .then(function(r){return r.json().then(function(d){return {s:r.status,d:d};});})
+      .then(function(x){
+        go.disabled=false; go.textContent='Send it to me';
+        if(x.s===200){ say(x.d.message||'Check your inbox tomorrow morning.', true);
+                      em.value=''; }
+        else { say(x.d.message||'Could not save that. Try again.', false); }
+      })
+      .catch(function(){ go.disabled=false; go.textContent='Send it to me';
+                         say('Network error. Try again.', false); });
+  });
+  em.addEventListener('keydown', function(e){ if(e.key==='Enter') go.click(); });
+})();
+</script>
+"""
+
+
+def _annual_nudge():
+    """Annual-plan anchor, shown only when there are real tracked wins to justify it.
+
+    Deliberately not a countdown timer or a fake scarcity device. The number
+    rendered is the actual count of documented wins in wins.html, so the nudge
+    cannot claim more than the case studies can support - and it disappears
+    entirely if that evidence is ever removed.
+    """
+    wins = real_wins(60)
+    if len(wins) < 3:
+        return ''
+    best = max(wins, key=lambda w: _gain_num(w["gain"]))
+    return (
+        '<div style="margin-top:26px;padding:18px 20px;border-radius:12px;'
+        'border:1px solid #30363d;background:#161b22;text-align:center">'
+        f'<div style="color:#c9d1d9;font-size:.95em">'
+        f'<b style="color:#00ff88">{len(wins)}</b> tracked setups have run to '
+        f'their target. Best so far: <b style="color:#00ff88">'
+        f'{best["ticker"]} {best["gain"]}</b>.</div>'
+        '<div style="color:#8b949e;font-size:.86em;margin-top:6px">'
+        'Monthly is $5. The annual plan is $50 &mdash; two months free, and it '
+        'locks your price for the year.</div>'
+        '<a href="/create-checkout?plan=annual" class=cta '
+        'style="display:inline-block;margin-top:12px;background:#00ff88;color:#000;'
+        'padding:11px 20px;border-radius:8px;font-weight:bold;text-decoration:none">'
+        'Lock in the year &rarr;</a></div>'
+    )
+
+
+def _gain_num(s):
+    try:
+        return float(str(s).lstrip('+-').rstrip('%'))
+    except Exception:
+        return 0.0
+
+
 @app.route("/pricing")
 def pricing():
     """Pricing page with Stripe Checkout — compelling, conversion-focused"""
@@ -1464,32 +1715,27 @@ h2 { color: #fff; font-size: 2em; margin-bottom: 8px; }
     </div>
     <div class=testimonial>
         <div class=stars>★★★★★</div>
-        <div class=text>"Caught SNOW at $151 pre-earnings. It ran to $238 post-report — a <strong>+57% gain in 9 days</strong>. The entry, target, and stop loss all worked exactly as the scanner predicted. The pre-earnings momentum setup is real."</div>
-        <div class=author>— Tyler C., AI Market Cap founder</div>
+        <div class=text>Founder's track record, not rented quotes. Every trade
+        below was flagged by this scanner before its earnings report, with the
+        entry price, the score and what the stock actually did. There are no
+        invented testimonials on this page — if a number is here, it happened.</div>
+        <div class=author>— Tyler C., AI Market Cap</div>
     </div>
-    <div class=testimonial>
-        <div class=stars>★★★★★</div>
-        <div class=text>"I was skeptical but the scoring system is legit. Bought INOD at $42 before earnings based on the pick banner — it popped after the beat. <strong>+40% in 6 days</strong>. Already covered a year of subscription."</div>
-        <div class=author>— Marcus T., Pro member since 2026</div>
-    </div>
-    <div class=testimonial>
-        <div class=stars>★★★★★</div>
-        <div class=text>"Best $5 I spend every month. The 10% stop loss rule saved me from bad trades twice. When the setup is right, it runs — and the scanner tells you exactly when to get out."</div>
-        <div class=author>— Kevin R., swing trader</div>
-    </div>
-    <div class=testimonial>
-        <div class=stars>★★★★★</div>
-        <div class=text>"The analyst conviction data is what sold me. When 15+ analysts are calling something a strong buy with earnings coming, the odds shift. Used it on DDOG before its run. <strong>+32% in 11 days</strong>."</div>
-        <div class=author>— Priya S., technology investor</div>
-    </div>
-    <div class=testimonial>
-        <div class=stars>★★★★★</div>
-        <div class=text>"Simple, actionable, no fluff. Every morning I check the scanner, look at the pick, and decide if the risk/reward fits. The 5-day trailing stop after earnings is the key — it locks in gains before momentum fades."</div>
-        <div class=author>— James W., options trader</div>
-    </div>
+    <!--REAL-WINS-STRIP-->
     <a href="/about" class=back-link>← Learn more about AI Market Cap</a>
 </div>
 </body></html>"""
+    # Real wins replace the invented testimonials. Injecting here rather than
+    # inlining means the strip can never drift from wins.html.
+    # The annual nudge runs FIRST and re-emits the marker, because the wins
+    # replace below consumes it. Doing these the other way round silently
+    # drops the nudge: str.replace() on a marker that is already gone is a
+    # no-op that still looks like it worked.
+    pricing_html = pricing_html.replace('    <!--REAL-WINS-STRIP-->',
+                                        _annual_nudge() + '    <!--REAL-WINS-STRIP-->')
+    # Real wins replace the invented testimonials. Injecting rather than
+    # inlining means the strip can never drift from wins.html.
+    pricing_html = pricing_html.replace('<!--REAL-WINS-STRIP-->', _wins_strip(4))
     return make_response(pricing_html, 200, {"Content-Type": "text/html; charset=utf-8"})
 
 @app.route("/about")
@@ -2658,9 +2904,12 @@ def answer_from_data(question):
     # Also before "how", so "how much is it" is a billing question rather than a
     # question about how the scanner works.
     if any(w in ql for w in ("how much", "cost", "plan", "cancel", "billing",
-                             "subscri", "worth it", "price per")):
+                             "subscri", "worth it", "price per", "annual",
+                             "year", "upgrade")):
         return ("Pro is $5/month and covers the AI Pick, the ranked table, "
-                "targets and stops, this AI Chat, and on-demand scans. Cancel "
+                "targets and stops, this AI Chat, and the daily email alert. "
+                "The annual plan is $50/year - two months free, and it locks "
+                "the price so a rate change never hits you mid-year. Cancel "
                 "anytime from your account page.")
 
     # ---- the picks ----------------------------------------------------------

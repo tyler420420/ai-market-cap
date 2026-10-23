@@ -107,3 +107,10 @@ scan_poller.log
 # the version whose PUBLIC HTML leaked the paid target/stop numbers. Ignore
 # them so a stray add can never resurrect that file into the repo.
 *.bak_*
+
+# Customer email addresses. The daily alert list is PII and must
+# never reach the repo - same rule as scan.env and stripe.env.
+email_list.json
+
+# SMTP / provider credentials for the daily alert. Never committed.
+alert.env
