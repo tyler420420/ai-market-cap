@@ -86,9 +86,14 @@ def restore():
 
 
 def run_guard():
+    # errors='replace' is load-bearing, not cosmetic. Without it the guard's
+    # output is decoded with the locale codec; the reader thread dies,
+    # p.stdout becomes None, and this raises TypeError. That aborted the
+    # harness mid-run, so it silently reported fewer mutants than it tried
+    # - a harness that crashes cannot tell you it caught anything.
     p = subprocess.run([PY, str(GUARD)], capture_output=True, text=True,
-                       cwd=str(SITE), timeout=600)
-    return p.returncode, p.stdout + p.stderr
+                       errors='replace', cwd=str(SITE), timeout=600)
+    return p.returncode, (p.stdout or '') + (p.stderr or '')
 
 
 def main():

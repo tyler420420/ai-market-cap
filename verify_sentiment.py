@@ -1,7 +1,13 @@
 import json
 with open('ai_earnings_today.html','r',encoding='utf-8') as f: h=f.read()
-i=h.find('<script>var rowsData=')
-ds=h[i+17:h.find('</script>',i)]
+MARKER = '<script>var rowsData='
+i = h.find(MARKER)
+if i < 0:
+    raise SystemExit('rowsData marker not found - the artifact shape changed')
+# len(MARKER), not a hardcoded 17. The literal is 21 chars; using 17 sliced
+# the payload to "ata=[...]" and every run died with a JSONDecodeError at
+# character 0, which looks like an empty file rather than a wrong offset.
+ds = h[i + len(MARKER):h.find('</script>', i)]
 d=0;ie=False;e=False;ae=0
 for j,ch in enumerate(ds):
     if e: e=False; continue

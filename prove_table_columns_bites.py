@@ -117,8 +117,15 @@ PY = sys.executable
 
 def run(art_path, src_path):
     env = dict(os.environ, TABLE_ART=str(art_path), TABLE_SRC=str(src_path))
-    p = subprocess.run([PY, str(GUARD)], capture_output=True, text=True, env=env)
-    return p.returncode, p.stdout + p.stderr
+    # errors='replace' is load-bearing, not cosmetic. Without it the guard's
+    # own output (which contains a +/- sign and em-dashes) is decoded with
+    # the locale codec; the reader thread dies, p.stdout becomes None, and
+    # the line below raises TypeError. That aborted the harness partway
+    # through the mutant list, so it silently reported fewer mutants than
+    # it ran - a harness that crashes cannot tell you it caught anything.
+    p = subprocess.run([PY, str(GUARD)], capture_output=True, text=True,
+                       errors='replace', env=env)
+    return p.returncode, (p.stdout or '') + (p.stderr or '')
 
 
 caught = 0
