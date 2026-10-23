@@ -799,11 +799,31 @@ def generate_html_report(stocks: list, output_path: str):
         html += '<span style="font-size:0.88em;color:#c9d1d9">Score <strong style="color:' + pick_color + '">' + str(round(pick.composite_score)) + '</strong></span>'
         html += '<span style="font-size:0.88em;color:#c9d1d9">Price <strong style="color:#00ff88">$' + str(int(entry_price)) + '</strong></span>'
         html += '<span style="font-size:0.88em;color:#00ff88;font-weight:bold">' + pick_earn_label + 'd to earnings</span>'
+        # ── CTA MARKER (top row) ────────────────────────────────────────
+        # Same pairing as the overlay below. A subscriber who has already
+        # paid must not be shown "Unlock PRO Targets" anywhere in the banner.
+        html += '<!--PROCTA-->'
         html += f'<a href="/pricing" style="margin-left:auto;background:#ffd700;color:#000;padding:8px 18px;border-radius:6px;font-weight:bold;text-decoration:none;font-size:0.88em;white-space:nowrap">Unlock PRO Targets &#8594;</a>'
+        html += '<!--/PROCTA-->'
         html += '</div>'
 
         # Gated section: targets + stop (shown to all, blurred for non-subscribers)
-        html += '<div id="pro-targets" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;position:relative;overflow:hidden;border-radius:8px;padding:10px;background:rgba(0,0,0,0.3)">'
+        html += '<div class="pro-values-box" id="pro-targets" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;position:relative;overflow:hidden;border-radius:8px;padding:10px;background:rgba(0,0,0,0.3)">'
+        # ── PAYWALL MARKERS ──────────────────────────────────────────────
+        # The entry / target / stop values ARE the entire $5 product. They
+        # must never be sent to someone who has not paid.
+        #
+        # Audit before this change: the PUBLIC response contained
+        # "3D TARGET $145" and "STOP $84" as plain text inside the HTML. The
+        # blur was a translucent CSS overlay over data the browser had
+        # already downloaded, so view-source read the whole product for free.
+        # The paywall was decorative and worth nothing.
+        #
+        # So the block is marked here and scanner_web.index() removes it
+        # SERVER-SIDE per request. Opening marker goes BEFORE the first
+        # metric box, closing marker after the last one - an opening marker
+        # with the values outside it would strip nothing and leak everything.
+        html += '<!--PROVALUES-->'
         html += '<span style="font-size:0.78em;color:#8b949e;font-weight:bold;margin-right:4px">PRO:</span>'
         if target_upside:
             html += '<div style="background:#0d1117;border:1px solid #30363d;border-radius:6px;padding:6px 12px;text-align:center;min-width:70px">'
@@ -829,13 +849,21 @@ def generate_html_report(stocks: list, output_path: str):
             html += '<div style="font-size:1em;color:#ff6b6b;font-weight:bold">$' + str(int(stop_loss)) + '</div>'
             html += '<div style="font-size:0.68em;color:#ff6b6b">-10%</div>'
             html += '</div>'
+        html += '<!--/PROVALUES-->'
         # Subscribe blur overlay — MUCH stronger conversion messaging
         upside_amt = int(target_price) - int(entry_price) if target_price and entry_price else 0
         upside_str = f"+{upside_amt}/share" if upside_amt > 0 else ""
         gate_upside_display = upside_str if upside_str else f"+{target_upside}%"
+        html += '</div>'
+        # ── CTA MARKER ──────────────────────────────────────────────────
+        # For subscribers this button must be REMOVED, not hidden: they have
+        # paid and must not be told to "unlock" what they already bought.
+        # Paired here so index() can delete it server-side.
+        html += '<!--PROCTA-->'
         html += '<div id="pro-gate" style="position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.72);backdrop-filter:blur(4px);border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:10;padding:16px;text-align:center">'
         html += '<a href="/pricing" style="background:#ffd700;color:#000;padding:12px 24px;border-radius:6px;font-weight:bold;text-decoration:none;font-size:0.95em;box-shadow:0 0 12px rgba(255,215,0,0.5)">See Entry, Targets &amp; Stops &#8594;</a>'
         html += '</div>'
+        html += '<!--/PROCTA-->'
         html += '</div>'  # end pro-targets
 
         html += '</div>'
@@ -850,10 +878,17 @@ def generate_html_report(stocks: list, output_path: str):
         html += '<span style="font-size:0.88em;color:#c9d1d9">Score <strong style="color:' + pick2_color + '">' + str(round(pick2.composite_score)) + '</strong></span>'
         html += '<span style="font-size:0.88em;color:#c9d1d9">Price <strong style="color:#00ff88">$' + str(int(p2_entry)) + '</strong></span>'
         html += '<span style="font-size:0.88em;color:#00ff88;font-weight:bold">' + p2_earn_label + 'd to earnings</span>'
+        # ── CTA MARKER (top row) ────────────────────────────────────────
+        html += '<!--PROCTA-->'
         html += '<a href="/pricing" style="margin-left:auto;background:#ffd700;color:#000;padding:8px 18px;border-radius:6px;font-weight:bold;text-decoration:none;font-size:0.88em;white-space:nowrap">Unlock PRO Targets &#8594;</a>'
+        html += '<!--/PROCTA-->'
         html += '</div>'
         # Gated section: targets + stop (shown to all, blurred for non-subscribers)
-        html += '<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;position:relative;overflow:hidden;border-radius:8px;padding:10px;background:rgba(0,0,0,0.3)">'
+        html += '<div class="pro-values-box" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;position:relative;overflow:hidden;border-radius:8px;padding:10px;background:rgba(0,0,0,0.3)">'
+        # Same paywall markers as Today's Pick - see the full note there.
+        # Opening marker before the first metric box, closing marker after
+        # the last one, or the strip removes nothing and leaks everything.
+        html += '<!--PROVALUES-->'
         html += '<span style="font-size:0.78em;color:#8b949e;font-weight:bold;margin-right:4px">PRO:</span>'
         if p2_upside:
             html += '<div style="background:#0d1117;border:1px solid #30363d;border-radius:6px;padding:6px 12px;text-align:center;min-width:70px">'
@@ -879,12 +914,15 @@ def generate_html_report(stocks: list, output_path: str):
             html += '<div style="font-size:1em;color:#ff6b6b;font-weight:bold">$' + str(int(p2_stop)) + '</div>'
             html += '<div style="font-size:0.68em;color:#ff6b6b">-10%</div>'
             html += '</div>'
+        html += '<!--/PROVALUES-->'
         # Subscribe blur overlay for Runner Up — strong conversion messaging
         p2_upside_amt = int(p2_target) - int(p2_entry) if p2_target and p2_entry else 0
         p2_gate_upside = f"+{p2_upside_amt}/share" if p2_upside_amt > 0 else p2_upside_str
+        html += '<!--PROCTA-->'
         html += '<div class="ru-pro-gate" style="position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.72);backdrop-filter:blur(4px);border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:10;padding:16px;text-align:center">'
         html += '<a href="/pricing" style="background:#ffd700;color:#000;padding:12px 24px;border-radius:6px;font-weight:bold;text-decoration:none;font-size:0.95em;box-shadow:0 0 12px rgba(255,215,0,0.5)">See Entry, Targets &amp; Stops &#8594;</a>'
         html += '</div>'
+        html += '<!--/PROCTA-->'
         html += '</div>'  # end pro-targets
         html += '</div>'  # end Runner Up banner
 

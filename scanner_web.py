@@ -256,6 +256,139 @@ h2:first-child{{margin-top:0}}
     return make_response(dashboard_html, 200, {"Content-Type": "text/html; charset=utf-8"})
 
 
+# ===== PAYWALL RENDERING =====
+# The pick banners ship as one static HTML file with the paid numbers inside.
+# These helpers decide, per request, what actually goes over the wire.
+
+PRO_TEASER = (
+    '<div class="pro-teaser" style="display:flex;flex-wrap:wrap;gap:8px;'
+    'align-items:center;padding:12px 10px;border-radius:8px;'
+    'background:rgba(0,0,0,0.3)">'
+    '<span style="font-size:0.8em;color:#8b949e;font-weight:bold;margin-right:4px">PRO:</span>'
+    '<span style="font-size:0.82em;color:#c9d1d9">Entry, target and stop loss '
+    'unlock with Pro</span></div>'
+)
+
+
+VALUES_OPEN = '<!--PROVALUES-->'
+VALUES_CLOSE = '<!--/PROVALUES-->'
+CTA_OPEN = '<!--PROCTA-->'
+CTA_CLOSE = '<!--/PROCTA-->'
+
+
+def _drop_next_anchor(content, i):
+    """Remove the single <a ...>...</a> that starts at/after i.
+
+    Used as the fail-closed path for an unpaired CTA marker. Cutting to the
+    next marker or to the end of the document instead would truncate the
+    footer and everything below the banner. An unpaired upsell button is a
+    cosmetic defect; a truncated page is a real one.
+    """
+    a = content.find('<a ', i)
+    if a == -1:
+        return content
+    close = content.find('</a>', a)
+    if close == -1:
+        return content
+    return content[:a] + content[close + 4:]
+
+
+def _values_fail_close(content, i):
+    """Fail closed on an unpaired PROVALUES opener: cut the values away.
+
+    Bounds matter. The blunt "return content[:i]" version truncates the rest
+    of the document. Stop at the next banner, or at the end of the page
+    shell, whichever comes first, so a broken generator produces a damaged
+    banner rather than a blank site.
+    """
+    for bound in (CTA_OPEN, '<div class="pro-values-box"', '</body>'):
+        k = content.find(bound, i + 1)
+        if k != -1:
+            return content[:i] + PRO_TEASER + content[k:]
+    return content[:i] + PRO_TEASER
+
+
+def _strip_block(content, marker):
+    """Remove every block between marker and its matching <!--/PRO*-->.
+
+    Loops because a banner carries more than one CTA (the top-row "Unlock
+    PRO Targets" link AND the overlay button). Stripping only the first
+    occurrence left the second one on the page for paying customers.
+
+    Fails CLOSED. An opening marker with no closer means the shipped artifact
+    came from a generator that does not know how to close the block. Returning
+    the content untouched would be the dangerous option: for PROVALUES that
+    ships the paid numbers to the public while the guard reports green.
+    """
+    close = {CTA_OPEN: CTA_CLOSE, VALUES_OPEN: VALUES_CLOSE}[marker]
+    while True:
+        i = content.find(marker)
+        if i == -1:
+            return content
+        j = content.find(close, i)
+        if j != -1:
+            content = content[:i] + content[j + len(close):]
+            continue
+        if marker == CTA_OPEN:
+            # The marker itself goes, plus the button it introduces.
+            return content[:i] + _drop_next_anchor(content[i + len(marker):], 0)
+        return _values_fail_close(content, i)
+
+
+def _strip_element(content, element_id):
+    """Remove a whole <div ... id=...> or class=...>...</div> with its children.
+
+    Counts div nesting so it removes the correct block rather than stopping at
+    the first inner </div>, which would leave a fragment of orphaned markup.
+
+    Matches class= as well as id= because the two banners name their overlays
+    differently: Today's Pick uses id="pro-gate", Runner Up uses
+    class="ru-pro-gate". Matching id= only silently left the Runner Up blur
+    sitting on top of a paying customer's numbers.
+    """
+    m = re.search(
+        r'<div[^>]*(?:id|class)="%s"[^>]*>' % re.escape(element_id), content)
+    if not m:
+        return content
+    start = m.start()
+    pos = m.end()
+    depth = 1
+    while depth > 0:
+        nxt_open = content.find('<div', pos)
+        nxt_close = content.find('</div>', pos)
+        if nxt_close == -1:
+            return content[:start]
+        if nxt_open != -1 and nxt_open < nxt_close:
+            depth += 1
+            pos = nxt_open + 4
+        else:
+            depth -= 1
+            pos = nxt_close + 6
+    return content[:start] + content[pos:]
+
+
+def _strip_pro_values(content):
+    """Replace each paid values block with a teaser, for non-subscribers.
+
+    The real entry / target / stop numbers are removed from the response
+    entirely. They are the entire product, and a translucent overlay over data
+    already in the HTML is not a paywall.
+
+    Fails CLOSED: an opening marker with no closing marker means the artifact
+    was built by an older generator. Refusing to send the numbers is the
+    correct trade against a damaged banner.
+    """
+    while True:
+        i = content.find(VALUES_OPEN)
+        if i == -1:
+            return content
+        j = content.find(VALUES_CLOSE, i)
+        if j != -1:
+            content = content[:i] + PRO_TEASER + content[j + len(VALUES_CLOSE):]
+            continue
+        return _values_fail_close(content, i)
+
+
 @app.route("/")
 def index():
     """Home page = scanner. ai_earnings_today.html is the primary file (always fresh from local scan).
@@ -305,6 +438,52 @@ def index():
         )
     else:
         nav_hide = ''
+    # ── PAYWALL, RENDERED SERVER-SIDE ────────────────────────────────────
+    # Tyler 2026-10-22: "the pro subscriber should have todays pick and runner
+    # up picks unlocked and not blurred with the buttons removed since they
+    # paid".
+    #
+    # The blur was hiding nothing. Audit of the PUBLIC response found
+    # "3D TARGET $145" and "STOP $84" in plain text inside the HTML a
+    # non-subscriber downloads - view-source read the entire $5 product for
+    # free. So this is not a styling fix, it is the paywall actually existing.
+    #
+    # Now the generator marks the sensitive block (<!--PROVALUES-->) and the
+    # subscribe CTA (<!--PROCTA-->) in both banners, and this is where the
+    # decision is made per-request:
+    #
+    #   subscriber  -> values kept, CTA and both blur overlays REMOVED
+    #   everyone else -> values STRIPPED (never sent), CTA + overlay kept
+    #
+    # Server-side, not JS. Hiding a paywall with client script means the data
+    # still reaches the customer who opened devtools, and it flashes the
+    # blurred state at paying subscribers before the script runs.
+    if is_subscriber():
+        # They paid. Remove the upsell buttons and the overlays outright so
+        # nothing blurred remains, and so nobody is asked to "unlock" what
+        # they already bought.
+        content = _strip_block(content, CTA_OPEN)
+        content = _strip_element(content, 'pro-gate')
+        content = _strip_element(content, 'ru-pro-gate')
+        # The values box clips its children (overflow:hidden) so the blur
+        # overlay could cover them cleanly. With the overlay gone the clip
+        # would cut off the unblurred numbers on narrow screens. Targeted at
+        # the .pro-values-box class rather than an exact style string, which
+        # silently stopped matching the moment the markup changed.
+        content = re.sub(
+            r'(<div class="pro-values-box"[^>]*?)overflow:hidden;\s*',
+            r'\1', content)
+    else:
+        # They have not paid, so the numbers must not be sent at all.
+        content = _strip_pro_values(content)
+
+    # The markers are build-time plumbing. Once the decision above is made they
+    # are meaningless to the browser, and leaving them in the response tells a
+    # paying customer exactly where the paywall boundaries are.
+    for _m in (VALUES_OPEN, VALUES_CLOSE, CTA_OPEN, CTA_CLOSE):
+        content = content.replace(_m, '')
+
+    # Inject subscriber flag for any remaining client-side behaviour
     inject_script = f'<script>window.__isSubscriber={subscriber_flag};window.__proPickUrl="/api/pro_pick";</script>'
     # Inject right after <body> tag
     content = content.replace('<body>', '<body>' + nav_hide + inject_script, 1)
@@ -312,8 +491,6 @@ def index():
     resp = make_response(content)
     resp.headers['Content-Type'] = 'text/html; charset=utf-8'
     resp.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0'
-    return resp
-    resp.headers['Content-Type'] = 'text/html; charset=utf-8'
     return resp
 
 
