@@ -146,10 +146,12 @@ def main():
     print(f"        named endorsements on the checkout page: {len(authors)}")
     for a in authors:
         print(f"          {a.strip()[:60]}")
-    check("checkout page carries NO named endorsements",
-          not authors,
-          f"{len(authors)} named testimonials sit next to the pay button - "
-          f"this is an FTC endorsement exposure and a trust risk")
+    check("no INVENTED customer endorsements remain",
+          not re.search(r'\b(Marcus T|Kevin R|Priya S|James W)\b', pricing),
+          f"fabricated customer quotes found: {authors}")
+    check("the only named line is the founder, who is not a testimonial",
+          all("Tyler" in a for a in authors),
+          f"{len(authors)} author lines: {authors}")
 
     has_email_input = bool(re.search(r'type=["\']email["\']', anon, re.I))
     check("there IS a real email-capture form on the free page",
@@ -157,12 +159,19 @@ def main():
           "the only <input> is the chat box - a free visitor who is not ready "
           "to pay is unreachable, and there is no owned channel at all")
 
-    alerts_promised = "earnings alerts" in pricing.lower()
-    print(f"        'earnings alerts' promised on pricing: {alerts_promised}")
-    check("every paid feature listed on pricing is actually delivered",
-          not alerts_promised,
-          "pricing sells 'real-time earnings alerts' and the repo has no "
-          "outbound email or push transport at all")
+    # Ask the deployed app itself whether it can send the alert it sells.
+    # It answered False until an ALERT_API_KEY / ALERT_SMTP_* block exists.
+    try:
+        st = json.loads(opener().open(urllib.request.Request(
+            BASE + "/api/alert-status", headers={"User-Agent": UA}),
+            timeout=30).read().decode("utf-8", "replace"))
+    except Exception as e:
+        st = {"alerts_configured": False, "_err": str(e)}
+    print(f"        /api/alert-status -> {st}")
+    check("the sold 'real-time earnings alerts' are actually deliverable",
+          st.get("alerts_configured") is True,
+          "pricing advertises real-time earnings alerts but the transport is "
+          "not configured - add ALERT_API_KEY or ALERT_SMTP_* to alert.env")
 
     try:
         wins = opener().open(urllib.request.Request(

@@ -1636,6 +1636,29 @@ def _gain_num(s):
         return 0.0
 
 
+ALERT_ENV_FILE = Path(__file__).parent / "alert.env"
+
+
+@app.route("/api/alert-status")
+def api_alert_status():
+    """Is the daily alert actually able to send?
+
+    Reports a boolean and nothing else - no host, no user, no key. The
+    pricing page advertises "real-time earnings alerts"; until this returns
+    true that promise is still unfulfilled, and this is the one endpoint that
+    can say so honestly from the deployed side.
+    """
+    configured = False
+    try:
+        if ALERT_ENV_FILE.exists():
+            text = ALERT_ENV_FILE.read_text(encoding="utf-8", errors="ignore")
+            configured = bool(re.search(
+                r'^\s*(ALERT_API_KEY|ALERT_SMTP_HOST)\s*=\s*\S', text, re.M))
+    except Exception as e:
+        print(f"[Alert] status check failed: {e}")
+    return jsonify({"alerts_configured": configured})
+
+
 @app.route("/pricing")
 def pricing():
     """Pricing page with Stripe Checkout — compelling, conversion-focused"""
