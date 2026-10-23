@@ -43,6 +43,7 @@ def main():
     import scanner_web as W
     import send_daily_alert as A
     import email_unsubscribe as EU
+    import pull_email_list as P
 
     tmpdir = tempfile.mkdtemp(prefix="emaillist_verify_")
     tmp = Path(tmpdir) / "email_list.json"
@@ -204,6 +205,54 @@ def main():
             check("the %s variant has an unsubscribe link"
                   % ("paid" if tier else "free"),
                   "Unsubscribe" in rendered and "aismarketcap.com" in rendered)
+
+        # ---- the merge rule ---------------------------------------------
+        # This is the most dangerous line in the lane. The remote list lives
+        # on an ephemeral container disk, so "not on the remote" almost always
+        # means "signed up before the last restart", NOT "unsubscribed". A
+        # merge that deleted absent entries would unsubscribe the entire list
+        # on the next deploy, silently and irreversibly.
+        section("A pull never deletes, and never resurrects an unsubscribe")
+
+        LOCAL = {
+            "keep@example.com": {"seen_count": 3, "last_seen": "old"},
+            "gone@example.com": {"seen_count": 1,
+                                 "unsubscribed": "2026-10-22T10:00:00"},
+        }
+        REMOTE = {
+            "keep@example.com": {"seen_count": 4, "last_seen": "new"},
+            "gone@example.com": {"seen_count": 1, "last_seen": "new"},
+            "fresh@example.com": {"seen_count": 1, "last_seen": "new"},
+        }
+        out, added, refreshed, unsubs = P.merge(dict(LOCAL), REMOTE)
+        check("a new address is added", "fresh@example.com" in out, sorted(out))
+        check("an existing address is refreshed, not duplicated",
+              out.get("keep@example.com", {}).get("seen_count") == 4,
+              out.get("keep@example.com"))
+        check("seen_count takes the higher of the two, never a lower value",
+              out["keep@example.com"]["seen_count"] == 4,
+              out["keep@example.com"])
+        check("an unsubscribed address STAYS unsubscribed after a deploy",
+              bool(out.get("gone@example.com", {}).get("unsubscribed")),
+              out.get("gone@example.com"))
+        check("counters report the shape of the pull",
+              (added, unsubs) == (1, 0), (added, refreshed, unsubs))
+
+        # A remote that is empty must not empty the local list.
+        out2, added2, _, _ = P.merge(dict(LOCAL), {})
+        check("an EMPTY remote does not empty the local list",
+              len(out2) == len(LOCAL), sorted(out2))
+        check("an empty remote still preserves an unsubscribe",
+              bool(out2.get("gone@example.com", {}).get("unsubscribed")),
+              out2.get("gone@example.com"))
+
+        # An unsubscribe that arrives from Railway must take effect.
+        out3, _, _, uns3 = P.merge(
+            {"x@example.com": {"seen_count": 1}},
+            {"x@example.com": {"seen_count": 1, "unsubscribed": "2026-10-23"}})
+        check("an unsubscribe arriving from Railway takes effect",
+              uns3 == 1 and bool(out3["x@example.com"]["unsubscribed"]),
+              (uns3, out3["x@example.com"]))
 
     finally:
         W.EMAIL_LIST_FILE = real_file
