@@ -147,3 +147,9 @@ drip_retired.json
 
 # Local funnel measurement history - regenerable, not source
 funnel_history.json
+
+# ===== Free-signup counter (container side) =====
+# signup_counts.json is the LIVE counter on Railway's container disk. It is
+# seeded at boot from the committed signup_baseline.json, so it must never be
+# committed itself - a stale copy would be worse than none.
+signup_counts.json

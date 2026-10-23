@@ -527,7 +527,7 @@ def index():
     # Non-subscribers only. A paying customer must never be shown an upsell
     # for the list he already receives.
     if subscriber_flag != "true":
-        content = content.replace('<body>', '<body>' + EMAIL_CAPTURE, 1)
+        content = content.replace('<body>', '<body>' + _email_capture(), 1)
     content = content.replace('<body>', '<body>' + nav_hide + inject_script, 1)
 
     resp = make_response(content)
@@ -1534,6 +1534,87 @@ def _write_email_list(d):
     EMAIL_LIST_FILE.write_text(json.dumps(d, indent=2), encoding="utf-8")
 
 
+# ===== DURABLE AGGREGATE SIGNUP COUNTER =====================================
+# A PII-free count of captured signups that survives a Railway redeploy.
+#
+# WHY NOT COUNT THE ADDRESS LIST: email_list.json holds the addresses, so
+# counting it means holding PII in the repo. This counter holds ONE INTEGER.
+# No addresses, and no hashes of addresses - a salted SHA-256 of an email is
+# still brute-forceable, so it stays out too.
+#
+# WHY IT SURVIVES A REDEPLOY: Railway wipes the container filesystem, so
+# signup_counts.json (container side) is destroyed on every deploy. The
+# ABSOLUTE TOTAL is therefore also kept in signup_baseline.json, which is
+# committed and shipped with the code. At boot the container seeds itself
+# from that committed total, so a redeploy cannot reset the count to zero.
+#
+# WHY ABSOLUTE TOTAL AND NOT baseline + window: the visitor counter uses
+# baseline + hits, and that is exactly the shape that double counts when
+# sync_visitor_baseline.py writes the live total back without resetting the
+# window. An absolute total has no window, so there is nothing to double
+# count - and the number is IDENTICAL before and after a redeploy, which is
+# what the funnel needs in order to report a fact instead of UNKNOWN.
+SIGNUP_COUNT_FILE = Path(__file__).parent / "signup_counts.json"
+SIGNUP_BASELINE_FILE = Path(__file__).parent / "signup_baseline.json"
+_signup_lock = threading.RLock()
+
+
+def _signup_baseline_total():
+    """The committed total. This is the floor a redeploy cannot go below."""
+    try:
+        return int(json.loads(SIGNUP_BASELINE_FILE.read_text(encoding="utf-8")).get("total", 0) or 0)
+    except Exception:
+        return 0
+
+
+def _signup_total():
+    """Absolute total of signups captured so far. Never decreases."""
+    with _signup_lock:
+        total = 0
+        try:
+            if SIGNUP_COUNT_FILE.exists():
+                total = int(json.loads(SIGNUP_COUNT_FILE.read_text(encoding="utf-8")).get("total", 0) or 0)
+        except Exception:
+            total = 0
+        seed = _signup_baseline_total()
+        # The committed file can be newer than the container copy if the
+        # container was rebuilt from a newer commit. Adopt the larger.
+        if seed > total:
+            total = seed
+        return total
+
+
+def _signup_increment():
+    """Count one newly captured signup. Aggregate only - nothing per-person."""
+    with _signup_lock:
+        total = _signup_total() + 1
+        try:
+            SIGNUP_COUNT_FILE.write_text(json.dumps({
+                "total": total,
+                "updated": datetime.now(PT).isoformat(timespec="seconds"),
+                "note": "aggregate count of captured free signups - no addresses, no hashes",
+            }, indent=2), encoding="utf-8")
+        except Exception as e:
+            # A failed counter write must never lose the signup itself.
+            print(f"[Signup] counter write failed: {e}")
+        return total
+
+
+@app.route("/api/signup-count")
+def api_signup_count():
+    """PII-free aggregate count of captured free signups.
+
+    One integer. No addresses, no hashes, nothing that identifies a person.
+    Excluded from the visitor counter already - every /api/ path is.
+    """
+    return jsonify({
+        "total": _signup_total(),
+        "note": ("aggregate count of captured free signups - no addresses, no "
+                 "hashes. Survives Railway redeploys: the absolute total is "
+                 "seeded from the git-tracked signup_baseline.json."),
+    })
+
+
 @app.route("/api/email-signup", methods=["POST"])
 def api_email_signup():
     """Add an address to the daily-pick list.
@@ -1604,6 +1685,10 @@ def api_email_signup():
         print(f"[Email] write failed: {e}")
         return jsonify({"ok": False, "delivery_ready": False,
                         "message": "Could not save that. Try again."}), 500
+    # Only a NEW address counts as a signup. A repeat visit is not a new
+    # person, and counting it would inflate the one number the funnel trusts.
+    if not existing:
+        _signup_increment()
     return jsonify(reply), 200
 
 
@@ -1755,10 +1840,9 @@ EMAIL_CAPTURE = """
  background:linear-gradient(135deg,#0d2b1a,#0a1a12);border:2px solid #00ff88;
  border-radius:14px;text-align:center">
   <div style="color:#fff;font-size:1.15em;font-weight:bold;margin-bottom:6px">
-    Get tomorrow's pick by email</div>
+    __HEADLINE__</div>
   <div style="color:#8b949e;font-size:.88em;margin-bottom:14px">
-    The full scanner stays free. This is the one email that tells you what to
-    trade each morning before the open.</div>
+    __PROMISE__</div>
   <div id="dl-msg" style="font-size:.85em;margin-top:10px;min-height:18px"></div>
   <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
     <input id="dl-email" type="email" inputmode="email" autocomplete="email"
@@ -1769,7 +1853,7 @@ EMAIL_CAPTURE = """
       aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0">
     <button id="dl-go" style="padding:11px 20px;border-radius:8px;border:none;
       background:#00ff88;color:#000;font-weight:bold;font-size:.95em;cursor:pointer">
-      Send it to me</button>
+      __BUTTON__</button>
   </div>
 </div>
 <script>
@@ -1788,7 +1872,7 @@ EMAIL_CAPTURE = """
       body:JSON.stringify({email:v, website:hp.value, source:'scanner'})})
       .then(function(r){return r.json().then(function(d){return {s:r.status,d:d};});})
       .then(function(x){
-        go.disabled=false; go.textContent='Send it to me';
+        go.disabled=false; go.textContent=__BUTTON__;
         if(x.s===200){
           // Captured either way, so the field clears. delivery_ready decides
           // the colour: a saved-but-not-yet-sending message must not be
@@ -1798,13 +1882,54 @@ EMAIL_CAPTURE = """
         }
         else { say(x.d.message||'Could not save that. Try again.', 'bad'); }
       })
-      .catch(function(){ go.disabled=false; go.textContent='Send it to me';
+      .catch(function(){ go.disabled=false; go.textContent=__BUTTON__;
                          say('Network error. Try again.', 'bad'); });
   });
   em.addEventListener('keydown', function(e){ if(e.key==='Enter') go.click(); });
 })();
 </script>
 """
+
+
+# ---- The static block must not promise a delivery that cannot happen -------
+# The signup form's HEADLINE and SUBHEAD were an unconditional promise the
+# pipeline could not keep: EMAIL_EXPORT_TOKEN was unset, so no address could
+# ever become a delivered email. The only honest text - SIGNUP_MSG_NOT_READY
+# - lived in the POST RESPONSE, so a visitor who never signs up never saw it.
+# The promise was all most people ever read; the truth only reached the people
+# who had already converted.
+#
+# The block is now rendered per request from the same _delivery_ready() gate
+# the POST response already uses, so the headline can only claim a daily email
+# when a daily email is actually possible.
+EMAIL_CAPTURE_HEADLINE_READY = "Get tomorrow's pick by email"
+EMAIL_CAPTURE_HEADLINE_NOT_READY = "The daily email is not switched on yet"
+EMAIL_CAPTURE_PROMISE_READY = (
+    "The full scanner stays free. This is the one email that tells you what to "
+    "trade each morning before the open.")
+EMAIL_CAPTURE_PROMISE_NOT_READY = (
+    "The full scanner stays free. The daily email is not switched on yet, so "
+    "nothing will arrive until we announce it here.")
+EMAIL_CAPTURE_BUTTON_READY = "Send it to me"
+EMAIL_CAPTURE_BUTTON_NOT_READY = "Save my spot"
+
+
+def _email_capture():
+    """The signup block, with the promise matched to what we can actually do.
+
+    Called per request, not at import, so that flipping EMAIL_EXPORT_TOKEN on
+    Railway takes effect on the next page load without a redeploy.
+    """
+    if _delivery_ready():
+        vals = (EMAIL_CAPTURE_HEADLINE_READY, EMAIL_CAPTURE_PROMISE_READY,
+                EMAIL_CAPTURE_BUTTON_READY)
+    else:
+        vals = (EMAIL_CAPTURE_HEADLINE_NOT_READY, EMAIL_CAPTURE_PROMISE_NOT_READY,
+                EMAIL_CAPTURE_BUTTON_NOT_READY)
+    return (EMAIL_CAPTURE
+            .replace("__HEADLINE__", vals[0])
+            .replace("__PROMISE__", vals[1])
+            .replace("__BUTTON__", vals[2]))
 
 
 def _annual_nudge():

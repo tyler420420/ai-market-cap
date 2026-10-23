@@ -93,25 +93,37 @@ def link_views():
 
 
 def link_users():
-    """Free signups. 403 means we genuinely cannot see them - say so."""
-    code, body = http("/api/email-list-export")
+    """Free signups - a DEPLOY-DURABLE aggregate integer, never UNKNOWN.
+
+    Reads the git-tracked signup_baseline.json, not /api/email-list-export.
+    The export route reads the container's ephemeral copy of the address
+    list, so it would report near-zero even when real signups exist on
+    Tyler's machine. The tracked file holds one integer with no PII, and it
+    is IDENTICAL before and after a Railway redeploy - which is the whole
+    point: the number survives the deploy that destroys the address list.
+    """
+    tracked = HERE / "signup_baseline.json"
+    if tracked.exists():
+        try:
+            d = json.loads(tracked.read_text(encoding="utf-8"))
+            n = d.get("total")
+            if isinstance(n, int):
+                return n, "OK", ("tracked signup_baseline.json (deploy-durable, "
+                                 "aggregate only - no addresses)")
+        except Exception:
+            pass
+    # Fallback to the live aggregate endpoint, which is the same integer.
+    code, body = http("/api/signup-count")
     if code == 200:
         try:
             d = json.loads(body)
-            items = d if isinstance(d, list) else (d.get("emails") or d.get("list") or [])
-            return len(items), "OK", "live export returned %d address(es)" % len(items)
+            n = d.get("total")
+            if isinstance(n, int):
+                return n, "OK", "live /api/signup-count total=%s" % n
         except Exception:
-            return None, "UNKNOWN", "export returned 200 but not parsable JSON"
-    local = HERE / "email_list.json"
-    if local.exists():
-        try:
-            d = json.loads(local.read_text(encoding="utf-8"))
-            items = d if isinstance(d, list) else list(d.keys())
-            return len(items), "OK", "local email_list.json"
-        except Exception:
-            pass
-    return None, "BLIND", ("live export is HTTP %s - no EMAIL_EXPORT_TOKEN on Railway, and "
-                           "the local list has never been written. Signups are being "
+            return None, "UNKNOWN", "signup-count returned 200 but not parsable JSON"
+    return None, "BLIND", ("signup-count endpoint is HTTP %s and no tracked "
+                           "signup_baseline.json is readable - signups are being "
                            "captured and cannot be counted." % code)
 
 

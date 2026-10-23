@@ -504,6 +504,26 @@ try {
         Log "[VISITORS] WARN - sync_visitor_baseline.py missing (non-fatal)"
     }
 
+    # ---- 3eb. signup counter sync -----------------------------------------
+    # The free-signup counter on the container is destroyed by every Railway
+    # redeploy, exactly like the visitor counter. signup_baseline.json is
+    # committed and carries the absolute total forward, so the funnel's
+    # `users` link reports a real integer instead of UNKNOWN.
+    #
+    # Same rule as the visitor sync: NON-FATAL. An analytics counter must
+    # never be able to take the site offline.
+    $signSync = Join-Path $repo 'sync_signup_counter.py'
+    if (Test-Path $signSync) {
+        $ssOut = & $python $signSync 2>&1
+        $ssCode = $LASTEXITCODE
+        foreach ($line in ($ssOut | Select-Object -Last 3)) { Log "[SIGNUPS] $line" }
+        if ($ssCode -ne 0) {
+            Log "[SIGNUPS] WARN - signup counter sync did not run (non-fatal)"
+        }
+    } else {
+        Log "[SIGNUPS] WARN - sync_signup_counter.py missing (non-fatal)"
+    }
+
     # ---- 3c. free-signup drip -------------------------------------------
     # Six emails to people who signed up for the free pick themselves. NOT
     # the purchased lead lists and NOT the paid subscribers - drip_queue.py is
