@@ -1643,20 +1643,64 @@ ALERT_ENV_FILE = Path(__file__).parent / "alert.env"
 def api_alert_status():
     """Is the daily alert actually able to send?
 
-    Reports a boolean and nothing else - no host, no user, no key. The
-    pricing page advertises "real-time earnings alerts"; until this returns
-    true that promise is still unfulfilled, and this is the one endpoint that
-    can say so honestly from the deployed side.
+    Reports booleans and nothing else - no host, no user, no key. The pricing
+    page advertises "real-time earnings alerts"; until `alerts_configured` is
+    true that promise is still unfulfilled.
+
+    THREE things are required, not one. The original check looked only for a
+    credential, which meant two false-green states:
+
+      * ALERT_SMTP_HOST is set but ALERT_SMTP_PASS is blank. The host regex
+        matches the host line alone, so a half-filled file reported ready and
+        every send would have failed at authentication.
+      * A credential exists but nothing ever invokes send_daily_alert.py, so
+        no mail is ever produced. send_daily_alert.py shipped with no caller
+        at all - no cron, no scheduled task, no hook.
+
+    A status that can report success while delivering nothing is worse than
+    no status, because it ends the question.
     """
     configured = False
+    runner_wired = False
     try:
+        # (a) a complete credential, not a partial one
         if ALERT_ENV_FILE.exists():
             text = ALERT_ENV_FILE.read_text(encoding="utf-8", errors="ignore")
-            configured = bool(re.search(
-                r'^\s*(ALERT_API_KEY|ALERT_SMTP_HOST)\s*=\s*\S', text, re.M))
+
+            def _val(name):
+                # Line-by-line on purpose. A regex of the form
+                # r'^\s*NAME\s*=\s*(.*)$' is wrong here: \s matches newlines,
+                # so a line reading "ALERT_SMTP_PASS=" swallows the newline
+                # and captures the NEXT line's value. That made a blank
+                # password look present - the exact false green this
+                # endpoint exists to prevent.
+                for ln in text.splitlines():
+                    s = ln.strip()
+                    if not s or s.startswith("#") or "=" not in s:
+                        continue
+                    k, v = s.split("=", 1)
+                    if k.strip() == name:
+                        return v.strip().strip('"').strip("'")
+                return ""
+
+            if _val("ALERT_API_KEY"):
+                configured = True
+            elif _val("ALERT_SMTP_HOST") and _val("ALERT_SMTP_USER") and _val("ALERT_SMTP_PASS"):
+                configured = True
+
+        # (b) something actually calls the sender
+        runner = Path(__file__).parent / "daily_scan.ps1"
+        if runner.exists():
+            body = runner.read_text(encoding="utf-8", errors="ignore")
+            runner_wired = "send_daily_alert.py" in body
     except Exception as e:
         print(f"[Alert] status check failed: {e}")
-    return jsonify({"alerts_configured": configured})
+
+    return jsonify({
+        "alerts_configured": bool(configured and runner_wired),
+        "credential_present": bool(configured),
+        "runner_wired": bool(runner_wired),
+    })
 
 
 @app.route("/pricing")

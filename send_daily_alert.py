@@ -292,15 +292,25 @@ def build_variants():
 
 
 def pick_transport(env):
-    """Return exactly one transport.
+    """Return exactly one transport, or (None, None) if genuinely unusable.
 
     The original called send_via_api AND send_via_smtp for every recipient.
     Each returns None when its own env var is missing, so it looked correct -
     but configuring both sent every subscriber two copies of the same email.
+
+    A credential is only usable when it is COMPLETE. Testing for
+    ALERT_SMTP_HOST alone reported "transport: smtp" against an alert.env
+    whose ALERT_SMTP_PASS was still blank, and a --dry-run then announced a
+    transport it could not authenticate with. This mirrors the rule
+    /api/alert-status applies, so the sender, the endpoint and the guards
+    cannot disagree about whether alerts are deliverable.
     """
-    if env.get("ALERT_API_KEY"):
+    if (env.get("ALERT_API_KEY") or "").strip():
         return "api", send_via_api
-    if env.get("ALERT_SMTP_HOST"):
+    host = (env.get("ALERT_SMTP_HOST") or "").strip()
+    user = (env.get("ALERT_SMTP_USER") or "").strip()
+    pw = (env.get("ALERT_SMTP_PASS") or "").strip()
+    if host and user and pw:
         return "smtp", send_via_smtp
     return None, None
 

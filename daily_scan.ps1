@@ -210,6 +210,44 @@ try {
     if ($rowCount -lt 20)  { Log "[CHECK] FAIL - only $rowCount rows"; exit 1 }
     Log "[CHECK] OK - $size bytes, $rowCount stocks, data-labels=$(([regex]::Matches($content,'data-label=')).Count)"
 
+    # ---- 3a. daily alert email -------------------------------------------
+    # The pricing page sells "real-time earnings alerts". Until this existed,
+    # send_daily_alert.py was a script nobody ever invoked - no cron, no task,
+    # no hook - so the promise had no delivery mechanism at all.
+    #
+    # It runs HERE because this script is already the scheduled, unattended
+    # daily writer and the data is guaranteed fresh at this point.
+    #
+    # Rules:
+    #   * ONCE per day. This runs twice (06:31 and 13:00); a marker file
+    #     suppresses the second send.
+    #   * NON-FATAL. A mail failure must never abort the scan - the scan is
+    #     what keeps the site current, and email is not worth taking it down.
+    #   * SKIPS silently when unconfigured, so /api/alert-status stays honest
+    #     instead of reporting a feature that never sends.
+    $alertScript = Join-Path $repo 'send_daily_alert.py'
+    $alertEnv   = Join-Path $repo 'alert.env'
+    $alertMark  = Join-Path $repo '.alert_sent_today.txt'
+    $todayStamp = Get-Date -Format 'yyyy-MM-dd'
+
+    if (-not (Test-Path $alertEnv)) {
+        Log "[ALERT] SKIP - alert.env not present (no credential, nothing sent)"
+    } elseif (-not (Test-Path $alertScript)) {
+        Log "[ALERT] SKIP - send_daily_alert.py missing"
+    } elseif ((Test-Path $alertMark) -and ((Get-Content $alertMark -Raw -ErrorAction SilentlyContinue).Trim() -eq $todayStamp)) {
+        Log "[ALERT] SKIP - already sent today ($todayStamp)"
+    } else {
+        $aOut = & $python $alertScript 2>&1
+        $aCode = $LASTEXITCODE
+        foreach ($line in ($aOut | Select-Object -Last 6)) { Log "[ALERT] $line" }
+        if ($aCode -eq 0) {
+            Set-Content -Path $alertMark -Value $todayStamp -Encoding UTF8
+            Log "[ALERT] Sent and marked for $todayStamp"
+        } else {
+            Log "[ALERT] WARN - send exited $aCode (non-fatal, scan continues)"
+        }
+    }
+
     # ---- 3b. regression guard on the GENERATED artifact -----------------
     # The source can be correct while the shipped HTML is stale (that is how
     # 'Overall Score' + empty sentiment cells shipped twice). Assert on the

@@ -138,15 +138,23 @@ check("the two variants differ",
       "both keys resolve to the same message")
 
 # One transport, never two - and the API wins when both are configured.
-_, fn_api = mod.pick_transport({"ALERT_API_KEY": "x", "ALERT_SMTP_HOST": "smtp.x"})
+COMPLETE_SMTP = {"ALERT_SMTP_HOST": "smtp.x", "ALERT_SMTP_USER": "a@b.com",
+                 "ALERT_SMTP_PASS": "secret"}
+_, fn_api = mod.pick_transport({"ALERT_API_KEY": "k", **COMPLETE_SMTP})
 check("pick_transport returns exactly one sender when both are configured",
       fn_api is not None and fn_api is mod.send_via_api,
       "expected send_via_api, got %s" % getattr(fn_api, "__name__", fn_api))
 name_none, fn_none = mod.pick_transport({})
 check("pick_transport reports unconfigured rather than guessing",
       name_none is None and fn_none is None)
-_, fn_smtp = mod.pick_transport({"ALERT_SMTP_HOST": "smtp.x"})
-check("SMTP alone selects the SMTP sender", fn_smtp is mod.send_via_smtp)
+_, fn_smtp = mod.pick_transport(COMPLETE_SMTP)
+check("a complete SMTP credential selects the SMTP sender", fn_smtp is mod.send_via_smtp)
+# A host with no password is the state alert.env sits in right now. Accepting
+# it made --dry-run announce a transport it could not authenticate with.
+_, fn_blank = mod.pick_transport({"ALERT_SMTP_HOST": "smtp.x", "ALERT_SMTP_USER": "a@b.com"})
+check("SMTP host without a password is NOT treated as configured",
+      fn_blank is None,
+      "a half-filled credential announced a working transport")
 
 print()
 if fails:
