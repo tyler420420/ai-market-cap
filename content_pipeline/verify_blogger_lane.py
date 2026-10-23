@@ -120,11 +120,6 @@ def test_source_matches_served():
     _, html = fetch(LIVE_BLOG)
     newest = json.loads(INDEX_JSON.read_text(encoding="utf-8"))[0]
 
-    check("newest article title served",
-          newest["title"].replace("&", "&amp;") in html
-          or newest["title"] in html,
-          newest["title"][:50])
-
     # The literal-'<p>' bug must never reappear in the served excerpt div.
     m = re.search(r'class="l"[^>]*>(.*?)</div>', html, re.S)
     check("served excerpt div exists", m is not None)
@@ -132,6 +127,16 @@ def test_source_matches_served():
         decoded = (m.group(1).replace("&lt;", "<").replace("&gt;", ">")
                           .replace("&amp;", "&"))
         check("served excerpt has no <p> after decode", "<p>" not in decoded)
+
+    # Compare against the UNESCAPED page, not raw substrings. The renderer escapes
+    # apostrophes to &#39;, so a title containing "Else's" was reported missing
+    # from a correctly-served page (false FAIL on 2026-10-23). Unescape both sides
+    # once and compare — that tests the real question: is this title on the page?
+    unescaped = html.replace("&#39;", "'").replace("&quot;", '"')
+    unescaped = unescaped.replace("&amp;", "&").replace("&lt;", "<").replace("&gt;", ">")
+    check("newest article title served",
+          newest["title"] in unescaped,
+          newest["title"][:50])
 
 
 # ── 4. RETIRED SLUGS 301, NOT 404 ──
