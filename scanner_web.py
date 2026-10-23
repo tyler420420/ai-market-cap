@@ -3502,6 +3502,146 @@ def _retired_slugs():
     return {}
 
 
+# ===== BLOG SEO INJECTION ===============================================
+# Measured on the live site: 14/14 articles had NO canonical tag, NO JSON-LD,
+# and ZERO links to any other article. They were orphans - reachable only
+# through sitemap.xml, with no authority flowing between them and no reader
+# path from one to the next. That is why 261 pages could sit indexed and still
+# produce 4 visitors a week.
+#
+# This runs at SERVE time rather than by editing the static HTML, because the
+# SEO lane publishes daily. Fixing the 18 files on disk would guarantee the
+# 19th article went out broken; injecting here means every future article is
+# covered the moment it lands, and the publisher cannot forget.
+#
+# Every injection is defensive: if an anchor is missing the article is served
+# unchanged rather than raising a 500 on a page that already worked.
+
+_SITE = "https://aismarketcap.com"
+
+
+def _blog_meta_by_slug():
+    """slug -> index record, built once."""
+    try:
+        cache = _blog_meta_by_slug.cache
+    except AttributeError:
+        cache = {}
+        _blog_meta_by_slug.cache = cache
+    if cache:
+        return cache
+    for rec in load_blog_index():
+        if isinstance(rec, dict) and rec.get("slug"):
+            cache[rec["slug"]] = rec
+    return cache
+
+
+def _ticker_of(slug):
+    """Leading token of a slug, when it reads like a ticker symbol."""
+    first = (slug or "").split("-")[0]
+    return first.upper() if 2 <= len(first) <= 5 else ""
+
+
+def _related_articles(slug, limit=4):
+    """Other articles, preferring ones about the same ticker, then newest.
+
+    This is the highest-value part of the change: internal links are how a
+    crawler discovers depth and how a reader moves toward the scanner.
+    """
+    recs = [r for r in load_blog_index()
+            if isinstance(r, dict) and r.get("slug") and r["slug"] != slug]
+    me = _ticker_of(slug)
+    same = [r for r in recs if me and _ticker_of(r["slug"]) == me]
+    rest = [r for r in recs if r not in same]
+    same.sort(key=lambda r: r.get("date") or "", reverse=True)
+    rest.sort(key=lambda r: r.get("date") or "", reverse=True)
+    return (same + rest)[:limit]
+
+
+def _blog_seo_head(slug):
+    rec = _blog_meta_by_slug().get(slug) or {}
+    url = "%s/blog/%s" % (_SITE, slug)
+    title = rec.get("title") or slug.replace("-", " ").title()
+    desc = (rec.get("meta_description") or rec.get("excerpt") or "").strip()
+    date = (rec.get("date") or "").strip()
+
+    parts = ['<link rel="canonical" href="%s">' % url]
+    if desc:
+        # Only replace a description that is missing or too thin to be useful.
+        # A good one the author wrote is left exactly as it is.
+        if len(desc) < 70 or len(desc) > 160:
+            parts.append('<meta name="description" content="%s">' % _esc(desc[:157]))
+
+    schema = {
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        "headline": title,
+        "url": url,
+        "mainEntityOfPage": {"@type": "WebPage", "@id": url},
+        "publisher": {
+            "@type": "Organization",
+            "name": "AI Market Cap",
+            "url": _SITE,
+        },
+        "isPartOf": {
+            "@type": "Blog",
+            "name": "AI Market Cap pre-earnings guides",
+            "url": "%s/blog" % _SITE,
+        },
+    }
+    if desc:
+        schema["description"] = desc
+    if date:
+        schema["datePublished"] = date
+        schema["dateModified"] = date
+    parts.append('<script type="application/ld+json">%s</script>'
+                 % json.dumps(schema).replace("</", "<\\/"))
+    return "\n".join(parts)
+
+
+def _blog_related_block(slug):
+    rel = _related_articles(slug)
+    if not rel:
+        return ""
+    items = []
+    for r in rel:
+        s = r.get("slug")
+        t = r.get("title") or s.replace("-", " ").title()
+        d = (r.get("excerpt") or "").strip()
+        if len(d) > 150:
+            d = d[:147].rstrip() + "..."
+        items.append(
+            '<li style="margin:0 0 14px"><a href="/blog/%s" '
+            'style="color:#58a6ff;font-weight:600;text-decoration:none">%s</a>'
+            '<div style="color:#8b949e;font-size:.88em;line-height:1.5;margin-top:3px">%s</div></li>'
+            % (s, _esc(t), _esc(d))
+        )
+    return (
+        '<section style="max-width:760px;margin:44px auto 0;padding:26px 0 0;'
+        'border-top:1px solid #21262d">'
+        '<h2 style="color:#e6edf3;font-size:1.25em;margin:0 0 16px">'
+        'More pre-earnings guides</h2>'
+        '<ul style="list-style:none;padding:0;margin:0">%s</ul>'
+        '<p style="margin:22px 0 0"><a href="/blog" '
+        'style="color:#58a6ff">See every guide</a> &middot; '
+        '<a href="/" style="color:#58a6ff">Run today\'s scanner</a></p>'
+        '</section>' % "".join(items)
+    )
+
+
+def _inject_before(html, anchor, payload):
+    """Insert payload before the FIRST anchor, case-insensitively.
+
+    Returns the html unchanged when the anchor is absent, so a malformed
+    article degrades to exactly what it served before.
+    """
+    if not payload:
+        return html
+    i = html.lower().find(anchor.lower())
+    if i < 0:
+        return html
+    return html[:i] + payload + "\n" + html[i:]
+
+
 @app.route("/blog/<slug>")
 def blog_article(slug):
     """Serve an individual blog article.
@@ -3521,6 +3661,14 @@ def blog_article(slug):
 
     with open(article_path, 'r', encoding='utf-8') as f:
         content = f.read()
+
+    try:
+        content = _inject_before(content, "</head>", _blog_seo_head(slug))
+        content = _inject_before(content, "</body>", _blog_related_block(slug))
+    except Exception as e:
+        # SEO enrichment must never be able to take down a page that already
+        # worked. Serve the original article instead.
+        print(f"[Blog SEO] inject failed for {slug}: {e}")
 
     resp = make_response(content)
     resp.headers['Content-Type'] = 'text/html; charset=utf-8'
