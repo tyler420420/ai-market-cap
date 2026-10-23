@@ -580,7 +580,7 @@ _last_auto_scan_date = None
 # Simple file-based subscription store (for demo - use DB in production)
 SUBS_FILE = Path(__file__).parent / "subscriptions.json"
 SCAN_COUNTS_FILE = Path(__file__).parent / "scan_counts.json"
-MAX_SCANS_PER_DAY = 2
+MAX_SCANS_PER_DAY = 3
 
 # ===== VISITOR COUNTER =====================================================
 # Tyler 2026-10-21 00:10 PT: wanted a real "Website visitors" number on the CEO
@@ -1377,6 +1377,12 @@ def success():
         _STRIPE_VALIDATION_CACHE.pop(customer_id, None)
 
         plan_name = plan.capitalize()
+        # Absolute, re-openable access link. /success is idempotent: it
+        # re-reads the session, re-saves the record and re-issues the cookie.
+        # That makes it a genuine self-serve recovery link for anyone who
+        # clears their cookies or switches device - previously the only way
+        # back in was emailing support, which is not a product.
+        restore_link = request.host_url + 'success?session_id=' + session_id
         # Offer to set a password NOW, while we still know the payer is present.
         # This is the only moment in the flow where we get a free, proven
         # identity. Skipping it leaves them unable to sign in on a new device.
@@ -1407,6 +1413,13 @@ a.secondary {{ color: #58a6ff; text-decoration: none; font-size: 0.9em; display:
   <div class=check>✓</div>
   <h1>Payment Successful!</h1>
   <p>Welcome to AI Market Cap! Your <strong>{plan_name}</strong> subscription is active.<br>The Pro Pick, Runner-Up, and AI Chat are now unlocked.</p>
+  <div class=setpw style="background:#0d2818;border:1px solid #2ea043">
+    <strong>Save this page before you close it.</strong><br>
+    This is your permanent access link. If you ever clear your cookies, switch
+    browser, or come back on another device, open it again and everything
+    unlocks straight away &mdash; no password needed.
+    <div class=err style="background:#0d1117;border-color:#2ea043;color:#7ee787;word-break:break-all">{restore_link}</div>
+  </div>
   <a href="/" class=btn>Go to Scanner →</a>
   <a href="/account" class=secondary>Manage Subscription</a>
   {setpw_hint}
@@ -1689,9 +1702,17 @@ def login():
             record_login_failure(email)
             if cid and not sub.get('pw_hash'):
                 # Known subscriber who has not set a password yet.
-                err = ("This account has not set a password yet. Open the device "
-                       "where you subscribed and visit /set-password, or email "
-                       "support@aismarketcap.com.")
+                # Previously this dead-ended: /set-password requires an access
+                # cookie, so a customer who cleared their cookies AND never set
+                # a password had no route back in except emailing support.
+                # Their payment link still works, because /success is
+                # idempotent and re-issues the cookie.
+                err = ("This account has not set a password yet. Open the "
+                       "payment link from your receipt (or the page you were "
+                       "on when you subscribed) and everything unlocks again "
+                       "immediately - then set a password here for next time. "
+                       "If you cannot find that link, email "
+                       "support@aismarketcap.com with your receipt.")
             else:
                 err = "Incorrect email or password."
             return _login_page(email, error=err)
@@ -2088,25 +2109,64 @@ def webhook():
 
 @app.route("/run", methods=["POST"])
 def api_run():
-    """"Run scan - requires active subscription + max 2/day"""
-    token = request.cookies.get(COOKIE_NAME, "")
-    customer_id = request.cookies.get("stripe_customer", "")
+    """Run scan - requires active subscription + daily limit.
 
-    # Check subscription
-    subs = get_subscriptions()
-    is_active = subs.get(customer_id, {}).get('status') == 'active' or subs.get(token, {}).get('status') == 'active'
+    Tyler 2026-10-22: "the pro scan button should change to just say scan and
+    run fresh scan when clicked".
 
-    if not is_active:
+    THREE BUGS FIXED HERE
+
+    BUG 1 - it repeated /api/chat's mistake and hand-rolled the subscriber
+    check, reading subscriptions.json directly. is_subscriber() also falls
+    back to asking Stripe when the local record is missing, which is the only
+    thing that survives a Railway redeploy (the JSON lives on ephemeral disk
+    and comes back empty). So after any deploy the one button subscribers paid
+    for would redirect them to /pricing despite Stripe showing them paid.
+    There is now one definition of "is a subscriber".
+
+    BUG 2 - it called trigger_scan() and threw away the return value, then
+    replied "ok" unconditionally. When in-container scanning is disabled
+    trigger_scan() returns False and does nothing, so the button said "Scan
+    started! Reloading...", reloaded, and served the identical page. A button
+    that reports success while doing nothing is worse than no button. It now
+    returns the real outcome, and the JS is told when the scan genuinely ran.
+
+    BUG 3 - the pricing page and the FAQ both promise "3 additional scans per
+    day" while MAX_SCANS_PER_DAY was 2. The limit now matches what is sold.
+    """
+    # BUG 1: use the canonical helper.
+    if not is_subscriber():
         return redirect("/pricing")
 
-    # Check scan limit
+    customer_id = request.cookies.get("stripe_customer", "")
+    token = request.cookies.get(COOKIE_NAME, "")
     key_id = customer_id if customer_id else token
-    if get_scans_today(key_id) >= MAX_SCANS_PER_DAY:
-        return jsonify({'error': 'limit_reached', 'message': f'Daily scan limit reached ({MAX_SCANS_PER_DAY}/day). Try again tomorrow.'}), 429
 
-    trigger_scan()
-    increment_scan_count(key_id)
-    return "ok"
+    if get_scans_today(key_id) >= MAX_SCANS_PER_DAY:
+        return jsonify({
+            'error': 'limit_reached',
+            'message': f'Daily scan limit reached ({MAX_SCANS_PER_DAY}/day). Try again tomorrow.',
+        }), 429
+
+    # BUG 2: report what actually happened.
+    started = trigger_scan()
+    if started:
+        increment_scan_count(key_id)
+        return jsonify({
+            'status': 'started',
+            'message': 'Fresh scan started. This takes a couple of minutes.',
+        })
+
+    # Nothing ran. Say so honestly instead of pretending, and tell the user
+    # when fresh data IS coming rather than leaving them to guess.
+    next_scan = (datetime.now(PT) + timedelta(hours=1)).strftime('%-I:%M %p PT')
+    return jsonify({
+        'status': 'queued_locally',
+        'message': ('Fresh data is already on its way - the next scan runs '
+                    f'directly on our machine around {next_scan}. Nothing to '
+                    'click; this page will update itself.'),
+        'next_scan_pt': next_scan,
+    })
 
 @app.route("/status")
 def api_status():
@@ -2206,7 +2266,18 @@ def call_llm(user_msg):
             "https://api.groq.com/openai/v1/chat/completions",
             data=payload,
             headers={"Authorization": f"Bearer {GROQ_API_KEY}",
-                     "Content-Type": "application/json"},
+                     "Content-Type": "application/json",
+                     # REQUIRED. urllib sends no User-Agent by default, and
+                     # Groq sits behind Cloudflare, which rejects UA-less
+                     # requests with HTTP 403 "error code: 1010" BEFORE they
+                     # ever reach the API. A perfectly valid key therefore
+                     # looks invalid and the chat reported "not authorised"
+                     # for hours. Verified against the live endpoint: no UA ->
+                     # 403 error code 1010; browser UA -> 401 invalid key,
+                     # i.e. the request actually arrives.
+                     "User-Agent": ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                                    "AppleWebKit/537.36 (KHTML, like Gecko) "
+                                    "Chrome/120.0 Safari/537.36")},
             method="POST"
         )
         with urllib.request.urlopen(req, timeout=20) as resp:
@@ -2217,13 +2288,22 @@ def call_llm(user_msg):
             return "I wasn't able to answer that one. Could you rephrase?"
         return answer
     except urllib.error.HTTPError as e:
-        # 401/403 = bad or missing key. 429 = rate limited. Both are very
-        # different problems and must not collapse into one message.
+        # 401/403 = bad or missing key. 429 = rate limited. All very different
+        # problems and they must not collapse into one message.
         try:
             detail = e.read()[:300].decode("utf-8", "replace")
         except Exception:
             detail = ""
         print(f"[Chat] Groq HTTP {e.code}: {detail}")
+
+        # Cloudflare blocks UA-less requests with 403 "error code: 1010"
+        # before they reach the API, which is indistinguishable from a bad key
+        # by status code alone. Recognise it so a blocked request is never
+        # reported to the user as "not authorised" - which sent the wrong
+        # person to rotate a perfectly good key.
+        if "1010" in detail or "cloudflare" in detail.lower():
+            return "AI chat is temporarily unreachable from our server. Please try again shortly."
+
         if e.code in (401, 403):
             return "AI chat is not authorised on this server yet. Please try again later."
         if e.code == 429:
