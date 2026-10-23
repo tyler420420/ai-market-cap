@@ -1,4 +1,7 @@
-c = open('ai_earnings_today.html', encoding='utf-8').read()
+from pathlib import Path
+
+ART = Path(__file__).resolve().parent / 'ai_earnings_today.html'
+c = ART.read_text(encoding='utf-8')
 checks = [
     ('4 IPO boxes', 'SOONEST IPO' in c and 'SpaceX' in c and 'OpenAI' in c and 'Anthropic' in c),
     ('Counters below buttons only (1x Strong Buy)', c.count('Strong Buy') == 1),

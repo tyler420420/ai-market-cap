@@ -1,4 +1,7 @@
-c = open('ai_earnings_today.html', encoding='utf-8').read()
+from pathlib import Path
+
+ART = Path(__file__).resolve().parent / 'ai_earnings_today.html'
+c = ART.read_text(encoding='utf-8')
 import re
 sb_count = len(re.findall('Strong Buy', c))
 print(f'Strong Buy occurrences: {sb_count} (should be 1)')

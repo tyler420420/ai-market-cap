@@ -1,6 +1,9 @@
 import json
+from pathlib import Path
 
-with open('ai_earnings_today.html','r', encoding='utf-8') as f:
+# Anchored to this file, not the process CWD - see verify_sentiment.py.
+ART = Path(__file__).resolve().parent / 'ai_earnings_today.html'
+with ART.open('r', encoding='utf-8') as f:
     html = f.read()
 
 idx = html.find('<script>var rowsData=')

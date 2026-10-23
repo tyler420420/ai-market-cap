@@ -1,5 +1,12 @@
 import json
-with open('ai_earnings_today.html','r',encoding='utf-8') as f: h=f.read()
+from pathlib import Path
+
+# Anchored to this file, not the process CWD. run_all_guards.py used to pass
+# cwd=SITE, which hid this: the guard only ever worked because the runner
+# happened to cd for it. Run one from anywhere and it opened whatever
+# ai_earnings_today.html happened to sit in that directory - or nothing.
+ART = Path(__file__).resolve().parent / 'ai_earnings_today.html'
+with ART.open('r', encoding='utf-8') as f: h = f.read()
 MARKER = '<script>var rowsData='
 i = h.find(MARKER)
 if i < 0:
