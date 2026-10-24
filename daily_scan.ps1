@@ -524,7 +524,12 @@ try {
         Log "[SIGNUPS] WARN - sync_signup_counter.py missing (non-fatal)"
     }
 
-    # ---- 3c. free-signup drip -------------------------------------------
+    # ---- 3f. free-signup drip -------------------------------------------
+    # Renumbered from 3c: this block used to carry a label that an EARLIER
+    # block ("3c. auth invariant guard") also used, so "step 3c" named two
+    # different pieces of code. A handoff that said "3c is the drip send"
+    # pointed a reader at the auth guard. Every step label in this file is
+    # now unique, so a step can be named unambiguously.
     # Six emails to people who signed up for the free pick themselves. NOT
     # the purchased lead lists and NOT the paid subscribers - drip_queue.py is
     # the only file allowed to read both populations, and it writes the result
@@ -555,7 +560,9 @@ try {
         Log "[DRIP] SKIP - drip_queue.py or drip_send.py missing (non-fatal)"
     }
 
-# ---- 3d. LIVE PAYMENT-PATH GUARD --------------------------------------
+# ---- 3g. LIVE PAYMENT-PATH GUARD --------------------------------------
+    # Renumbered from 3d, which an earlier block ("3d. payment activation
+    # guard") also used. Every step label in this file is now unique.
     # This one hits the deployed site over HTTP rather than the local file.
     # On 2026-10-21 the StripeObject/paying-customer fix was committed and
     # every local suite was green (41/41, 4/4 mutations) while the LIVE build
