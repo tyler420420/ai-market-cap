@@ -8,3 +8,8 @@
 {"date": "2026-10-23", "ticker": "BIDU", "company": "Baidu, Inc.", "entry": 77.98, "score": 82, "target": 79.46}
 {"date": "2026-10-23", "ticker": "NVDA", "company": "NVIDIA Corporation", "entry": 212.21, "score": 93, "target": 216.34}
 {"date": "2026-10-23", "ticker": "DIS", "company": "The Walt Disney Company", "entry": 113.13, "score": 80, "target": 114.48}
+{"date": "2026-10-24", "ticker": "PANW", "company": "Palo Alto Networks, Inc.", "entry": 380.55, "score": 94, "target": 406.78}
+{"date": "2026-10-24", "ticker": "INTU", "company": "Intuit Inc.", "entry": 343.39, "score": 80, "target": 362.54}
+{"date": "2026-10-24", "ticker": "BIDU", "company": "Baidu, Inc.", "entry": 77.2, "score": 87, "target": 80.45}
+{"date": "2026-10-24", "ticker": "NVDA", "company": "NVIDIA Corporation", "entry": 210.96, "score": 95, "target": 215.51}
+{"date": "2026-10-24", "ticker": "DIS", "company": "The Walt Disney Company", "entry": 112.52, "score": 88, "target": 115.75}

@@ -1,11 +1,32 @@
 {
-  "generated": "2026-10-23T06:34:46",
+  "generated": "2026-10-24T06:34:33",
   "window_days": 90,
   "fresh_days": 14,
-  "tracked_total": 10,
-  "tracked_in_window": 10,
-  "checked": 10,
+  "tracked_total": 15,
+  "tracked_in_window": 15,
+  "checked": 15,
   "unchecked": 0,
-  "hit_count": 0,
-  "hits": []
+  "hit_count": 2,
+  "hits": [
+    {
+      "date": "2026-10-23",
+      "ticker": "PANW",
+      "company": "Palo Alto Networks, Inc.",
+      "entry": 354.92,
+      "target": 365.51,
+      "current": 380.55,
+      "vs_target_pct": 4.1,
+      "days_to_hit": 1
+    },
+    {
+      "date": "2026-10-22",
+      "ticker": "PANW",
+      "company": "Palo Alto Networks, Inc.",
+      "entry": 354.92,
+      "target": 365.51,
+      "current": 380.55,
+      "vs_target_pct": 4.1,
+      "days_to_hit": 2
+    }
+  ]
 }
